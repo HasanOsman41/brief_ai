@@ -1,18 +1,15 @@
 // lib/screens/splash_screen.dart
 import 'package:brief_ai/localization/app_localizations.dart';
-import 'package:brief_ai/services/locale_service.dart';
 import 'package:flutter/material.dart';
 
 class SplashScreen extends StatefulWidget {
-  const SplashScreen({Key? key}) : super(key: key);
+  const SplashScreen({super.key});
 
   @override
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  final LocaleService _localeService = LocaleService();
-
   @override
   void initState() {
     super.initState();
@@ -22,16 +19,14 @@ class _SplashScreenState extends State<SplashScreen> {
   Future<void> _initializeApp() async {
     // Simulate loading time
     await Future.delayed(const Duration(milliseconds: 1500));
-    
+
     // Check if first launch (for demo, always show onboarding)
     // In a real app, you would check SharedPreferences
     final bool isFirstLaunch = true;
-    
+
     if (mounted) {
       if (isFirstLaunch) {
         Navigator.pushReplacementNamed(context, '/onboarding');
-      } else {
-        Navigator.pushReplacementNamed(context, '/home');
       }
     }
   }
@@ -72,7 +67,7 @@ class _SplashScreenState extends State<SplashScreen> {
                 ),
               ),
               const SizedBox(height: 24),
-              
+
               // App name
               Text(
                 AppLocalizations.tr(context, 'appName'),
@@ -80,17 +75,17 @@ class _SplashScreenState extends State<SplashScreen> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              
+
               const SizedBox(height: 8),
-              
+
               // Tagline
               Text(
                 AppLocalizations.tr(context, 'safeLocalOffline'),
                 style: Theme.of(context).textTheme.bodyLarge,
               ),
-              
+
               const SizedBox(height: 48),
-              
+
               // Loading indicator with text
               Column(
                 children: [
@@ -101,7 +96,9 @@ class _SplashScreenState extends State<SplashScreen> {
                   Text(
                     AppLocalizations.tr(context, 'loading'),
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.7),
+                      color: Theme.of(
+                        context,
+                      ).textTheme.bodyMedium?.color?.withOpacity(0.7),
                     ),
                   ),
                 ],

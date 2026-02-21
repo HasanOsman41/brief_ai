@@ -1,6 +1,5 @@
 // lib/screens/impressum_screen.dart
 import 'package:brief_ai/localization/app_localizations.dart';
-import 'package:brief_ai/theme/app_theme.dart';
 import 'package:brief_ai/widgets/glass_card.dart';
 import 'package:flutter/material.dart';
 
@@ -9,8 +8,6 @@ class ImpressumScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    
     return Scaffold(
       appBar: AppBar(
         title: Text(AppLocalizations.tr(context, 'impressum')),
@@ -64,9 +61,9 @@ class ImpressumScreen extends StatelessWidget {
               ],
             ),
           ),
-          
+
           const SizedBox(height: 20),
-          
+
           GlassCard(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -88,9 +85,9 @@ class ImpressumScreen extends StatelessWidget {
               ],
             ),
           ),
-          
+
           const SizedBox(height: 20),
-          
+
           // Additional GDPR/Privacy note
           GlassCard(
             child: Padding(
@@ -146,9 +143,9 @@ class ImpressumScreen extends StatelessWidget {
           Expanded(
             child: Text(
               value,
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                fontSize: 14,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyLarge?.copyWith(fontSize: 14),
             ),
           ),
         ],

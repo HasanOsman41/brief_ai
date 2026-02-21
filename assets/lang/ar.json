@@ -21,6 +21,10 @@
     "latest": "الأحدث",
     "deadlineNear": "❗ الموعد قريب",
     "scanButton": "مسح",
+    "totalDocuments": "الإجمالي",
+    "recentlyAdded": "المضافة مؤخراً",
+    "viewAll": "عرض الكل",
+    "noDocuments": "لا توجد مستندات بعد",
     "documents": "المستندات",
     "profile": "الملف الشخصي",
     "home": "الرئيسية",
@@ -60,6 +64,9 @@
     "addPage": "إضافة صفحة",
     "removePage": "إزالة صفحة",
     "finishMultiPage": "إنهاء الصفحات المتعددة",
+    "gallery": "المعرض",
+    "deleteImage": "حذف الصورة",
+    "deleteImageConfirmation": "هل أنت متأكد من حذف هذه الصورة؟",
     "settings": "الإعدادات",
     "appearance": "المظهر",
     "darkMode": "الوضع الداكن",
@@ -154,5 +161,11 @@
     "noResults": "لم يتم العثور على نتائج",
     "tryDifferentSearch": "جرب البحث بمصطلح مختلف",
     "safeLocalOffline": "آمن. محلي. بدون إنترنت.",
-    "loading": "جاري التحميل..."
+    "loading": "جاري التحميل...",
+    "aiAnalysisResults": "نتائج تحليل الذكاء الاصطناعي",
+    "analysisSaved": "تم حفظ التحليل بنجاح!",
+    "processing": "جاري المعالجة...",
+    "cameraPreview": "معاينة الكاميرا",
+    "chooseMultiple": "اختيار متعدد",
+    "analyzeWithAI": "تحليل بالذكاء الاصطناعي"
 }

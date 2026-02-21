@@ -27,7 +27,8 @@ class BriefAIApp extends StatefulWidget {
   State<BriefAIApp> createState() => _BriefAIAppState();
 
   static void setLocale(BuildContext context, Locale newLocale) {
-    _BriefAIAppState? state = context.findAncestorStateOfType<_BriefAIAppState>();
+    _BriefAIAppState? state = context
+        .findAncestorStateOfType<_BriefAIAppState>();
     state?.setLocale(newLocale);
   }
 }
@@ -52,7 +53,9 @@ class _BriefAIAppState extends State<BriefAIApp> {
 
   void _toggleTheme() {
     setState(() {
-      _themeMode = _themeMode == ThemeMode.light ? ThemeMode.dark : ThemeMode.light;
+      _themeMode = _themeMode == ThemeMode.light
+          ? ThemeMode.dark
+          : ThemeMode.light;
     });
   }
 
@@ -88,7 +91,7 @@ class _BriefAIAppState extends State<BriefAIApp> {
         if (_locale != null) {
           return _locale;
         }
-        
+
         // Otherwise check if the current locale is supported
         for (var supportedLocale in supportedLocales) {
           if (supportedLocale.languageCode == locale?.languageCode) {

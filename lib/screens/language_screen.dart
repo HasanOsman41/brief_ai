@@ -42,41 +42,30 @@ class _LanguageScreenState extends State<LanguageScreen> {
 
     // Small delay for better UX
     await Future.delayed(const Duration(milliseconds: 300));
-    
+
     if (mounted) {
       // Update app locale
       BriefAIApp.setLocale(context, Locale(languageCode));
-      
+
       // Show confirmation
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            languageCode == 'de' ? 'Sprache geändert' :
-            languageCode == 'en' ? 'Language changed' :
-            'تم تغيير اللغة',
+            languageCode == 'de'
+                ? 'Sprache geändert'
+                : languageCode == 'en'
+                ? 'Language changed'
+                : 'تم تغيير اللغة',
           ),
-          backgroundColor: Theme.of(context).brightness == Brightness.dark 
-              ? AppTheme.darkSuccess 
+          backgroundColor: Theme.of(context).brightness == Brightness.dark
+              ? AppTheme.darkSuccess
               : AppTheme.lightSuccess,
           duration: const Duration(seconds: 1),
         ),
       );
-      
+
       // Navigate back after language change
       Navigator.pop(context, languageCode);
-    }
-  }
-
-  String _getLanguageName(String code) {
-    switch (code) {
-      case 'de':
-        return 'Deutsch';
-      case 'en':
-        return 'English';
-      case 'ar':
-        return 'العربية';
-      default:
-        return 'Deutsch';
     }
   }
 
@@ -103,7 +92,7 @@ class _LanguageScreenState extends State<LanguageScreen> {
                   children: _languages.map((language) {
                     final isSelected = language['code'] == _selectedLanguage;
                     final isRTL = language['direction'] == 'rtl';
-                    
+
                     return Column(
                       children: [
                         ListTile(
@@ -124,35 +113,35 @@ class _LanguageScreenState extends State<LanguageScreen> {
                           title: Text(
                             language['name'],
                             style: Theme.of(context).textTheme.titleMedium,
-                            textDirection: isRTL ? TextDirection.rtl : TextDirection.ltr,
+                            textDirection: isRTL
+                                ? TextDirection.rtl
+                                : TextDirection.ltr,
                           ),
                           subtitle: Text(
                             language['code'].toUpperCase(),
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
                           trailing: isSelected
-                              ? Icon(
-                                  Icons.check_circle,
-                                  color: primaryColor,
-                                )
+                              ? Icon(Icons.check_circle, color: primaryColor)
                               : null,
-                          onTap: _isLoading ? null : () async {
-                            setState(() {
-                              _selectedLanguage = language['code'];
-                            });
-                            await _changeLanguage(language['code']);
-                          },
+                          onTap: _isLoading
+                              ? null
+                              : () async {
+                                  setState(() {
+                                    _selectedLanguage = language['code'];
+                                  });
+                                  await _changeLanguage(language['code']);
+                                },
                         ),
-                        if (language != _languages.last)
-                          const Divider(),
+                        if (language != _languages.last) const Divider(),
                       ],
                     );
                   }).toList(),
                 ),
               ),
-              
+
               const SizedBox(height: 20),
-              
+
               GlassCard(
                 child: Padding(
                   padding: const EdgeInsets.all(16),
@@ -175,11 +164,11 @@ class _LanguageScreenState extends State<LanguageScreen> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        _selectedLanguage == 'de' 
+                        _selectedLanguage == 'de'
                             ? 'Wählen Sie Ihre bevorzugte Sprache'
                             : _selectedLanguage == 'en'
-                                ? 'Choose your preferred language'
-                                : 'اختر لغتك المفضلة',
+                            ? 'Choose your preferred language'
+                            : 'اختر لغتك المفضلة',
                         style: Theme.of(context).textTheme.bodyMedium,
                         textAlign: TextAlign.center,
                       ),
@@ -189,7 +178,7 @@ class _LanguageScreenState extends State<LanguageScreen> {
               ),
             ],
           ),
-          
+
           if (_isLoading)
             Container(
               color: Colors.black.withOpacity(0.3),
@@ -211,8 +200,8 @@ class _LanguageScreenState extends State<LanguageScreen> {
                         _selectedLanguage == 'de'
                             ? 'Sprache wird geändert...'
                             : _selectedLanguage == 'en'
-                                ? 'Changing language...'
-                                : 'جاري تغيير اللغة...',
+                            ? 'Changing language...'
+                            : 'جاري تغيير اللغة...',
                         style: Theme.of(context).textTheme.bodyMedium,
                       ),
                     ],

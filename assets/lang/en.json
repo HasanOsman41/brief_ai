@@ -30,6 +30,10 @@
     "invoices": "Invoices",
     "letters": "Letters",
     "important": "Important",
+    "totalDocuments": "Total",
+    "recentlyAdded": "Recently Added",
+    "viewAll": "View All",
+    "noDocuments": "No documents yet",
     "dueDate": "Due:",
     "reminder": "Reminder",
     "addedDate": "Added:",
@@ -60,6 +64,9 @@
     "addPage": "Add page",
     "removePage": "Remove page",
     "finishMultiPage": "Finish multi-page",
+    "gallery": "Gallery",
+    "deleteImage": "Delete Image",
+    "deleteImageConfirmation": "Are you sure you want to delete this image?",
     "settings": "Settings",
     "appearance": "Appearance",
     "darkMode": "Dark Mode",
@@ -154,5 +161,10 @@
     "noResults": "No results found",
     "tryDifferentSearch": "Try searching with a different term",
     "safeLocalOffline": "Secure. Local. Offline.",
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "aiAnalysisResults": "AI Analysis Results",
+    "analysisSaved": "Analysis saved successfully!",
+    "processing": "Processing...",
+    "chooseMultiple": "Choose multiple",
+    "analyzeWithAI": "Analyze with AI"
 }

@@ -1,6 +1,5 @@
 // lib/screens/onboarding_screen.dart
 import 'package:brief_ai/localization/app_localizations.dart';
-import 'package:brief_ai/theme/app_theme.dart';
 import 'package:brief_ai/widgets/glass_card.dart';
 import 'package:flutter/material.dart';
 
@@ -9,7 +8,6 @@ class OnboardingScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final primaryColor = Theme.of(context).colorScheme.primary;
 
     return Scaffold(
@@ -19,7 +17,7 @@ class OnboardingScreen extends StatelessWidget {
           child: Column(
             children: [
               const Spacer(flex: 2),
-              
+
               // Logo and title
               Center(
                 child: Column(
@@ -50,9 +48,9 @@ class OnboardingScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              
+
               const Spacer(),
-              
+
               // Privacy features
               GlassCard(
                 child: Column(
@@ -80,9 +78,9 @@ class OnboardingScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              
+
               const SizedBox(height: 32),
-              
+
               // Accept button
               SizedBox(
                 width: double.infinity,
@@ -93,17 +91,17 @@ class OnboardingScreen extends StatelessWidget {
                   child: Text(AppLocalizations.tr(context, 'acceptPrivacy')),
                 ),
               ),
-              
+
               const SizedBox(height: 16),
-              
+
               Text(
                 AppLocalizations.tr(context, 'privacyConsent'),
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  fontSize: 12,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(fontSize: 12),
                 textAlign: TextAlign.center,
               ),
-              
+
               const Spacer(),
             ],
           ),
@@ -112,7 +110,12 @@ class OnboardingScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildPrivacyFeature(BuildContext context, IconData icon, String title, String subtitle) {
+  Widget _buildPrivacyFeature(
+    BuildContext context,
+    IconData icon,
+    String title,
+    String subtitle,
+  ) {
     return Row(
       children: [
         Container(
@@ -121,24 +124,15 @@ class OnboardingScreen extends StatelessWidget {
             color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
             borderRadius: BorderRadius.circular(16),
           ),
-          child: Icon(
-            icon,
-            color: Theme.of(context).colorScheme.primary,
-          ),
+          child: Icon(icon, color: Theme.of(context).colorScheme.primary),
         ),
         const SizedBox(width: 16),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                title,
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              Text(
-                subtitle,
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
+              Text(title, style: Theme.of(context).textTheme.titleMedium),
+              Text(subtitle, style: Theme.of(context).textTheme.bodyMedium),
             ],
           ),
         ),

@@ -21,6 +21,10 @@
     "latest": "Neueste",
     "deadlineNear": "❗ Deadline bald",
     "scanButton": "Scannen",
+    "totalDocuments": "Gesamt",
+    "recentlyAdded": "Kürzlich hinzugefügt",
+    "viewAll": "Alle ansehen",
+    "noDocuments": "Noch keine Dokumente",
     "documents": "Dokumente",
     "profile": "Profil",
     "home": "Home",
@@ -61,6 +65,9 @@
     "addPage": "Seite hinzufügen",
     "removePage": "Seite entfernen",
     "finishMultiPage": "Mehrseitig abschließen",
+    "gallery": "Galerie",
+    "deleteImage": "Bild löschen",
+    "deleteImageConfirmation": "Sind Sie sicher, dass Sie dieses Bild löschen möchten?",
     "settings": "Einstellungen",
     "appearance": "Darstellung",
     "darkMode": "Dark Mode",
@@ -155,5 +162,10 @@
     "noResults": "Keine Ergebnisse gefunden",
     "tryDifferentSearch": "Versuchen Sie es mit einem anderen Suchbegriff",
     "safeLocalOffline": "Sicher. Lokal. Offline.",
-    "loading": "Wird geladen..."
+    "loading": "Wird geladen...",
+    "aiAnalysisResults": "KI-Analyseergebnisse",
+    "analysisSaved": "Analyse erfolgreich gespeichert!",
+    "processing": "Verarbeitung...",
+    "chooseMultiple": "Mehrere auswählen",
+    "analyzeWithAI": "Mit KI analysieren"
 }

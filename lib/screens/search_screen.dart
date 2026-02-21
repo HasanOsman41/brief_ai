@@ -1,6 +1,5 @@
 // lib/screens/search_screen.dart
 import 'package:brief_ai/localization/app_localizations.dart';
-import 'package:brief_ai/theme/app_theme.dart';
 import 'package:brief_ai/widgets/document_card.dart';
 import 'package:brief_ai/widgets/glass_card.dart';
 import 'package:flutter/material.dart';
@@ -24,7 +23,7 @@ class _SearchScreenState extends State<SearchScreen> {
       'date': '15.03.2024',
       'statusKey': 'pending',
       'hasDeadline': true,
-      'image':'1.jpeg'
+      'image': '1.jpeg',
     },
     {
       'title': 'GEZ Befreiung',
@@ -32,7 +31,7 @@ class _SearchScreenState extends State<SearchScreen> {
       'date': '10.03.2024',
       'statusKey': 'done',
       'hasDeadline': true,
-      'image':'2.jpeg'
+      'image': '2.jpeg',
     },
     {
       'title': 'Stromrechnung Januar',
@@ -40,7 +39,7 @@ class _SearchScreenState extends State<SearchScreen> {
       'date': '05.03.2024',
       'statusKey': 'pending',
       'hasDeadline': true,
-      'image':'3.jpeg'
+      'image': '3.jpeg',
     },
     {
       'title': 'Krankenkassenbescheid',
@@ -48,7 +47,7 @@ class _SearchScreenState extends State<SearchScreen> {
       'date': '01.03.2024',
       'statusKey': 'pending',
       'hasDeadline': false,
-      'image':'4.jpeg'
+      'image': '4.jpeg',
     },
   ];
 
@@ -85,17 +84,16 @@ class _SearchScreenState extends State<SearchScreen> {
     if (_searchQuery.isEmpty) {
       return [];
     }
-    
+
     final query = _searchQuery.toLowerCase();
     return _searchResults.where((doc) {
       return doc['title'].toLowerCase().contains(query) ||
-             _getCategoryLabel(doc['categoryKey']).toLowerCase().contains(query);
+          _getCategoryLabel(doc['categoryKey']).toLowerCase().contains(query);
     }).toList();
   }
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final filteredResults = _filteredResults;
 
     return Scaffold(
@@ -131,7 +129,9 @@ class _SearchScreenState extends State<SearchScreen> {
                       ? IconButton(
                           icon: Icon(
                             Icons.clear,
-                            color: Theme.of(context).textTheme.bodyMedium?.color,
+                            color: Theme.of(
+                              context,
+                            ).textTheme.bodyMedium?.color,
                           ),
                           onPressed: () {
                             _searchController.clear();
@@ -145,7 +145,7 @@ class _SearchScreenState extends State<SearchScreen> {
               ),
             ),
           ),
-          
+
           if (_searchQuery.isNotEmpty)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -158,37 +158,37 @@ class _SearchScreenState extends State<SearchScreen> {
                 ],
               ),
             ),
-          
+
           const SizedBox(height: 16),
-          
+
           // Search results or empty state
           Expanded(
             child: _searchQuery.isEmpty
                 ? _buildEmptySearch(context)
                 : filteredResults.isEmpty
-                    ? _buildNoResults(context)
-                    : ListView.builder(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        itemCount: filteredResults.length,
-                        itemBuilder: (context, index) {
-                          final doc = filteredResults[index];
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 12),
-                            child: DocumentCard(
-                              title: doc['title'],
-                              category: _getCategoryLabel(doc['categoryKey']),
-                              date: doc['date'],
-                              deadline: doc['deadline'],
-                              status: _getStatusLabel(doc['statusKey']),
-                              hasDeadline: doc['hasDeadline'],
-                              image: doc['image'],
-                              onTap: () {
-                                Navigator.pushNamed(context, '/document-detail');
-                              },
-                            ),
-                          );
-                        },
-                      ),
+                ? _buildNoResults(context)
+                : ListView.builder(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    itemCount: filteredResults.length,
+                    itemBuilder: (context, index) {
+                      final doc = filteredResults[index];
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: DocumentCard(
+                          title: doc['title'],
+                          category: _getCategoryLabel(doc['categoryKey']),
+                          date: doc['date'],
+                          deadline: doc['deadline'],
+                          status: _getStatusLabel(doc['statusKey']),
+                          hasDeadline: doc['hasDeadline'],
+                          image: doc['image'],
+                          onTap: () {
+                            Navigator.pushNamed(context, '/document-detail');
+                          },
+                        ),
+                      );
+                    },
+                  ),
           ),
         ],
       ),
@@ -197,16 +197,12 @@ class _SearchScreenState extends State<SearchScreen> {
 
   Widget _buildEmptySearch(BuildContext context) {
     final primaryColor = Theme.of(context).colorScheme.primary;
-    
+
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.search,
-            size: 80,
-            color: primaryColor.withOpacity(0.3),
-          ),
+          Icon(Icons.search, size: 80, color: primaryColor.withOpacity(0.3)),
           const SizedBox(height: 16),
           Text(
             AppLocalizations.tr(context, 'startSearching'),
@@ -227,7 +223,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
   Widget _buildNoResults(BuildContext context) {
     final primaryColor = Theme.of(context).colorScheme.primary;
-    
+
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,

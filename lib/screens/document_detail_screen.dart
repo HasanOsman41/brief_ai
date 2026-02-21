@@ -1,21 +1,24 @@
 // lib/screens/document_detail_screen.dart
 import 'package:brief_ai/localization/app_localizations.dart';
+import 'package:brief_ai/services/data_service.dart';
 import 'package:brief_ai/theme/app_theme.dart';
 import 'package:brief_ai/widgets/glass_card.dart';
 import 'package:flutter/material.dart';
 
 class DocumentDetailScreen extends StatefulWidget {
-  const DocumentDetailScreen({Key? key}) : super(key: key);
+  const DocumentDetailScreen({super.key});
 
   @override
   State<DocumentDetailScreen> createState() => _DocumentDetailScreenState();
 }
 
-class _DocumentDetailScreenState extends State<DocumentDetailScreen> with SingleTickerProviderStateMixin {
+class _DocumentDetailScreenState extends State<DocumentDetailScreen>
+    with SingleTickerProviderStateMixin {
   bool _reminderEnabled = true;
   int _currentPage = 0;
+  Map<String, dynamic> document = {};
   late TabController _tabController;
-  String ocrText= '''
+  String ocrText = '''
 Weiterbewilligungsantrag
 Antrag auf Weiterbewilligung der Leistungen zur Sicherung des Lebensunterhalts nach dem Zweiten Buch Sozialgesetzbuch (SGB II)
 
@@ -63,9 +66,12 @@ Team''';
 
   @override
   Widget build(BuildContext context) {
+    final args =
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>;
+    final documentId = args['documentId'] as int;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final primaryColor = Theme.of(context).colorScheme.primary;
-
+    document = DataService().getDocumentById(documentId - 1);
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -129,7 +135,11 @@ Team''';
                             value: 'export',
                             child: Row(
                               children: [
-                                Icon(Icons.picture_as_pdf, color: primaryColor, size: 20),
+                                Icon(
+                                  Icons.picture_as_pdf,
+                                  color: primaryColor,
+                                  size: 20,
+                                ),
                                 const SizedBox(width: 12),
                                 Text(AppLocalizations.tr(context, 'exportPDF')),
                               ],
@@ -140,15 +150,19 @@ Team''';
                             child: Row(
                               children: [
                                 Icon(
-                                  Icons.delete_outline, 
-                                  color: isDark ? AppTheme.darkDanger : AppTheme.lightDanger, 
-                                  size: 20
+                                  Icons.delete_outline,
+                                  color: isDark
+                                      ? AppTheme.darkDanger
+                                      : AppTheme.lightDanger,
+                                  size: 20,
                                 ),
                                 const SizedBox(width: 12),
                                 Text(
                                   AppLocalizations.tr(context, 'delete'),
                                   style: TextStyle(
-                                    color: isDark ? AppTheme.darkDanger : AppTheme.lightDanger,
+                                    color: isDark
+                                        ? AppTheme.darkDanger
+                                        : AppTheme.lightDanger,
                                   ),
                                 ),
                               ],
@@ -161,7 +175,7 @@ Team''';
                 ],
               ),
             ),
-            
+
             // Document preview with page indicator
             Container(
               height: 220,
@@ -182,21 +196,26 @@ Team''';
                       Container(
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(20),
-                          image: const DecorationImage(
-                            image: AssetImage('assets/docs/2.jpeg'),
+                          image: DecorationImage(
+                            image: AssetImage(
+                              'assets/docs/${document['image']}',
+                            ),
                             fit: BoxFit.contain,
                           ),
                         ),
                       ),
-                      Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(20),
-                          image: const DecorationImage(
-                            image: AssetImage('assets/docs/3.jpeg'),
-                            fit: BoxFit.contain,
+                      if (document['image2'] != null)
+                        Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                            image: DecorationImage(
+                              image: AssetImage(
+                                'assets/docs/${document['image2']}',
+                              ),
+                              fit: BoxFit.contain,
+                            ),
                           ),
                         ),
-                      ),
                     ],
                   ),
                   Positioned(
@@ -224,9 +243,9 @@ Team''';
                 ],
               ),
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // Glass info panel
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -292,9 +311,9 @@ Team''';
                 ),
               ),
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // Tab sections
             Expanded(
               child: Column(
@@ -307,7 +326,9 @@ Team''';
                       Tab(text: AppLocalizations.tr(context, 'aiAnalysis')),
                     ],
                     labelColor: primaryColor,
-                    unselectedLabelColor: Theme.of(context).textTheme.bodyMedium?.color,
+                    unselectedLabelColor: Theme.of(
+                      context,
+                    ).textTheme.bodyMedium?.color,
                     indicatorColor: primaryColor,
                   ),
                   Expanded(
@@ -316,10 +337,10 @@ Team''';
                       children: [
                         // Scan pages
                         _buildScanPagesTab(context),
-                        
+
                         // OCR Text
                         _buildOcrTextTab(context),
-                        
+
                         // AI Analysis
                         _buildAIAnalysisTab(context),
                       ],
@@ -331,7 +352,7 @@ Team''';
           ],
         ),
       ),
-      
+
       // Bottom action bar
       bottomNavigationBar: Container(
         padding: const EdgeInsets.all(20),
@@ -346,13 +367,25 @@ Team''';
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            _buildActionButton(context, Icons.share, AppLocalizations.tr(context, 'share')),
-            _buildActionButton(context, Icons.picture_as_pdf, AppLocalizations.tr(context, 'exportPDF')),
-            _buildActionButton(context, Icons.edit, AppLocalizations.tr(context, 'edit')),
             _buildActionButton(
-              context, 
-              Icons.delete_outline, 
-              AppLocalizations.tr(context, 'delete'), 
+              context,
+              Icons.share,
+              AppLocalizations.tr(context, 'share'),
+            ),
+            _buildActionButton(
+              context,
+              Icons.picture_as_pdf,
+              AppLocalizations.tr(context, 'exportPDF'),
+            ),
+            _buildActionButton(
+              context,
+              Icons.edit,
+              AppLocalizations.tr(context, 'edit'),
+            ),
+            _buildActionButton(
+              context,
+              Icons.delete_outline,
+              AppLocalizations.tr(context, 'delete'),
               isDestructive: true,
               onTap: () => _showDeleteDialog(context),
             ),
@@ -364,7 +397,7 @@ Team''';
 
   Widget _buildScanPagesTab(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     return ListView.builder(
       padding: const EdgeInsets.all(20),
       itemCount: 2,
@@ -375,8 +408,8 @@ Team''';
           decoration: BoxDecoration(
             color: isDark ? Colors.grey[900] : Colors.grey[200],
             borderRadius: BorderRadius.circular(16),
-            image: const DecorationImage(
-              image: AssetImage('assets/docs/2.jpeg'),
+            image: DecorationImage(
+              image: AssetImage('assets/docs/${document['image'] ?? '1.jpeg'}'),
               fit: BoxFit.cover,
             ),
           ),
@@ -384,64 +417,70 @@ Team''';
       },
     );
   }
-Widget _buildOcrTextTab(BuildContext context) {
-  return Padding(
-    padding: const EdgeInsets.all(20),
-    child: GlassCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header section
-          Padding(
-            padding: const EdgeInsets.all(1),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Text(
-                    AppLocalizations.tr(context, 'extractedText'),
-                    style: Theme.of(context).textTheme.titleMedium,
+
+  Widget _buildOcrTextTab(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(20),
+      child: GlassCard(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header section
+            Padding(
+              padding: const EdgeInsets.all(1),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Text(
+                      AppLocalizations.tr(context, 'extractedText'),
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
                   ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.copy),
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(AppLocalizations.tr(context, 'textCopied')),
-                        backgroundColor: Theme.of(context).brightness == Brightness.dark 
-                            ? AppTheme.darkSuccess 
-                            : AppTheme.lightSuccess,
-                      ),
-                    );
-                  },
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-              ],
+                  IconButton(
+                    icon: const Icon(Icons.copy),
+                    onPressed: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            AppLocalizations.tr(context, 'textCopied'),
+                          ),
+                          backgroundColor:
+                              Theme.of(context).brightness == Brightness.dark
+                              ? AppTheme.darkSuccess
+                              : AppTheme.lightSuccess,
+                        ),
+                      );
+                    },
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ],
+              ),
             ),
-          ),
-          const Divider(height: 1),
-          
-          // Scrollable text area
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: SelectableText(  // Changed to SelectableText for better UX
-                ocrText,
-                style: TextStyle(
-                  fontSize: 14,
-                  height: 1.6,
-                  fontFamily: 'RobotoMono',
-                  color: Theme.of(context).textTheme.bodyLarge?.color,
+            const Divider(height: 1),
+
+            // Scrollable text area
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(16),
+                child: SelectableText(
+                  // Changed to SelectableText for better UX
+                  ocrText,
+                  style: TextStyle(
+                    fontSize: 14,
+                    height: 1.6,
+                    fontFamily: 'RobotoMono',
+                    color: Theme.of(context).textTheme.bodyLarge?.color,
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
+
   Widget _buildAIAnalysisTab(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(20),
@@ -474,8 +513,16 @@ Widget _buildOcrTextTab(BuildContext context) {
                 ),
                 const SizedBox(height: 12),
                 _buildChecklistItem(context, 'Kaution überweisen', false),
-                _buildChecklistItem(context, 'Unterschriebenen Vertrag zurücksenden', true),
-                _buildChecklistItem(context, 'Schlüsselübergabe terminieren', false),
+                _buildChecklistItem(
+                  context,
+                  'Unterschriebenen Vertrag zurücksenden',
+                  true,
+                ),
+                _buildChecklistItem(
+                  context,
+                  'Schlüsselübergabe terminieren',
+                  false,
+                ),
               ],
             ),
           ),
@@ -540,8 +587,13 @@ Widget _buildOcrTextTab(BuildContext context) {
     );
   }
 
-  Widget _buildActionButton(BuildContext context, IconData icon, String label, 
-      {bool isDestructive = false, VoidCallback? onTap}) {
+  Widget _buildActionButton(
+    BuildContext context,
+    IconData icon,
+    String label, {
+    bool isDestructive = false,
+    VoidCallback? onTap,
+  }) {
     return GestureDetector(
       onTap: onTap,
       child: Column(
@@ -549,10 +601,10 @@ Widget _buildOcrTextTab(BuildContext context) {
         children: [
           Icon(
             icon,
-            color: isDestructive 
-                ? (Theme.of(context).brightness == Brightness.dark 
-                    ? AppTheme.darkDanger 
-                    : AppTheme.lightDanger)
+            color: isDestructive
+                ? (Theme.of(context).brightness == Brightness.dark
+                      ? AppTheme.darkDanger
+                      : AppTheme.lightDanger)
                 : Theme.of(context).textTheme.bodyLarge?.color,
           ),
           const SizedBox(height: 4),
@@ -560,10 +612,10 @@ Widget _buildOcrTextTab(BuildContext context) {
             label,
             style: TextStyle(
               fontSize: 12,
-              color: isDestructive 
-                  ? (Theme.of(context).brightness == Brightness.dark 
-                      ? AppTheme.darkDanger 
-                      : AppTheme.lightDanger)
+              color: isDestructive
+                  ? (Theme.of(context).brightness == Brightness.dark
+                        ? AppTheme.darkDanger
+                        : AppTheme.lightDanger)
                   : Theme.of(context).textTheme.bodyMedium?.color,
             ),
           ),
@@ -572,17 +624,21 @@ Widget _buildOcrTextTab(BuildContext context) {
     );
   }
 
-  Widget _buildChecklistItem(BuildContext context, String text, bool isChecked) {
+  Widget _buildChecklistItem(
+    BuildContext context,
+    String text,
+    bool isChecked,
+  ) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(
         children: [
           Icon(
             isChecked ? Icons.check_circle : Icons.radio_button_unchecked,
-            color: isChecked 
-                ? (Theme.of(context).brightness == Brightness.dark 
-                    ? AppTheme.darkSuccess 
-                    : AppTheme.lightSuccess)
+            color: isChecked
+                ? (Theme.of(context).brightness == Brightness.dark
+                      ? AppTheme.darkSuccess
+                      : AppTheme.lightSuccess)
                 : Theme.of(context).textTheme.bodyMedium?.color,
             size: 20,
           ),
@@ -592,7 +648,7 @@ Widget _buildOcrTextTab(BuildContext context) {
               text,
               style: TextStyle(
                 decoration: isChecked ? TextDecoration.lineThrough : null,
-                color: isChecked 
+                color: isChecked
                     ? Theme.of(context).textTheme.bodyMedium?.color
                     : Theme.of(context).textTheme.bodyLarge?.color,
               ),
@@ -617,7 +673,9 @@ Widget _buildOcrTextTab(BuildContext context) {
               onTap: () {
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(AppLocalizations.tr(context, 'sharingImage'))),
+                  SnackBar(
+                    content: Text(AppLocalizations.tr(context, 'sharingImage')),
+                  ),
                 );
               },
             ),
@@ -627,7 +685,9 @@ Widget _buildOcrTextTab(BuildContext context) {
               onTap: () {
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(AppLocalizations.tr(context, 'sharingPDF'))),
+                  SnackBar(
+                    content: Text(AppLocalizations.tr(context, 'sharingPDF')),
+                  ),
                 );
               },
             ),
@@ -637,7 +697,9 @@ Widget _buildOcrTextTab(BuildContext context) {
               onTap: () {
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(AppLocalizations.tr(context, 'sharingText'))),
+                  SnackBar(
+                    content: Text(AppLocalizations.tr(context, 'sharingText')),
+                  ),
                 );
               },
             ),
@@ -649,14 +711,12 @@ Widget _buildOcrTextTab(BuildContext context) {
 
   void _showDeleteDialog(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: isDark ? AppTheme.darkCard : AppTheme.lightCard,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text(AppLocalizations.tr(context, 'deleteDocument')),
         content: Text(AppLocalizations.tr(context, 'deleteDocumentConfirm')),
         actions: [
@@ -675,13 +735,19 @@ Widget _buildOcrTextTab(BuildContext context) {
               Navigator.pop(context); // Return to previous screen
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text(AppLocalizations.tr(context, 'documentDeleted')),
-                  backgroundColor: isDark ? AppTheme.darkSuccess : AppTheme.lightSuccess,
+                  content: Text(
+                    AppLocalizations.tr(context, 'documentDeleted'),
+                  ),
+                  backgroundColor: isDark
+                      ? AppTheme.darkSuccess
+                      : AppTheme.lightSuccess,
                 ),
               );
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: isDark ? AppTheme.darkDanger : AppTheme.lightDanger,
+              backgroundColor: isDark
+                  ? AppTheme.darkDanger
+                  : AppTheme.lightDanger,
             ),
             child: Text(AppLocalizations.tr(context, 'delete')),
           ),
