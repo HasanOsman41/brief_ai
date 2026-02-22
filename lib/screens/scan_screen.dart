@@ -1,5 +1,6 @@
 // lib/screens/scan_screen.dart
 import 'package:brief_ai/localization/app_localizations.dart';
+import 'package:brief_ai/services/notification_service.dart';
 import 'package:brief_ai/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -159,6 +160,8 @@ class _ScanScreenState extends State<ScanScreen>
     bool localReminder3Days = true;
     bool localReminder1Day = true;
     bool localReminder12Hours = false;
+    bool localReminderCustom = false;
+    DateTime? localCustomReminderTime;
 
     showModalBottomSheet(
       context: context,
@@ -204,25 +207,35 @@ class _ScanScreenState extends State<ScanScreen>
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.auto_awesome,
-                            color: primaryColor,
-                            size: 20,
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            AppLocalizations.tr(context, 'aiAnalysisResults'),
-                            style: TextStyle(
-                              color: isDark
-                                  ? AppTheme.darkTextPrimary
-                                  : AppTheme.lightTextPrimary,
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
+                      Expanded(
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.auto_awesome,
+                              color: primaryColor,
+                              size: 20,
                             ),
-                          ),
-                        ],
+                            const SizedBox(width: 8),
+                            Flexible(
+                              child: Text(
+                                AppLocalizations.tr(
+                                  context,
+                                  'aiAnalysisResults',
+                                ),
+                                maxLines: 2,
+                                softWrap: true,
+                                overflow: TextOverflow.visible,
+                                style: TextStyle(
+                                  color: isDark
+                                      ? AppTheme.darkTextPrimary
+                                      : AppTheme.lightTextPrimary,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                       Row(
                         children: [
@@ -231,8 +244,102 @@ class _ScanScreenState extends State<ScanScreen>
                             onTap: () {
                               setState(() {
                                 _selectedDeadline = localSelectedDeadline;
-                                // Here you would save the reminder settings
                               });
+
+                              // Generate notification ID from summary (document title)
+                              final docTitle = _analysisResult!.summary
+                                  .split('.')
+                                  .first
+                                  .substring(
+                                    0,
+                                    (_analysisResult!.summary
+                                                .split('.')
+                                                .first
+                                                .length >
+                                            30
+                                        ? 30
+                                        : _analysisResult!.summary
+                                              .split('.')
+                                              .first
+                                              .length),
+                                  );
+
+                              if (localReminderEnabled) {
+                                final title = AppLocalizations.tr(
+                                  context,
+                                  'reminder',
+                                );
+                                final body =
+                                    '${AppLocalizations.tr(context, 'deadline')}: ${localSelectedDeadline.day}.${localSelectedDeadline.month}.${localSelectedDeadline.year}';
+
+                                // 3 days before
+                                if (localReminder3Days) {
+                                  final dt = DateTime(
+                                    localSelectedDeadline.year,
+                                    localSelectedDeadline.month,
+                                    localSelectedDeadline.day,
+                                    9,
+                                  ).subtract(const Duration(days: 3));
+                                  NotificationService().scheduleNotification(
+                                    docTitle.hashCode.abs(),
+                                    title,
+                                    body,
+                                    dt,
+                                    payload:
+                                        '${dt.day}.${dt.month}.${dt.year} ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}',
+                                  );
+                                }
+
+                                // 1 day before
+                                if (localReminder1Day) {
+                                  final dt = DateTime(
+                                    localSelectedDeadline.year,
+                                    localSelectedDeadline.month,
+                                    localSelectedDeadline.day,
+                                    9,
+                                  ).subtract(const Duration(days: 1));
+                                  NotificationService().scheduleNotification(
+                                    (docTitle.hashCode.abs() + 1),
+                                    title,
+                                    body,
+                                    dt,
+                                    payload:
+                                        '${dt.day}.${dt.month}.${dt.year} ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}',
+                                  );
+                                }
+
+                                // 12 hours before
+                                if (localReminder12Hours) {
+                                  final dt = DateTime(
+                                    localSelectedDeadline.year,
+                                    localSelectedDeadline.month,
+                                    localSelectedDeadline.day,
+                                    9,
+                                  ).subtract(const Duration(hours: 12));
+                                  NotificationService().scheduleNotification(
+                                    (docTitle.hashCode.abs() + 2),
+                                    title,
+                                    body,
+                                    dt,
+                                    payload:
+                                        '${dt.day}.${dt.month}.${dt.year} ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}',
+                                  );
+                                }
+
+                                // Custom date/time
+                                if (localReminderCustom &&
+                                    localCustomReminderTime != null) {
+                                  NotificationService().scheduleNotification(
+                                    (docTitle.hashCode.abs() + 3),
+                                    title,
+                                    body,
+                                    localCustomReminderTime!,
+                                    payload:
+                                        '${localCustomReminderTime!.day}.${localCustomReminderTime!.month}.${localCustomReminderTime!.year} ${localCustomReminderTime!.hour.toString().padLeft(2, '0')}:${localCustomReminderTime!.minute.toString().padLeft(2, '0')}',
+                                  );
+                                }
+                              }
+
                               Navigator.pop(context);
                               _showSuccessMessage(
                                 AppLocalizations.tr(context, 'analysisSaved'),
@@ -646,6 +753,286 @@ class _ScanScreenState extends State<ScanScreen>
                                           ),
                                         ),
                                       ),
+
+                                      const SizedBox(height: 8),
+
+                                      // Custom date/time
+                                      GestureDetector(
+                                        onTap: () {
+                                          setSheetState(() {
+                                            localReminderCustom =
+                                                !localReminderCustom;
+                                          });
+                                        },
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 4,
+                                          ),
+                                          child: Row(
+                                            children: [
+                                              Icon(
+                                                localReminderCustom
+                                                    ? Icons.check_box
+                                                    : Icons
+                                                          .check_box_outline_blank,
+                                                color: localReminderCustom
+                                                    ? primaryColor
+                                                    : (isDark
+                                                          ? AppTheme
+                                                                .darkTextSecondary
+                                                          : AppTheme
+                                                                .lightTextSecondary),
+                                                size: 20,
+                                              ),
+                                              const SizedBox(width: 8),
+                                              Text(
+                                                'Custom date & time',
+                                                style: TextStyle(
+                                                  color: isDark
+                                                      ? AppTheme.darkTextPrimary
+                                                      : AppTheme
+                                                            .lightTextPrimary,
+                                                  fontSize: 13,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+
+                                      // Custom date/time pickers (shown when custom is enabled)
+                                      if (localReminderCustom) ...[
+                                        const SizedBox(height: 12),
+                                        Container(
+                                          padding: const EdgeInsets.all(10),
+                                          decoration: BoxDecoration(
+                                            color: isDark
+                                                ? AppTheme.darkCard
+                                                : AppTheme.lightCard,
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                          ),
+                                          child: Column(
+                                            children: [
+                                              // Date picker
+                                              GestureDetector(
+                                                onTap: () async {
+                                                  DateTime?
+                                                  pickedDate = await showDatePicker(
+                                                    context: context,
+                                                    initialDate:
+                                                        localCustomReminderTime ??
+                                                        DateTime.now(),
+                                                    firstDate: DateTime.now(),
+                                                    lastDate: DateTime.now()
+                                                        .add(
+                                                          const Duration(
+                                                            days: 365,
+                                                          ),
+                                                        ),
+                                                    builder: (context, child) {
+                                                      return Theme(
+                                                        data: Theme.of(context).copyWith(
+                                                          colorScheme: ColorScheme.light(
+                                                            primary:
+                                                                primaryColor,
+                                                            onPrimary:
+                                                                Colors.white,
+                                                            surface: isDark
+                                                                ? AppTheme
+                                                                      .darkCard
+                                                                : AppTheme
+                                                                      .lightCard,
+                                                            onSurface: isDark
+                                                                ? AppTheme
+                                                                      .darkTextPrimary
+                                                                : AppTheme
+                                                                      .lightTextPrimary,
+                                                          ),
+                                                          dialogBackgroundColor:
+                                                              isDark
+                                                              ? AppTheme
+                                                                    .darkBackground
+                                                              : AppTheme
+                                                                    .lightBackground,
+                                                        ),
+                                                        child: child!,
+                                                      );
+                                                    },
+                                                  );
+                                                  if (pickedDate != null) {
+                                                    setSheetState(() {
+                                                      localCustomReminderTime =
+                                                          DateTime(
+                                                            pickedDate.year,
+                                                            pickedDate.month,
+                                                            pickedDate.day,
+                                                            localCustomReminderTime
+                                                                    ?.hour ??
+                                                                9,
+                                                            localCustomReminderTime
+                                                                    ?.minute ??
+                                                                0,
+                                                          );
+                                                    });
+                                                  }
+                                                },
+                                                child: Container(
+                                                  padding:
+                                                      const EdgeInsets.symmetric(
+                                                        horizontal: 10,
+                                                        vertical: 8,
+                                                      ),
+                                                  decoration: BoxDecoration(
+                                                    color: isDark
+                                                        ? AppTheme
+                                                              .darkBackground
+                                                        : AppTheme
+                                                              .lightBackground,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          6,
+                                                        ),
+                                                    border: Border.all(
+                                                      color: isDark
+                                                          ? AppTheme.darkBorder
+                                                          : AppTheme
+                                                                .lightBorder,
+                                                    ),
+                                                  ),
+                                                  child: Row(
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    children: [
+                                                      Icon(
+                                                        Icons.calendar_today,
+                                                        size: 14,
+                                                        color: primaryColor,
+                                                      ),
+                                                      const SizedBox(width: 6),
+                                                      Text(
+                                                        localCustomReminderTime !=
+                                                                null
+                                                            ? '${localCustomReminderTime!.day}.${localCustomReminderTime!.month}.${localCustomReminderTime!.year}'
+                                                            : 'Pick date',
+                                                        style: TextStyle(
+                                                          color: isDark
+                                                              ? AppTheme
+                                                                    .darkTextPrimary
+                                                              : AppTheme
+                                                                    .lightTextPrimary,
+                                                          fontSize: 12,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ),
+                                              const SizedBox(height: 8),
+                                              // Time picker
+                                              GestureDetector(
+                                                onTap: () async {
+                                                  if (localCustomReminderTime ==
+                                                      null) {
+                                                    ScaffoldMessenger.of(
+                                                      context,
+                                                    ).showSnackBar(
+                                                      SnackBar(
+                                                        content: const Text(
+                                                          'Please pick a date first',
+                                                        ),
+                                                        backgroundColor: isDark
+                                                            ? AppTheme
+                                                                  .darkWarning
+                                                            : AppTheme
+                                                                  .lightWarning,
+                                                      ),
+                                                    );
+                                                    return;
+                                                  }
+                                                  TimeOfDay?
+                                                  pickedTime = await showTimePicker(
+                                                    context: context,
+                                                    initialTime: TimeOfDay(
+                                                      hour:
+                                                          localCustomReminderTime!
+                                                              .hour,
+                                                      minute:
+                                                          localCustomReminderTime!
+                                                              .minute,
+                                                    ),
+                                                  );
+                                                  if (pickedTime != null) {
+                                                    setSheetState(() {
+                                                      localCustomReminderTime = DateTime(
+                                                        localCustomReminderTime!
+                                                            .year,
+                                                        localCustomReminderTime!
+                                                            .month,
+                                                        localCustomReminderTime!
+                                                            .day,
+                                                        pickedTime.hour,
+                                                        pickedTime.minute,
+                                                      );
+                                                    });
+                                                  }
+                                                },
+                                                child: Container(
+                                                  padding:
+                                                      const EdgeInsets.symmetric(
+                                                        horizontal: 10,
+                                                        vertical: 8,
+                                                      ),
+                                                  decoration: BoxDecoration(
+                                                    color: isDark
+                                                        ? AppTheme
+                                                              .darkBackground
+                                                        : AppTheme
+                                                              .lightBackground,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          6,
+                                                        ),
+                                                    border: Border.all(
+                                                      color: isDark
+                                                          ? AppTheme.darkBorder
+                                                          : AppTheme
+                                                                .lightBorder,
+                                                    ),
+                                                  ),
+                                                  child: Row(
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    children: [
+                                                      Icon(
+                                                        Icons.access_time,
+                                                        size: 14,
+                                                        color: primaryColor,
+                                                      ),
+                                                      const SizedBox(width: 6),
+                                                      Text(
+                                                        localCustomReminderTime !=
+                                                                null
+                                                            ? '${localCustomReminderTime!.hour.toString().padLeft(2, '0')}:${localCustomReminderTime!.minute.toString().padLeft(2, '0')}'
+                                                            : 'Pick time',
+                                                        style: TextStyle(
+                                                          color: isDark
+                                                              ? AppTheme
+                                                                    .darkTextPrimary
+                                                              : AppTheme
+                                                                    .lightTextPrimary,
+                                                          fontSize: 12,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
                                     ],
                                   ),
                                 ),

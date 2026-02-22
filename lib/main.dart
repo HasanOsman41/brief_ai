@@ -12,11 +12,14 @@ import 'package:brief_ai/screens/backup_import_screen.dart';
 import 'package:brief_ai/screens/privacy_screen.dart';
 import 'package:brief_ai/screens/impressum_screen.dart';
 import 'package:brief_ai/screens/language_screen.dart';
+import 'package:brief_ai/screens/reminders_screen.dart';
 import 'package:brief_ai/localization/app_localizations.dart';
 import 'package:brief_ai/services/locale_service.dart';
+import 'package:brief_ai/services/notification_service.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await NotificationService().initialize();
   runApp(const BriefAIApp());
 }
 
@@ -114,6 +117,7 @@ class _BriefAIAppState extends State<BriefAIApp> {
         '/privacy': (context) => const PrivacyScreen(),
         '/impressum': (context) => const ImpressumScreen(),
         '/language': (context) => const LanguageScreen(),
+        '/reminders': (context) => const RemindersScreen(),
       },
     );
   }

@@ -480,6 +480,32 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ),
                         const SizedBox(width: 8),
+                        // Reminders button with background
+                        Container(
+                          decoration: BoxDecoration(
+                            color: isDark
+                                ? AppTheme.darkSurface.withOpacity(0.5)
+                                : AppTheme.lightSurface.withOpacity(0.5),
+                            borderRadius: BorderRadius.circular(30),
+                            border: Border.all(
+                              color: isDark
+                                  ? AppTheme.darkBorder
+                                  : AppTheme.lightBorder,
+                              width: 0.5,
+                            ),
+                          ),
+                          child: IconButton(
+                            icon: Icon(
+                              Icons.notifications_outlined,
+                              size: 22,
+                              color: primaryColor,
+                            ),
+                            onPressed: () {
+                              Navigator.pushNamed(context, '/reminders');
+                            },
+                          ),
+                        ),
+                        const SizedBox(width: 8),
                         // Settings button with background
                         Container(
                           decoration: BoxDecoration(
