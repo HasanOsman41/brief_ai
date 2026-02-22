@@ -145,214 +145,523 @@ class _ScanScreenState extends State<ScanScreen>
     _showSuccessMessage('AI analysis complete');
   }
 
-  // Updated _showSimpleBottomSheet method with Save button
-
   void _showSimpleBottomSheet() {
     if (_analysisResult == null) return;
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final primaryColor = Theme.of(context).colorScheme.primary;
 
+    // Create local variables for the bottom sheet
+    DateTime localSelectedDeadline = _selectedDeadline;
+    bool localReminderEnabled = true;
+
+    // Local state for reminder options
+    bool localReminder3Days = true;
+    bool localReminder1Day = true;
+    bool localReminder12Hours = false;
+
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
-      isScrollControlled: false,
+      isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (context) => Container(
-        width: double.infinity,
-        decoration: BoxDecoration(
-          color: isDark ? AppTheme.darkBackground : AppTheme.lightBackground,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Handle bar
-            Container(
-              margin: const EdgeInsets.only(top: 8, bottom: 8),
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: isDark
-                    ? AppTheme.darkTextSecondary
-                    : AppTheme.lightTextSecondary,
-                borderRadius: BorderRadius.circular(2),
+      builder: (context) => StatefulBuilder(
+        builder: (context, setSheetState) => DraggableScrollableSheet(
+          initialChildSize: 0.9,
+          minChildSize: 0.5,
+          maxChildSize: 0.95,
+          expand: false,
+          builder: (context, scrollController) => Container(
+            decoration: BoxDecoration(
+              color: isDark
+                  ? AppTheme.darkBackground
+                  : AppTheme.lightBackground,
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(20),
               ),
             ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Handle bar
+                Container(
+                  margin: const EdgeInsets.only(top: 8, bottom: 8),
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: isDark
+                        ? AppTheme.darkTextSecondary
+                        : AppTheme.lightTextSecondary,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
 
-            // Header with Save Button
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
+                // Header with Save Button (fixed)
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Icon(Icons.auto_awesome, color: primaryColor, size: 20),
-                      const SizedBox(width: 8),
-                      Text(
-                        AppLocalizations.tr(context, 'aiAnalysisResults'),
-                        style: TextStyle(
-                          color: isDark
-                              ? AppTheme.darkTextPrimary
-                              : AppTheme.lightTextPrimary,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.auto_awesome,
+                            color: primaryColor,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            AppLocalizations.tr(context, 'aiAnalysisResults'),
+                            style: TextStyle(
+                              color: isDark
+                                  ? AppTheme.darkTextPrimary
+                                  : AppTheme.lightTextPrimary,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          // Save Button
+                          GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                _selectedDeadline = localSelectedDeadline;
+                                // Here you would save the reminder settings
+                              });
+                              Navigator.pop(context);
+                              _showSuccessMessage(
+                                AppLocalizations.tr(context, 'analysisSaved'),
+                              );
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 6,
+                              ),
+                              decoration: BoxDecoration(
+                                color: primaryColor,
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Row(
+                                children: [
+                                  const Icon(
+                                    Icons.save,
+                                    color: Colors.white,
+                                    size: 14,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    AppLocalizations.tr(context, 'save'),
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          IconButton(
+                            icon: Icon(
+                              Icons.close,
+                              color: isDark
+                                  ? AppTheme.darkTextPrimary
+                                  : AppTheme.lightTextPrimary,
+                              size: 20,
+                            ),
+                            onPressed: () => Navigator.pop(context),
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints(),
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                  Row(
-                    children: [
-                      // Save Button
-                      GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            // _isSaved = true;
-                          });
-                          Navigator.pop(context);
-                          _showSuccessMessage(
-                            AppLocalizations.tr(context, 'analysisSaved'),
-                          );
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 6,
-                          ),
+                ),
+
+                // Scrollable content
+                Expanded(
+                  child: SingleChildScrollView(
+                    controller: scrollController,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Column(
+                      children: [
+                        // Summary
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            color: primaryColor,
-                            borderRadius: BorderRadius.circular(20),
+                            color: isDark
+                                ? AppTheme.darkCard
+                                : AppTheme.lightCard,
+                            borderRadius: BorderRadius.circular(12),
                           ),
-                          child: Row(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Icon(
-                                Icons.save,
-                                color: Colors.white,
-                                size: 14,
-                              ),
-                              const SizedBox(width: 4),
                               Text(
-                                AppLocalizations.tr(context, 'save'),
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 12,
+                                AppLocalizations.tr(context, 'summary'),
+                                style: TextStyle(
+                                  color: isDark
+                                      ? AppTheme.darkTextPrimary
+                                      : AppTheme.lightTextPrimary,
+                                  fontSize: 16,
                                   fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                _analysisResult!.summary,
+                                style: TextStyle(
+                                  color: isDark
+                                      ? AppTheme.darkTextSecondary
+                                      : AppTheme.lightTextSecondary,
+                                  fontSize: 14,
                                 ),
                               ),
                             ],
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 8),
-                      IconButton(
-                        icon: Icon(
-                          Icons.close,
-                          color: isDark
-                              ? AppTheme.darkTextPrimary
-                              : AppTheme.lightTextPrimary,
-                          size: 20,
+
+                        const SizedBox(height: 16),
+
+                        // Editable Date with Reminder Switch
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: isDark
+                                ? AppTheme.darkCard
+                                : AppTheme.lightCard,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Column(
+                            children: [
+                              // Date row
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.calendar_today,
+                                    color: primaryColor,
+                                    size: 20,
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          AppLocalizations.tr(
+                                            context,
+                                            'deadline',
+                                          ),
+                                          style: TextStyle(
+                                            color: isDark
+                                                ? AppTheme.darkTextSecondary
+                                                : AppTheme.lightTextSecondary,
+                                            fontSize: 12,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        GestureDetector(
+                                          onTap: () async {
+                                            DateTime?
+                                            pickedDate = await showDatePicker(
+                                              context: context,
+                                              initialDate:
+                                                  localSelectedDeadline,
+                                              firstDate: DateTime.now(),
+                                              lastDate: DateTime.now().add(
+                                                const Duration(days: 365),
+                                              ),
+                                              builder: (context, child) {
+                                                return Theme(
+                                                  data: Theme.of(context).copyWith(
+                                                    colorScheme: ColorScheme.light(
+                                                      primary: primaryColor,
+                                                      onPrimary: Colors.white,
+                                                      surface: isDark
+                                                          ? AppTheme.darkCard
+                                                          : AppTheme.lightCard,
+                                                      onSurface: isDark
+                                                          ? AppTheme
+                                                                .darkTextPrimary
+                                                          : AppTheme
+                                                                .lightTextPrimary,
+                                                    ),
+                                                    dialogBackgroundColor:
+                                                        isDark
+                                                        ? AppTheme
+                                                              .darkBackground
+                                                        : AppTheme
+                                                              .lightBackground,
+                                                  ),
+                                                  child: child!,
+                                                );
+                                              },
+                                            );
+                                            if (pickedDate != null) {
+                                              setSheetState(() {
+                                                localSelectedDeadline =
+                                                    pickedDate;
+                                              });
+                                            }
+                                          },
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 12,
+                                              vertical: 8,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: isDark
+                                                  ? AppTheme.darkBackground
+                                                  : AppTheme.lightBackground,
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                              border: Border.all(
+                                                color: isDark
+                                                    ? AppTheme.darkBorder
+                                                    : AppTheme.lightBorder,
+                                              ),
+                                            ),
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Text(
+                                                  '${localSelectedDeadline.day}.${localSelectedDeadline.month}.${localSelectedDeadline.year}',
+                                                  style: TextStyle(
+                                                    color: isDark
+                                                        ? AppTheme
+                                                              .darkTextPrimary
+                                                        : AppTheme
+                                                              .lightTextPrimary,
+                                                    fontSize: 16,
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 8),
+                                                Icon(
+                                                  Icons.edit_calendar,
+                                                  color: primaryColor,
+                                                  size: 16,
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+
+                              const SizedBox(height: 16),
+
+                              // Reminder Switch
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.notifications_outlined,
+                                    color: primaryColor,
+                                    size: 20,
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Text(
+                                      AppLocalizations.tr(context, 'reminder'),
+                                      style: TextStyle(
+                                        color: isDark
+                                            ? AppTheme.darkTextPrimary
+                                            : AppTheme.lightTextPrimary,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ),
+                                  Switch(
+                                    value: localReminderEnabled,
+                                    onChanged: (value) {
+                                      setSheetState(() {
+                                        localReminderEnabled = value;
+                                      });
+                                    },
+                                    activeColor: primaryColor,
+                                  ),
+                                ],
+                              ),
+
+                              // Reminder options (shown when reminder is enabled)
+                              if (localReminderEnabled) ...[
+                                const SizedBox(height: 12),
+                                Container(
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
+                                    color: isDark
+                                        ? AppTheme.darkBackground
+                                        : AppTheme.lightBackground,
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Column(
+                                    children: [
+                                      // 3 days before
+                                      GestureDetector(
+                                        onTap: () {
+                                          setSheetState(() {
+                                            localReminder3Days =
+                                                !localReminder3Days;
+                                          });
+                                        },
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 4,
+                                          ),
+                                          child: Row(
+                                            children: [
+                                              Icon(
+                                                localReminder3Days
+                                                    ? Icons.check_box
+                                                    : Icons
+                                                          .check_box_outline_blank,
+                                                color: localReminder3Days
+                                                    ? primaryColor
+                                                    : (isDark
+                                                          ? AppTheme
+                                                                .darkTextSecondary
+                                                          : AppTheme
+                                                                .lightTextSecondary),
+                                                size: 20,
+                                              ),
+                                              const SizedBox(width: 8),
+                                              Text(
+                                                '3 ${AppLocalizations.tr(context, 'daysBefore')}',
+                                                style: TextStyle(
+                                                  color: isDark
+                                                      ? AppTheme.darkTextPrimary
+                                                      : AppTheme
+                                                            .lightTextPrimary,
+                                                  fontSize: 13,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+
+                                      const SizedBox(height: 8),
+
+                                      // 1 day before
+                                      GestureDetector(
+                                        onTap: () {
+                                          setSheetState(() {
+                                            localReminder1Day =
+                                                !localReminder1Day;
+                                          });
+                                        },
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 4,
+                                          ),
+                                          child: Row(
+                                            children: [
+                                              Icon(
+                                                localReminder1Day
+                                                    ? Icons.check_box
+                                                    : Icons
+                                                          .check_box_outline_blank,
+                                                color: localReminder1Day
+                                                    ? primaryColor
+                                                    : (isDark
+                                                          ? AppTheme
+                                                                .darkTextSecondary
+                                                          : AppTheme
+                                                                .lightTextSecondary),
+                                                size: 20,
+                                              ),
+                                              const SizedBox(width: 8),
+                                              Text(
+                                                '1 ${AppLocalizations.tr(context, 'dayBefore')}',
+                                                style: TextStyle(
+                                                  color: isDark
+                                                      ? AppTheme.darkTextPrimary
+                                                      : AppTheme
+                                                            .lightTextPrimary,
+                                                  fontSize: 13,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+
+                                      const SizedBox(height: 8),
+
+                                      // 12 hours before
+                                      GestureDetector(
+                                        onTap: () {
+                                          setSheetState(() {
+                                            localReminder12Hours =
+                                                !localReminder12Hours;
+                                          });
+                                        },
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 4,
+                                          ),
+                                          child: Row(
+                                            children: [
+                                              Icon(
+                                                localReminder12Hours
+                                                    ? Icons.check_box
+                                                    : Icons
+                                                          .check_box_outline_blank,
+                                                color: localReminder12Hours
+                                                    ? primaryColor
+                                                    : (isDark
+                                                          ? AppTheme
+                                                                .darkTextSecondary
+                                                          : AppTheme
+                                                                .lightTextSecondary),
+                                                size: 20,
+                                              ),
+                                              const SizedBox(width: 8),
+                                              Text(
+                                                '12 ${AppLocalizations.tr(context, 'hoursBefore')}',
+                                                style: TextStyle(
+                                                  color: isDark
+                                                      ? AppTheme.darkTextPrimary
+                                                      : AppTheme
+                                                            .lightTextPrimary,
+                                                  fontSize: 13,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
                         ),
-                        onPressed: () => Navigator.pop(context),
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(),
-                      ),
-                    ],
+
+                        const SizedBox(height: 24),
+                      ],
+                    ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-
-            // Summary
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: isDark ? AppTheme.darkCard : AppTheme.lightCard,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      AppLocalizations.tr(context, 'summary'),
-                      style: TextStyle(
-                        color: isDark
-                            ? AppTheme.darkTextPrimary
-                            : AppTheme.lightTextPrimary,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      _analysisResult!.summary,
-                      style: TextStyle(
-                        color: isDark
-                            ? AppTheme.darkTextSecondary
-                            : AppTheme.lightTextSecondary,
-                        fontSize: 14,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 16),
-
-            // Date
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: isDark ? AppTheme.darkCard : AppTheme.lightCard,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Row(
-                  children: [
-                    Icon(Icons.calendar_today, color: primaryColor, size: 20),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            AppLocalizations.tr(context, 'deadline'),
-                            style: TextStyle(
-                              color: isDark
-                                  ? AppTheme.darkTextSecondary
-                                  : AppTheme.lightTextSecondary,
-                              fontSize: 12,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            '${_selectedDeadline.day}.${_selectedDeadline.month}.${_selectedDeadline.year}',
-                            style: TextStyle(
-                              color: isDark
-                                  ? AppTheme.darkTextPrimary
-                                  : AppTheme.lightTextPrimary,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 24),
-          ],
+          ),
         ),
       ),
     );
