@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:brief_ai/theme/app_theme.dart';
 import 'package:brief_ai/services/notification_service.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+// Ensure this import matches your project structure
+import 'package:brief_ai/localization/app_localizations.dart'; 
 
 class RemindersScreen extends StatefulWidget {
   const RemindersScreen({Key? key}) : super(key: key);
@@ -32,7 +34,7 @@ class _RemindersScreenState extends State<RemindersScreen> {
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: const Text('Reminder cancelled'),
+        content: Text(AppLocalizations.tr(context, 'reminderCancelled')),
         backgroundColor: Theme.of(context).brightness == Brightness.dark
             ? AppTheme.darkSuccess
             : AppTheme.lightSuccess,
@@ -47,7 +49,7 @@ class _RemindersScreenState extends State<RemindersScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Scheduled Reminders'),
+        title: Text(AppLocalizations.tr(context, 'scheduledReminders')),
         elevation: 0,
         backgroundColor: isDark ? AppTheme.darkCard : AppTheme.lightCard,
         foregroundColor: isDark
@@ -62,7 +64,16 @@ class _RemindersScreenState extends State<RemindersScreen> {
           }
 
           if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
+            return Center(
+              child: Text(
+                '${AppLocalizations.tr(context, 'error')}: ${snapshot.error}',
+                style: TextStyle(
+                  color: isDark
+                      ? AppTheme.darkTextSecondary
+                      : AppTheme.lightTextSecondary,
+                ),
+              ),
+            );
           }
 
           final reminders = snapshot.data ?? [];
@@ -81,7 +92,7 @@ class _RemindersScreenState extends State<RemindersScreen> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'No scheduled reminders',
+                    AppLocalizations.tr(context, 'noScheduledReminders'),
                     style: TextStyle(
                       color: isDark
                           ? AppTheme.darkTextSecondary
@@ -121,7 +132,8 @@ class _RemindersScreenState extends State<RemindersScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  reminder.title ?? 'Reminder',
+                                  reminder.title ??
+                                      AppLocalizations.tr(context, 'reminder'),
                                   style: TextStyle(
                                     color: isDark
                                         ? AppTheme.darkTextPrimary
@@ -163,7 +175,7 @@ class _RemindersScreenState extends State<RemindersScreen> {
                           ),
                           const SizedBox(width: 6),
                           Text(
-                            'ID: ${reminder.id}',
+                            '${AppLocalizations.tr(context, 'id')}: ${reminder.id}',
                             style: TextStyle(
                               color: isDark
                                   ? AppTheme.darkTextSecondary
@@ -185,7 +197,7 @@ class _RemindersScreenState extends State<RemindersScreen> {
                             ),
                             const SizedBox(width: 6),
                             Text(
-                              'Scheduled: ${reminder.payload}',
+                              '${AppLocalizations.tr(context, 'scheduled')}: ${reminder.payload}',
                               style: TextStyle(
                                 color: primaryColor,
                                 fontSize: 14,
@@ -207,7 +219,8 @@ class _RemindersScreenState extends State<RemindersScreen> {
                                       ? AppTheme.darkCard
                                       : AppTheme.lightCard,
                                   title: Text(
-                                    'Cancel Reminder?',
+                                    AppLocalizations.tr(
+                                        context, 'cancelReminder'),
                                     style: TextStyle(
                                       color: isDark
                                           ? AppTheme.darkTextPrimary
@@ -218,7 +231,7 @@ class _RemindersScreenState extends State<RemindersScreen> {
                                     TextButton(
                                       onPressed: () => Navigator.pop(context),
                                       child: Text(
-                                        'Keep',
+                                        AppLocalizations.tr(context, 'keep'),
                                         style: TextStyle(
                                           color: isDark
                                               ? AppTheme.darkTextSecondary
@@ -231,7 +244,14 @@ class _RemindersScreenState extends State<RemindersScreen> {
                                         Navigator.pop(context);
                                         _deleteReminder(reminder.id);
                                       },
-                                      child: const Text('Cancel'),
+                                      child: Text(
+                                        AppLocalizations.tr(context, 'cancel'),
+                                        style: TextStyle(
+                                          color: isDark
+                                              ? AppTheme.darkTextSecondary
+                                              : AppTheme.lightTextSecondary,
+                                        ),
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -239,7 +259,7 @@ class _RemindersScreenState extends State<RemindersScreen> {
                             },
                             icon: Icon(Icons.delete, color: primaryColor),
                             label: Text(
-                              'Cancel',
+                              AppLocalizations.tr(context, 'cancel'),
                               style: TextStyle(color: primaryColor),
                             ),
                           ),

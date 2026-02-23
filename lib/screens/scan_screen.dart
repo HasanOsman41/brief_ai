@@ -10,7 +10,6 @@ import 'dart:io';
 class AnalysisResult {
   final String summary;
   final DateTime deadline;
-
   AnalysisResult({required this.summary, required this.deadline});
 }
 
@@ -51,7 +50,6 @@ class _ScanScreenState extends State<ScanScreen>
         maxHeight: 1080,
         imageQuality: 85,
       );
-
       if (pickedFile != null) {
         setState(() {
           _capturedImages.add(File(pickedFile.path));
@@ -59,10 +57,14 @@ class _ScanScreenState extends State<ScanScreen>
           _currentIndex = _capturedImages.length - 1;
           _showGalleryView = false;
         });
-        _showSuccessMessage('Image added successfully');
+        _showSuccessMessage(
+          AppLocalizations.tr(context, 'imageAddedSuccessfully'),
+        );
       }
     } catch (e) {
-      _showErrorMessage('Error picking image: $e');
+      _showErrorMessage(
+        '${AppLocalizations.tr(context, 'errorPickingImage')}: $e',
+      );
     }
   }
 
@@ -74,7 +76,6 @@ class _ScanScreenState extends State<ScanScreen>
         maxHeight: 1080,
         imageQuality: 85,
       );
-
       if (photo != null) {
         setState(() {
           _capturedImages.add(File(photo.path));
@@ -82,10 +83,14 @@ class _ScanScreenState extends State<ScanScreen>
           _currentIndex = _capturedImages.length - 1;
           _showGalleryView = false;
         });
-        _showSuccessMessage('Photo captured successfully');
+        _showSuccessMessage(
+          AppLocalizations.tr(context, 'photoCapturedSuccessfully'),
+        );
       }
     } catch (e) {
-      _showErrorMessage('Error taking photo: $e');
+      _showErrorMessage(
+        '${AppLocalizations.tr(context, 'errorTakingPhoto')}: $e',
+      );
     }
   }
 
@@ -96,7 +101,6 @@ class _ScanScreenState extends State<ScanScreen>
         maxHeight: 1080,
         imageQuality: 85,
       );
-
       if (pickedFiles.isNotEmpty) {
         setState(() {
           for (var file in pickedFiles) {
@@ -105,20 +109,28 @@ class _ScanScreenState extends State<ScanScreen>
           _currentImage = _capturedImages.last;
           _currentIndex = _capturedImages.length - 1;
         });
-        _showSuccessMessage('${pickedFiles.length} images added');
+        _showSuccessMessage(
+          AppLocalizations.tr(
+            context,
+            'imagesAdded',
+          ).replaceAll('%d', pickedFiles.length.toString()),
+        );
       }
     } catch (e) {
-      _showErrorMessage('Error picking multiple images: $e');
+      _showErrorMessage(
+        '${AppLocalizations.tr(context, 'errorPickingMultipleImages')}: $e',
+      );
     }
   }
 
   // Simple AI analysis function
   Future<void> _analyzeWithAI() async {
     if (_capturedImages.isEmpty) {
-      _showErrorMessage('Please capture or select images first');
+      _showErrorMessage(
+        AppLocalizations.tr(context, 'pleaseCaptureOrSelectImages'),
+      );
       return;
     }
-
     setState(() {
       _isProcessing = true;
     });
@@ -133,7 +145,6 @@ class _ScanScreenState extends State<ScanScreen>
           'Der Antrag muss vollständig ausgefüllt beim zuständigen Jobcenter eingereicht werden.',
       deadline: DateTime.now().add(const Duration(days: 14)),
     );
-
     setState(() {
       _analysisResult = mockResult;
       _selectedDeadline = mockResult.deadline;
@@ -142,26 +153,24 @@ class _ScanScreenState extends State<ScanScreen>
 
     // Show simple bottom sheet
     _showSimpleBottomSheet();
-
-    _showSuccessMessage('AI analysis complete');
+    _showSuccessMessage(AppLocalizations.tr(context, 'aiAnalysisComplete'));
   }
 
   void _showSimpleBottomSheet() {
-    if (_analysisResult == null) return;
 
+    if (_analysisResult == null) return;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final primaryColor = Theme.of(context).colorScheme.primary;
-
     // Create local variables for the bottom sheet
     DateTime localSelectedDeadline = _selectedDeadline;
     bool localReminderEnabled = true;
-
     // Local state for reminder options
     bool localReminder3Days = true;
     bool localReminder1Day = true;
     bool localReminder12Hours = false;
     bool localReminderCustom = false;
     DateTime? localCustomReminderTime;
+    bool isGeneratingPdf = false;
 
     showModalBottomSheet(
       context: context,
@@ -200,7 +209,6 @@ class _ScanScreenState extends State<ScanScreen>
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
-
                 // Header with Save Button (fixed)
                 Padding(
                   padding: const EdgeInsets.all(16.0),
@@ -245,7 +253,6 @@ class _ScanScreenState extends State<ScanScreen>
                               setState(() {
                                 _selectedDeadline = localSelectedDeadline;
                               });
-
                               // Generate notification ID from summary (document title)
                               final docTitle = _analysisResult!.summary
                                   .split('.')
@@ -263,11 +270,9 @@ class _ScanScreenState extends State<ScanScreen>
                                               .first
                                               .length),
                                   );
-
                               if (localReminderEnabled) {
                                 final deadlineText =
                                     '${AppLocalizations.tr(context, 'deadline')}: ${localSelectedDeadline.day}.${localSelectedDeadline.month}.${localSelectedDeadline.year}';
-
                                 // 3 days before
                                 if (localReminder3Days) {
                                   final dt = DateTime(
@@ -285,7 +290,6 @@ class _ScanScreenState extends State<ScanScreen>
                                         '${dt.day}.${dt.month}.${dt.year} ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}',
                                   );
                                 }
-
                                 // 1 day before
                                 if (localReminder1Day) {
                                   final dt = DateTime(
@@ -303,7 +307,6 @@ class _ScanScreenState extends State<ScanScreen>
                                         '${dt.day}.${dt.month}.${dt.year} ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}',
                                   );
                                 }
-
                                 // 12 hours before
                                 if (localReminder12Hours) {
                                   final dt = DateTime(
@@ -321,7 +324,6 @@ class _ScanScreenState extends State<ScanScreen>
                                         '${dt.day}.${dt.month}.${dt.year} ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}',
                                   );
                                 }
-
                                 // Custom date/time
                                 if (localReminderCustom &&
                                     localCustomReminderTime != null) {
@@ -335,7 +337,6 @@ class _ScanScreenState extends State<ScanScreen>
                                   );
                                 }
                               }
-
                               Navigator.pop(context);
                               _showSuccessMessage(
                                 AppLocalizations.tr(context, 'analysisSaved'),
@@ -388,7 +389,6 @@ class _ScanScreenState extends State<ScanScreen>
                     ],
                   ),
                 ),
-
                 // Scrollable content
                 Expanded(
                   child: SingleChildScrollView(
@@ -432,9 +432,102 @@ class _ScanScreenState extends State<ScanScreen>
                             ],
                           ),
                         ),
-
                         const SizedBox(height: 16),
+                        // Download PDF Button (NEW)
+                        // Download PDF Button (UPDATED - Progress inside button, sheet stays open)
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: isDark
+                                ? AppTheme.darkCard
+                                : AppTheme.lightCard,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: GestureDetector(
+                            onTap: isGeneratingPdf
+                                ? null
+                                : () async {
+                                    // Start loading
+                                    setSheetState(() {
+                                      isGeneratingPdf = true;
+                                    });
 
+                                    // Simulate PDF generation (3 seconds)
+                                    await Future.delayed(
+                                      const Duration(seconds: 3),
+                                    );
+
+                                    // Stop loading and show success
+                                    if (mounted) {
+                                      setSheetState(() {
+                                        isGeneratingPdf = false;
+                                      });
+
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                            AppLocalizations.tr(
+                                              context,
+                                              'pdfDownloadStarted',
+                                            ),
+                                          ),
+                                          backgroundColor:
+                                              Theme.of(context).brightness ==
+                                                  Brightness.dark
+                                              ? AppTheme.darkSuccess
+                                              : AppTheme.lightSuccess,
+                                          duration: const Duration(seconds: 2),
+                                        ),
+                                      );
+                                    }
+                                  },
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                if (isGeneratingPdf) ...[
+                                  SizedBox(
+                                    width: 18,
+                                    height: 18,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                        primaryColor,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                ] else ...[
+                                  Icon(
+                                    Icons.picture_as_pdf,
+                                    color: primaryColor,
+                                    size: 20,
+                                  ),
+                                  const SizedBox(width: 8),
+                                ],
+                                Text(
+                                  isGeneratingPdf
+                                      ? AppLocalizations.tr(
+                                          context,
+                                          'generatingPdf',
+                                        )
+                                      : AppLocalizations.tr(
+                                          context,
+                                          'downloadPdf',
+                                        ),
+                                  style: TextStyle(
+                                    color: primaryColor,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
                         // Editable Date with Reminder Switch
                         Container(
                           width: double.infinity,
@@ -565,9 +658,7 @@ class _ScanScreenState extends State<ScanScreen>
                                   ),
                                 ],
                               ),
-
                               const SizedBox(height: 16),
-
                               // Reminder Switch
                               Row(
                                 children: [
@@ -600,7 +691,6 @@ class _ScanScreenState extends State<ScanScreen>
                                   ),
                                 ],
                               ),
-
                               // Reminder options (shown when reminder is enabled)
                               if (localReminderEnabled) ...[
                                 const SizedBox(height: 12),
@@ -657,9 +747,7 @@ class _ScanScreenState extends State<ScanScreen>
                                           ),
                                         ),
                                       ),
-
                                       const SizedBox(height: 8),
-
                                       // 1 day before
                                       GestureDetector(
                                         onTap: () {
@@ -703,9 +791,7 @@ class _ScanScreenState extends State<ScanScreen>
                                           ),
                                         ),
                                       ),
-
                                       const SizedBox(height: 8),
-
                                       // 12 hours before
                                       GestureDetector(
                                         onTap: () {
@@ -749,9 +835,7 @@ class _ScanScreenState extends State<ScanScreen>
                                           ),
                                         ),
                                       ),
-
                                       const SizedBox(height: 8),
-
                                       // Custom date/time
                                       GestureDetector(
                                         onTap: () {
@@ -782,7 +866,10 @@ class _ScanScreenState extends State<ScanScreen>
                                               ),
                                               const SizedBox(width: 8),
                                               Text(
-                                                'Custom date & time',
+                                                AppLocalizations.tr(
+                                                  context,
+                                                  'customDateTime',
+                                                ),
                                                 style: TextStyle(
                                                   color: isDark
                                                       ? AppTheme.darkTextPrimary
@@ -795,7 +882,6 @@ class _ScanScreenState extends State<ScanScreen>
                                           ),
                                         ),
                                       ),
-
                                       // Custom date/time pickers (shown when custom is enabled)
                                       if (localReminderCustom) ...[
                                         const SizedBox(height: 12),
@@ -911,7 +997,10 @@ class _ScanScreenState extends State<ScanScreen>
                                                         localCustomReminderTime !=
                                                                 null
                                                             ? '${localCustomReminderTime!.day}.${localCustomReminderTime!.month}.${localCustomReminderTime!.year}'
-                                                            : 'Pick date',
+                                                            : AppLocalizations.tr(
+                                                                context,
+                                                                'pickDate',
+                                                              ),
                                                         style: TextStyle(
                                                           color: isDark
                                                               ? AppTheme
@@ -935,8 +1024,11 @@ class _ScanScreenState extends State<ScanScreen>
                                                       context,
                                                     ).showSnackBar(
                                                       SnackBar(
-                                                        content: const Text(
-                                                          'Please pick a date first',
+                                                        content: Text(
+                                                          AppLocalizations.tr(
+                                                            context,
+                                                            'pleasePickDateFirst',
+                                                          ),
                                                         ),
                                                         backgroundColor: isDark
                                                             ? AppTheme
@@ -1011,7 +1103,10 @@ class _ScanScreenState extends State<ScanScreen>
                                                         localCustomReminderTime !=
                                                                 null
                                                             ? '${localCustomReminderTime!.hour.toString().padLeft(2, '0')}:${localCustomReminderTime!.minute.toString().padLeft(2, '0')}'
-                                                            : 'Pick time',
+                                                            : AppLocalizations.tr(
+                                                                context,
+                                                                'pickTime',
+                                                              ),
                                                         style: TextStyle(
                                                           color: isDark
                                                               ? AppTheme
@@ -1036,7 +1131,6 @@ class _ScanScreenState extends State<ScanScreen>
                             ],
                           ),
                         ),
-
                         const SizedBox(height: 24),
                       ],
                     ),
@@ -1065,16 +1159,14 @@ class _ScanScreenState extends State<ScanScreen>
 
   void _deleteCurrentImage() {
     if (_capturedImages.isEmpty) return;
-
     final isDark = Theme.of(context).brightness == Brightness.dark;
-
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: isDark ? AppTheme.darkCard : AppTheme.lightCard,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text(
-          'Delete Image',
+          AppLocalizations.tr(context, 'deleteImage'),
           style: TextStyle(
             color: isDark
                 ? AppTheme.darkTextPrimary
@@ -1082,7 +1174,7 @@ class _ScanScreenState extends State<ScanScreen>
           ),
         ),
         content: Text(
-          'Are you sure you want to delete this image?',
+          AppLocalizations.tr(context, 'deleteImageConfirmation'),
           style: TextStyle(
             color: isDark
                 ? AppTheme.darkTextSecondary
@@ -1093,7 +1185,7 @@ class _ScanScreenState extends State<ScanScreen>
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: Text(
-              'Cancel',
+              AppLocalizations.tr(context, 'cancel'),
               style: TextStyle(
                 color: isDark
                     ? AppTheme.darkTextSecondary
@@ -1117,14 +1209,14 @@ class _ScanScreenState extends State<ScanScreen>
                 }
               });
               Navigator.pop(context);
-              _showSuccessMessage('Image deleted');
+              _showSuccessMessage(AppLocalizations.tr(context, 'imageDeleted'));
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: isDark
                   ? AppTheme.darkDanger
                   : AppTheme.lightDanger,
             ),
-            child: Text('Delete'),
+            child: Text(AppLocalizations.tr(context, 'delete')),
           ),
         ],
       ),
@@ -1133,7 +1225,6 @@ class _ScanScreenState extends State<ScanScreen>
 
   void _showSuccessMessage(String message) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
@@ -1146,7 +1237,6 @@ class _ScanScreenState extends State<ScanScreen>
 
   void _showErrorMessage(String message) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
@@ -1159,7 +1249,6 @@ class _ScanScreenState extends State<ScanScreen>
 
   void _showImagePickerOptions(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -1179,7 +1268,7 @@ class _ScanScreenState extends State<ScanScreen>
                     : AppTheme.lightTextPrimary,
               ),
               title: Text(
-                'Choose from gallery',
+                AppLocalizations.tr(context, 'chooseFromGallery'),
                 style: TextStyle(
                   color: isDark
                       ? AppTheme.darkTextPrimary
@@ -1199,7 +1288,7 @@ class _ScanScreenState extends State<ScanScreen>
                     : AppTheme.lightTextPrimary,
               ),
               title: Text(
-                'Take new photo',
+                AppLocalizations.tr(context, 'takeNewPhoto'),
                 style: TextStyle(
                   color: isDark
                       ? AppTheme.darkTextPrimary
@@ -1219,7 +1308,6 @@ class _ScanScreenState extends State<ScanScreen>
 
   void _showMultiPageOptions(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -1239,7 +1327,7 @@ class _ScanScreenState extends State<ScanScreen>
                     : AppTheme.lightTextPrimary,
               ),
               title: Text(
-                'Add page',
+                AppLocalizations.tr(context, 'addPage'),
                 style: TextStyle(
                   color: isDark
                       ? AppTheme.darkTextPrimary
@@ -1259,7 +1347,7 @@ class _ScanScreenState extends State<ScanScreen>
                     : AppTheme.lightTextPrimary,
               ),
               title: Text(
-                'Choose multiple',
+                AppLocalizations.tr(context, 'chooseMultiple'),
                 style: TextStyle(
                   color: isDark
                       ? AppTheme.darkTextPrimary
@@ -1286,7 +1374,6 @@ class _ScanScreenState extends State<ScanScreen>
   Widget _buildGalleryView() {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final primaryColor = Theme.of(context).colorScheme.primary;
-
     return Container(
       color: isDark ? AppTheme.darkBackground : AppTheme.lightBackground,
       child: Column(
@@ -1297,7 +1384,10 @@ class _ScanScreenState extends State<ScanScreen>
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Gallery (${_capturedImages.length})',
+                  AppLocalizations.tr(
+                    context,
+                    'galleryCount',
+                  ).replaceAll('%d', _capturedImages.length.toString()),
                   style: TextStyle(
                     color: isDark
                         ? AppTheme.darkTextPrimary
@@ -1405,9 +1495,7 @@ class _ScanScreenState extends State<ScanScreen>
 
   Widget _buildProcessingOverlay() {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-
     if (!_isProcessing) return const SizedBox.shrink();
-
     return Container(
       color: Colors.black.withOpacity(0.7),
       child: Center(
@@ -1425,7 +1513,7 @@ class _ScanScreenState extends State<ScanScreen>
               ),
               const SizedBox(height: 16),
               Text(
-                'Processing...',
+                AppLocalizations.tr(context, 'processing'),
                 style: TextStyle(
                   color: isDark
                       ? AppTheme.darkTextPrimary
@@ -1444,7 +1532,6 @@ class _ScanScreenState extends State<ScanScreen>
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final primaryColor = Theme.of(context).colorScheme.primary;
-
     return Scaffold(
       body: SafeArea(
         child: Stack(
@@ -1494,7 +1581,7 @@ class _ScanScreenState extends State<ScanScreen>
                                 ),
                                 const SizedBox(height: 16),
                                 Text(
-                                  'Camera Preview',
+                                  AppLocalizations.tr(context, 'cameraPreview'),
                                   style: TextStyle(
                                     color:
                                         (isDark
@@ -1508,14 +1595,12 @@ class _ScanScreenState extends State<ScanScreen>
                             ),
                           ),
                   ),
-
                   // Edge detection overlay
                   if (_currentImage == null)
                     CustomPaint(
                       painter: EdgeDetectionPainter(primaryColor),
                       child: Container(),
                     ),
-
                   // Image counter
                   if (_capturedImages.length > 1 && _currentImage != null)
                     Positioned(
@@ -1548,7 +1633,6 @@ class _ScanScreenState extends State<ScanScreen>
                         ),
                       ),
                     ),
-
                   // Navigation arrows
                   if (_capturedImages.length > 1 && _currentImage != null)
                     Positioned.fill(
@@ -1586,7 +1670,6 @@ class _ScanScreenState extends State<ScanScreen>
                         ],
                       ),
                     ),
-
                   // Top bar
                   Positioned(
                     top: 20,
@@ -1657,7 +1740,15 @@ class _ScanScreenState extends State<ScanScreen>
                                     ),
                                     const SizedBox(width: 4),
                                     Text(
-                                      _isFlashOn ? 'On' : 'Auto',
+                                      _isFlashOn
+                                          ? AppLocalizations.tr(
+                                              context,
+                                              'flashOn',
+                                            )
+                                          : AppLocalizations.tr(
+                                              context,
+                                              'auto',
+                                            ),
                                       style: TextStyle(
                                         color: isDark
                                             ? AppTheme.darkTextPrimary
@@ -1673,7 +1764,6 @@ class _ScanScreenState extends State<ScanScreen>
                       ],
                     ),
                   ),
-
                   // Bottom control panel
                   Positioned(
                     bottom: 30,
@@ -1728,9 +1818,12 @@ class _ScanScreenState extends State<ScanScreen>
                                       size: 20,
                                     ),
                                     const SizedBox(width: 8),
-                                    const Text(
-                                      'Analyze with AI',
-                                      style: TextStyle(
+                                    Text(
+                                      AppLocalizations.tr(
+                                        context,
+                                        'analyzeWithAI',
+                                      ),
+                                      style: const TextStyle(
                                         color: Colors.white,
                                         fontSize: 16,
                                         fontWeight: FontWeight.bold,
@@ -1741,7 +1834,6 @@ class _ScanScreenState extends State<ScanScreen>
                               ),
                             ),
                           ),
-
                         // Bottom panel
                         Container(
                           decoration: BoxDecoration(
@@ -1760,22 +1852,22 @@ class _ScanScreenState extends State<ScanScreen>
                                   _buildControlButton(
                                     context,
                                     Icons.auto_awesome,
-                                    'Auto',
+                                    'auto',
                                   ),
                                   _buildControlButton(
                                     context,
                                     Icons.crop,
-                                    'Crop',
+                                    'crop',
                                   ),
                                   _buildControlButton(
                                     context,
                                     Icons.color_lens,
-                                    'Filter',
+                                    'filter',
                                   ),
                                   _buildControlButton(
                                     context,
                                     Icons.rotate_right,
-                                    'Rotate',
+                                    'rotate',
                                   ),
                                 ],
                               ),
@@ -1831,7 +1923,13 @@ class _ScanScreenState extends State<ScanScreen>
                               ),
                               const SizedBox(height: 8),
                               Text(
-                                'Pages: ${_capturedImages.length}',
+                                AppLocalizations.tr(
+                                  context,
+                                  'pagesCount',
+                                ).replaceAll(
+                                  '%d',
+                                  _capturedImages.length.toString(),
+                                ),
                                 style: TextStyle(
                                   color: isDark
                                       ? AppTheme.darkTextSecondary
@@ -1847,10 +1945,8 @@ class _ScanScreenState extends State<ScanScreen>
                   ),
                 ],
               ),
-
             // Gallery view overlay
             if (_showGalleryView) _buildGalleryView(),
-
             // Processing overlay
             _buildProcessingOverlay(),
           ],
@@ -1865,7 +1961,6 @@ class _ScanScreenState extends State<ScanScreen>
     String label,
   ) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -1876,7 +1971,7 @@ class _ScanScreenState extends State<ScanScreen>
         ),
         const SizedBox(height: 4),
         Text(
-          label,
+          AppLocalizations.tr(context, label),
           style: TextStyle(
             color: isDark
                 ? AppTheme.darkTextSecondary
@@ -1891,7 +1986,6 @@ class _ScanScreenState extends State<ScanScreen>
 
 class EdgeDetectionPainter extends CustomPainter {
   final Color edgeColor;
-
   EdgeDetectionPainter(this.edgeColor);
 
   @override
@@ -1900,29 +1994,24 @@ class EdgeDetectionPainter extends CustomPainter {
       ..color = edgeColor.withOpacity(0.5)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2;
-
     final path = Path();
     final rect = Rect.fromCenter(
       center: Offset(size.width / 2, size.height / 2),
       width: size.width * 0.8,
       height: size.height * 0.5,
     );
-
     path.addRect(rect);
     canvas.drawPath(path, paint);
-
     // Draw corner markers
     final cornerPaint = Paint()
       ..color = edgeColor
       ..strokeWidth = 3;
-
     final corners = [
       Offset(rect.left, rect.top),
       Offset(rect.right, rect.top),
       Offset(rect.left, rect.bottom),
       Offset(rect.right, rect.bottom),
     ];
-
     for (var corner in corners) {
       canvas.drawLine(
         corner - const Offset(15, 0),
