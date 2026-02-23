@@ -265,11 +265,7 @@ class _ScanScreenState extends State<ScanScreen>
                                   );
 
                               if (localReminderEnabled) {
-                                final title = AppLocalizations.tr(
-                                  context,
-                                  'reminder',
-                                );
-                                final body =
+                                final deadlineText =
                                     '${AppLocalizations.tr(context, 'deadline')}: ${localSelectedDeadline.day}.${localSelectedDeadline.month}.${localSelectedDeadline.year}';
 
                                 // 3 days before
@@ -282,8 +278,8 @@ class _ScanScreenState extends State<ScanScreen>
                                   ).subtract(const Duration(days: 3));
                                   NotificationService().scheduleNotification(
                                     docTitle.hashCode.abs(),
-                                    title,
-                                    body,
+                                    docTitle,
+                                    deadlineText,
                                     dt,
                                     payload:
                                         '${dt.day}.${dt.month}.${dt.year} ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}',
@@ -300,8 +296,8 @@ class _ScanScreenState extends State<ScanScreen>
                                   ).subtract(const Duration(days: 1));
                                   NotificationService().scheduleNotification(
                                     (docTitle.hashCode.abs() + 1),
-                                    title,
-                                    body,
+                                    docTitle,
+                                    deadlineText,
                                     dt,
                                     payload:
                                         '${dt.day}.${dt.month}.${dt.year} ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}',
@@ -318,8 +314,8 @@ class _ScanScreenState extends State<ScanScreen>
                                   ).subtract(const Duration(hours: 12));
                                   NotificationService().scheduleNotification(
                                     (docTitle.hashCode.abs() + 2),
-                                    title,
-                                    body,
+                                    docTitle,
+                                    deadlineText,
                                     dt,
                                     payload:
                                         '${dt.day}.${dt.month}.${dt.year} ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}',
@@ -331,8 +327,8 @@ class _ScanScreenState extends State<ScanScreen>
                                     localCustomReminderTime != null) {
                                   NotificationService().scheduleNotification(
                                     (docTitle.hashCode.abs() + 3),
-                                    title,
-                                    body,
+                                    docTitle,
+                                    deadlineText,
                                     localCustomReminderTime!,
                                     payload:
                                         '${localCustomReminderTime!.day}.${localCustomReminderTime!.month}.${localCustomReminderTime!.year} ${localCustomReminderTime!.hour.toString().padLeft(2, '0')}:${localCustomReminderTime!.minute.toString().padLeft(2, '0')}',
