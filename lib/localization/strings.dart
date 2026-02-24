@@ -13,7 +13,7 @@ class AppStrings {
   static const String pending = 'pending';
   static const String failed = 'failed';
   static const String confirm = 'confirm';
-  
+
   // Home Screen
   static const String localOnly = 'localOnly';
   static const String searchHint = 'searchHint';
@@ -23,14 +23,20 @@ class AppStrings {
   static const String scanButton = 'scanButton';
   static const String documents = 'documents';
   static const String profile = 'profile';
-  
+
   // Categories
   static const String all = 'all';
   static const String contracts = 'contracts';
-  static const String invoices = 'invoices';
-  static const String letters = 'letters';
-  static const String important = 'important';
-  
+  static const String jobcenter = 'jobcenter';
+  static const String auslaenderbehoerde = 'auslaenderbehoerde';
+  static const String krankenkasse = 'krankenkasse';
+  static const String finanzamt = 'finanzamt';
+  static const String bills = 'bills';
+  static const String bank = 'bank';
+  static const String insurance = 'insurance';
+  static const String wohnungRent = 'rent';
+  static const String other = 'other';
+
   // Document Detail
   static const String dueDate = 'dueDate';
   static const String reminder = 'reminder';
@@ -48,7 +54,7 @@ class AppStrings {
   static const String high = 'high';
   static const String exportPDF = 'exportPDF';
   static const String watermark = 'watermark';
-  
+
   // Scanner
   static const String auto = 'auto';
   static const String crop = 'crop';
@@ -56,7 +62,7 @@ class AppStrings {
   static const String rotate = 'rotate';
   static const String multiPage = 'multiPage';
   static const String cameraPreview = 'cameraPreview';
-  
+
   // Settings
   static const String settings = 'settings';
   static const String appearance = 'appearance';
@@ -72,7 +78,7 @@ class AppStrings {
   static const String deleteAllData = 'deleteAllData';
   static const String appVersion = 'appVersion';
   static const String disclaimer = 'disclaimer';
-  
+
   // Privacy
   static const String dataSecurity = 'dataSecurity';
   static const String localStorage = 'localStorage';
@@ -86,26 +92,26 @@ class AppStrings {
   static const String rightToPortability = 'rightToPortability';
   static const String exportMyData = 'exportMyData';
   static const String deleteMyData = 'deleteMyData';
-  
+
   // Backup
   static const String backupImport = 'backupImport';
   static const String createBackup = 'createBackup';
   static const String restoreBackup = 'restoreBackup';
   static const String lastBackups = 'lastBackups';
   static const String backupInfo = 'backupInfo';
-  
+
   // Deadlines
   static const String deadline = 'deadline';
   static const String daysLeft = 'daysLeft';
   static const String today = 'today';
   static const String tomorrow = 'tomorrow';
   static const String overdue = 'overdue';
-  
+
   // AI Analysis
   static const String aiSummary = 'aiSummary';
   static const String suggestedDeadline = 'suggestedDeadline';
   static const String checklist = 'checklist';
-  
+
   // Alerts & Dialogs
   static const String deleteConfirmTitle = 'deleteConfirmTitle';
   static const String deleteConfirmMessage = 'deleteConfirmMessage';

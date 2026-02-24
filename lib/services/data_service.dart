@@ -4,7 +4,7 @@ class DataService {
     {
       'id': 1,
       'title': 'Mietvertrag Wohnung',
-      'categoryKey': 'contracts',
+      'categoryKey': 'rent',
       'date': '15.03.2024',
       'deadline': DateTime.now().add(const Duration(days: 2)),
       'statusKey': 'pending',
@@ -15,7 +15,7 @@ class DataService {
     {
       'id': 2,
       'title': 'GEZ Befreiung',
-      'categoryKey': 'letters',
+      'categoryKey': 'other',
       'date': '10.03.2024',
       'deadline': DateTime.now().add(const Duration(days: 5)),
       'statusKey': 'done',
@@ -26,7 +26,7 @@ class DataService {
     {
       'id': 3,
       'title': 'Stromrechnung Januar',
-      'categoryKey': 'invoices',
+      'categoryKey': 'bills',
       'date': '05.03.2024',
       'deadline': DateTime.now().add(const Duration(days: 12)),
       'statusKey': 'pending',
@@ -36,7 +36,7 @@ class DataService {
     {
       'id': 4,
       'title': 'Krankenkassenbescheid',
-      'categoryKey': 'important',
+      'categoryKey': 'krankenkasse',
       'date': '01.03.2024',
       'deadline': null,
       'statusKey': 'pending',

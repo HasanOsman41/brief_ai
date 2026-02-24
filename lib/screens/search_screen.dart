@@ -19,7 +19,7 @@ class _SearchScreenState extends State<SearchScreen> {
   final List<Map<String, dynamic>> _searchResults = [
     {
       'title': 'Mietvertrag Wohnung',
-      'categoryKey': 'contracts',
+      'categoryKey': 'rent',
       'date': '15.03.2024',
       'statusKey': 'pending',
       'hasDeadline': true,
@@ -27,7 +27,7 @@ class _SearchScreenState extends State<SearchScreen> {
     },
     {
       'title': 'GEZ Befreiung',
-      'categoryKey': 'letters',
+      'categoryKey': 'other',
       'date': '10.03.2024',
       'statusKey': 'done',
       'hasDeadline': true,
@@ -35,7 +35,7 @@ class _SearchScreenState extends State<SearchScreen> {
     },
     {
       'title': 'Stromrechnung Januar',
-      'categoryKey': 'invoices',
+      'categoryKey': 'bills',
       'date': '05.03.2024',
       'statusKey': 'pending',
       'hasDeadline': true,
@@ -43,7 +43,7 @@ class _SearchScreenState extends State<SearchScreen> {
     },
     {
       'title': 'Krankenkassenbescheid',
-      'categoryKey': 'important',
+      'categoryKey': 'krankenkasse',
       'date': '01.03.2024',
       'statusKey': 'pending',
       'hasDeadline': false,
@@ -54,14 +54,26 @@ class _SearchScreenState extends State<SearchScreen> {
   // Helper method to get localized category
   String _getCategoryLabel(String categoryKey) {
     switch (categoryKey) {
+      case 'jobcenter':
+        return AppLocalizations.tr(context, 'jobcenter');
+      case 'auslaenderbehoerde':
+        return AppLocalizations.tr(context, 'auslaenderbehoerde');
+      case 'krankenkasse':
+        return AppLocalizations.tr(context, 'krankenkasse');
+      case 'finanzamt':
+        return AppLocalizations.tr(context, 'finanzamt');
       case 'contracts':
         return AppLocalizations.tr(context, 'contracts');
-      case 'invoices':
-        return AppLocalizations.tr(context, 'invoices');
-      case 'letters':
-        return AppLocalizations.tr(context, 'letters');
-      case 'important':
-        return AppLocalizations.tr(context, 'important');
+      case 'bills':
+        return AppLocalizations.tr(context, 'bills');
+      case 'bank':
+        return AppLocalizations.tr(context, 'bank');
+      case 'insurance':
+        return AppLocalizations.tr(context, 'insurance');
+      case 'rent':
+        return AppLocalizations.tr(context, 'rent');
+      case 'other':
+        return AppLocalizations.tr(context, 'other');
       default:
         return categoryKey;
     }

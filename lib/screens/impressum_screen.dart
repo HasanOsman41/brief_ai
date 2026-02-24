@@ -58,6 +58,21 @@ class ImpressumScreen extends StatelessWidget {
                   AppLocalizations.tr(context, 'vatId'),
                   'DE123456789',
                 ),
+                _buildInfoRow(
+                  context,
+                  AppLocalizations.tr(context, 'legalForm'),
+                  'GmbH (limited liability company)',
+                ),
+                _buildInfoRow(
+                  context,
+                  AppLocalizations.tr(context, 'responsibleForContent'),
+                  'Max Mustermann',
+                ),
+                _buildInfoRow(
+                  context,
+                  AppLocalizations.tr(context, 'supervisoryAuthority'),
+                  'Local Chamber / Supervisory Authority (if applicable)',
+                ),
               ],
             ),
           ),
@@ -113,6 +128,11 @@ class ImpressumScreen extends StatelessWidget {
                   Text(
                     AppLocalizations.tr(context, 'dataProtectionNote'),
                     style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    AppLocalizations.tr(context, 'impressumLawRef'),
+                    style: Theme.of(context).textTheme.bodySmall,
                   ),
                 ],
               ),

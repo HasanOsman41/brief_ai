@@ -26,10 +26,16 @@ class _HomeScreenState extends State<HomeScreen> {
   // Use keys instead of localized strings for categories
   final List<Map<String, String>> _categoryKeys = const [
     {'key': 'all', 'labelKey': 'all'},
+    {'key': 'jobcenter', 'labelKey': 'jobcenter'},
+    {'key': 'auslaenderbehoerde', 'labelKey': 'auslaenderbehoerde'},
+    {'key': 'krankenkasse', 'labelKey': 'krankenkasse'},
+    {'key': 'finanzamt', 'labelKey': 'finanzamt'},
     {'key': 'contracts', 'labelKey': 'contracts'},
-    {'key': 'invoices', 'labelKey': 'invoices'},
-    {'key': 'letters', 'labelKey': 'letters'},
-    {'key': 'important', 'labelKey': 'important'},
+    {'key': 'bills', 'labelKey': 'bills'},
+    {'key': 'bank', 'labelKey': 'bank'},
+    {'key': 'insurance', 'labelKey': 'insurance'},
+    {'key': 'rent', 'labelKey': 'rent'},
+    {'key': 'other', 'labelKey': 'other'},
   ];
 
   // Helper method to get localized category label
@@ -37,14 +43,26 @@ class _HomeScreenState extends State<HomeScreen> {
     switch (categoryKey) {
       case 'all':
         return AppLocalizations.tr(context, 'all');
+      case 'jobcenter':
+        return AppLocalizations.tr(context, 'jobcenter');
+      case 'auslaenderbehoerde':
+        return AppLocalizations.tr(context, 'auslaenderbehoerde');
+      case 'krankenkasse':
+        return AppLocalizations.tr(context, 'krankenkasse');
+      case 'finanzamt':
+        return AppLocalizations.tr(context, 'finanzamt');
       case 'contracts':
         return AppLocalizations.tr(context, 'contracts');
-      case 'invoices':
-        return AppLocalizations.tr(context, 'invoices');
-      case 'letters':
-        return AppLocalizations.tr(context, 'letters');
-      case 'important':
-        return AppLocalizations.tr(context, 'important');
+      case 'bills':
+        return AppLocalizations.tr(context, 'bills');
+      case 'bank':
+        return AppLocalizations.tr(context, 'bank');
+      case 'insurance':
+        return AppLocalizations.tr(context, 'insurance');
+      case 'rent':
+        return AppLocalizations.tr(context, 'rent');
+      case 'other':
+        return AppLocalizations.tr(context, 'other');
       default:
         return categoryKey;
     }
