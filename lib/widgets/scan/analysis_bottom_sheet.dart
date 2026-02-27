@@ -1,4 +1,5 @@
 // lib/widgets/scan/analysis_bottom_sheet.dart
+import 'package:brief_ai/data/categories_data.dart';
 import 'package:brief_ai/localization/app_localizations.dart';
 import 'package:brief_ai/models/analysis_result.dart';
 import 'package:brief_ai/services/notification_service.dart';
@@ -8,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:open_file/open_file.dart';
 
 /// Shows the AI analysis result as a draggable bottom sheet.
-/// Handles: deadline picker, reminder scheduling, PDF export.
+/// Handles: category selection, deadline picker, reminder scheduling, PDF export.
 ///
 /// Call [show] as a static helper to open the sheet imperatively.
 class AnalysisBottomSheet extends StatefulWidget {
@@ -51,6 +52,11 @@ class AnalysisBottomSheet extends StatefulWidget {
 
 class _AnalysisBottomSheetState extends State<AnalysisBottomSheet> {
   late DateTime _deadline;
+
+  // Stores the localization KEY (e.g. 'categoryBills'), not the translated label.
+  // This stays stable regardless of the active language.
+  late String _selectedCategoryKey;
+
   bool _remindersEnabled = true;
   bool _remind3Days      = true;
   bool _remind1Day       = true;
@@ -63,13 +69,18 @@ class _AnalysisBottomSheetState extends State<AnalysisBottomSheet> {
   void initState() {
     super.initState();
     _deadline = widget.initialDeadline;
+
+    // Try to match the AI-detected category to a known key.
+    // The AI may return a translated label or the raw key — we handle both.
+    final matched = categoryByKey(widget.result.category);
+    _selectedCategoryKey = matched?.key ?? kDocumentCategories.first.key;
   }
 
   @override
   Widget build(BuildContext context) {
-    final isDark   = Theme.of(context).brightness == Brightness.dark;
-    final primary  = Theme.of(context).colorScheme.primary;
-    final bgColor  = isDark ? AppTheme.darkBackground : AppTheme.lightBackground;
+    final isDark  = Theme.of(context).brightness == Brightness.dark;
+    final primary = Theme.of(context).colorScheme.primary;
+    final bgColor = isDark ? AppTheme.darkBackground : AppTheme.lightBackground;
 
     return DraggableScrollableSheet(
       initialChildSize: 0.9,
@@ -77,7 +88,10 @@ class _AnalysisBottomSheetState extends State<AnalysisBottomSheet> {
       maxChildSize: 0.95,
       expand: false,
       builder: (ctx, scrollController) => Container(
-        decoration: BoxDecoration(color: bgColor, borderRadius: const BorderRadius.vertical(top: Radius.circular(24))),
+        decoration: BoxDecoration(
+          color: bgColor,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        ),
         child: Column(children: [
           _Handle(isDark: isDark),
           _SheetHeader(
@@ -91,7 +105,14 @@ class _AnalysisBottomSheetState extends State<AnalysisBottomSheet> {
               controller: scrollController,
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
               child: Column(children: [
-                _DocumentInfoCard(result: widget.result, isDark: isDark, primary: primary),
+                _DocumentInfoCard(
+                  result: widget.result,
+                  isDark: isDark,
+                  primary: primary,
+                  selectedCategoryKey: _selectedCategoryKey,
+                  onCategoryChanged: (key) =>
+                      setState(() => _selectedCategoryKey = key),
+                ),
                 const SizedBox(height: 16),
                 _PdfCard(
                   isDark: isDark,
@@ -110,13 +131,13 @@ class _AnalysisBottomSheetState extends State<AnalysisBottomSheet> {
                   remind12Hours: _remind12Hours,
                   remindCustom:  _remindCustom,
                   customTime:    _customTime,
-                  onDeadlineChanged:  (d) => setState(() => _deadline = d),
-                  onRemindersToggled: (v) => setState(() => _remindersEnabled = v),
-                  onToggle3Days:      () => setState(() => _remind3Days = !_remind3Days),
-                  onToggle1Day:       () => setState(() => _remind1Day = !_remind1Day),
-                  onToggle12Hours:    () => setState(() => _remind12Hours = !_remind12Hours),
-                  onToggleCustom:     () => setState(() => _remindCustom = !_remindCustom),
-                  onCustomTimeChanged:(d) => setState(() => _customTime = d),
+                  onDeadlineChanged:   (d) => setState(() => _deadline = d),
+                  onRemindersToggled:  (v) => setState(() => _remindersEnabled = v),
+                  onToggle3Days:       () => setState(() => _remind3Days = !_remind3Days),
+                  onToggle1Day:        () => setState(() => _remind1Day = !_remind1Day),
+                  onToggle12Hours:     () => setState(() => _remind12Hours = !_remind12Hours),
+                  onToggleCustom:      () => setState(() => _remindCustom = !_remindCustom),
+                  onCustomTimeChanged: (d) => setState(() => _customTime = d),
                 ),
               ]),
             ),
@@ -134,21 +155,25 @@ class _AnalysisBottomSheetState extends State<AnalysisBottomSheet> {
   }
 
   void _scheduleReminders() {
-    final raw = widget.result.title.isNotEmpty
+    final raw   = widget.result.title.isNotEmpty
         ? widget.result.title
         : widget.result.summary.split('.').first;
     final title = raw.length > 50 ? raw.substring(0, 50) : raw;
-    final body  = '${AppLocalizations.tr(context, 'deadline')}: ${_deadline.day}.${_deadline.month}.${_deadline.year}';
+    final body  = '${AppLocalizations.tr(context, 'deadline')}: '
+        '${_deadline.day}.${_deadline.month}.${_deadline.year}';
     final base  = DateTime(_deadline.year, _deadline.month, _deadline.day, 9);
 
-    void sched(int offset, DateTime dt) => NotificationService().scheduleNotification(
-      title.hashCode.abs() + offset, title, body, dt,
-      payload: '${dt.day}.${dt.month}.${dt.year} ${dt.hour.toString().padLeft(2,'0')}:${dt.minute.toString().padLeft(2,'0')}',
-    );
+    void sched(int offset, DateTime dt) =>
+        NotificationService().scheduleNotification(
+          title.hashCode.abs() + offset, title, body, dt,
+          payload: '${dt.day}.${dt.month}.${dt.year} '
+              '${dt.hour.toString().padLeft(2, '0')}:'
+              '${dt.minute.toString().padLeft(2, '0')}',
+        );
 
-    if (_remind3Days)  sched(0, base.subtract(const Duration(days: 3)));
-    if (_remind1Day)   sched(1, base.subtract(const Duration(days: 1)));
-    if (_remind12Hours)sched(2, base.subtract(const Duration(hours: 12)));
+    if (_remind3Days)   sched(0, base.subtract(const Duration(days: 3)));
+    if (_remind1Day)    sched(1, base.subtract(const Duration(days: 1)));
+    if (_remind12Hours) sched(2, base.subtract(const Duration(hours: 12)));
     if (_remindCustom && _customTime != null) sched(3, _customTime!);
   }
 
@@ -160,11 +185,15 @@ class _AnalysisBottomSheetState extends State<AnalysisBottomSheet> {
       setState(() => _generatingPdf = false);
       if (path != null) {
         await OpenFile.open(path);
-        _snack(AppLocalizations.tr(context, 'pdfDownloadStarted'), success: true, action: SnackBarAction(
-          label: AppLocalizations.tr(context, 'open'),
-          textColor: Colors.white,
-          onPressed: () => OpenFile.open(path),
-        ));
+        _snack(
+          AppLocalizations.tr(context, 'pdfDownloadStarted'),
+          success: true,
+          action: SnackBarAction(
+            label: AppLocalizations.tr(context, 'open'),
+            textColor: Colors.white,
+            onPressed: () => OpenFile.open(path),
+          ),
+        );
       } else {
         _snack(AppLocalizations.tr(context, 'errorPickingImage'), success: false);
       }
@@ -180,8 +209,8 @@ class _AnalysisBottomSheetState extends State<AnalysisBottomSheet> {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text(msg),
       backgroundColor: success
-          ? (isDark ? AppTheme.darkSuccess : AppTheme.lightSuccess)
-          : (isDark ? AppTheme.darkDanger  : AppTheme.lightDanger),
+          ? (isDark ? AppTheme.darkSuccess  : AppTheme.lightSuccess)
+          : (isDark ? AppTheme.darkDanger   : AppTheme.lightDanger),
       behavior: SnackBarBehavior.floating,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       action: action,
@@ -194,6 +223,7 @@ class _AnalysisBottomSheetState extends State<AnalysisBottomSheet> {
 class _Handle extends StatelessWidget {
   const _Handle({required this.isDark});
   final bool isDark;
+
   @override
   Widget build(BuildContext context) => Center(
     child: Container(
@@ -208,7 +238,12 @@ class _Handle extends StatelessWidget {
 }
 
 class _SheetHeader extends StatelessWidget {
-  const _SheetHeader({required this.primary, required this.isDark, required this.onSave, required this.onClose});
+  const _SheetHeader({
+    required this.primary,
+    required this.isDark,
+    required this.onSave,
+    required this.onClose,
+  });
   final Color primary;
   final bool isDark;
   final VoidCallback onSave;
@@ -232,7 +267,11 @@ class _SheetHeader extends StatelessWidget {
       _SaveButton(primary: primary, onTap: onSave),
       const SizedBox(width: 4),
       IconButton(
-        icon: Icon(Icons.close, color: isDark ? AppTheme.darkTextPrimary : AppTheme.lightTextPrimary, size: 20),
+        icon: Icon(
+          Icons.close,
+          color: isDark ? AppTheme.darkTextPrimary : AppTheme.lightTextPrimary,
+          size: 20,
+        ),
         onPressed: onClose,
         padding: EdgeInsets.zero,
         constraints: const BoxConstraints(),
@@ -251,12 +290,19 @@ class _SaveButton extends StatelessWidget {
     onTap: onTap,
     child: Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(color: primary, borderRadius: BorderRadius.circular(20)),
+      decoration: BoxDecoration(
+        color: primary,
+        borderRadius: BorderRadius.circular(20),
+      ),
       child: Row(mainAxisSize: MainAxisSize.min, children: [
         const Icon(Icons.save, color: Colors.white, size: 14),
         const SizedBox(width: 4),
-        Text(AppLocalizations.tr(context, 'save'),
-            style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+        Text(
+          AppLocalizations.tr(context, 'save'),
+          style: const TextStyle(
+            color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold,
+          ),
+        ),
       ]),
     ),
   );
@@ -279,39 +325,49 @@ class _SheetCard extends StatelessWidget {
   );
 }
 
+// ── Document Info Card ────────────────────────────────────────────────────────
+
 class _DocumentInfoCard extends StatelessWidget {
-  const _DocumentInfoCard({required this.result, required this.isDark, required this.primary});
+  const _DocumentInfoCard({
+    required this.result,
+    required this.isDark,
+    required this.primary,
+    required this.selectedCategoryKey,
+    required this.onCategoryChanged,
+  });
+
   final AnalysisResult result;
   final bool isDark;
   final Color primary;
+  final String selectedCategoryKey;
+  final ValueChanged<String> onCategoryChanged;
 
   @override
   Widget build(BuildContext context) => _SheetCard(
     isDark: isDark,
     child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      // Category chip
-      Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-        decoration: BoxDecoration(
-          color: primary.withOpacity(0.12),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: primary.withOpacity(0.4)),
-        ),
-        child: Row(mainAxisSize: MainAxisSize.min, children: [
-          Icon(Icons.label_outline, color: primary, size: 13),
-          const SizedBox(width: 4),
-          Text(result.category, style: TextStyle(color: primary, fontSize: 12, fontWeight: FontWeight.w600)),
-        ]),
+      // Editable category selector
+      _CategorySelector(
+        isDark: isDark,
+        primary: primary,
+        selectedKey: selectedCategoryKey,
+        onChanged: onCategoryChanged,
       ),
       if (result.title.isNotEmpty) ...[
         const SizedBox(height: 12),
-        Text(result.title, style: TextStyle(
-          color: isDark ? AppTheme.darkTextPrimary : AppTheme.lightTextPrimary,
-          fontSize: 17, fontWeight: FontWeight.bold,
-        )),
+        Text(
+          result.title,
+          style: TextStyle(
+            color: isDark ? AppTheme.darkTextPrimary : AppTheme.lightTextPrimary,
+            fontSize: 17, fontWeight: FontWeight.bold,
+          ),
+        ),
       ],
       const SizedBox(height: 10),
-      Divider(color: isDark ? AppTheme.darkBorder : AppTheme.lightBorder, height: 1),
+      Divider(
+        color: isDark ? AppTheme.darkBorder : AppTheme.lightBorder,
+        height: 1,
+      ),
       const SizedBox(height: 10),
       Text(
         AppLocalizations.tr(context, 'summary'),
@@ -321,16 +377,136 @@ class _DocumentInfoCard extends StatelessWidget {
         ),
       ),
       const SizedBox(height: 6),
-      Text(result.summary, style: TextStyle(
-        color: isDark ? AppTheme.darkTextPrimary : AppTheme.lightTextPrimary,
-        fontSize: 14, height: 1.5,
-      )),
+      Text(
+        result.summary,
+        style: TextStyle(
+          color: isDark ? AppTheme.darkTextPrimary : AppTheme.lightTextPrimary,
+          fontSize: 14, height: 1.5,
+        ),
+      ),
     ]),
   );
 }
 
+// ── Category Selector ─────────────────────────────────────────────────────────
+
+class _CategorySelector extends StatelessWidget {
+  const _CategorySelector({
+    required this.isDark,
+    required this.primary,
+    required this.selectedKey,
+    required this.onChanged,
+  });
+
+  final bool isDark;
+  final Color primary;
+
+  /// The localization key of the currently selected category.
+  final String selectedKey;
+  final ValueChanged<String> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final textColor   = isDark ? AppTheme.darkTextPrimary   : AppTheme.lightTextPrimary;
+    final bgColor     = isDark ? AppTheme.darkBackground    : AppTheme.lightBackground;
+
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      // Section label
+      Row(children: [
+        Icon(Icons.label_outline, color: primary, size: 14),
+        const SizedBox(width: 6),
+        Text(
+          AppLocalizations.tr(context, 'category'),
+          style: TextStyle(
+            color: isDark
+                ? AppTheme.darkTextSecondary
+                : AppTheme.lightTextSecondary,
+            fontSize: 11, fontWeight: FontWeight.w600, letterSpacing: 0.8,
+          ),
+        ),
+      ]),
+      const SizedBox(height: 8),
+
+      // Drop-down
+      Container(
+        decoration: BoxDecoration(
+          color: bgColor,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: primary.withOpacity(0.5)),
+        ),
+        child: DropdownButtonHideUnderline(
+          child: DropdownButton<String>(
+            value: selectedKey,
+            isExpanded: true,
+            borderRadius: BorderRadius.circular(12),
+            dropdownColor: isDark ? AppTheme.darkCard : AppTheme.lightCard,
+            icon: Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: Icon(Icons.expand_more, color: primary, size: 20),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+
+            // Each item: translate the key at render time
+            items: kDocumentCategories.map((cat) {
+              final label = AppLocalizations.tr(context, cat.key);
+              final isSelected = cat.key == selectedKey;
+              return DropdownMenuItem<String>(
+                value: cat.key,
+                child: Row(children: [
+                  Text(cat.icon, style: const TextStyle(fontSize: 16)),
+                  const SizedBox(width: 10),
+                  Text(
+                    label,
+                    style: TextStyle(
+                      color: isSelected ? primary : textColor,
+                      fontSize: 14,
+                      fontWeight:
+                          isSelected ? FontWeight.w600 : FontWeight.normal,
+                    ),
+                  ),
+                ]),
+              );
+            }).toList(),
+
+            // Selected item shown in the closed box
+            selectedItemBuilder: (ctx) => kDocumentCategories.map((cat) {
+              final label = AppLocalizations.tr(ctx, cat.key);
+              return Align(
+                alignment: Alignment.centerLeft,
+                child: Row(children: [
+                  Text(cat.icon, style: const TextStyle(fontSize: 15)),
+                  const SizedBox(width: 8),
+                  Text(
+                    label,
+                    style: TextStyle(
+                      color: primary,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ]),
+              );
+            }).toList(),
+
+            onChanged: (key) {
+              if (key != null) onChanged(key);
+            },
+          ),
+        ),
+      ),
+    ]);
+  }
+}
+
+// ── PDF Card ──────────────────────────────────────────────────────────────────
+
 class _PdfCard extends StatelessWidget {
-  const _PdfCard({required this.isDark, required this.primary, required this.isLoading, required this.onTap});
+  const _PdfCard({
+    required this.isDark,
+    required this.primary,
+    required this.isLoading,
+    required this.onTap,
+  });
   final bool isDark;
   final Color primary;
   final bool isLoading;
@@ -343,18 +519,29 @@ class _PdfCard extends StatelessWidget {
       onTap: isLoading ? null : onTap,
       child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
         if (isLoading)
-          SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation(primary)))
+          SizedBox(
+            width: 18, height: 18,
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              valueColor: AlwaysStoppedAnimation(primary),
+            ),
+          )
         else
           Icon(Icons.picture_as_pdf, color: primary, size: 20),
         const SizedBox(width: 8),
         Text(
-          AppLocalizations.tr(context, isLoading ? 'generatingPdf' : 'downloadPdf'),
-          style: TextStyle(color: primary, fontSize: 14, fontWeight: FontWeight.bold),
+          AppLocalizations.tr(
+              context, isLoading ? 'generatingPdf' : 'downloadPdf'),
+          style: TextStyle(
+            color: primary, fontSize: 14, fontWeight: FontWeight.bold,
+          ),
         ),
       ]),
     ),
   );
 }
+
+// ── Deadline & Reminder Card ──────────────────────────────────────────────────
 
 class _DeadlineReminderCard extends StatelessWidget {
   const _DeadlineReminderCard({
@@ -394,22 +581,47 @@ class _DeadlineReminderCard extends StatelessWidget {
       Row(children: [
         Icon(Icons.calendar_today, color: primary, size: 20),
         const SizedBox(width: 12),
-        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(AppLocalizations.tr(context, 'deadline'),
-              style: TextStyle(color: isDark ? AppTheme.darkTextSecondary : AppTheme.lightTextSecondary, fontSize: 12)),
-          const SizedBox(height: 4),
-          _DatePickerChip(isDark: isDark, primary: primary, date: deadline, onChanged: onDeadlineChanged),
-        ])),
+        Expanded(
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(
+              AppLocalizations.tr(context, 'deadline'),
+              style: TextStyle(
+                color: isDark
+                    ? AppTheme.darkTextSecondary
+                    : AppTheme.lightTextSecondary,
+                fontSize: 12,
+              ),
+            ),
+            const SizedBox(height: 4),
+            _DatePickerChip(
+              isDark: isDark, primary: primary,
+              date: deadline, onChanged: onDeadlineChanged,
+            ),
+          ]),
+        ),
       ]),
       const SizedBox(height: 16),
+
       // Reminder toggle
       Row(children: [
         Icon(Icons.notifications_outlined, color: primary, size: 20),
         const SizedBox(width: 12),
-        Expanded(child: Text(AppLocalizations.tr(context, 'reminder'),
-            style: TextStyle(color: isDark ? AppTheme.darkTextPrimary : AppTheme.lightTextPrimary, fontSize: 14, fontWeight: FontWeight.w500))),
-        Switch(value: remindersEnabled, onChanged: onRemindersToggled, activeColor: primary),
+        Expanded(
+          child: Text(
+            AppLocalizations.tr(context, 'reminder'),
+            style: TextStyle(
+              color: isDark ? AppTheme.darkTextPrimary : AppTheme.lightTextPrimary,
+              fontSize: 14, fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
+        Switch(
+          value: remindersEnabled,
+          onChanged: onRemindersToggled,
+          activeColor: primary,
+        ),
       ]),
+
       if (remindersEnabled) ...[
         const SizedBox(height: 12),
         Container(
@@ -419,16 +631,35 @@ class _DeadlineReminderCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(10),
           ),
           child: Column(children: [
-            _CheckRow(label: '3 ${AppLocalizations.tr(context, 'daysBefore')}',   value: remind3Days,   onTap: onToggle3Days,   primary: primary, isDark: isDark),
+            _CheckRow(
+              label: '3 ${AppLocalizations.tr(context, 'daysBefore')}',
+              value: remind3Days, onTap: onToggle3Days,
+              primary: primary, isDark: isDark,
+            ),
             const SizedBox(height: 8),
-            _CheckRow(label: '1 ${AppLocalizations.tr(context, 'dayBefore')}',    value: remind1Day,    onTap: onToggle1Day,    primary: primary, isDark: isDark),
+            _CheckRow(
+              label: '1 ${AppLocalizations.tr(context, 'dayBefore')}',
+              value: remind1Day, onTap: onToggle1Day,
+              primary: primary, isDark: isDark,
+            ),
             const SizedBox(height: 8),
-            _CheckRow(label: '12 ${AppLocalizations.tr(context, 'hoursBefore')}', value: remind12Hours, onTap: onToggle12Hours, primary: primary, isDark: isDark),
+            _CheckRow(
+              label: '12 ${AppLocalizations.tr(context, 'hoursBefore')}',
+              value: remind12Hours, onTap: onToggle12Hours,
+              primary: primary, isDark: isDark,
+            ),
             const SizedBox(height: 8),
-            _CheckRow(label: AppLocalizations.tr(context, 'customDateTime'),      value: remindCustom,  onTap: onToggleCustom,  primary: primary, isDark: isDark),
+            _CheckRow(
+              label: AppLocalizations.tr(context, 'customDateTime'),
+              value: remindCustom, onTap: onToggleCustom,
+              primary: primary, isDark: isDark,
+            ),
             if (remindCustom) ...[
               const SizedBox(height: 12),
-              _CustomDateTimePicker(isDark: isDark, primary: primary, value: customTime, onChanged: onCustomTimeChanged),
+              _CustomDateTimePicker(
+                isDark: isDark, primary: primary,
+                value: customTime, onChanged: onCustomTimeChanged,
+              ),
             ],
           ]),
         ),
@@ -440,7 +671,10 @@ class _DeadlineReminderCard extends StatelessWidget {
 // ── Micro widgets ─────────────────────────────────────────────────────────────
 
 class _DatePickerChip extends StatelessWidget {
-  const _DatePickerChip({required this.isDark, required this.primary, required this.date, required this.onChanged});
+  const _DatePickerChip({
+    required this.isDark, required this.primary,
+    required this.date,   required this.onChanged,
+  });
   final bool isDark;
   final Color primary;
   final DateTime date;
@@ -459,9 +693,12 @@ class _DatePickerChip extends StatelessWidget {
             colorScheme: ColorScheme.light(
               primary: primary, onPrimary: Colors.white,
               surface: isDark ? AppTheme.darkCard : AppTheme.lightCard,
-              onSurface: isDark ? AppTheme.darkTextPrimary : AppTheme.lightTextPrimary,
+              onSurface: isDark
+                  ? AppTheme.darkTextPrimary
+                  : AppTheme.lightTextPrimary,
             ),
-            dialogBackgroundColor: isDark ? AppTheme.darkBackground : AppTheme.lightBackground,
+            dialogBackgroundColor:
+                isDark ? AppTheme.darkBackground : AppTheme.lightBackground,
           ),
           child: child!,
         ),
@@ -473,11 +710,19 @@ class _DatePickerChip extends StatelessWidget {
       decoration: BoxDecoration(
         color: isDark ? AppTheme.darkBackground : AppTheme.lightBackground,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: isDark ? AppTheme.darkBorder : AppTheme.lightBorder),
+        border: Border.all(
+            color: isDark ? AppTheme.darkBorder : AppTheme.lightBorder),
       ),
       child: Row(mainAxisSize: MainAxisSize.min, children: [
-        Text('${date.day}.${date.month}.${date.year}',
-            style: TextStyle(color: isDark ? AppTheme.darkTextPrimary : AppTheme.lightTextPrimary, fontSize: 16, fontWeight: FontWeight.w600)),
+        Text(
+          '${date.day}.${date.month}.${date.year}',
+          style: TextStyle(
+            color: isDark
+                ? AppTheme.darkTextPrimary
+                : AppTheme.lightTextPrimary,
+            fontSize: 16, fontWeight: FontWeight.w600,
+          ),
+        ),
         const SizedBox(width: 8),
         Icon(Icons.edit_calendar, color: primary, size: 16),
       ]),
@@ -486,7 +731,10 @@ class _DatePickerChip extends StatelessWidget {
 }
 
 class _CheckRow extends StatelessWidget {
-  const _CheckRow({required this.label, required this.value, required this.onTap, required this.primary, required this.isDark});
+  const _CheckRow({
+    required this.label,  required this.value,
+    required this.onTap,  required this.primary, required this.isDark,
+  });
   final String label;
   final bool value;
   final VoidCallback onTap;
@@ -499,18 +747,33 @@ class _CheckRow extends StatelessWidget {
     child: Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(children: [
-        Icon(value ? Icons.check_box : Icons.check_box_outline_blank,
-            color: value ? primary : (isDark ? AppTheme.darkTextSecondary : AppTheme.lightTextSecondary),
-            size: 20),
+        Icon(
+          value ? Icons.check_box : Icons.check_box_outline_blank,
+          color: value
+              ? primary
+              : (isDark
+                  ? AppTheme.darkTextSecondary
+                  : AppTheme.lightTextSecondary),
+          size: 20,
+        ),
         const SizedBox(width: 8),
-        Text(label, style: TextStyle(color: isDark ? AppTheme.darkTextPrimary : AppTheme.lightTextPrimary, fontSize: 13)),
+        Text(
+          label,
+          style: TextStyle(
+            color: isDark ? AppTheme.darkTextPrimary : AppTheme.lightTextPrimary,
+            fontSize: 13,
+          ),
+        ),
       ]),
     ),
   );
 }
 
 class _CustomDateTimePicker extends StatelessWidget {
-  const _CustomDateTimePicker({required this.isDark, required this.primary, required this.value, required this.onChanged});
+  const _CustomDateTimePicker({
+    required this.isDark,    required this.primary,
+    required this.value,     required this.onChanged,
+  });
   final bool isDark;
   final Color primary;
   final DateTime? value;
@@ -533,13 +796,18 @@ class _CustomDateTimePicker extends StatelessWidget {
             lastDate: DateTime.now().add(const Duration(days: 365)),
           );
           if (p != null) {
-            onChanged(DateTime(p.year, p.month, p.day, value?.hour ?? 9, value?.minute ?? 0));
+            onChanged(DateTime(
+              p.year, p.month, p.day,
+              value?.hour ?? 9, value?.minute ?? 0,
+            ));
           }
         },
         child: _dtChip(
           context, isDark, primary,
           Icons.calendar_today,
-          value != null ? '${value!.day}.${value!.month}.${value!.year}' : AppLocalizations.tr(context, 'pickDate'),
+          value != null
+              ? '${value!.day}.${value!.month}.${value!.year}'
+              : AppLocalizations.tr(context, 'pickDate'),
         ),
       ),
       const SizedBox(height: 8),
@@ -547,35 +815,62 @@ class _CustomDateTimePicker extends StatelessWidget {
         onTap: () async {
           if (value == null) {
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-              content: Text(AppLocalizations.tr(context, 'pleasePickDateFirst')),
-              backgroundColor: isDark ? AppTheme.darkWarning : AppTheme.lightWarning,
+              content: Text(
+                  AppLocalizations.tr(context, 'pleasePickDateFirst')),
+              backgroundColor:
+                  isDark ? AppTheme.darkWarning : AppTheme.lightWarning,
             ));
             return;
           }
-          final t = await showTimePicker(context: context, initialTime: TimeOfDay(hour: value!.hour, minute: value!.minute));
-          if (t != null) onChanged(DateTime(value!.year, value!.month, value!.day, t.hour, t.minute));
+          final t = await showTimePicker(
+            context: context,
+            initialTime:
+                TimeOfDay(hour: value!.hour, minute: value!.minute),
+          );
+          if (t != null) {
+            onChanged(DateTime(
+              value!.year, value!.month, value!.day,
+              t.hour, t.minute,
+            ));
+          }
         },
         child: _dtChip(
           context, isDark, primary,
           Icons.access_time,
-          value != null ? '${value!.hour.toString().padLeft(2,'0')}:${value!.minute.toString().padLeft(2,'0')}' : AppLocalizations.tr(context, 'pickTime'),
+          value != null
+              ? '${value!.hour.toString().padLeft(2, '0')}:'
+                '${value!.minute.toString().padLeft(2, '0')}'
+              : AppLocalizations.tr(context, 'pickTime'),
         ),
       ),
     ]),
   );
 
-  Widget _dtChip(BuildContext context, bool isDark, Color primary, IconData icon, String label) => Container(
-    width: double.infinity,
-    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-    decoration: BoxDecoration(
-      color: isDark ? AppTheme.darkBackground : AppTheme.lightBackground,
-      borderRadius: BorderRadius.circular(6),
-      border: Border.all(color: isDark ? AppTheme.darkBorder : AppTheme.lightBorder),
-    ),
-    child: Row(children: [
-      Icon(icon, size: 14, color: primary),
-      const SizedBox(width: 6),
-      Text(label, style: TextStyle(color: isDark ? AppTheme.darkTextPrimary : AppTheme.lightTextPrimary, fontSize: 12)),
-    ]),
-  );
+  Widget _dtChip(
+    BuildContext context, bool isDark, Color primary,
+    IconData icon, String label,
+  ) =>
+      Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        decoration: BoxDecoration(
+          color: isDark ? AppTheme.darkBackground : AppTheme.lightBackground,
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(
+              color: isDark ? AppTheme.darkBorder : AppTheme.lightBorder),
+        ),
+        child: Row(children: [
+          Icon(icon, size: 14, color: primary),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: TextStyle(
+              color: isDark
+                  ? AppTheme.darkTextPrimary
+                  : AppTheme.lightTextPrimary,
+              fontSize: 12,
+            ),
+          ),
+        ]),
+      );
 }

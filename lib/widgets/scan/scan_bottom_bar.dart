@@ -3,7 +3,7 @@ import 'package:brief_ai/localization/app_localizations.dart';
 import 'package:brief_ai/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
-/// The floating bottom panel: AI button + scan / gallery action buttons.
+/// The floating bottom panel: AI button + scan / gallery / delete action buttons.
 class ScanBottomBar extends StatelessWidget {
   const ScanBottomBar({
     super.key,
@@ -11,12 +11,14 @@ class ScanBottomBar extends StatelessWidget {
     required this.onScan,
     required this.onAnalyze,
     required this.onOpenGallery,
+    required this.onDelete,
   });
 
   final int pageCount;
   final VoidCallback onScan;
   final VoidCallback onAnalyze;
   final VoidCallback onOpenGallery;
+  final VoidCallback onDelete;
 
   bool get _hasPages => pageCount > 0;
 
@@ -43,6 +45,7 @@ class ScanBottomBar extends StatelessWidget {
             primary: primary,
             onScan: onScan,
             onOpenGallery: onOpenGallery,
+            onDelete: onDelete,
           ),
         ],
       ),
@@ -100,6 +103,7 @@ class _ActionBar extends StatelessWidget {
     required this.primary,
     required this.onScan,
     required this.onOpenGallery,
+    required this.onDelete,
   });
 
   final int pageCount;
@@ -108,6 +112,7 @@ class _ActionBar extends StatelessWidget {
   final Color primary;
   final VoidCallback onScan;
   final VoidCallback onOpenGallery;
+  final VoidCallback onDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -117,10 +122,11 @@ class _ActionBar extends StatelessWidget {
         borderRadius: BorderRadius.circular(22),
         boxShadow: [BoxShadow(color: Colors.black.withOpacity(isDark ? 0.3 : 0.08), blurRadius: 12, offset: const Offset(0, 4))],
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Row(
-        mainAxisAlignment: hasPages ? MainAxisAlignment.spaceEvenly : MainAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
+          // Camera/Scan button (always visible)
           _CircleActionButton(
             icon: Icons.document_scanner_outlined,
             label: AppLocalizations.tr(context, hasPages ? 'addPage' : 'cameraPreview'),
@@ -129,11 +135,22 @@ class _ActionBar extends StatelessWidget {
             primary: primary,
             onTap: onScan,
           ),
+          
           if (hasPages) ...[
-            _PageCountBadge(count: pageCount, isDark: isDark),
+            // Delete button
+            _CircleActionButton(
+              icon: Icons.delete_outline,
+              label: AppLocalizations.tr(context, 'delete'),
+              isDark: isDark,
+              primary: primary,
+              onTap: onDelete,
+              isDestructive: true,
+            ),
+            
+            // Gallery button
             _CircleActionButton(
               icon: Icons.photo_library_outlined,
-              label: AppLocalizations.tr(context, 'filter'),
+              label: AppLocalizations.tr(context, 'gallery'),
               isDark: isDark,
               primary: primary,
               onTap: onOpenGallery,
@@ -141,23 +158,6 @@ class _ActionBar extends StatelessWidget {
           ],
         ],
       ),
-    );
-  }
-}
-
-class _PageCountBadge extends StatelessWidget {
-  const _PageCountBadge({required this.count, required this.isDark});
-  final int count;
-  final bool isDark;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text('$count', style: TextStyle(color: isDark ? AppTheme.darkTextPrimary : AppTheme.lightTextPrimary, fontSize: 22, fontWeight: FontWeight.bold)),
-        Text(count == 1 ? 'page' : 'pages', style: TextStyle(color: isDark ? AppTheme.darkTextSecondary : AppTheme.lightTextSecondary, fontSize: 11)),
-      ],
     );
   }
 }
@@ -170,6 +170,7 @@ class _CircleActionButton extends StatelessWidget {
     required this.primary,
     required this.onTap,
     this.highlighted = false,
+    this.isDestructive = false,
   });
 
   final IconData icon;
@@ -178,25 +179,50 @@ class _CircleActionButton extends StatelessWidget {
   final Color primary;
   final VoidCallback onTap;
   final bool highlighted;
+  final bool isDestructive;
 
   @override
   Widget build(BuildContext context) {
+    Color iconColor;
+    if (isDestructive) {
+      iconColor = isDark ? AppTheme.darkDanger : AppTheme.lightDanger;
+    } else if (highlighted) {
+      iconColor = Colors.white;
+    } else {
+      iconColor = isDark ? AppTheme.darkTextPrimary : AppTheme.lightTextPrimary;
+    }
+
     return GestureDetector(
       onTap: onTap,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            padding: const EdgeInsets.all(15),
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: highlighted ? primary : (isDark ? AppTheme.darkCard : AppTheme.lightCard),
+              color: highlighted 
+                ? primary 
+                : (isDestructive 
+                    ? (isDark ? AppTheme.darkDanger.withOpacity(0.15) : AppTheme.lightDanger.withOpacity(0.1))
+                    : (isDark ? AppTheme.darkCard : AppTheme.lightCard)),
               shape: BoxShape.circle,
-              boxShadow: highlighted ? [BoxShadow(color: primary.withOpacity(0.4), blurRadius: 10, offset: const Offset(0, 4))] : null,
+              boxShadow: highlighted 
+                ? [BoxShadow(color: primary.withOpacity(0.4), blurRadius: 10, offset: const Offset(0, 4))] 
+                : null,
             ),
-            child: Icon(icon, color: highlighted ? Colors.white : (isDark ? AppTheme.darkTextPrimary : AppTheme.lightTextPrimary), size: 24),
+            child: Icon(icon, color: iconColor, size: 22),
           ),
-          const SizedBox(height: 6),
-          Text(label, style: TextStyle(color: isDark ? AppTheme.darkTextSecondary : AppTheme.lightTextSecondary, fontSize: 11)),
+          const SizedBox(height: 4),
+          Text(
+            label, 
+            style: TextStyle(
+              color: isDestructive 
+                ? (isDark ? AppTheme.darkDanger : AppTheme.lightDanger)
+                : (isDark ? AppTheme.darkTextSecondary : AppTheme.lightTextSecondary), 
+              fontSize: 10,
+              fontWeight: isDestructive ? FontWeight.w500 : FontWeight.normal,
+            ),
+          ),
         ],
       ),
     );

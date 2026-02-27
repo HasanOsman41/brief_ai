@@ -207,5 +207,19 @@
     "scheduled": "مجدول",
     "error": "خطأ",
     "id": "المعرف",
-    "generatingPdf": "جاري إنشاء ملف PDF..."
+    "generatingPdf": "جاري إنشاء ملف PDF...",
+    "categoryJobcenter": "مركز التوظيف",
+    "categoryAuslaenderbehoerde": "مكتب شؤون الأجانب",
+    "categoryKrankenkasse": "التأمين الصحي",
+    "categoryFinanzamt": "مكتب الضرائب",
+    "categoryContracts": "العقود",
+    "categoryBills": "الفواتير",
+    "categoryBank": "البنك",
+    "categoryInsurance": "التأمين",
+    "categoryRent": "الإيجار",
+    "categoryOther": "أخرى",
+    "ocrPage": "الصفحة",
+    "extractingDocumentInfo": "جاري استخراج معلومات المستند…",
+    "tapToScan": "اضغط للمسح"
+
 }

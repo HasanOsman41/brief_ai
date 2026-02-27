@@ -27,12 +27,6 @@ class ScanTopBar extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           _Pill(icon: Icons.close, onTap: onClose),
-          if (hasImages)
-            Row(children: [
-              _Pill(icon: Icons.delete_outline, onTap: onDelete),
-              const SizedBox(width: 8),
-              _Pill(icon: Icons.photo_library_outlined, onTap: onToggleGallery),
-            ]),
         ],
       ),
     );

@@ -1,26 +1,78 @@
 // lib/services/document_extractor_service.dart
+import '../data/categories_data.dart';
 import '../models/analysis_result.dart';
 
 /// Extracts structured document info from raw OCR text.
 /// Fully offline – no network calls.
 /// Single responsibility: text → AnalysisResult.
+///
+/// Categories are driven by [kDocumentCategories] in categories_data.dart.
+/// To add or rename a category, update that file — not this one.
 class DocumentExtractorService {
   DocumentExtractorService._();
   static final instance = DocumentExtractorService._();
 
   // ── Category keywords ────────────────────────────────────────────────────
+  // Keys MUST match the localization keys in kDocumentCategories exactly.
 
   static const _categoryKeywords = <String, List<String>>{
-    'Invoice':    ['invoice','rechnung','faktura','betrag','mwst','ust','total','amount due','zahlungsziel'],
-    'Government': ['jobcenter','finanzamt','bundesagentur','sgb','bescheid','behörde','sozialleistung','arbeitslosengeld','hartz','bafög','steuer','personalausweis'],
-    'Medical':    ['diagnose','arzt','klinik','krankenhaus','rezept','patient','befund','therapie','medikament','medical','hospital','prescription','doctor'],
-    'Legal':      ['vertrag','contract','agreement','klage','gericht','urteil','rechtsanwalt','notar','vollmacht','kündigung'],
-    'Bank':       ['iban','bic','kontoauszug','bank','überweisung','lastschrift','zinsen','darlehen','kredit','transaction','account'],
-    'Insurance':  ['versicherung','police','versicherungsnummer','schaden','prämie','insurance','policy','claim','coverage'],
-    'Form':       ['antrag','formular','bitte ausfüllen','please fill','unterschrift','signature'],
-    'Contract':   ['mietvertrag','arbeitsvertrag','kaufvertrag','leasing','laufzeit','vertragsdauer'],
-    'Receipt':    ['quittung','kassenbon','receipt','bezahlt','paid','danke für ihren','thank you for'],
-    'Letter':     ['sehr geehrte','dear','mit freundlichen grüßen','yours sincerely','betreff','subject:'],
+    'categoryJobcenter': [
+      'jobcenter', 'bundesagentur für arbeit', 'arbeitslosengeld',
+      'arbeitslosigkeit', 'hartz', 'sgb ii', 'sgb iii', 'arbeitsamt',
+      'vermittlung', 'eingliederung', 'arbeitsvermittlung',
+      'unemployment', 'job centre',
+    ],
+    'categoryAuslaenderbehoerde': [
+      'ausländerbehörde', 'aufenthaltstitel', 'aufenthaltserlaubnis',
+      'niederlassungserlaubnis', 'visum', 'visa', 'duldung',
+      'ausländerrecht', 'aufenthaltsgesetz', 'ausreisepflicht',
+      'einbürgerung', 'staatsangehörigkeit', 'immigration', 'residence permit',
+      'foreigner', 'alien registration',
+    ],
+    'categoryKrankenkasse': [
+      'krankenkasse', 'krankenversicherung', 'versicherungsnummer',
+      'mitgliedschaft', 'beitrag', 'gesundheit', 'klinik', 'arzt',
+      'diagnose', 'rezept', 'patient', 'befund', 'therapie',
+      'medikament', 'krankenhaus', 'hospital', 'prescription',
+      'doctor', 'health insurance', 'medical',
+    ],
+    'categoryFinanzamt': [
+      'finanzamt', 'steuerbescheid', 'steuererklärung', 'steuer',
+      'einkommensteuer', 'umsatzsteuer', 'mwst', 'ust', 'steuer-id',
+      'steueridentifikationsnummer', 'jahresabschluss',
+      'tax office', 'tax return', 'tax assessment', 'inland revenue',
+    ],
+    'categoryContracts': [
+      'vertrag', 'contract', 'agreement', 'arbeitsvertrag',
+      'kaufvertrag', 'leasing', 'laufzeit', 'vertragsdauer',
+      'kündigung', 'vertragspartner', 'klausel', 'notar',
+      'vollmacht', 'rechtsanwalt', 'unterschrift', 'signature',
+    ],
+    'categoryBills': [
+      'rechnung', 'invoice', 'faktura', 'betrag', 'total',
+      'amount due', 'zahlungsziel', 'fälligkeit', 'bitte überweisen',
+      'please pay', 'quittung', 'kassenbon', 'receipt',
+      'bezahlt', 'paid', 'danke für ihren', 'thank you for your',
+    ],
+    'categoryBank': [
+      'iban', 'bic', 'kontoauszug', 'bank', 'überweisung',
+      'lastschrift', 'zinsen', 'darlehen', 'kredit', 'konto',
+      'transaction', 'account', 'balance', 'deposit', 'withdrawal',
+      'sparkasse', 'volksbank', 'commerzbank', 'deutsche bank',
+    ],
+    'categoryInsurance': [
+      'versicherung', 'police', 'versicherungsschein',
+      'versicherungsnummer', 'schaden', 'prämie', 'haftpflicht',
+      'hausrat', 'kfz-versicherung', 'lebensversicherung',
+      'insurance', 'policy', 'claim', 'coverage', 'premium',
+    ],
+    'categoryRent': [
+      'mietvertrag', 'miete', 'mieter', 'vermieter', 'nebenkosten',
+      'betriebskosten', 'kaution', 'wohnung', 'mietobjekt',
+      'rent', 'rental', 'landlord', 'tenant', 'lease',
+      'apartment', 'flat', 'property',
+    ],
+    'categoryOther': [],   // fallback — no keywords needed
   };
 
   static const _monthMap = <String, int>{
@@ -56,7 +108,11 @@ class DocumentExtractorService {
   // ── Public API ────────────────────────────────────────────────────────────
 
   AnalysisResult extract(String ocrText) {
-    final lines = ocrText.split('\n').map((l) => l.trim()).where((l) => l.isNotEmpty).toList();
+    final lines = ocrText
+        .split('\n')
+        .map((l) => l.trim())
+        .where((l) => l.isNotEmpty)
+        .toList();
     return AnalysisResult(
       category:   _detectCategory(ocrText.toLowerCase()),
       title:      _extractTitle(lines),
@@ -68,14 +124,25 @@ class DocumentExtractorService {
 
   // ── Private helpers ───────────────────────────────────────────────────────
 
+  /// Returns a localization key from [kDocumentCategories],
+  /// e.g. 'categoryBills' or 'categoryOther'.
   String _detectCategory(String lower) {
-    String best = 'Other';
-    int bestScore = 0;
+    String bestKey   = 'categoryOther';
+    int    bestScore = 0;
+
     for (final entry in _categoryKeywords.entries) {
+      // Skip the fallback bucket
+      if (entry.value.isEmpty) continue;
       final score = entry.value.where(lower.contains).length;
-      if (score > bestScore) { bestScore = score; best = entry.key; }
+      if (score > bestScore) {
+        bestScore = score;
+        bestKey   = entry.key;
+      }
     }
-    return best;
+
+    // Validate the winning key exists in kDocumentCategories (safety net).
+    final valid = categoryByKey(bestKey) != null;
+    return valid ? bestKey : 'categoryOther';
   }
 
   String _extractTitle(List<String> lines) {
@@ -85,7 +152,9 @@ class DocumentExtractorService {
       }
     }
     for (final line in lines) {
-      if (line.length >= 4 && !_noiseLine.hasMatch(line) && !RegExp(r'^\d').hasMatch(line)) {
+      if (line.length >= 4 &&
+          !_noiseLine.hasMatch(line) &&
+          !RegExp(r'^\d').hasMatch(line)) {
         return line.length > 60 ? line.substring(0, 60) : line;
       }
     }
@@ -96,23 +165,25 @@ class DocumentExtractorService {
     final now = DateTime.now();
 
     DateTime? try1(RegExpMatch m) {
-      final d = int.tryParse(m.group(1)!) ?? 0;
+      final d  = int.tryParse(m.group(1)!) ?? 0;
       final mo = int.tryParse(m.group(2)!) ?? 0;
-      final y = int.tryParse(m.group(3)!) ?? 0;
+      final y  = int.tryParse(m.group(3)!) ?? 0;
       if (mo < 1 || mo > 12 || d < 1 || d > 31) return null;
       return DateTime(y, mo, d);
     }
+
     DateTime? try2(RegExpMatch m) {
-      final y = int.tryParse(m.group(1)!) ?? 0;
+      final y  = int.tryParse(m.group(1)!) ?? 0;
       final mo = int.tryParse(m.group(2)!) ?? 0;
-      final d = int.tryParse(m.group(3)!) ?? 0;
+      final d  = int.tryParse(m.group(3)!) ?? 0;
       if (mo < 1 || mo > 12 || d < 1 || d > 31) return null;
       return DateTime(y, mo, d);
     }
+
     DateTime? try3(RegExpMatch m) {
-      final d = int.tryParse(m.group(1)!) ?? 0;
+      final d  = int.tryParse(m.group(1)!) ?? 0;
       final mo = _monthMap[m.group(2)!.toLowerCase()] ?? 0;
-      final y = int.tryParse(m.group(3)!) ?? 0;
+      final y  = int.tryParse(m.group(3)!) ?? 0;
       if (mo < 1 || mo > 12) return null;
       return DateTime(y, mo, d);
     }
@@ -125,7 +196,8 @@ class DocumentExtractorService {
 
     // Pass 1: date near a deadline keyword
     for (final kw in _deadlineKw.allMatches(text)) {
-      final window = text.substring(kw.start, (kw.end + 60).clamp(0, text.length));
+      final window = text.substring(
+          kw.start, (kw.end + 60).clamp(0, text.length));
       for (final p in patterns) {
         final m = p.pat.firstMatch(window);
         if (m != null) {
@@ -152,7 +224,9 @@ class DocumentExtractorService {
         .where((s) => s.length >= 20)
         .take(3)
         .toList();
-    final raw = sentences.isNotEmpty ? sentences.join(' ') : lines.take(4).join(' ');
+    final raw = sentences.isNotEmpty
+        ? sentences.join(' ')
+        : lines.take(4).join(' ');
     return raw.length > 400 ? '${raw.substring(0, 400)}…' : raw;
   }
 }

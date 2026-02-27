@@ -206,5 +206,19 @@
     "scheduled": "Scheduled",
     "error": "Error",
     "id": "ID",
-    "generatingPdf": "Generating PDF..."
+    "generatingPdf": "Generating PDF...",
+    "categoryJobcenter": "Jobcenter",
+    "categoryAuslaenderbehoerde": "Immigration Office",
+    "categoryKrankenkasse": "Health Insurance",
+    "categoryFinanzamt": "Tax Office",
+    "categoryContracts": "Contracts",
+    "categoryBills": "Bills",
+    "categoryBank": "Bank",
+    "categoryInsurance": "Insurance",
+    "categoryRent": "Rent",
+    "categoryOther": "Other",
+    "ocrPage": "OCR – page",
+    "extractingDocumentInfo": "Extracting document info…",
+    "tapToScan": "Tap to scan"
+
 }
