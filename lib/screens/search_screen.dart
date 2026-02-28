@@ -1,5 +1,7 @@
 // lib/screens/search_screen.dart
 import 'package:brief_ai/localization/app_localizations.dart';
+import 'package:brief_ai/models/document.dart';
+import 'package:brief_ai/services/document_service.dart';
 import 'package:brief_ai/widgets/document_card.dart';
 import 'package:brief_ai/widgets/glass_card.dart';
 import 'package:flutter/material.dart';
@@ -14,42 +16,43 @@ class SearchScreen extends StatefulWidget {
 class _SearchScreenState extends State<SearchScreen> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
+  List<Document> _searchResults = [];
+  bool _isSearching = false;
+  String? _error;
 
-  // Use category keys instead of localized strings
-  final List<Map<String, dynamic>> _searchResults = [
-    {
-      'title': 'Mietvertrag Wohnung',
-      'categoryKey': 'rent',
-      'date': '15.03.2024',
-      'statusKey': 'pending',
-      'hasDeadline': true,
-      'image': '1.jpeg',
-    },
-    {
-      'title': 'GEZ Befreiung',
-      'categoryKey': 'other',
-      'date': '10.03.2024',
-      'statusKey': 'done',
-      'hasDeadline': true,
-      'image': '2.jpeg',
-    },
-    {
-      'title': 'Stromrechnung Januar',
-      'categoryKey': 'bills',
-      'date': '05.03.2024',
-      'statusKey': 'pending',
-      'hasDeadline': true,
-      'image': '3.jpeg',
-    },
-    {
-      'title': 'Krankenkassenbescheid',
-      'categoryKey': 'krankenkasse',
-      'date': '01.03.2024',
-      'statusKey': 'pending',
-      'hasDeadline': false,
-      'image': '4.jpeg',
-    },
-  ];
+  Future<void> _performSearch() async {
+    if (_searchQuery.isEmpty) {
+      setState(() {
+        _searchResults = [];
+        _isSearching = false;
+        _error = null;
+      });
+      return;
+    }
+
+    setState(() {
+      _isSearching = true;
+      _error = null;
+    });
+
+    try {
+      final results = await DocumentService().searchDocuments(_searchQuery);
+
+      if (!mounted) return;
+
+      setState(() {
+        _searchResults = results;
+        _isSearching = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        _error = e.toString();
+        _isSearching = false;
+      });
+    }
+  }
 
   // Helper method to get localized category
   String _getCategoryLabel(String categoryKey) {
@@ -84,30 +87,29 @@ class _SearchScreenState extends State<SearchScreen> {
     switch (statusKey) {
       case 'pending':
         return AppLocalizations.tr(context, 'pending');
+      case 'inProgress':
+        return AppLocalizations.tr(context, 'inProgress');
       case 'done':
         return AppLocalizations.tr(context, 'done');
+      case 'archived':
+        return AppLocalizations.tr(context, 'archived');
       default:
         return statusKey;
     }
   }
 
-  // Filter results based on search query
-  List<Map<String, dynamic>> get _filteredResults {
-    if (_searchQuery.isEmpty) {
-      return [];
-    }
-
-    final query = _searchQuery.toLowerCase();
-    return _searchResults.where((doc) {
-      return doc['title'].toLowerCase().contains(query) ||
-          _getCategoryLabel(doc['categoryKey']).toLowerCase().contains(query);
-    }).toList();
+  void _clearSearch() {
+    _searchController.clear();
+    setState(() {
+      _searchQuery = '';
+      _searchResults = [];
+      _isSearching = false;
+      _error = null;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    final filteredResults = _filteredResults;
-
     return Scaffold(
       appBar: AppBar(
         title: Text(AppLocalizations.tr(context, 'search')),
@@ -128,6 +130,7 @@ class _SearchScreenState extends State<SearchScreen> {
                   setState(() {
                     _searchQuery = value;
                   });
+                  _performSearch();
                 },
                 autofocus: true,
                 decoration: InputDecoration(
@@ -145,12 +148,7 @@ class _SearchScreenState extends State<SearchScreen> {
                               context,
                             ).textTheme.bodyMedium?.color,
                           ),
-                          onPressed: () {
-                            _searchController.clear();
-                            setState(() {
-                              _searchQuery = '';
-                            });
-                          },
+                          onPressed: _clearSearch,
                         )
                       : null,
                 ),
@@ -158,52 +156,120 @@ class _SearchScreenState extends State<SearchScreen> {
             ),
           ),
 
-          if (_searchQuery.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Row(
-                children: [
-                  Text(
-                    '${filteredResults.length} ${AppLocalizations.tr(context, 'results')}',
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
-                ],
-              ),
-            ),
-
-          const SizedBox(height: 16),
-
           // Search results or empty state
-          Expanded(
-            child: _searchQuery.isEmpty
-                ? _buildEmptySearch(context)
-                : filteredResults.isEmpty
-                ? _buildNoResults(context)
-                : ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    itemCount: filteredResults.length,
-                    itemBuilder: (context, index) {
-                      final doc = filteredResults[index];
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
-                        child: DocumentCard(
-                          title: doc['title'],
-                          category: _getCategoryLabel(doc['categoryKey']),
-                          date: doc['date'],
-                          deadline: doc['deadline'],
-                          status: _getStatusLabel(doc['statusKey']),
-                          hasDeadline: doc['hasDeadline'],
-                          image: doc['image'],
-                          onTap: () {
-                            Navigator.pushNamed(context, '/document-detail');
-                          },
-                        ),
-                      );
-                    },
-                  ),
+          Expanded(child: _buildContent()),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildContent() {
+    if (_searchQuery.isEmpty) {
+      return _buildEmptySearch(context);
+    }
+
+    if (_isSearching) {
+      return _buildLoadingState();
+    }
+
+    if (_error != null) {
+      return _buildErrorState();
+    }
+
+    if (_searchResults.isEmpty) {
+      return _buildNoResults(context);
+    }
+
+    return _buildResultsList();
+  }
+
+  Widget _buildLoadingState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation(
+              Theme.of(context).colorScheme.primary,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            AppLocalizations.tr(context, 'searching'),
+            style: Theme.of(context).textTheme.bodyMedium,
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildErrorState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.error_outline, size: 48, color: Colors.red),
+          const SizedBox(height: 16),
+          Text(
+            'Error searching documents',
+            style: Theme.of(context).textTheme.bodyLarge,
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: _performSearch,
+            child: Text(AppLocalizations.tr(context, 'retry')),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildResultsList() {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Row(
+            children: [
+              Text(
+                '${_searchResults.length} ${AppLocalizations.tr(context, 'results')}',
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+        Expanded(
+          child: ListView.builder(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            itemCount: _searchResults.length,
+            itemBuilder: (context, index) {
+              final doc = _searchResults[index];
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: DocumentCard(
+                  title: doc.title,
+                  category: _getCategoryLabel(doc.categoryKey),
+                  date: doc.formattedCreatedAt,
+                  deadline: doc.formattedDeadline,
+                  status: _getStatusLabel(doc.statusKey),
+                  hasDeadline: doc.hasDeadline,
+                  imagePath: doc.mainImagePath,
+                  onTap: () {
+                    Navigator.pushNamed(
+                      context,
+                      '/document-detail',
+                      arguments: {'documentId': doc.id},
+                    );
+                  },
+                ),
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 
@@ -214,19 +280,29 @@ class _SearchScreenState extends State<SearchScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.search, size: 80, color: primaryColor.withOpacity(0.3)),
-          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: primaryColor.withOpacity(0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(Icons.search, size: 48, color: primaryColor),
+          ),
+          const SizedBox(height: 24),
           Text(
             AppLocalizations.tr(context, 'startSearching'),
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              color: Theme.of(context).textTheme.bodyMedium?.color,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
-          Text(
-            AppLocalizations.tr(context, 'searchDescription'),
-            style: Theme.of(context).textTheme.bodyMedium,
-            textAlign: TextAlign.center,
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 40),
+            child: Text(
+              AppLocalizations.tr(context, 'searchDescription'),
+              style: Theme.of(context).textTheme.bodyMedium,
+              textAlign: TextAlign.center,
+            ),
           ),
         ],
       ),
@@ -240,29 +316,44 @@ class _SearchScreenState extends State<SearchScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.search_off,
-            size: 80,
-            color: primaryColor.withOpacity(0.3),
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: primaryColor.withOpacity(0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(Icons.search_off, size: 48, color: primaryColor),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 24),
           Text(
             AppLocalizations.tr(context, 'noResults'),
-            style: Theme.of(context).textTheme.titleMedium,
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
-          Text(
-            '“$_searchQuery”',
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-              fontWeight: FontWeight.w600,
-              color: primaryColor,
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
+              color: primaryColor.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Text(
+              '“$_searchQuery”',
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                fontWeight: FontWeight.w600,
+                color: primaryColor,
+              ),
             ),
           ),
-          const SizedBox(height: 8),
-          Text(
-            AppLocalizations.tr(context, 'tryDifferentSearch'),
-            style: Theme.of(context).textTheme.bodyMedium,
-            textAlign: TextAlign.center,
+          const SizedBox(height: 16),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 40),
+            child: Text(
+              AppLocalizations.tr(context, 'tryDifferentSearch'),
+              style: Theme.of(context).textTheme.bodyMedium,
+              textAlign: TextAlign.center,
+            ),
           ),
         ],
       ),

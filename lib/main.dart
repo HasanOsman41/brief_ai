@@ -16,10 +16,13 @@ import 'package:brief_ai/screens/reminders_screen.dart';
 import 'package:brief_ai/localization/app_localizations.dart';
 import 'package:brief_ai/services/locale_service.dart';
 import 'package:brief_ai/services/notification_service.dart';
+import 'package:brief_ai/services/document_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await NotificationService().initialize();
+  // Initialize the database and seed initial data if needed
+  await DocumentService().initialize();
   runApp(const BriefAIApp());
 }
 

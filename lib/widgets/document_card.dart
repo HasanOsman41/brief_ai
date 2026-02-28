@@ -8,10 +8,10 @@ class DocumentCard extends StatelessWidget {
   final String title;
   final String category;
   final String date;
-  final DateTime? deadline;
+  final String? deadline; // Changed from DateTime? to String?
   final String status;
   final bool hasDeadline;
-  final String image;
+  final String? imagePath; // Renamed from image to imagePath and made nullable
   final VoidCallback onTap;
 
   const DocumentCard({
@@ -19,36 +19,81 @@ class DocumentCard extends StatelessWidget {
     required this.title,
     required this.category,
     required this.date,
-    this.deadline,
+    this.deadline, // Now accepts String?
     required this.status,
-    required this.image,
+    this.imagePath, // Now nullable
     this.hasDeadline = false,
     required this.onTap,
   }) : super(key: key);
+
+  String _getDeadlineText(BuildContext context, String? deadlineStr) {
+    if (deadlineStr == null) return '';
+
+    try {
+      // Parse the deadline string (format: "DD.MM.YYYY")
+      final parts = deadlineStr.split('.');
+      if (parts.length != 3) return '';
+
+      final day = int.tryParse(parts[0]) ?? 0;
+      final month = int.tryParse(parts[1]) ?? 0;
+      final year = int.tryParse(parts[2]) ?? 0;
+
+      if (day == 0 || month == 0 || year == 0) return '';
+
+      final deadlineDate = DateTime(year, month, day);
+      final now = DateTime.now();
+      final today = DateTime(now.year, now.month, now.day);
+
+      final daysUntil = deadlineDate.difference(today).inDays;
+
+      if (daysUntil == 0) {
+        return AppLocalizations.tr(context, 'today');
+      } else if (daysUntil == 1) {
+        return AppLocalizations.tr(context, 'tomorrow');
+      } else if (daysUntil > 1) {
+        return '$daysUntil ${AppLocalizations.tr(context, 'daysLeft')}';
+      } else if (daysUntil < 0) {
+        return AppLocalizations.tr(context, 'overdue');
+      }
+    } catch (e) {
+      // If parsing fails, return empty string
+      return '';
+    }
+
+    return '';
+  }
+
+  bool _isDeadlineNear(String? deadlineStr) {
+    if (deadlineStr == null) return false;
+
+    try {
+      final parts = deadlineStr.split('.');
+      if (parts.length != 3) return false;
+
+      final day = int.tryParse(parts[0]) ?? 0;
+      final month = int.tryParse(parts[1]) ?? 0;
+      final year = int.tryParse(parts[2]) ?? 0;
+
+      if (day == 0 || month == 0 || year == 0) return false;
+
+      final deadlineDate = DateTime(year, month, day);
+      final now = DateTime.now();
+      final today = DateTime(now.year, now.month, now.day);
+
+      final daysUntil = deadlineDate.difference(today).inDays;
+      return daysUntil <= 3 && daysUntil >= 0;
+    } catch (e) {
+      return false;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final primaryColor = Theme.of(context).colorScheme.primary;
-    
-    bool isDeadlineNear = false;
-    String deadlineText = '';
-    
-    if (deadline != null) {
-      final now = DateTime.now();
-      final daysUntil = deadline!.difference(now).inDays;
-      isDeadlineNear = daysUntil <= 3 && daysUntil >= 0;
-      
-      if (daysUntil == 0) {
-        deadlineText = AppLocalizations.tr(context, 'today');
-      } else if (daysUntil == 1) {
-        deadlineText = AppLocalizations.tr(context, 'tomorrow');
-      } else if (daysUntil > 1) {
-        deadlineText = '$daysUntil ${AppLocalizations.tr(context, 'daysLeft')}';
-      } else if (daysUntil < 0) {
-        deadlineText = AppLocalizations.tr(context, 'overdue');
-      }
-    }
+
+    final isDeadlineNear = _isDeadlineNear(deadline);
+    final deadlineText = _getDeadlineText(context, deadline);
 
     return GestureDetector(
       onTap: onTap,
@@ -63,14 +108,25 @@ class DocumentCard extends StatelessWidget {
               decoration: BoxDecoration(
                 color: isDark ? Colors.grey[800] : Colors.grey[200],
                 borderRadius: BorderRadius.circular(12),
-                image:  DecorationImage(
-                  image: AssetImage('assets/docs/$image'),
-                  fit: BoxFit.cover,
-                ),
+                image: imagePath != null
+                    ? DecorationImage(
+                        image: AssetImage('assets/docs/$imagePath'),
+                        fit: BoxFit.cover,
+                      )
+                    : null,
               ),
+              child: imagePath == null
+                  ? Center(
+                      child: Icon(
+                        Icons.description_outlined,
+                        size: 30,
+                        color: isDark ? Colors.grey[600] : Colors.grey[400],
+                      ),
+                    )
+                  : null,
             ),
             const SizedBox(width: 16),
-            
+
             // Document info
             Expanded(
               child: Column(
@@ -98,31 +154,34 @@ class DocumentCard extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 8),
-                      
+
                       // Deadline warning badge
-                      if (hasDeadline && isDeadlineNear)
+                      if (hasDeadline &&
+                          isDeadlineNear &&
+                          deadlineText.isNotEmpty)
                         Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 8,
                             vertical: 2,
                           ),
                           decoration: BoxDecoration(
-                            color: (isDark ? AppTheme.darkWarning : AppTheme.lightWarning).withOpacity(0.2),
+                            color:
+                                (isDark
+                                        ? AppTheme.darkWarning
+                                        : AppTheme.lightWarning)
+                                    .withOpacity(0.2),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Text(
-                                '❗',
-                                style: TextStyle(fontSize: 10),
-                              ),
+                              const Text('❗', style: TextStyle(fontSize: 10)),
                               const SizedBox(width: 2),
                               Text(
                                 deadlineText,
                                 style: TextStyle(
-                                  color: isDark 
-                                      ? AppTheme.darkWarning 
+                                  color: isDark
+                                      ? AppTheme.darkWarning
                                       : AppTheme.lightWarning,
                                   fontSize: 10,
                                   fontWeight: FontWeight.w600,
@@ -133,21 +192,21 @@ class DocumentCard extends StatelessWidget {
                         ),
                     ],
                   ),
-                  
+
                   const SizedBox(height: 8),
-                  
+
                   // Document title
                   Text(
                     title,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontSize: 16,
-                    ),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.titleMedium?.copyWith(fontSize: 16),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  
+
                   const SizedBox(height: 4),
-                  
+
                   // Date
                   Row(
                     children: [
@@ -157,29 +216,27 @@ class DocumentCard extends StatelessWidget {
                         color: Theme.of(context).textTheme.bodyMedium?.color,
                       ),
                       const SizedBox(width: 4),
-                      Text(
-                        date,
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
+                      Text(date, style: Theme.of(context).textTheme.bodyMedium),
                     ],
                   ),
                 ],
               ),
             ),
-            
+
             // Status icon
             Container(
               width: 32,
               height: 32,
               decoration: BoxDecoration(
                 color: status == AppLocalizations.tr(context, 'done')
-                    ? (isDark ? AppTheme.darkSuccess : AppTheme.lightSuccess).withOpacity(0.1)
+                    ? (isDark ? AppTheme.darkSuccess : AppTheme.lightSuccess)
+                          .withOpacity(0.1)
                     : Colors.transparent,
                 shape: BoxShape.circle,
               ),
               child: Icon(
-                status == AppLocalizations.tr(context, 'done') 
-                    ? Icons.check_circle 
+                status == AppLocalizations.tr(context, 'done')
+                    ? Icons.check_circle
                     : Icons.radio_button_unchecked,
                 color: status == AppLocalizations.tr(context, 'done')
                     ? (isDark ? AppTheme.darkSuccess : AppTheme.lightSuccess)

@@ -1,6 +1,8 @@
 // lib/screens/document_detail_screen.dart
 import 'package:brief_ai/localization/app_localizations.dart';
-import 'package:brief_ai/services/data_service.dart';
+import 'package:brief_ai/models/document.dart';
+import 'package:brief_ai/models/document_image.dart';
+import 'package:brief_ai/services/document_service.dart';
 import 'package:brief_ai/theme/app_theme.dart';
 import 'package:brief_ai/widgets/glass_card.dart';
 import 'package:flutter/material.dart';
@@ -15,16 +17,17 @@ class DocumentDetailScreen extends StatefulWidget {
 class _DocumentDetailScreenState extends State<DocumentDetailScreen>
     with SingleTickerProviderStateMixin {
   bool _reminderEnabled = true;
-  // Reminder options states
   bool _reminder3Days = true;
   bool _reminder1Day = true;
   bool _reminder12Hours = false;
-  
+
   int _currentPage = 0;
   late DateTime _dueDate;
   late DateTime _addedDate;
-  Map<String, dynamic> document = {};
+  Document? _document;
   late TabController _tabController;
+  bool _isLoading = false;
+  bool _isSaving = false;
   String ocrText = '''
 Weiterbewilligungsantrag
 Antrag auf Weiterbewilligung der Leistungen zur Sicherung des Lebensunterhalts nach dem Zweiten Buch Sozialgesetzbuch (SGB II)
@@ -57,22 +60,101 @@ Tag der Antragstellung
 Ende des laufenden Bewilligungsabschnitts
 
 Dienststelle
-
 Team''';
-  
+
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
-    // Initialize dates
-    _dueDate = DateTime.now().add(const Duration(days: 30));
-    _addedDate = DateTime.now();
+    _loadDocument();
   }
 
   @override
   void dispose() {
     _tabController.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadDocument() async {
+    setState(() => _isLoading = true);
+
+    try {
+      final args =
+          ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+      final documentId = args?['documentId'] as int?;
+
+      if (documentId == null) {
+        throw Exception('Document ID not provided');
+      }
+
+      final document = await DocumentService().getDocumentById(documentId);
+
+      if (!mounted) return;
+
+      if (document != null) {
+        setState(() {
+          _document = document;
+          _dueDate =
+              document.deadline ?? DateTime.now().add(const Duration(days: 30));
+          _addedDate = document.createdAt;
+        });
+      }
+    } catch (e) {
+      if (!mounted) return;
+      _showErrorSnackBar('Error loading document: $e');
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  Future<void> _saveChanges() async {
+    if (_document == null || _isSaving) return;
+
+    setState(() => _isSaving = true);
+
+    try {
+      final updatedDocument = await DocumentService().updateDocument(
+        _document!.id!,
+        deadline: _dueDate,
+      );
+
+      if (!mounted) return;
+
+      setState(() {
+        _document = updatedDocument;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.tr(context, 'changesSaved')),
+          backgroundColor: Theme.of(context).brightness == Brightness.dark
+              ? AppTheme.darkSuccess
+              : AppTheme.lightSuccess,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      _showErrorSnackBar('Error saving changes: $e');
+    } finally {
+      if (mounted) {
+        setState(() => _isSaving = false);
+      }
+    }
+  }
+
+  void _showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Theme.of(context).brightness == Brightness.dark
+            ? AppTheme.darkDanger
+            : AppTheme.lightDanger,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
   }
 
   Future<void> _selectDate(BuildContext context, bool isDueDate) async {
@@ -89,15 +171,19 @@ Team''';
               primary: Theme.of(context).colorScheme.primary,
               onPrimary: Colors.white,
               surface: isDark ? AppTheme.darkCard : AppTheme.lightCard,
-              onSurface: isDark ? AppTheme.darkTextPrimary : AppTheme.lightTextPrimary,
+              onSurface: isDark
+                  ? AppTheme.darkTextPrimary
+                  : AppTheme.lightTextPrimary,
             ),
-            dialogBackgroundColor: isDark ? AppTheme.darkBackground : AppTheme.lightBackground,
+            dialogBackgroundColor: isDark
+                ? AppTheme.darkBackground
+                : AppTheme.lightBackground,
           ),
           child: child!,
         );
       },
     );
-    
+
     if (picked != null) {
       setState(() {
         if (isDueDate) {
@@ -106,6 +192,7 @@ Team''';
           _addedDate = picked;
         }
       });
+      _saveChanges();
     }
   }
 
@@ -115,407 +202,32 @@ Team''';
 
   @override
   Widget build(BuildContext context) {
-    final args =
-        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>;
-    final documentId = args['documentId'] as int;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final primaryColor = Theme.of(context).colorScheme.primary;
-    document = DataService().getDocumentById(documentId - 1);
-    
+
+    if (_isLoading) {
+      return _buildLoadingScreen(primaryColor);
+    }
+
+    if (_document == null) {
+      return _buildErrorScreen(context);
+    }
+
     return Scaffold(
       body: SafeArea(
         child: Column(
           children: [
-            // App bar (fixed at top)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.arrow_back),
-                    onPressed: () => Navigator.pop(context),
-                    color: Theme.of(context).textTheme.bodyLarge?.color,
-                  ),
-                  Row(
-                    children: [
-                      IconButton(
-                        icon: Icon(
-                          Icons.share_outlined,
-                          color: Theme.of(context).textTheme.bodyLarge?.color,
-                        ),
-                        onPressed: () {
-                          _showShareOptions(context);
-                        },
-                      ),
-                      PopupMenuButton<String>(
-                        icon: Icon(
-                          Icons.more_vert,
-                          color: Theme.of(context).textTheme.bodyLarge?.color,
-                        ),
-                        color: isDark ? AppTheme.darkCard : AppTheme.lightCard,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        onSelected: (value) {
-                          switch (value) {
-                            case 'edit':
-                              // Handle edit
-                              break;
-                            case 'export':
-                              // Handle export
-                              break;
-                            case 'delete':
-                              _showDeleteDialog(context);
-                              break;
-                          }
-                        },
-                        itemBuilder: (context) => [
-                          PopupMenuItem(
-                            value: 'edit',
-                            child: Row(
-                              children: [
-                                Icon(Icons.edit, color: primaryColor, size: 20),
-                                const SizedBox(width: 12),
-                                Text(AppLocalizations.tr(context, 'edit')),
-                              ],
-                            ),
-                          ),
-                          PopupMenuItem(
-                            value: 'export',
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.picture_as_pdf,
-                                  color: primaryColor,
-                                  size: 20,
-                                ),
-                                const SizedBox(width: 12),
-                                Text(AppLocalizations.tr(context, 'exportPDF')),
-                              ],
-                            ),
-                          ),
-                          PopupMenuItem(
-                            value: 'delete',
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.delete_outline,
-                                  color: isDark
-                                      ? AppTheme.darkDanger
-                                      : AppTheme.lightDanger,
-                                  size: 20,
-                                ),
-                                const SizedBox(width: 12),
-                                Text(
-                                  AppLocalizations.tr(context, 'delete'),
-                                  style: TextStyle(
-                                    color: isDark
-                                        ? AppTheme.darkDanger
-                                        : AppTheme.lightDanger,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-
-            // Scrollable content
+            _buildAppBar(context, isDark, primaryColor),
             Expanded(
               child: SingleChildScrollView(
                 child: Column(
                   children: [
-                    // Document preview with page indicator
-                    Container(
-                      height: 220,
-                      margin: const EdgeInsets.symmetric(horizontal: 20),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        color: isDark ? Colors.grey[900] : Colors.grey[200],
-                      ),
-                      child: Stack(
-                        children: [
-                          PageView(
-                            onPageChanged: (index) {
-                              setState(() {
-                                _currentPage = index;
-                              });
-                            },
-                            children: [
-                              Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(20),
-                                  image: DecorationImage(
-                                    image: AssetImage(
-                                      'assets/docs/${document['image']}',
-                                    ),
-                                    fit: BoxFit.contain,
-                                  ),
-                                ),
-                              ),
-                              if (document['image2'] != null)
-                                Container(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(20),
-                                    image: DecorationImage(
-                                      image: AssetImage(
-                                        'assets/docs/${document['image2']}',
-                                      ),
-                                      fit: BoxFit.contain,
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          ),
-                          Positioned(
-                            bottom: 10,
-                            left: 0,
-                            right: 0,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: List.generate(
-                                2,
-                                (index) => Container(
-                                  width: 8,
-                                  height: 8,
-                                  margin: const EdgeInsets.symmetric(horizontal: 4),
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: _currentPage == index
-                                        ? primaryColor
-                                        : Colors.white.withOpacity(0.5),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
+                    _buildDocumentPreview(isDark, primaryColor),
                     const SizedBox(height: 16),
-
-                    // Glass info panel with editable dates and reminder options
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: GlassCard(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 6,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: primaryColor.withOpacity(0.1),
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  child: Text(
-                                    document['category'] ?? AppLocalizations.tr(context, 'contracts'),
-                                    style: TextStyle(
-                                      color: primaryColor,
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ),
-                                Row(
-                                  children: [
-                                    GestureDetector(
-                                      onTap: () => _selectDate(context, true),
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 8,
-                                          vertical: 4,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: (isDark ? AppTheme.darkWarning : AppTheme.lightWarning).withOpacity(0.1),
-                                          borderRadius: BorderRadius.circular(12),
-                                        ),
-                                        child: Row(
-                                          children: [
-                                            Text(
-                                              '${AppLocalizations.tr(context, 'dueDate')} ${_formatDate(_dueDate)}',
-                                              style: TextStyle(
-                                                color: isDark ? AppTheme.darkWarning : AppTheme.lightWarning,
-                                                fontWeight: FontWeight.w600,
-                                                fontSize: 12,
-                                              ),
-                                            ),
-                                            const SizedBox(width: 4),
-                                            Icon(
-                                              Icons.edit,
-                                              color: isDark ? AppTheme.darkWarning : AppTheme.lightWarning,
-                                              size: 14,
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Switch(
-                                      value: _reminderEnabled,
-                                      onChanged: (value) {
-                                        setState(() {
-                                          _reminderEnabled = value;
-                                        });
-                                      },
-                                      activeColor: primaryColor,
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              document['title'] ?? 'Mietvertrag Wohnung',
-                              style: Theme.of(context).textTheme.titleLarge,
-                            ),
-                            const SizedBox(height: 8),
-                            GestureDetector(
-                              onTap: () => _selectDate(context, false),
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    Icons.calendar_today,
-                                    size: 14,
-                                    color: Theme.of(context).textTheme.bodyMedium?.color,
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    '${AppLocalizations.tr(context, 'addedDate')} ${_formatDate(_addedDate)}',
-                                    style: Theme.of(context).textTheme.bodyMedium,
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Icon(
-                                    Icons.edit,
-                                    size: 14,
-                                    color: Theme.of(context).textTheme.bodyMedium?.color,
-                                  ),
-                                ],
-                              ),
-                            ),
-                            
-                            // Reminder options (shown when reminder is enabled)
-                            if (_reminderEnabled) ...[
-                              const SizedBox(height: 16),
-                              const Divider(),
-                              const SizedBox(height: 8),
-                              
-                              // Reminder options header
-                              Row(
-                                children: [
-                                  Icon(
-                                    Icons.notifications_outlined,
-                                    size: 16,
-                                    color: primaryColor,
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    AppLocalizations.tr(context, 'reminderOptions'),
-                                    style: TextStyle(
-                                      color: isDark ? AppTheme.darkTextPrimary : AppTheme.lightTextPrimary,
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 12),
-                              
-                              // 3 days before checkbox
-                              _buildReminderCheckbox(
-                                context,
-                                '3 ${AppLocalizations.tr(context, 'daysBefore')}',
-                                _reminder3Days,
-                                (value) {
-                                  setState(() {
-                                    _reminder3Days = value;
-                                  });
-                                },
-                              ),
-                              const SizedBox(height: 8),
-                              
-                              // 1 day before checkbox
-                              _buildReminderCheckbox(
-                                context,
-                                '1 ${AppLocalizations.tr(context, 'dayBefore')}',
-                                _reminder1Day,
-                                (value) {
-                                  setState(() {
-                                    _reminder1Day = value;
-                                  });
-                                },
-                              ),
-                              const SizedBox(height: 8),
-                              
-                              // 12 hours before checkbox
-                              _buildReminderCheckbox(
-                                context,
-                                '12 ${AppLocalizations.tr(context, 'hoursBefore')}',
-                                _reminder12Hours,
-                                (value) {
-                                  setState(() {
-                                    _reminder12Hours = value;
-                                  });
-                                },
-                              ),
-                            ],
-                          ],
-                        ),
-                      ),
-                    ),
-
+                    _buildInfoPanel(context, isDark, primaryColor),
                     const SizedBox(height: 16),
-
-                    // Tab sections
-                    Container(
-                      height: 400, // Fixed height for tabs
-                      child: Column(
-                        children: [
-                          TabBar(
-                            controller: _tabController,
-                            tabs: [
-                              Tab(text: AppLocalizations.tr(context, 'scanPages')),
-                              Tab(text: AppLocalizations.tr(context, 'ocrText')),
-                              Tab(text: AppLocalizations.tr(context, 'aiAnalysis')),
-                            ],
-                            labelColor: primaryColor,
-                            unselectedLabelColor: Theme.of(
-                              context,
-                            ).textTheme.bodyMedium?.color,
-                            indicatorColor: primaryColor,
-                          ),
-                          Expanded(
-                            child: TabBarView(
-                              controller: _tabController,
-                              children: [
-                                // Scan pages
-                                _buildScanPagesTab(context),
-
-                                // OCR Text
-                                _buildOcrTextTab(context),
-
-                                // AI Analysis
-                                _buildAIAnalysisTab(context),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    
-                    const SizedBox(height: 20), // Extra bottom padding
+                    _buildTabSection(context, isDark, primaryColor),
+                    const SizedBox(height: 20),
                   ],
                 ),
               ),
@@ -523,42 +235,43 @@ Team''';
           ],
         ),
       ),
+      bottomNavigationBar: _buildBottomBar(context, isDark),
+    );
+  }
 
-      // Bottom action bar
-      bottomNavigationBar: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: isDark ? const Color(0xBF141928) : const Color(0xE5FFFFFF),
-          border: Border(
-            top: BorderSide(
-              color: isDark ? const Color(0x14FFFFFF) : const Color(0x0F000000),
-            ),
-          ),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+  Widget _buildLoadingScreen(Color primaryColor) {
+    return Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _buildActionButton(
-              context,
-              Icons.share,
-              AppLocalizations.tr(context, 'share'),
+            CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation(primaryColor),
             ),
-            _buildActionButton(
-              context,
-              Icons.picture_as_pdf,
-              AppLocalizations.tr(context, 'exportPDF'),
+            const SizedBox(height: 16),
+            Text(AppLocalizations.tr(context, 'loadingDocument')),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildErrorScreen(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.error_outline, size: 48, color: Colors.red),
+            const SizedBox(height: 16),
+            Text(
+              'Document not found',
+              style: Theme.of(context).textTheme.bodyLarge,
             ),
-            _buildActionButton(
-              context,
-              Icons.edit,
-              AppLocalizations.tr(context, 'edit'),
-            ),
-            _buildActionButton(
-              context,
-              Icons.delete_outline,
-              AppLocalizations.tr(context, 'delete'),
-              isDestructive: true,
-              onTap: () => _showDeleteDialog(context),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(AppLocalizations.tr(context, 'goBack')),
             ),
           ],
         ),
@@ -566,7 +279,378 @@ Team''';
     );
   }
 
-  // Helper method for reminder checkboxes
+  Widget _buildAppBar(BuildContext context, bool isDark, Color primaryColor) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => Navigator.pop(context),
+            color: Theme.of(context).textTheme.bodyLarge?.color,
+          ),
+          Row(
+            children: [
+              if (_isSaving)
+                Padding(
+                  padding: const EdgeInsets.only(right: 12),
+                  child: SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation(primaryColor),
+                    ),
+                  ),
+                ),
+              IconButton(
+                icon: Icon(
+                  Icons.share_outlined,
+                  color: Theme.of(context).textTheme.bodyLarge?.color,
+                ),
+                onPressed: () => _showShareOptions(context),
+              ),
+              PopupMenuButton<String>(
+                icon: Icon(
+                  Icons.more_vert,
+                  color: Theme.of(context).textTheme.bodyLarge?.color,
+                ),
+                color: isDark ? AppTheme.darkCard : AppTheme.lightCard,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                onSelected: (value) async {
+                  switch (value) {
+                    case 'edit':
+                      // Handle edit
+                      break;
+                    case 'export':
+                      // Handle export
+                      break;
+                    case 'delete':
+                      _showDeleteDialog(context);
+                      break;
+                  }
+                },
+                itemBuilder: (context) => [
+                  PopupMenuItem(
+                    value: 'edit',
+                    child: Row(
+                      children: [
+                        Icon(Icons.edit, color: primaryColor, size: 20),
+                        const SizedBox(width: 12),
+                        Text(AppLocalizations.tr(context, 'edit')),
+                      ],
+                    ),
+                  ),
+                  PopupMenuItem(
+                    value: 'export',
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.picture_as_pdf,
+                          color: primaryColor,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 12),
+                        Text(AppLocalizations.tr(context, 'exportPDF')),
+                      ],
+                    ),
+                  ),
+                  PopupMenuItem(
+                    value: 'delete',
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.delete_outline,
+                          color: isDark
+                              ? AppTheme.darkDanger
+                              : AppTheme.lightDanger,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 12),
+                        Text(
+                          AppLocalizations.tr(context, 'delete'),
+                          style: TextStyle(
+                            color: isDark
+                                ? AppTheme.darkDanger
+                                : AppTheme.lightDanger,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDocumentPreview(bool isDark, Color primaryColor) {
+    final imagePaths = _document?.imagePaths ?? [];
+
+    if (imagePaths.isEmpty) {
+      return Container(
+        height: 220,
+        margin: const EdgeInsets.symmetric(horizontal: 20),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          color: isDark ? Colors.grey[900] : Colors.grey[200],
+        ),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.image_not_supported_outlined,
+                size: 48,
+                color: isDark ? Colors.grey[600] : Colors.grey[400],
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'No images available',
+                style: TextStyle(
+                  color: isDark ? Colors.grey[600] : Colors.grey[400],
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return Container(
+      height: 220,
+      margin: const EdgeInsets.symmetric(horizontal: 20),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        color: isDark ? Colors.grey[900] : Colors.grey[200],
+      ),
+      child: Stack(
+        children: [
+          PageView.builder(
+            onPageChanged: (index) {
+              setState(() {
+                _currentPage = index;
+              });
+            },
+            itemCount: imagePaths.length,
+            itemBuilder: (context, index) {
+              return Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  image: DecorationImage(
+                    image: AssetImage('assets/docs/${imagePaths[index]}'),
+                    fit: BoxFit.contain,
+                  ),
+                ),
+              );
+            },
+          ),
+          Positioned(
+            bottom: 10,
+            left: 0,
+            right: 0,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(
+                imagePaths.length,
+                (index) => Container(
+                  width: 8,
+                  height: 8,
+                  margin: const EdgeInsets.symmetric(horizontal: 4),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: _currentPage == index
+                        ? primaryColor
+                        : Colors.white.withOpacity(0.5),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoPanel(
+    BuildContext context,
+    bool isDark,
+    Color primaryColor,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: GlassCard(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _buildCategoryChip(context, primaryColor),
+                Row(
+                  children: [
+                    _buildDueDateChip(context, isDark),
+                    const SizedBox(width: 8),
+                    _buildReminderSwitch(primaryColor),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Text(
+              _document!.title,
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            const SizedBox(height: 8),
+            _buildAddedDateRow(context),
+            if (_reminderEnabled) _buildReminderOptions(context, primaryColor),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCategoryChip(BuildContext context, Color primaryColor) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: primaryColor.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        AppLocalizations.tr(context, _document!.categoryKey),
+        style: TextStyle(
+          color: primaryColor,
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDueDateChip(BuildContext context, bool isDark) {
+    final hasDeadline = _document!.hasDeadline;
+    final color = hasDeadline
+        ? (isDark ? AppTheme.darkWarning : AppTheme.lightWarning)
+        : (isDark ? AppTheme.darkTextSecondary : AppTheme.lightTextSecondary);
+
+    return GestureDetector(
+      onTap: () => _selectDate(context, true),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          children: [
+            Text(
+              hasDeadline
+                  ? '${AppLocalizations.tr(context, 'dueDate')} ${_formatDate(_dueDate)}'
+                  : AppLocalizations.tr(context, 'noDeadline'),
+              style: TextStyle(
+                color: color,
+                fontWeight: FontWeight.w600,
+                fontSize: 12,
+              ),
+            ),
+            const SizedBox(width: 4),
+            Icon(Icons.edit, color: color, size: 14),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildReminderSwitch(Color primaryColor) {
+    return Switch(
+      value: _reminderEnabled,
+      onChanged: (value) {
+        setState(() => _reminderEnabled = value);
+      },
+      activeColor: primaryColor,
+    );
+  }
+
+  Widget _buildAddedDateRow(BuildContext context) {
+    return GestureDetector(
+      onTap: () => _selectDate(context, false),
+      child: Row(
+        children: [
+          Icon(
+            Icons.calendar_today,
+            size: 14,
+            color: Theme.of(context).textTheme.bodyMedium?.color,
+          ),
+          const SizedBox(width: 4),
+          Text(
+            '${AppLocalizations.tr(context, 'addedDate')} ${_formatDate(_addedDate)}',
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+          const SizedBox(width: 4),
+          Icon(
+            Icons.edit,
+            size: 14,
+            color: Theme.of(context).textTheme.bodyMedium?.color,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildReminderOptions(BuildContext context, Color primaryColor) {
+    return Column(
+      children: [
+        const SizedBox(height: 16),
+        const Divider(),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            Icon(Icons.notifications_outlined, size: 16, color: primaryColor),
+            const SizedBox(width: 8),
+            Text(
+              AppLocalizations.tr(context, 'reminderOptions'),
+              style: TextStyle(
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? AppTheme.darkTextPrimary
+                    : AppTheme.lightTextPrimary,
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        _buildReminderCheckbox(
+          context,
+          '3 ${AppLocalizations.tr(context, 'daysBefore')}',
+          _reminder3Days,
+          (value) => setState(() => _reminder3Days = value),
+        ),
+        const SizedBox(height: 8),
+        _buildReminderCheckbox(
+          context,
+          '1 ${AppLocalizations.tr(context, 'dayBefore')}',
+          _reminder1Day,
+          (value) => setState(() => _reminder1Day = value),
+        ),
+        const SizedBox(height: 8),
+        _buildReminderCheckbox(
+          context,
+          '12 ${AppLocalizations.tr(context, 'hoursBefore')}',
+          _reminder12Hours,
+          (value) => setState(() => _reminder12Hours = value),
+        ),
+      ],
+    );
+  }
+
   Widget _buildReminderCheckbox(
     BuildContext context,
     String label,
@@ -584,16 +668,20 @@ Team''';
           children: [
             Icon(
               isChecked ? Icons.check_box : Icons.check_box_outline_blank,
-              color: isChecked 
-                  ? primaryColor 
-                  : (isDark ? AppTheme.darkTextSecondary : AppTheme.lightTextSecondary),
+              color: isChecked
+                  ? primaryColor
+                  : (isDark
+                        ? AppTheme.darkTextSecondary
+                        : AppTheme.lightTextSecondary),
               size: 20,
             ),
             const SizedBox(width: 12),
             Text(
               label,
               style: TextStyle(
-                color: isDark ? AppTheme.darkTextPrimary : AppTheme.lightTextPrimary,
+                color: isDark
+                    ? AppTheme.darkTextPrimary
+                    : AppTheme.lightTextPrimary,
                 fontSize: 13,
               ),
             ),
@@ -603,12 +691,69 @@ Team''';
     );
   }
 
-  Widget _buildScanPagesTab(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+  Widget _buildTabSection(
+    BuildContext context,
+    bool isDark,
+    Color primaryColor,
+  ) {
+    return Container(
+      height: 400,
+      child: Column(
+        children: [
+          TabBar(
+            controller: _tabController,
+            tabs: [
+              Tab(text: AppLocalizations.tr(context, 'scanPages')),
+              Tab(text: AppLocalizations.tr(context, 'ocrText')),
+              Tab(text: AppLocalizations.tr(context, 'aiAnalysis')),
+            ],
+            labelColor: primaryColor,
+            unselectedLabelColor: Theme.of(context).textTheme.bodyMedium?.color,
+            indicatorColor: primaryColor,
+          ),
+          Expanded(
+            child: TabBarView(
+              controller: _tabController,
+              children: [
+                _buildScanPagesTab(context, isDark),
+                _buildOcrTextTab(context, isDark),
+                _buildAIAnalysisTab(context, isDark),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildScanPagesTab(BuildContext context, bool isDark) {
+    final imagePaths = _document?.imagePaths ?? [];
+
+    if (imagePaths.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.image_not_supported_outlined,
+              size: 48,
+              color: isDark ? Colors.grey[600] : Colors.grey[400],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'No pages available',
+              style: TextStyle(
+                color: isDark ? Colors.grey[600] : Colors.grey[400],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
 
     return ListView.builder(
       padding: const EdgeInsets.all(20),
-      itemCount: 2,
+      itemCount: imagePaths.length,
       itemBuilder: (context, index) {
         return Container(
           height: 200,
@@ -617,7 +762,7 @@ Team''';
             color: isDark ? Colors.grey[900] : Colors.grey[200],
             borderRadius: BorderRadius.circular(16),
             image: DecorationImage(
-              image: AssetImage('assets/docs/${document['image'] ?? '1.jpeg'}'),
+              image: AssetImage('assets/docs/${imagePaths[index]}'),
               fit: BoxFit.cover,
             ),
           ),
@@ -626,14 +771,13 @@ Team''';
     );
   }
 
-  Widget _buildOcrTextTab(BuildContext context) {
+  Widget _buildOcrTextTab(BuildContext context, bool isDark) {
     return Padding(
       padding: const EdgeInsets.all(20),
       child: GlassCard(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header section
             Padding(
               padding: const EdgeInsets.all(1),
               child: Row(
@@ -653,8 +797,7 @@ Team''';
                           content: Text(
                             AppLocalizations.tr(context, 'textCopied'),
                           ),
-                          backgroundColor:
-                              Theme.of(context).brightness == Brightness.dark
+                          backgroundColor: isDark
                               ? AppTheme.darkSuccess
                               : AppTheme.lightSuccess,
                         ),
@@ -666,8 +809,6 @@ Team''';
               ),
             ),
             const Divider(height: 1),
-
-            // Scrollable text area
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(16),
@@ -688,7 +829,7 @@ Team''';
     );
   }
 
-  Widget _buildAIAnalysisTab(BuildContext context) {
+  Widget _buildAIAnalysisTab(BuildContext context, bool isDark) {
     return Padding(
       padding: const EdgeInsets.all(20),
       child: ListView(
@@ -703,7 +844,9 @@ Team''';
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Untermietvertrag für eine Wohnung in Berlin. Laufzeit: 6 Monate. Kaution: 1500€. Monatsmiete: 750€ warm.',
+                  _document!.summary.isNotEmpty
+                      ? _document!.summary
+                      : 'Untermietvertrag für eine Wohnung in Berlin. Laufzeit: 6 Monate. Kaution: 1500€. Monatsmiete: 750€ warm.',
                   style: Theme.of(context).textTheme.bodyLarge,
                 ),
               ],
@@ -797,6 +940,47 @@ Team''';
                 ),
               ],
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBottomBar(BuildContext context, bool isDark) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xBF141928) : const Color(0xE5FFFFFF),
+        border: Border(
+          top: BorderSide(
+            color: isDark ? const Color(0x14FFFFFF) : const Color(0x0F000000),
+          ),
+        ),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          _buildActionButton(
+            context,
+            Icons.share,
+            AppLocalizations.tr(context, 'share'),
+          ),
+          _buildActionButton(
+            context,
+            Icons.picture_as_pdf,
+            AppLocalizations.tr(context, 'exportPDF'),
+          ),
+          _buildActionButton(
+            context,
+            Icons.edit,
+            AppLocalizations.tr(context, 'edit'),
+          ),
+          _buildActionButton(
+            context,
+            Icons.delete_outline,
+            AppLocalizations.tr(context, 'delete'),
+            isDestructive: true,
+            onTap: () => _showDeleteDialog(context),
           ),
         ],
       ),
@@ -946,19 +1130,33 @@ Team''';
             ),
           ),
           ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              Navigator.pop(context); // Return to previous screen
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    AppLocalizations.tr(context, 'documentDeleted'),
-                  ),
-                  backgroundColor: isDark
-                      ? AppTheme.darkSuccess
-                      : AppTheme.lightSuccess,
-                ),
-              );
+            onPressed: () async {
+              Navigator.pop(context); // Close dialog
+
+              if (_document?.id != null) {
+                try {
+                  await DocumentService().deleteDocument(_document!.id!);
+
+                  if (!mounted) return;
+
+                  Navigator.pop(context); // Return to previous screen
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        AppLocalizations.tr(context, 'documentDeleted'),
+                      ),
+                      backgroundColor: isDark
+                          ? AppTheme.darkSuccess
+                          : AppTheme.lightSuccess,
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
+                } catch (e) {
+                  if (!mounted) return;
+                  _showErrorSnackBar('Error deleting document: $e');
+                }
+              }
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: isDark

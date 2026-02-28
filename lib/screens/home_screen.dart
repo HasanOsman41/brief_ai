@@ -2,7 +2,8 @@
 import 'dart:ui';
 
 import 'package:brief_ai/localization/app_localizations.dart';
-import 'package:brief_ai/services/data_service.dart';
+import 'package:brief_ai/models/document.dart';
+import 'package:brief_ai/services/document_service.dart';
 import 'package:brief_ai/theme/app_theme.dart';
 import 'package:brief_ai/widgets/category_chip.dart';
 import 'package:brief_ai/widgets/document_card.dart';
@@ -22,6 +23,9 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
   String _selectedCategory = 'all';
+  List<Document> _documents = [];
+  bool _isLoading = false;
+  String? _error;
 
   // Use keys instead of localized strings for categories
   final List<Map<String, String>> _categoryKeys = const [
@@ -37,6 +41,41 @@ class _HomeScreenState extends State<HomeScreen> {
     {'key': 'rent', 'labelKey': 'rent'},
     {'key': 'other', 'labelKey': 'other'},
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadDocuments();
+  }
+
+  Future<void> _loadDocuments() async {
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
+
+    try {
+      final documents = await DocumentService().getAllDocuments();
+
+      if (!mounted) return;
+
+      setState(() {
+        _documents = documents;
+        _isLoading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        _error = e.toString();
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _refreshDocuments() async {
+    await _loadDocuments();
+  }
 
   // Helper method to get localized category label
   String _getCategoryLabel(String categoryKey) {
@@ -73,8 +112,12 @@ class _HomeScreenState extends State<HomeScreen> {
     switch (statusKey) {
       case 'pending':
         return AppLocalizations.tr(context, 'pending');
+      case 'inProgress':
+        return AppLocalizations.tr(context, 'inProgress');
       case 'done':
         return AppLocalizations.tr(context, 'done');
+      case 'archived':
+        return AppLocalizations.tr(context, 'archived');
       default:
         return statusKey;
     }
@@ -84,139 +127,173 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildHomeDashboard() {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final primaryColor = Theme.of(context).colorScheme.primary;
-    var documents = DataService().getData();
+
+    if (_isLoading) {
+      return Center(
+        child: CircularProgressIndicator(
+          valueColor: AlwaysStoppedAnimation(primaryColor),
+        ),
+      );
+    }
+
+    if (_error != null) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.error_outline, size: 48, color: Colors.red),
+            const SizedBox(height: 16),
+            Text(
+              'Error loading dashboard',
+              style: Theme.of(context).textTheme.bodyLarge,
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: _refreshDocuments,
+              child: Text(AppLocalizations.tr(context, 'retry')),
+            ),
+          ],
+        ),
+      );
+    }
 
     // Calculate statistics
-    int totalDocuments = documents.length;
-    int pendingDocuments = documents
-        .where((doc) => doc['statusKey'] == 'pending')
+    int totalDocuments = _documents.length;
+    int pendingDocuments = _documents
+        .where(
+          (doc) => doc.statusKey == 'pending' || doc.statusKey == 'inProgress',
+        )
         .length;
-    int closedDocuments = documents
-        .where((doc) => doc['statusKey'] == 'done')
+    int closedDocuments = _documents
+        .where((doc) => doc.statusKey == 'done')
         .length;
 
     // Get recently added documents (last 3)
-    var recentDocuments = documents.take(3).toList();
+    var recentDocuments = _documents.take(3).toList();
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Statistics Cards - Now at the top
-          Row(
-            children: [
-              // Total Documents
-              Expanded(
-                child: _buildStatCard(
-                  context,
-                  icon: Icons.description,
-                  value: totalDocuments.toString(),
-                  label: AppLocalizations.tr(context, 'totalDocuments'),
-                  color: primaryColor,
+    return RefreshIndicator(
+      onRefresh: _refreshDocuments,
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        physics: const AlwaysScrollableScrollPhysics(),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Statistics Cards
+            Row(
+              children: [
+                Expanded(
+                  child: _buildStatCard(
+                    context,
+                    icon: Icons.description,
+                    value: totalDocuments.toString(),
+                    label: AppLocalizations.tr(context, 'totalDocuments'),
+                    color: primaryColor,
+                  ),
                 ),
-              ),
-              const SizedBox(width: 12),
-              // Pending Documents
-              Expanded(
-                child: _buildStatCard(
-                  context,
-                  icon: Icons.pending_actions,
-                  value: pendingDocuments.toString(),
-                  label: AppLocalizations.tr(context, 'pending'),
-                  color: isDark ? AppTheme.darkWarning : AppTheme.lightWarning,
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _buildStatCard(
+                    context,
+                    icon: Icons.pending_actions,
+                    value: pendingDocuments.toString(),
+                    label: AppLocalizations.tr(context, 'pending'),
+                    color: isDark
+                        ? AppTheme.darkWarning
+                        : AppTheme.lightWarning,
+                  ),
                 ),
-              ),
-              const SizedBox(width: 12),
-              // Closed Documents
-              Expanded(
-                child: _buildStatCard(
-                  context,
-                  icon: Icons.check_circle,
-                  value: closedDocuments.toString(),
-                  label: AppLocalizations.tr(context, 'done'),
-                  color: isDark ? AppTheme.darkSuccess : AppTheme.lightSuccess,
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _buildStatCard(
+                    context,
+                    icon: Icons.check_circle,
+                    value: closedDocuments.toString(),
+                    label: AppLocalizations.tr(context, 'done'),
+                    color: isDark
+                        ? AppTheme.darkSuccess
+                        : AppTheme.lightSuccess,
+                  ),
                 ),
-              ),
-            ],
-          ),
+              ],
+            ),
 
-          const SizedBox(height: 24),
+            const SizedBox(height: 24),
 
-          // Recently Added Section Header
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                AppLocalizations.tr(context, 'recentlyAdded'),
-                style: TextStyle(
-                  color: isDark
-                      ? AppTheme.darkTextPrimary
-                      : AppTheme.lightTextPrimary,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+            // Recently Added Section Header
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  AppLocalizations.tr(context, 'recentlyAdded'),
+                  style: TextStyle(
+                    color: isDark
+                        ? AppTheme.darkTextPrimary
+                        : AppTheme.lightTextPrimary,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
-              TextButton(
-                onPressed: () {
-                  // Switch to documents tab in bottom navigation
-                  setState(() {
-                    _selectedIndex = 2;
-                  });
-                },
-                child: Text(
-                  AppLocalizations.tr(context, 'viewAll'),
-                  style: TextStyle(color: primaryColor),
+                TextButton(
+                  onPressed: () {
+                    setState(() {
+                      _selectedIndex = 2;
+                    });
+                  },
+                  child: Text(
+                    AppLocalizations.tr(context, 'viewAll'),
+                    style: TextStyle(color: primaryColor),
+                  ),
                 ),
-              ),
-            ],
-          ),
+              ],
+            ),
 
-          const SizedBox(height: 12),
+            const SizedBox(height: 12),
 
-          // Recently Added Documents List
-          recentDocuments.isEmpty
-              ? Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(32.0),
-                    child: Text(
-                      AppLocalizations.tr(context, 'noDocuments'),
-                      style: TextStyle(
-                        color: isDark
-                            ? AppTheme.darkTextSecondary
-                            : AppTheme.lightTextSecondary,
+            // Recently Added Documents List
+            recentDocuments.isEmpty
+                ? Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(32.0),
+                      child: Text(
+                        AppLocalizations.tr(context, 'noDocuments'),
+                        style: TextStyle(
+                          color: isDark
+                              ? AppTheme.darkTextSecondary
+                              : AppTheme.lightTextSecondary,
+                        ),
                       ),
                     ),
+                  )
+                : ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: recentDocuments.length,
+                    itemBuilder: (context, index) {
+                      final doc = recentDocuments[index];
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: DocumentCard(
+                          title: doc.title,
+                          category: _getCategoryLabel(doc.categoryKey),
+                          date: doc.formattedCreatedAt,
+                          deadline: doc.formattedDeadline,
+                          status: _getStatusLabel(doc.statusKey),
+                          hasDeadline: doc.hasDeadline,
+                          imagePath: doc.mainImagePath,
+                          onTap: () {
+                            Navigator.pushNamed(
+                              context,
+                              '/document-detail',
+                              arguments: {'documentId': doc.id},
+                            );
+                          },
+                        ),
+                      );
+                    },
                   ),
-                )
-              : ListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: recentDocuments.length,
-                  itemBuilder: (context, index) {
-                    final doc = recentDocuments[index];
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: DocumentCard(
-                        title: doc['title'],
-                        category: _getCategoryLabel(doc['categoryKey']),
-                        date: doc['date'],
-                        deadline: doc['deadline'],
-                        status: _getStatusLabel(doc['statusKey']),
-                        hasDeadline: doc['hasDeadline'],
-                        image: doc['image'],
-                        onTap: () {
-                          Navigator.pushNamed(
-                            context,
-                            '/document-detail',
-                            arguments: {'documentId': doc['id']},
-                          );
-                        },
-                      ),
-                    );
-                  },
-                ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -273,7 +350,43 @@ class _HomeScreenState extends State<HomeScreen> {
   // Build Documents Tab (Original document list with search and filters)
   Widget _buildDocumentsTab() {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    var documents = DataService().getData();
+    final primaryColor = Theme.of(context).colorScheme.primary;
+
+    if (_isLoading) {
+      return Center(
+        child: CircularProgressIndicator(
+          valueColor: AlwaysStoppedAnimation(primaryColor),
+        ),
+      );
+    }
+
+    if (_error != null) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.error_outline, size: 48, color: Colors.red),
+            const SizedBox(height: 16),
+            Text(
+              'Error loading documents',
+              style: Theme.of(context).textTheme.bodyLarge,
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: _refreshDocuments,
+              child: Text(AppLocalizations.tr(context, 'retry')),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // Filter documents by selected category
+    final filteredDocuments = _selectedCategory == 'all'
+        ? _documents
+        : _documents
+              .where((doc) => doc.categoryKey == _selectedCategory)
+              .toList();
 
     return Column(
       children: [
@@ -354,37 +467,57 @@ class _HomeScreenState extends State<HomeScreen> {
 
         // Document list
         Expanded(
-          child: ListView.builder(
-            padding: const EdgeInsets.fromLTRB(20, 0, 20, 80),
-            itemCount: documents.length,
-            itemBuilder: (context, index) {
-              final doc = documents[index];
-              // Only show documents matching selected category (if not 'all')
-              if (_selectedCategory != 'all' &&
-                  doc['categoryKey'] != _selectedCategory) {
-                return const SizedBox.shrink();
-              }
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: DocumentCard(
-                  title: doc['title'],
-                  category: _getCategoryLabel(doc['categoryKey']),
-                  date: doc['date'],
-                  deadline: doc['deadline'],
-                  status: _getStatusLabel(doc['statusKey']),
-                  hasDeadline: doc['hasDeadline'],
-                  image: doc['image'],
-                  onTap: () {
-                    Navigator.pushNamed(
-                      context,
-                      '/document-detail',
-                      arguments: {'documentId': doc['id']},
-                    );
-                  },
+          child: filteredDocuments.isEmpty
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.folder_outlined,
+                        size: 64,
+                        color: isDark
+                            ? AppTheme.darkTextSecondary
+                            : AppTheme.lightTextSecondary,
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        _selectedCategory == 'all'
+                            ? AppLocalizations.tr(context, 'noDocuments')
+                            : 'No documents in this category',
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                    ],
+                  ),
+                )
+              : RefreshIndicator(
+                  onRefresh: _refreshDocuments,
+                  child: ListView.builder(
+                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 80),
+                    itemCount: filteredDocuments.length,
+                    itemBuilder: (context, index) {
+                      final doc = filteredDocuments[index];
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: DocumentCard(
+                          title: doc.title,
+                          category: _getCategoryLabel(doc.categoryKey),
+                          date: doc.formattedCreatedAt,
+                          deadline: doc.formattedDeadline,
+                          status: _getStatusLabel(doc.statusKey),
+                          hasDeadline: doc.hasDeadline,
+                          imagePath: doc.mainImagePath,
+                          onTap: () {
+                            Navigator.pushNamed(
+                              context,
+                              '/document-detail',
+                              arguments: {'documentId': doc.id},
+                            );
+                          },
+                        ),
+                      );
+                    },
+                  ),
                 ),
-              );
-            },
-          ),
         ),
       ],
     );
@@ -399,7 +532,7 @@ class _HomeScreenState extends State<HomeScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // Header with privacy indicator - Enhanced for Home tab
+            // Header with privacy indicator
             Container(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
@@ -471,10 +604,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       ],
                     ),
 
-                    // Right side - Theme and settings buttons with enhanced styling
+                    // Right side - Theme and settings buttons
                     Row(
                       children: [
-                        // Theme toggle with background
+                        // Theme toggle
                         Container(
                           decoration: BoxDecoration(
                             color: isDark
@@ -498,7 +631,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ),
                         const SizedBox(width: 8),
-                        // Reminders button with background
+                        // Reminders button
                         Container(
                           decoration: BoxDecoration(
                             color: isDark
@@ -524,7 +657,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ),
                         const SizedBox(width: 8),
-                        // Settings button with background
+                        // Settings button
                         Container(
                           decoration: BoxDecoration(
                             color: isDark
@@ -709,11 +842,33 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       child: PopupMenuButton<String>(
         onSelected: (value) {
-          // Handle sort option change
+          // Sort documents based on selection
+          setState(() {
+            switch (value) {
+              case 'latest':
+                _documents.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+                break;
+              case 'deadline':
+                _documents.sort((a, b) {
+                  if (a.deadline == null && b.deadline == null) return 0;
+                  if (a.deadline == null) return 1;
+                  if (b.deadline == null) return -1;
+                  return a.deadline!.compareTo(b.deadline!);
+                });
+                break;
+              case 'category':
+                _documents.sort(
+                  (a, b) => a.categoryKey.compareTo(b.categoryKey),
+                );
+                break;
+            }
+          });
+
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Sorted by $value'),
+              content: Text('Sorted by ${_getSortLabel(context, value)}'),
               duration: const Duration(seconds: 1),
+              behavior: SnackBarBehavior.floating,
             ),
           );
         },
@@ -771,5 +926,18 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
     );
+  }
+
+  String _getSortLabel(BuildContext context, String sortKey) {
+    switch (sortKey) {
+      case 'latest':
+        return AppLocalizations.tr(context, 'latest');
+      case 'deadline':
+        return AppLocalizations.tr(context, 'deadline');
+      case 'category':
+        return AppLocalizations.tr(context, 'category');
+      default:
+        return sortKey;
+    }
   }
 }

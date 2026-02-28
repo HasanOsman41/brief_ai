@@ -12,6 +12,8 @@ class ScanBottomBar extends StatelessWidget {
     required this.onAnalyze,
     required this.onOpenGallery,
     required this.onDelete,
+    required this.onDownloadPdf,
+    this.isPdfLoading = false,
   });
 
   final int pageCount;
@@ -19,6 +21,8 @@ class ScanBottomBar extends StatelessWidget {
   final VoidCallback onAnalyze;
   final VoidCallback onOpenGallery;
   final VoidCallback onDelete;
+  final VoidCallback onDownloadPdf;
+  final bool isPdfLoading;
 
   bool get _hasPages => pageCount > 0;
 
@@ -45,8 +49,8 @@ class ScanBottomBar extends StatelessWidget {
             primary: primary,
             onScan: onScan,
             onOpenGallery: onOpenGallery,
-            onDelete: onDelete,
-          ),
+            onDelete: onDelete,            onDownloadPdf: onDownloadPdf,
+            isPdfLoading: isPdfLoading,          ),
         ],
       ),
     );
@@ -104,6 +108,8 @@ class _ActionBar extends StatelessWidget {
     required this.onScan,
     required this.onOpenGallery,
     required this.onDelete,
+    required this.onDownloadPdf,
+    this.isPdfLoading = false,
   });
 
   final int pageCount;
@@ -113,6 +119,8 @@ class _ActionBar extends StatelessWidget {
   final VoidCallback onScan;
   final VoidCallback onOpenGallery;
   final VoidCallback onDelete;
+  final VoidCallback onDownloadPdf;
+  final bool isPdfLoading;
 
   @override
   Widget build(BuildContext context) {
@@ -137,6 +145,16 @@ class _ActionBar extends StatelessWidget {
           ),
           
           if (hasPages) ...[
+            // Download PDF button
+            _CircleActionButton(
+              icon: Icons.picture_as_pdf_outlined,
+              label: AppLocalizations.tr(context, 'downloadPdf'),
+              isDark: isDark,
+              primary: primary,
+              onTap: onDownloadPdf,
+              isLoading: isPdfLoading,
+            ),
+            
             // Delete button
             _CircleActionButton(
               icon: Icons.delete_outline,
@@ -171,6 +189,7 @@ class _CircleActionButton extends StatelessWidget {
     required this.onTap,
     this.highlighted = false,
     this.isDestructive = false,
+    this.isLoading = false,
   });
 
   final IconData icon;
@@ -180,6 +199,7 @@ class _CircleActionButton extends StatelessWidget {
   final VoidCallback onTap;
   final bool highlighted;
   final bool isDestructive;
+  final bool isLoading;
 
   @override
   Widget build(BuildContext context) {
@@ -210,7 +230,16 @@ class _CircleActionButton extends StatelessWidget {
                 ? [BoxShadow(color: primary.withOpacity(0.4), blurRadius: 10, offset: const Offset(0, 4))] 
                 : null,
             ),
-            child: Icon(icon, color: iconColor, size: 22),
+            child: isLoading
+                ? SizedBox(
+                    width: 22,
+                    height: 22,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation(primary),
+                    ),
+                  )
+                : Icon(icon, color: iconColor, size: 22),
           ),
           const SizedBox(height: 4),
           Text(

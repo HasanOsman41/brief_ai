@@ -5,6 +5,7 @@ import 'package:brief_ai/localization/app_localizations.dart';
 import 'package:brief_ai/models/analysis_result.dart';
 import 'package:brief_ai/services/document_extractor_service.dart';
 import 'package:brief_ai/services/ocr_service.dart';
+import 'package:brief_ai/services/pdf_service.dart';
 import 'package:brief_ai/theme/app_theme.dart';
 import 'package:brief_ai/widgets/scan/analysis_bottom_sheet.dart';
 import 'package:brief_ai/widgets/scan/scan_bottom_bar.dart';
@@ -12,6 +13,7 @@ import 'package:brief_ai/widgets/scan/scan_gallery.dart';
 import 'package:brief_ai/widgets/scan/scan_top_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_doc_scanner/flutter_doc_scanner.dart';
+import 'package:open_file/open_file.dart';
 
 /// Orchestrates the full scan flow:
 ///   1. Launch native scanner  →  collect image paths
@@ -37,6 +39,7 @@ class _ScanScreenState extends State<ScanScreen> {
   // ── Processing ─────────────────────────────────────────────────────────────
   bool _processing = false;
   String _processingStep = '';
+  bool _generatingPdf = false;
 
   // ── Analysis result ────────────────────────────────────────────────────────
   AnalysisResult? _result;
@@ -100,8 +103,9 @@ class _ScanScreenState extends State<ScanScreen> {
     try {
       final text = await OcrService.instance.recogniseAll(
         _pages,
-        onProgress: (cur, total) => setState(() => 
-          _processingStep = '${AppLocalizations.tr(context, 'ocrPage')} $cur / $total'
+        onProgress: (cur, total) => setState(
+          () => _processingStep =
+              '${AppLocalizations.tr(context, 'ocrPage')} $cur / $total',
         ),
       );
 
@@ -114,8 +118,11 @@ class _ScanScreenState extends State<ScanScreen> {
         return;
       }
 
-      setState(() => 
-        _processingStep = AppLocalizations.tr(context, 'extractingDocumentInfo')
+      setState(
+        () => _processingStep = AppLocalizations.tr(
+          context,
+          'extractingDocumentInfo',
+        ),
       );
       await Future.delayed(const Duration(milliseconds: 60));
       final result = DocumentExtractorService.instance.extract(text);
@@ -148,6 +155,32 @@ class _ScanScreenState extends State<ScanScreen> {
       imagePaths: List.unmodifiable(_pages),
       onSave: (d) => setState(() => _deadline = d),
     );
+  }
+
+  Future<void> _handlePdfExport() async {
+    setState(() => _generatingPdf = true);
+    try {
+      final path = await PdfService.instance.generateAndSave(_pages);
+      if (!mounted) return;
+      setState(() => _generatingPdf = false);
+      if (path != null) {
+        await OpenFile.open(path);
+        _snackSuccess(
+          AppLocalizations.tr(context, 'pdfDownloadStarted'),
+          action: SnackBarAction(
+            label: AppLocalizations.tr(context, 'open'),
+            textColor: Colors.white,
+            onPressed: () => OpenFile.open(path),
+          ),
+        );
+      } else {
+        _snackError(AppLocalizations.tr(context, 'errorPickingImage'));
+      }
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _generatingPdf = false);
+      _snackError('Error: $e');
+    }
   }
 
   // ── Page management ────────────────────────────────────────────────────────
@@ -229,7 +262,7 @@ class _ScanScreenState extends State<ScanScreen> {
 
   // ── Snackbars ──────────────────────────────────────────────────────────────
 
-  void _snackSuccess(String msg) {
+  void _snackSuccess(String msg, {SnackBarAction? action}) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -237,6 +270,7 @@ class _ScanScreenState extends State<ScanScreen> {
         backgroundColor: isDark ? AppTheme.darkSuccess : AppTheme.lightSuccess,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        action: action,
       ),
     );
   }
@@ -296,18 +330,18 @@ class _ScanScreenState extends State<ScanScreen> {
         // Image / empty state
         Container(
           color: isDark ? AppTheme.darkBackground : AppTheme.lightBackground,
-          child: hasPages
-              ? _buildImageViewer()
-              : _buildEmptyState(isDark),
+          child: hasPages ? _buildImageViewer() : _buildEmptyState(isDark),
         ),
 
-        if (multiPage) _PageCounter(current: _currentIndex + 1, total: _pages.length),
-        if (multiPage) _SwipeNavArrows(
-          canGoBack: _currentIndex > 0,
-          canGoForward: _currentIndex < _pages.length - 1,
-          onBack: () => _navigate(-1),
-          onForward: () => _navigate(1),
-        ),
+        if (multiPage)
+          _PageCounter(current: _currentIndex + 1, total: _pages.length),
+        if (multiPage)
+          _SwipeNavArrows(
+            canGoBack: _currentIndex > 0,
+            canGoForward: _currentIndex < _pages.length - 1,
+            onBack: () => _navigate(-1),
+            onForward: () => _navigate(1),
+          ),
 
         ScanTopBar(
           hasImages: hasPages,
@@ -322,6 +356,8 @@ class _ScanScreenState extends State<ScanScreen> {
           onAnalyze: _analyze,
           onDelete: _deleteCurrentPage,
           onOpenGallery: () => setState(() => _showGallery = true),
+          onDownloadPdf: _handlePdfExport,
+          isPdfLoading: _generatingPdf,
         ),
       ],
     );
@@ -332,8 +368,7 @@ class _ScanScreenState extends State<ScanScreen> {
       onHorizontalDragEnd: (d) {
         if (d.primaryVelocity! > 0 && _currentIndex > 0)
           _navigate(-1);
-        else if (d.primaryVelocity! < 0 &&
-            _currentIndex < _pages.length - 1)
+        else if (d.primaryVelocity! < 0 && _currentIndex < _pages.length - 1)
           _navigate(1);
       },
       child: Hero(
@@ -357,19 +392,28 @@ class _ScanScreenState extends State<ScanScreen> {
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: (isDark ? AppTheme.darkSurface : AppTheme.lightSurface).withOpacity(0.5),
+              color: (isDark ? AppTheme.darkSurface : AppTheme.lightSurface)
+                  .withOpacity(0.5),
             ),
             child: Icon(
               Icons.document_scanner_outlined,
               size: 80,
-              color: (isDark ? AppTheme.darkTextSecondary : AppTheme.lightTextSecondary).withOpacity(0.5),
+              color:
+                  (isDark
+                          ? AppTheme.darkTextSecondary
+                          : AppTheme.lightTextSecondary)
+                      .withOpacity(0.5),
             ),
           ),
           const SizedBox(height: 24),
           Text(
             AppLocalizations.tr(context, 'cameraPreview'),
             style: TextStyle(
-              color: (isDark ? AppTheme.darkTextSecondary : AppTheme.lightTextSecondary).withOpacity(0.7),
+              color:
+                  (isDark
+                          ? AppTheme.darkTextSecondary
+                          : AppTheme.lightTextSecondary)
+                      .withOpacity(0.7),
               fontSize: 18,
               fontWeight: FontWeight.w500,
             ),
@@ -378,7 +422,11 @@ class _ScanScreenState extends State<ScanScreen> {
           Text(
             AppLocalizations.tr(context, 'tapToScan'),
             style: TextStyle(
-              color: (isDark ? AppTheme.darkTextSecondary : AppTheme.lightTextSecondary).withOpacity(0.5),
+              color:
+                  (isDark
+                          ? AppTheme.darkTextSecondary
+                          : AppTheme.lightTextSecondary)
+                      .withOpacity(0.5),
               fontSize: 14,
             ),
           ),
@@ -523,11 +571,7 @@ class _Arrow extends StatelessWidget {
         ),
         child: Padding(
           padding: const EdgeInsets.all(12),
-          child: Icon(
-            icon,
-            size: 28,
-            color: Colors.white,
-          ),
+          child: Icon(icon, size: 28, color: Colors.white),
         ),
       ),
     );
@@ -545,7 +589,7 @@ class _ProcessingOverlay extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final primaryColor = Theme.of(context).colorScheme.primary;
-    
+
     return Container(
       color: Colors.black.withOpacity(0.75),
       child: Center(
@@ -554,10 +598,7 @@ class _ProcessingOverlay extends StatelessWidget {
           duration: const Duration(milliseconds: 300),
           curve: Curves.easeOut,
           builder: (context, scale, child) {
-            return Transform.scale(
-              scale: scale,
-              child: child,
-            );
+            return Transform.scale(scale: scale, child: child);
           },
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 28),
@@ -567,8 +608,12 @@ class _ProcessingOverlay extends StatelessWidget {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  isDark ? AppTheme.darkCard.withOpacity(0.9) : AppTheme.lightCard,
-                  isDark ? AppTheme.darkCard : AppTheme.lightCard.withOpacity(0.95),
+                  isDark
+                      ? AppTheme.darkCard.withOpacity(0.9)
+                      : AppTheme.lightCard,
+                  isDark
+                      ? AppTheme.darkCard
+                      : AppTheme.lightCard.withOpacity(0.95),
                 ],
               ),
               borderRadius: BorderRadius.circular(24),
@@ -599,11 +644,7 @@ class _ProcessingOverlay extends StatelessWidget {
                         valueColor: AlwaysStoppedAnimation<Color>(primaryColor),
                       ),
                     ),
-                    Icon(
-                      Icons.auto_awesome,
-                      color: primaryColor,
-                      size: 24,
-                    ),
+                    Icon(Icons.auto_awesome, color: primaryColor, size: 24),
                   ],
                 ),
                 const SizedBox(height: 24),
@@ -611,7 +652,9 @@ class _ProcessingOverlay extends StatelessWidget {
                   label,
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: isDark ? AppTheme.darkTextPrimary : AppTheme.lightTextPrimary,
+                    color: isDark
+                        ? AppTheme.darkTextPrimary
+                        : AppTheme.lightTextPrimary,
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                     height: 1.4,
