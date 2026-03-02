@@ -41,7 +41,6 @@ flutter:
     - assets/lang/en.json
     - assets/lang/de.json
     - assets/lang/ar.json
-    - assets/docs/
 
 flutter_launcher_icons:
   android: true

@@ -62,7 +62,6 @@ class DatabaseHelper {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         documentId INTEGER NOT NULL,
         imagePath TEXT NOT NULL,
-        order_index INTEGER NOT NULL,
         createdAt TEXT DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY(documentId) REFERENCES documents(id) ON DELETE CASCADE
       )

@@ -2,6 +2,7 @@
 import 'package:brief_ai/data/categories_data.dart';
 import 'package:brief_ai/localization/app_localizations.dart';
 import 'package:brief_ai/models/analysis_result.dart';
+import 'package:brief_ai/services/document_service.dart';
 import 'package:brief_ai/services/notification_service.dart';
 import 'package:brief_ai/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -157,11 +158,24 @@ class _AnalysisBottomSheetState extends State<AnalysisBottomSheet> {
     );
   }
 
-  void _handleSave() {
-    widget.onSave(_deadline);
-    if (_remindersEnabled) _scheduleReminders();
-    Navigator.pop(context);
-    _snack(AppLocalizations.tr(context, 'analysisSaved'), success: true);
+  Future<void> _handleSave() async {
+    try {
+      await DocumentService().addDocument(
+        title: _editableTitle,
+        categoryKey: _selectedCategoryKey,
+        deadline: _deadline,
+        statusKey: 'pending',
+        summary: _editableSummary,
+        imagePaths: widget.imagePaths,
+      );
+
+      widget.onSave(_deadline);
+      if (_remindersEnabled) _scheduleReminders();
+      Navigator.pop(context);
+      _snack(AppLocalizations.tr(context, 'analysisSaved'), success: true);
+    } catch (e) {
+      _snack('Error: $e', success: false);
+    }
   }
 
   void _scheduleReminders() {

@@ -110,7 +110,7 @@ class DocumentCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
                 image: imagePath != null
                     ? DecorationImage(
-                        image: AssetImage('assets/docs/$imagePath'),
+                        image: AssetImage('$imagePath'),
                         fit: BoxFit.cover,
                       )
                     : null,

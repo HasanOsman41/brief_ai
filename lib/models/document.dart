@@ -51,9 +51,11 @@ class Document {
       if (id != null) 'id': id,
       'title': title,
       'categoryKey': categoryKey,
+      'date': createdAt.toIso8601String(),
       'createdAt': createdAt.toIso8601String(),
       'deadline': deadline?.toIso8601String(),
       'statusKey': statusKey,
+      'hasDeadline': hasDeadline ? 1 : 0,
       'summary': summary,
     };
   }

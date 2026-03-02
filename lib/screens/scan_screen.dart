@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:brief_ai/localization/app_localizations.dart';
 import 'package:brief_ai/models/analysis_result.dart';
 import 'package:brief_ai/services/document_extractor_service.dart';
+import 'package:brief_ai/services/file_storage_service.dart';
 import 'package:brief_ai/services/ocr_service.dart';
 import 'package:brief_ai/services/pdf_service.dart';
 import 'package:brief_ai/theme/app_theme.dart';
@@ -68,8 +69,11 @@ class _ScanScreenState extends State<ScanScreen> {
           .map((p) => p.startsWith('file://') ? Uri.parse(p).toFilePath() : p)
           .where((p) => File(p).existsSync())
           .toList();
+      
+      final permanentPaths = await FileStorageService.instance.copyToAppStorage(cleaned);
+      
       setState(() {
-        _pages.addAll(cleaned);
+        _pages.addAll(permanentPaths);
         _currentIndex = _pages.length - 1;
       });
       _snackSuccess(AppLocalizations.tr(context, 'photoCapturedSuccessfully'));
