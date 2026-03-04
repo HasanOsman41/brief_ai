@@ -65,7 +65,12 @@ class DocumentService {
     DateTime? deadline,
     required String statusKey,
     required String summary,
+    String ocrText = '',
     List<String> imagePaths = const [],
+    DateTime? reminder3DaysTime,
+    DateTime? reminder1DayTime,
+    DateTime? reminder12HoursTime,
+    DateTime? reminderCustomTime,
   }) async {
     try {
       final document = Document(
@@ -75,6 +80,11 @@ class DocumentService {
         deadline: deadline,
         statusKey: statusKey,
         summary: summary,
+        ocrText: ocrText,
+        reminder3DaysTime: reminder3DaysTime,
+        reminder1DayTime: reminder1DayTime,
+        reminder12HoursTime: reminder12HoursTime,
+        reminderCustomTime: reminderCustomTime,
       );
 
       final docId = await _documentRepo.insert(document);
@@ -101,6 +111,11 @@ class DocumentService {
     DateTime? deadline,
     String? statusKey,
     String? summary,
+    String? ocrText,
+    DateTime? reminder3DaysTime,
+    DateTime? reminder1DayTime,
+    DateTime? reminder12HoursTime,
+    DateTime? reminderCustomTime,
   }) async {
     try {
       final current = await getDocumentById(id);
@@ -115,6 +130,11 @@ class DocumentService {
         deadline: deadline,
         statusKey: statusKey,
         summary: summary,
+        ocrText: ocrText,
+        reminder3DaysTime: reminder3DaysTime,
+        reminder1DayTime: reminder1DayTime,
+        reminder12HoursTime: reminder12HoursTime,
+        reminderCustomTime: reminderCustomTime,
       );
 
       await _documentRepo.update(updated);

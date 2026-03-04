@@ -1,4 +1,6 @@
 // lib/widgets/document_card.dart
+import 'dart:io';
+
 import 'package:brief_ai/localization/app_localizations.dart';
 import 'package:brief_ai/theme/app_theme.dart';
 import 'package:brief_ai/widgets/glass_card.dart';
@@ -110,7 +112,9 @@ class DocumentCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
                 image: imagePath != null
                     ? DecorationImage(
-                        image: AssetImage('$imagePath'),
+                        image: FileImage(
+                          File(imagePath!),
+                        ), // Use imagePath directly
                         fit: BoxFit.cover,
                       )
                     : null,

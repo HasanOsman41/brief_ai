@@ -1,4 +1,6 @@
 // lib/screens/document_detail_screen.dart
+import 'dart:io';
+
 import 'package:brief_ai/localization/app_localizations.dart';
 import 'package:brief_ai/models/document.dart';
 import 'package:brief_ai/models/document_image.dart';
@@ -66,7 +68,11 @@ Team''';
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
-    _loadDocument();
+
+    // Use post-frame callback to access context safely
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadDocument();
+    });
   }
 
   @override
@@ -79,9 +85,14 @@ Team''';
     setState(() => _isLoading = true);
 
     try {
-      final args =
-          ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
-      final documentId = args?['documentId'] as int?;
+      // Get the arguments - this needs to be done after the widget is built
+      final args = _getArguments();
+
+      if (args == null) {
+        throw Exception('Document ID not provided');
+      }
+
+      final documentId = args['documentId'] as int?;
 
       if (documentId == null) {
         throw Exception('Document ID not provided');
@@ -101,12 +112,21 @@ Team''';
       }
     } catch (e) {
       if (!mounted) return;
-      _showErrorSnackBar('Error loading document: $e');
+      // Use WidgetsBinding to show snackbar after build is complete
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _showErrorSnackBar('Error loading document: $e');
+      });
     } finally {
       if (mounted) {
         setState(() => _isLoading = false);
       }
     }
+  }
+
+  // Helper method to safely get arguments after build
+  Map<String, dynamic>? _getArguments() {
+    // This will be called from a post-frame callback or from build method
+    return ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
   }
 
   Future<void> _saveChanges() async {
@@ -444,7 +464,7 @@ Team''';
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(20),
                   image: DecorationImage(
-                    image: AssetImage('assets/docs/${imagePaths[index]}'),
+                    image: FileImage(File(imagePaths[index])),
                     fit: BoxFit.contain,
                   ),
                 ),
@@ -762,7 +782,7 @@ Team''';
             color: isDark ? Colors.grey[900] : Colors.grey[200],
             borderRadius: BorderRadius.circular(16),
             image: DecorationImage(
-              image: AssetImage('assets/docs/${imagePaths[index]}'),
+              image: FileImage(File(imagePaths[index])),
               fit: BoxFit.cover,
             ),
           ),

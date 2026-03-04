@@ -10,7 +10,12 @@ class Document {
   final DateTime? deadline;
   final String statusKey;
   final String summary;
+  final String ocrText;
   final List<DocumentImage> images;
+  final DateTime? reminder3DaysTime;
+  final DateTime? reminder1DayTime;
+  final DateTime? reminder12HoursTime;
+  final DateTime? reminderCustomTime;
 
   const Document({
     this.id,
@@ -20,7 +25,12 @@ class Document {
     this.deadline,
     required this.statusKey,
     this.summary = '',
+    this.ocrText = '',
     this.images = const [],
+    this.reminder3DaysTime,
+    this.reminder1DayTime,
+    this.reminder12HoursTime,
+    this.reminderCustomTime,
   });
 
   /// Check if document has a deadline
@@ -57,6 +67,11 @@ class Document {
       'statusKey': statusKey,
       'hasDeadline': hasDeadline ? 1 : 0,
       'summary': summary,
+      'ocrText': ocrText,
+      'reminder3DaysTime': reminder3DaysTime?.toIso8601String(),
+      'reminder1DayTime': reminder1DayTime?.toIso8601String(),
+      'reminder12HoursTime': reminder12HoursTime?.toIso8601String(),
+      'reminderCustomTime': reminderCustomTime?.toIso8601String(),
     };
   }
 
@@ -72,6 +87,19 @@ class Document {
           : null,
       statusKey: json['statusKey'] as String,
       summary: json['summary'] as String? ?? '',
+      ocrText: json['ocrText'] as String? ?? '',
+      reminder3DaysTime: json['reminder3DaysTime'] != null
+          ? DateTime.parse(json['reminder3DaysTime'] as String)
+          : null,
+      reminder1DayTime: json['reminder1DayTime'] != null
+          ? DateTime.parse(json['reminder1DayTime'] as String)
+          : null,
+      reminder12HoursTime: json['reminder12HoursTime'] != null
+          ? DateTime.parse(json['reminder12HoursTime'] as String)
+          : null,
+      reminderCustomTime: json['reminderCustomTime'] != null
+          ? DateTime.parse(json['reminderCustomTime'] as String)
+          : null,
       images:
           (json['images'] as List<dynamic>?)
               ?.map((img) => DocumentImage.fromMap(img as Map<String, dynamic>))
@@ -89,7 +117,12 @@ class Document {
     DateTime? deadline,
     String? statusKey,
     String? summary,
+    String? ocrText,
     List<DocumentImage>? images,
+    DateTime? reminder3DaysTime,
+    DateTime? reminder1DayTime,
+    DateTime? reminder12HoursTime,
+    DateTime? reminderCustomTime,
   }) {
     return Document(
       id: id ?? this.id,
@@ -99,7 +132,12 @@ class Document {
       deadline: deadline ?? this.deadline,
       statusKey: statusKey ?? this.statusKey,
       summary: summary ?? this.summary,
+      ocrText: ocrText ?? this.ocrText,
       images: images ?? this.images,
+      reminder3DaysTime: reminder3DaysTime ?? this.reminder3DaysTime,
+      reminder1DayTime: reminder1DayTime ?? this.reminder1DayTime,
+      reminder12HoursTime: reminder12HoursTime ?? this.reminder12HoursTime,
+      reminderCustomTime: reminderCustomTime ?? this.reminderCustomTime,
     );
   }
 

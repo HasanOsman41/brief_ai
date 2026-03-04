@@ -35,7 +35,7 @@ class DatabaseHelper {
     final documentsDirectory = await getApplicationDocumentsDirectory();
     final path = join(documentsDirectory.path, 'brief_ai.db');
 
-    return await openDatabase(path, version: 1, onCreate: _createTables);
+    return await openDatabase(path, onCreate: _createTables);
   }
 
   /// Create database tables
@@ -51,6 +51,11 @@ class DatabaseHelper {
         statusKey TEXT NOT NULL,
         hasDeadline INTEGER NOT NULL,
         summary TEXT DEFAULT '',
+        ocrText TEXT DEFAULT '',
+        reminder3DaysTime TEXT,
+        reminder1DayTime TEXT,
+        reminder12HoursTime TEXT,
+        reminderCustomTime TEXT,
         createdAt TEXT DEFAULT CURRENT_TIMESTAMP,
         updatedAt TEXT DEFAULT CURRENT_TIMESTAMP
       )
@@ -80,6 +85,11 @@ class DatabaseHelper {
     await db.execute('''
       CREATE INDEX idx_images_documentId ON images(documentId)
     ''');
+  }
+
+  /// Handle database upgrades
+  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {}
   }
 
   /// Close the database connection (call during app shutdown if needed)

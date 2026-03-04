@@ -17,12 +17,14 @@ class AnalysisBottomSheet extends StatefulWidget {
     required this.result,
     required this.initialDeadline,
     required this.imagePaths,
+    required this.ocrText,
     required this.onSave,
   });
 
   final AnalysisResult result;
   final DateTime initialDeadline;
   final List<String> imagePaths;
+  final String ocrText;
   final ValueChanged<DateTime> onSave;
 
   static void show(
@@ -30,6 +32,7 @@ class AnalysisBottomSheet extends StatefulWidget {
     required AnalysisResult result,
     required DateTime initialDeadline,
     required List<String> imagePaths,
+    required String ocrText,
     required ValueChanged<DateTime> onSave,
   }) {
     showModalBottomSheet(
@@ -40,6 +43,7 @@ class AnalysisBottomSheet extends StatefulWidget {
         result: result,
         initialDeadline: initialDeadline,
         imagePaths: imagePaths,
+        ocrText: ocrText,
         onSave: onSave,
       ),
     );
@@ -160,13 +164,20 @@ class _AnalysisBottomSheetState extends State<AnalysisBottomSheet> {
 
   Future<void> _handleSave() async {
     try {
+      final base = DateTime(_deadline.year, _deadline.month, _deadline.day, 9);
+      
       await DocumentService().addDocument(
         title: _editableTitle,
         categoryKey: _selectedCategoryKey,
         deadline: _deadline,
         statusKey: 'pending',
         summary: _editableSummary,
+        ocrText: widget.ocrText,
         imagePaths: widget.imagePaths,
+        reminder3DaysTime: _remindersEnabled && _remind3Days ? base.subtract(const Duration(days: 3)) : null,
+        reminder1DayTime: _remindersEnabled && _remind1Day ? base.subtract(const Duration(days: 1)) : null,
+        reminder12HoursTime: _remindersEnabled && _remind12Hours ? base.subtract(const Duration(hours: 12)) : null,
+        reminderCustomTime: _remindersEnabled && _remindCustom ? _customTime : null,
       );
 
       widget.onSave(_deadline);

@@ -44,6 +44,7 @@ class _ScanScreenState extends State<ScanScreen> {
 
   // ── Analysis result ────────────────────────────────────────────────────────
   AnalysisResult? _result;
+  String _ocrText = '';
   late DateTime _deadline;
 
   @override
@@ -69,9 +70,11 @@ class _ScanScreenState extends State<ScanScreen> {
           .map((p) => p.startsWith('file://') ? Uri.parse(p).toFilePath() : p)
           .where((p) => File(p).existsSync())
           .toList();
-      
-      final permanentPaths = await FileStorageService.instance.copyToAppStorage(cleaned);
-      
+
+      final permanentPaths = await FileStorageService.instance.copyToAppStorage(
+        cleaned,
+      );
+
       setState(() {
         _pages.addAll(permanentPaths);
         _currentIndex = _pages.length - 1;
@@ -133,6 +136,7 @@ class _ScanScreenState extends State<ScanScreen> {
 
       setState(() {
         _result = result;
+        _ocrText = text;
         _deadline =
             result.deadline ?? DateTime.now().add(const Duration(days: 14));
         _processing = false;
@@ -157,6 +161,7 @@ class _ScanScreenState extends State<ScanScreen> {
       result: _result!,
       initialDeadline: _deadline,
       imagePaths: List.unmodifiable(_pages),
+      ocrText: _ocrText,
       onSave: (d) => setState(() => _deadline = d),
     );
   }
