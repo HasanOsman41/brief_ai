@@ -3,7 +3,6 @@ import 'dart:io';
 
 import 'package:brief_ai/localization/app_localizations.dart';
 import 'package:brief_ai/models/document.dart';
-import 'package:brief_ai/models/document_image.dart';
 import 'package:brief_ai/services/document_service.dart';
 import 'package:brief_ai/theme/app_theme.dart';
 import 'package:brief_ai/widgets/glass_card.dart';
@@ -22,6 +21,7 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen>
   bool _reminder3Days = true;
   bool _reminder1Day = true;
   bool _reminder12Hours = false;
+  bool _reminderCustom = false;
 
   int _currentPage = 0;
   late DateTime _dueDate;
@@ -30,39 +30,7 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen>
   late TabController _tabController;
   bool _isLoading = false;
   bool _isSaving = false;
-  String ocrText = '''
-Weiterbewilligungsantrag
-Antrag auf Weiterbewilligung der Leistungen zur Sicherung des Lebensunterhalts nach dem Zweiten Buch Sozialgesetzbuch (SGB II)
-
-Zutreffendes bitte ankreuzen
-Weitere Informationen finden Sie zu der jeweiligen Nummer in den Ausfüllhinweisen
-
-Die nachstehenden Daten unterliegen dem Sozialgeheimnis (siehe Merkblatt SGB II). Ihre Angaben werden aufgrund der §§ 60–65 Erstes Buch Sozialgesetzbuch (SGB I) und der §§ 67a, b, c Zweites Buch Sozialgesetzbuch (SGB X) für die Leistungen nach dem Zweiten Buch Sozialgesetzbuch (SGB II) erhoben. Datenschutzrechtliche Hinweise erhalten Sie bei Ihrem zuständigen Jobcenter sowie im Internet unter: www.jobcenter.de
-
-Das Merkblatt SGB II, die Ausfüllhinweise und weitere Anlagen finden Sie im Internet unter www.jobcenter.de
-
-Beachten Sie bitte, dass in den Abschnitten 2, 3, 4, 6 nicht nur nach Änderungen, sondern auch nach den derzeitigen Verhältnissen gefragt wird. Geben Sie in Abschnitt 5 bitte alle weiteren Änderungen an, die noch nicht mitgeteilt wurden oder seit der letzten Antragstellung eingetreten sind.
-
-Falls Sie für Ihre Antworten mehr Platz benötigen, als im Formular vorgesehen ist, verwenden Sie bitte ein separates Blatt Papier und geben dieses Ihrem Antrag bei.
-
-1. Persönliche Daten der Antragstellerin / des Antragstellers
-
-Anrede | Vorname
-Familienname | Geburtsdatum
-Straße, Hausnummer
-Postleitzahl | Wohnort
-Nummer der Bedarfsgemeinschaft
-
-Bearbeitungsvermerke (Nur vom Jobcenter auszufüllen)
-
-Eingangsstempel
-
-Tag der Antragstellung
-
-Ende des laufenden Bewilligungsabschnitts
-
-Dienststelle
-Team''';
+  String ocrText = "";
 
   @override
   void initState() {
@@ -108,6 +76,15 @@ Team''';
           _dueDate =
               document.deadline ?? DateTime.now().add(const Duration(days: 30));
           _addedDate = document.createdAt;
+          _reminderEnabled =
+              document.reminder3DaysTime != null ||
+              document.reminder1DayTime != null ||
+              document.reminder12HoursTime != null ||
+              document.reminderCustomTime != null;
+          _reminder3Days = document.reminder3DaysTime != null;
+          _reminder1Day = document.reminder1DayTime != null;
+          _reminder12Hours = document.reminder12HoursTime != null;
+          _reminderCustom = document.reminderCustomTime != null;
         });
       }
     } catch (e) {
@@ -135,9 +112,23 @@ Team''';
     setState(() => _isSaving = true);
 
     try {
+      final base = DateTime(_dueDate.year, _dueDate.month, _dueDate.day, 9);
+
       final updatedDocument = await DocumentService().updateDocument(
         _document!.id!,
         deadline: _dueDate,
+        reminder3DaysTime: _reminderEnabled && _reminder3Days
+            ? base.subtract(const Duration(days: 3))
+            : null,
+        reminder1DayTime: _reminderEnabled && _reminder1Day
+            ? base.subtract(const Duration(days: 1))
+            : null,
+        reminder12HoursTime: _reminderEnabled && _reminder12Hours
+            ? base.subtract(const Duration(hours: 12))
+            : null,
+        reminderCustomTime: _reminderEnabled && _reminderCustom
+            ? _document!.reminderCustomTime
+            : null,
       );
 
       if (!mounted) return;
@@ -651,23 +642,104 @@ Team''';
           context,
           '3 ${AppLocalizations.tr(context, 'daysBefore')}',
           _reminder3Days,
-          (value) => setState(() => _reminder3Days = value),
+          (value) {
+            setState(() => _reminder3Days = value);
+            _saveChanges();
+          },
         ),
         const SizedBox(height: 8),
         _buildReminderCheckbox(
           context,
           '1 ${AppLocalizations.tr(context, 'dayBefore')}',
           _reminder1Day,
-          (value) => setState(() => _reminder1Day = value),
+          (value) {
+            setState(() => _reminder1Day = value);
+            _saveChanges();
+          },
         ),
         const SizedBox(height: 8),
         _buildReminderCheckbox(
           context,
           '12 ${AppLocalizations.tr(context, 'hoursBefore')}',
           _reminder12Hours,
-          (value) => setState(() => _reminder12Hours = value),
+          (value) {
+            setState(() => _reminder12Hours = value);
+            _saveChanges();
+          },
         ),
+        const SizedBox(height: 8),
+        _buildReminderCheckbox(
+          context,
+          AppLocalizations.tr(context, 'customDateTime'),
+          _reminderCustom,
+          (value) {
+            setState(() => _reminderCustom = value);
+            _saveChanges();
+          },
+        ),
+        if (_reminderCustom) ...[
+          const SizedBox(height: 12),
+          _buildCustomReminderDisplay(context),
+        ],
       ],
+    );
+  }
+
+  Widget _buildCustomReminderDisplay(BuildContext context) {
+    final customTime = _document?.reminderCustomTime;
+    if (customTime == null) return const SizedBox.shrink();
+
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Container(
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: isDark ? AppTheme.darkCard : AppTheme.lightCard,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.calendar_today,
+                size: 14,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+              const SizedBox(width: 6),
+              Text(
+                _formatDate(customTime),
+                style: TextStyle(
+                  color: isDark
+                      ? AppTheme.darkTextPrimary
+                      : AppTheme.lightTextPrimary,
+                  fontSize: 12,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Icon(
+                Icons.access_time,
+                size: 14,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+              const SizedBox(width: 6),
+              Text(
+                '${customTime.hour.toString().padLeft(2, '0')}:${customTime.minute.toString().padLeft(2, '0')}',
+                style: TextStyle(
+                  color: isDark
+                      ? AppTheme.darkTextPrimary
+                      : AppTheme.lightTextPrimary,
+                  fontSize: 12,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -792,6 +864,8 @@ Team''';
   }
 
   Widget _buildOcrTextTab(BuildContext context, bool isDark) {
+    final ocrText = _document?.ocrText ?? '';
+
     return Padding(
       padding: const EdgeInsets.all(20),
       child: GlassCard(
@@ -833,7 +907,7 @@ Team''';
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(16),
                 child: SelectableText(
-                  ocrText,
+                  ocrText.isNotEmpty ? ocrText : 'No text extracted',
                   style: TextStyle(
                     fontSize: 14,
                     height: 1.6,
@@ -866,7 +940,7 @@ Team''';
                 Text(
                   _document!.summary.isNotEmpty
                       ? _document!.summary
-                      : 'Untermietvertrag für eine Wohnung in Berlin. Laufzeit: 6 Monate. Kaution: 1500€. Monatsmiete: 750€ warm.',
+                      : 'No summary available',
                   style: Theme.of(context).textTheme.bodyLarge,
                 ),
               ],

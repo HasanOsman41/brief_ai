@@ -42,7 +42,7 @@ class DatabaseHelper {
   Future<void> _createTables(Database db, int version) async {
     // Documents table
     await db.execute('''
-      CREATE TABLE documents(
+        CREATE TABLE documents(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         title TEXT NOT NULL,
         categoryKey TEXT NOT NULL,
@@ -51,9 +51,14 @@ class DatabaseHelper {
         statusKey TEXT NOT NULL,
         hasDeadline INTEGER NOT NULL,
         summary TEXT DEFAULT '',
+        ocrText TEXT DEFAULT '',
+        reminder3DaysTime TEXT,
+        reminder1DayTime TEXT,
+        reminder12HoursTime TEXT,
+        reminderCustomTime TEXT,
         createdAt TEXT DEFAULT CURRENT_TIMESTAMP,
         updatedAt TEXT DEFAULT CURRENT_TIMESTAMP
-      )
+        )
     ''');
 
     // Images table - store multiple images per document

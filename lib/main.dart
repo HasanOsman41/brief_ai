@@ -1,3 +1,4 @@
+import 'package:brief_ai/data/local/database_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:brief_ai/theme/app_theme.dart';
@@ -20,6 +21,7 @@ import 'package:brief_ai/services/notification_service.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await NotificationService().initialize();
+  await DatabaseHelper().database; // Ensure database is initialized
   runApp(const BriefAIApp());
 }
 
