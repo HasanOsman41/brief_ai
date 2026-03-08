@@ -221,5 +221,7 @@
     "categoryOther": "أخرى",
     "ocrPage": "الصفحة",
     "extractingDocumentInfo": "جاري استخراج معلومات المستند…",
-    "tapToScan": "اضغط للمسح"
+    "tapToScan": "اضغط للمسح",
+    "documentDetected": "تم اكتشاف المستند",
+    "weFoundDocument": "لقد وجدنا المستند التالي"
 }

@@ -19,6 +19,7 @@ class AnalysisBottomSheet extends StatefulWidget {
     required this.imagePaths,
     required this.ocrText,
     required this.onSave,
+    this.documentId,
   });
 
   final AnalysisResult result;
@@ -26,6 +27,7 @@ class AnalysisBottomSheet extends StatefulWidget {
   final List<String> imagePaths;
   final String ocrText;
   final ValueChanged<DateTime> onSave;
+  final int? documentId;
 
   static void show(
     BuildContext context, {
@@ -34,6 +36,7 @@ class AnalysisBottomSheet extends StatefulWidget {
     required List<String> imagePaths,
     required String ocrText,
     required ValueChanged<DateTime> onSave,
+    int? documentId,
   }) {
     showModalBottomSheet(
       context: context,
@@ -45,6 +48,7 @@ class AnalysisBottomSheet extends StatefulWidget {
         imagePaths: imagePaths,
         ocrText: ocrText,
         onSave: onSave,
+        documentId: documentId,
       ),
     );
   }
@@ -166,19 +170,43 @@ class _AnalysisBottomSheetState extends State<AnalysisBottomSheet> {
     try {
       final base = DateTime(_deadline.year, _deadline.month, _deadline.day, 9);
       
-      await DocumentService().addDocument(
-        title: _editableTitle,
-        categoryKey: _selectedCategoryKey,
-        deadline: _deadline,
-        statusKey: 'pending',
-        summary: _editableSummary,
-        ocrText: widget.ocrText,
-        imagePaths: widget.imagePaths,
-        reminder3DaysTime: _remindersEnabled && _remind3Days ? base.subtract(const Duration(days: 3)) : null,
-        reminder1DayTime: _remindersEnabled && _remind1Day ? base.subtract(const Duration(days: 1)) : null,
-        reminder12HoursTime: _remindersEnabled && _remind12Hours ? base.subtract(const Duration(hours: 12)) : null,
-        reminderCustomTime: _remindersEnabled && _remindCustom ? _customTime : null,
-      );
+      if (widget.documentId != null) {
+        // Update existing document
+        await DocumentService().updateDocument(
+          widget.documentId!,
+          title: _editableTitle,
+          categoryKey: _selectedCategoryKey,
+          deadline: _deadline,
+          statusKey: 'pending',
+          summary: _editableSummary,
+          ocrText: widget.ocrText,
+          reminder3DaysTime: _remindersEnabled && _remind3Days ? base.subtract(const Duration(days: 3)) : null,
+          reminder1DayTime: _remindersEnabled && _remind1Day ? base.subtract(const Duration(days: 1)) : null,
+          reminder12HoursTime: _remindersEnabled && _remind12Hours ? base.subtract(const Duration(hours: 12)) : null,
+          reminderCustomTime: _remindersEnabled && _remindCustom ? _customTime : null,
+        );
+        
+        // Update images: delete old ones and add new ones
+        await DocumentService().deleteAllImages(widget.documentId!);
+        if (widget.imagePaths.isNotEmpty) {
+          await DocumentService().addImagesToDocument(widget.documentId!, widget.imagePaths);
+        }
+      } else {
+        // Add new document
+        await DocumentService().addDocument(
+          title: _editableTitle,
+          categoryKey: _selectedCategoryKey,
+          deadline: _deadline,
+          statusKey: 'pending',
+          summary: _editableSummary,
+          ocrText: widget.ocrText,
+          imagePaths: widget.imagePaths,
+          reminder3DaysTime: _remindersEnabled && _remind3Days ? base.subtract(const Duration(days: 3)) : null,
+          reminder1DayTime: _remindersEnabled && _remind1Day ? base.subtract(const Duration(days: 1)) : null,
+          reminder12HoursTime: _remindersEnabled && _remind12Hours ? base.subtract(const Duration(hours: 12)) : null,
+          reminderCustomTime: _remindersEnabled && _remindCustom ? _customTime : null,
+        );
+      }
 
       widget.onSave(_deadline);
       if (_remindersEnabled) _scheduleReminders();

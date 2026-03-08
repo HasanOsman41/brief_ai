@@ -222,5 +222,16 @@
   "categoryOther": "Sonstiges",
   "ocrPage": "OCR – Seite",
   "extractingDocumentInfo": "Dokumentinformationen werden extrahiert…",
-  "tapToScan": "Zum Scannen tippen"
+  "tapToScan": "Zum Scannen tippen",
+  "detectingDocument": "Dokument wird erkannt...",
+  "generalDocument": "Allgemeines Dokument",
+  "documentDetected": "Dokument erkannt",
+  "weFoundDocument": "Wir haben ein Dokument gefunden!",
+  "chooseNextAction": "Was möchten Sie als Nächstes tun?",
+  "savePdf": "PDF speichern",
+  "aiAnalyze": "KI-Analyse",
+  "noTextFound": "Kein Text gefunden",
+  "analysisFailed": "Analyse fehlgeschlagen",
+  "startingOcr": "OCR wird gestartet...",
+  "open": "Öffnen"
 }

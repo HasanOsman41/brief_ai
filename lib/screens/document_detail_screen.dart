@@ -15,8 +15,7 @@ class DocumentDetailScreen extends StatefulWidget {
   State<DocumentDetailScreen> createState() => _DocumentDetailScreenState();
 }
 
-class _DocumentDetailScreenState extends State<DocumentDetailScreen>
-    with SingleTickerProviderStateMixin {
+class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
   bool _reminderEnabled = true;
   bool _reminder3Days = true;
   bool _reminder1Day = true;
@@ -27,7 +26,6 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen>
   late DateTime _dueDate;
   late DateTime _addedDate;
   Document? _document;
-  late TabController _tabController;
   bool _isLoading = false;
   bool _isSaving = false;
   String ocrText = "";
@@ -35,7 +33,6 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
 
     // Use post-frame callback to access context safely
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -45,7 +42,6 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen>
 
   @override
   void dispose() {
-    _tabController.dispose();
     super.dispose();
   }
 
@@ -237,7 +233,9 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen>
                     const SizedBox(height: 16),
                     _buildInfoPanel(context, isDark, primaryColor),
                     const SizedBox(height: 16),
-                    _buildTabSection(context, isDark, primaryColor),
+                    _buildSummarySection(context, isDark),
+                    const SizedBox(height: 16),
+                    _buildRiskLevelSection(context, isDark),
                     const SizedBox(height: 20),
                   ],
                 ),
@@ -334,7 +332,16 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen>
                 onSelected: (value) async {
                   switch (value) {
                     case 'edit':
-                      // Handle edit
+                      if (_document?.imagePaths != null && _document?.id != null) {
+                        Navigator.pushNamed(
+                          context,
+                          '/scan',
+                          arguments: {
+                            'existingImages': _document!.imagePaths,
+                            'documentId': _document!.id,
+                          },
+                        );
+                      }
                       break;
                     case 'export':
                       // Handle export
@@ -551,67 +558,47 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen>
         ? (isDark ? AppTheme.darkWarning : AppTheme.lightWarning)
         : (isDark ? AppTheme.darkTextSecondary : AppTheme.lightTextSecondary);
 
-    return GestureDetector(
-      onTap: () => _selectDate(context, true),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Row(
-          children: [
-            Text(
-              hasDeadline
-                  ? '${AppLocalizations.tr(context, 'dueDate')} ${_formatDate(_dueDate)}'
-                  : AppLocalizations.tr(context, 'noDeadline'),
-              style: TextStyle(
-                color: color,
-                fontWeight: FontWeight.w600,
-                fontSize: 12,
-              ),
-            ),
-            const SizedBox(width: 4),
-            Icon(Icons.edit, color: color, size: 14),
-          ],
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Text(
+        hasDeadline
+            ? '${AppLocalizations.tr(context, 'dueDate')} ${_formatDate(_dueDate)}'
+            : AppLocalizations.tr(context, 'noDeadline'),
+        style: TextStyle(
+          color: color,
+          fontWeight: FontWeight.w600,
+          fontSize: 12,
         ),
       ),
     );
   }
 
   Widget _buildReminderSwitch(Color primaryColor) {
-    return Switch(
-      value: _reminderEnabled,
-      onChanged: (value) {
-        setState(() => _reminderEnabled = value);
-      },
-      activeColor: primaryColor,
+    return Icon(
+      _reminderEnabled ? Icons.notifications_active : Icons.notifications_off,
+      color: _reminderEnabled ? primaryColor : Colors.grey,
+      size: 20,
     );
   }
 
   Widget _buildAddedDateRow(BuildContext context) {
-    return GestureDetector(
-      onTap: () => _selectDate(context, false),
-      child: Row(
-        children: [
-          Icon(
-            Icons.calendar_today,
-            size: 14,
-            color: Theme.of(context).textTheme.bodyMedium?.color,
-          ),
-          const SizedBox(width: 4),
-          Text(
-            '${AppLocalizations.tr(context, 'addedDate')} ${_formatDate(_addedDate)}',
-            style: Theme.of(context).textTheme.bodyMedium,
-          ),
-          const SizedBox(width: 4),
-          Icon(
-            Icons.edit,
-            size: 14,
-            color: Theme.of(context).textTheme.bodyMedium?.color,
-          ),
-        ],
-      ),
+    return Row(
+      children: [
+        Icon(
+          Icons.calendar_today,
+          size: 14,
+          color: Theme.of(context).textTheme.bodyMedium?.color,
+        ),
+        const SizedBox(width: 4),
+        Text(
+          '${AppLocalizations.tr(context, 'addedDate')} ${_formatDate(_addedDate)}',
+          style: Theme.of(context).textTheme.bodyMedium,
+        ),
+      ],
     );
   }
 
@@ -638,44 +625,28 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen>
           ],
         ),
         const SizedBox(height: 12),
-        _buildReminderCheckbox(
+        _buildReminderItem(
           context,
           '3 ${AppLocalizations.tr(context, 'daysBefore')}',
           _reminder3Days,
-          (value) {
-            setState(() => _reminder3Days = value);
-            _saveChanges();
-          },
         ),
         const SizedBox(height: 8),
-        _buildReminderCheckbox(
+        _buildReminderItem(
           context,
           '1 ${AppLocalizations.tr(context, 'dayBefore')}',
           _reminder1Day,
-          (value) {
-            setState(() => _reminder1Day = value);
-            _saveChanges();
-          },
         ),
         const SizedBox(height: 8),
-        _buildReminderCheckbox(
+        _buildReminderItem(
           context,
           '12 ${AppLocalizations.tr(context, 'hoursBefore')}',
           _reminder12Hours,
-          (value) {
-            setState(() => _reminder12Hours = value);
-            _saveChanges();
-          },
         ),
         const SizedBox(height: 8),
-        _buildReminderCheckbox(
+        _buildReminderItem(
           context,
           AppLocalizations.tr(context, 'customDateTime'),
           _reminderCustom,
-          (value) {
-            setState(() => _reminderCustom = value);
-            _saveChanges();
-          },
         ),
         if (_reminderCustom) ...[
           const SizedBox(height: 12),
@@ -743,74 +714,35 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen>
     );
   }
 
-  Widget _buildReminderCheckbox(
+  Widget _buildReminderItem(
     BuildContext context,
     String label,
     bool isChecked,
-    Function(bool) onChanged,
   ) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final primaryColor = Theme.of(context).colorScheme.primary;
 
-    return GestureDetector(
-      onTap: () => onChanged(!isChecked),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 4),
-        child: Row(
-          children: [
-            Icon(
-              isChecked ? Icons.check_box : Icons.check_box_outline_blank,
-              color: isChecked
-                  ? primaryColor
-                  : (isDark
-                        ? AppTheme.darkTextSecondary
-                        : AppTheme.lightTextSecondary),
-              size: 20,
-            ),
-            const SizedBox(width: 12),
-            Text(
-              label,
-              style: TextStyle(
-                color: isDark
-                    ? AppTheme.darkTextPrimary
-                    : AppTheme.lightTextPrimary,
-                fontSize: 13,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTabSection(
-    BuildContext context,
-    bool isDark,
-    Color primaryColor,
-  ) {
     return Container(
-      height: 400,
-      child: Column(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
         children: [
-          TabBar(
-            controller: _tabController,
-            tabs: [
-              Tab(text: AppLocalizations.tr(context, 'scanPages')),
-              Tab(text: AppLocalizations.tr(context, 'ocrText')),
-              Tab(text: AppLocalizations.tr(context, 'aiAnalysis')),
-            ],
-            labelColor: primaryColor,
-            unselectedLabelColor: Theme.of(context).textTheme.bodyMedium?.color,
-            indicatorColor: primaryColor,
+          Icon(
+            isChecked ? Icons.check_circle : Icons.circle_outlined,
+            color: isChecked
+                ? primaryColor
+                : (isDark
+                      ? AppTheme.darkTextSecondary
+                      : AppTheme.lightTextSecondary),
+            size: 20,
           ),
-          Expanded(
-            child: TabBarView(
-              controller: _tabController,
-              children: [
-                _buildScanPagesTab(context, isDark),
-                _buildOcrTextTab(context, isDark),
-                _buildAIAnalysisTab(context, isDark),
-              ],
+          const SizedBox(width: 12),
+          Text(
+            label,
+            style: TextStyle(
+              color: isDark
+                  ? AppTheme.darkTextPrimary
+                  : AppTheme.lightTextPrimary,
+              fontSize: 13,
             ),
           ),
         ],
@@ -818,103 +750,26 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen>
     );
   }
 
-  Widget _buildScanPagesTab(BuildContext context, bool isDark) {
-    final imagePaths = _document?.imagePaths ?? [];
-
-    if (imagePaths.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.image_not_supported_outlined,
-              size: 48,
-              color: isDark ? Colors.grey[600] : Colors.grey[400],
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'No pages available',
-              style: TextStyle(
-                color: isDark ? Colors.grey[600] : Colors.grey[400],
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
-    return ListView.builder(
-      padding: const EdgeInsets.all(20),
-      itemCount: imagePaths.length,
-      itemBuilder: (context, index) {
-        return Container(
-          height: 200,
-          margin: const EdgeInsets.only(bottom: 16),
-          decoration: BoxDecoration(
-            color: isDark ? Colors.grey[900] : Colors.grey[200],
-            borderRadius: BorderRadius.circular(16),
-            image: DecorationImage(
-              image: FileImage(File(imagePaths[index])),
-              fit: BoxFit.cover,
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildOcrTextTab(BuildContext context, bool isDark) {
-    final ocrText = _document?.ocrText ?? '';
-
+  Widget _buildSummarySection(BuildContext context, bool isDark) {
     return Padding(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       child: GlassCard(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(
-              padding: const EdgeInsets.all(1),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Text(
-                      AppLocalizations.tr(context, 'extractedText'),
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.copy),
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            AppLocalizations.tr(context, 'textCopied'),
-                          ),
-                          backgroundColor: isDark
-                              ? AppTheme.darkSuccess
-                              : AppTheme.lightSuccess,
-                        ),
-                      );
-                    },
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                ],
+            Text(
+              AppLocalizations.tr(context, 'summary'),
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w600,
               ),
             ),
-            const Divider(height: 1),
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(16),
-                child: SelectableText(
-                  ocrText.isNotEmpty ? ocrText : 'No text extracted',
-                  style: TextStyle(
-                    fontSize: 14,
-                    height: 1.6,
-                    fontFamily: 'RobotoMono',
-                    color: Theme.of(context).textTheme.bodyLarge?.color,
-                  ),
-                ),
+            const SizedBox(height: 12),
+            Text(
+              _document!.summary.isNotEmpty
+                  ? _document!.summary
+                  : 'No summary available',
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                height: 1.6,
               ),
             ),
           ],
@@ -923,119 +778,84 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen>
     );
   }
 
-  Widget _buildAIAnalysisTab(BuildContext context, bool isDark) {
+  Widget _buildRiskLevelSection(BuildContext context, bool isDark) {
+    final now = DateTime.now();
+    final daysLeft = _dueDate.difference(now).inDays;
+    
+    Color riskColor;
+    String riskText;
+    IconData riskIcon;
+    
+    if (daysLeft < 0) {
+      riskColor = isDark ? AppTheme.darkDanger : AppTheme.lightDanger;
+      riskText = AppLocalizations.tr(context, 'overdue');
+      riskIcon = Icons.error_outline;
+    } else if (daysLeft <= 3) {
+      riskColor = isDark ? AppTheme.darkDanger : AppTheme.lightDanger;
+      riskText = AppLocalizations.tr(context, 'high');
+      riskIcon = Icons.warning_amber_rounded;
+    } else if (daysLeft <= 7) {
+      riskColor = Colors.orange;
+      riskText = AppLocalizations.tr(context, 'medium');
+      riskIcon = Icons.info_outline;
+    } else {
+      riskColor = isDark ? AppTheme.darkSuccess : AppTheme.lightSuccess;
+      riskText = AppLocalizations.tr(context, 'low');
+      riskIcon = Icons.check_circle_outline;
+    }
+
     return Padding(
-      padding: const EdgeInsets.all(20),
-      child: ListView(
-        children: [
-          GlassCard(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: GlassCard(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
               children: [
-                Text(
-                  AppLocalizations.tr(context, 'summary'),
-                  style: Theme.of(context).textTheme.titleMedium,
+                Icon(
+                  Icons.speed_outlined,
+                  color: riskColor,
+                  size: 24,
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  _document!.summary.isNotEmpty
-                      ? _document!.summary
-                      : 'No summary available',
-                  style: Theme.of(context).textTheme.bodyLarge,
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 12),
-          GlassCard(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  AppLocalizations.tr(context, 'nextSteps'),
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                const SizedBox(height: 12),
-                _buildChecklistItem(context, 'Kaution überweisen', false),
-                _buildChecklistItem(
-                  context,
-                  'Unterschriebenen Vertrag zurücksenden',
-                  true,
-                ),
-                _buildChecklistItem(
-                  context,
-                  'Schlüsselübergabe terminieren',
-                  false,
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 12),
-          GlassCard(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
+                const SizedBox(width: 12),
                 Text(
                   AppLocalizations.tr(context, 'riskLevel'),
-                  style: Theme.of(context).textTheme.titleMedium,
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
+              ],
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 8,
+              ),
+              decoration: BoxDecoration(
+                color: riskColor.withOpacity(0.15),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    riskIcon,
+                    color: riskColor,
+                    size: 18,
                   ),
-                  decoration: BoxDecoration(
-                    color: AppTheme.lightWarning.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    AppLocalizations.tr(context, 'medium'),
+                  const SizedBox(width: 6),
+                  Text(
+                    riskText,
                     style: TextStyle(
-                      color: AppTheme.lightWarning,
+                      color: riskColor,
                       fontWeight: FontWeight.w600,
+                      fontSize: 15,
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          const SizedBox(height: 12),
-          GlassCard(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  AppLocalizations.tr(context, 'suggestedDeadline'),
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                const SizedBox(height: 8),
-                GestureDetector(
-                  onTap: () => _selectDate(context, true),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.calendar_today,
-                        size: 16,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        _formatDate(_dueDate),
-                        style: Theme.of(context).textTheme.bodyLarge,
-                      ),
-                      const SizedBox(width: 8),
-                      Icon(
-                        Icons.edit,
-                        size: 14,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -1068,6 +888,18 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen>
             context,
             Icons.edit,
             AppLocalizations.tr(context, 'edit'),
+            onTap: () {
+              if (_document?.imagePaths != null && _document?.id != null) {
+                Navigator.pushNamed(
+                  context,
+                  '/scan',
+                  arguments: {
+                    'existingImages': _document!.imagePaths,
+                    'documentId': _document!.id,
+                  },
+                );
+              }
+            },
           ),
           _buildActionButton(
             context,
@@ -1089,7 +921,7 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen>
     VoidCallback? onTap,
   }) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: onTap ?? () {},
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

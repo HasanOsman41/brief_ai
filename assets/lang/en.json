@@ -220,5 +220,16 @@
     "categoryOther": "Other",
     "ocrPage": "OCR – page",
     "extractingDocumentInfo": "Extracting document info…",
-    "tapToScan": "Tap to scan"
+    "tapToScan": "Tap to scan",
+    "detectingDocument": "Detecting document...",
+    "generalDocument": "General Document",
+    "documentDetected": "Document Detected",
+    "weFoundDocument": "We found a document!",
+    "chooseNextAction": "What would you like to do next?",
+    "savePdf": "Save PDF",
+    "aiAnalyze": "AI Analyze",
+    "noTextFound": "No text found",
+    "analysisFailed": "Analysis failed",
+    "startingOcr": "Starting OCR...",
+    "open": "Open"
 }

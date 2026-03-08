@@ -66,7 +66,7 @@ class _AnalyzeButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final secondary = isDark ? AppTheme.darkSecondary : AppTheme.lightSecondary;
+    final primary = isDark ? AppTheme.darkPrimary : AppTheme.lightPrimary;
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -74,12 +74,12 @@ class _AnalyzeButton extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 16),
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [secondary.withOpacity(0.75), secondary],
+            colors: [primary.withOpacity(0.75), primary],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
           borderRadius: BorderRadius.circular(14),
-          boxShadow: [BoxShadow(color: secondary.withOpacity(0.35), blurRadius: 10, offset: const Offset(0, 4))],
+          boxShadow: [BoxShadow(color: primary.withOpacity(0.35), blurRadius: 10, offset: const Offset(0, 4))],
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
