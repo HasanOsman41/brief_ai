@@ -1,6 +1,7 @@
 // lib/screens/home_screen.dart
 import 'dart:ui';
 
+import 'package:brief_ai/data/categories_data.dart';
 import 'package:brief_ai/localization/app_localizations.dart';
 import 'package:brief_ai/models/document.dart';
 import 'package:brief_ai/services/document_service.dart';
@@ -26,21 +27,6 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Document> _documents = [];
   bool _isLoading = false;
   String? _error;
-
-  // Use keys instead of localized strings for categories
-  final List<Map<String, String>> _categoryKeys = const [
-    {'key': 'all', 'labelKey': 'all'},
-    {'key': 'jobcenter', 'labelKey': 'jobcenter'},
-    {'key': 'auslaenderbehoerde', 'labelKey': 'auslaenderbehoerde'},
-    {'key': 'krankenkasse', 'labelKey': 'krankenkasse'},
-    {'key': 'finanzamt', 'labelKey': 'finanzamt'},
-    {'key': 'contracts', 'labelKey': 'contracts'},
-    {'key': 'bills', 'labelKey': 'bills'},
-    {'key': 'bank', 'labelKey': 'bank'},
-    {'key': 'insurance', 'labelKey': 'insurance'},
-    {'key': 'rent', 'labelKey': 'rent'},
-    {'key': 'other', 'labelKey': 'other'},
-  ];
 
   @override
   void initState() {
@@ -75,36 +61,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _refreshDocuments() async {
     await _loadDocuments();
-  }
-
-  // Helper method to get localized category label
-  String _getCategoryLabel(String categoryKey) {
-    switch (categoryKey) {
-      case 'all':
-        return AppLocalizations.tr(context, 'all');
-      case 'jobcenter':
-        return AppLocalizations.tr(context, 'jobcenter');
-      case 'auslaenderbehoerde':
-        return AppLocalizations.tr(context, 'auslaenderbehoerde');
-      case 'krankenkasse':
-        return AppLocalizations.tr(context, 'krankenkasse');
-      case 'finanzamt':
-        return AppLocalizations.tr(context, 'finanzamt');
-      case 'contracts':
-        return AppLocalizations.tr(context, 'contracts');
-      case 'bills':
-        return AppLocalizations.tr(context, 'bills');
-      case 'bank':
-        return AppLocalizations.tr(context, 'bank');
-      case 'insurance':
-        return AppLocalizations.tr(context, 'insurance');
-      case 'rent':
-        return AppLocalizations.tr(context, 'rent');
-      case 'other':
-        return AppLocalizations.tr(context, 'other');
-      default:
-        return categoryKey;
-    }
   }
 
   // Helper method to get localized status
@@ -275,7 +231,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         padding: const EdgeInsets.only(bottom: 12),
                         child: DocumentCard(
                           title: doc.title,
-                          category: _getCategoryLabel(doc.categoryKey),
+                          category: AppLocalizations.tr(context, doc.categoryKey),
                           date: doc.formattedCreatedAt,
                           deadline: doc.formattedDeadline,
                           status: _getStatusLabel(doc.statusKey),
@@ -429,20 +385,36 @@ class _HomeScreenState extends State<HomeScreen> {
           scrollDirection: Axis.horizontal,
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Row(
-            children: _categoryKeys.map((category) {
-              return Padding(
+            children: [
+              // "All" category chip
+              Padding(
                 padding: const EdgeInsets.only(right: 8),
                 child: CategoryChip(
-                  label: _getCategoryLabel(category['key']!),
-                  isSelected: _selectedCategory == category['key'],
+                  label: AppLocalizations.tr(context, 'all'),
+                  isSelected: _selectedCategory == 'all',
                   onTap: () {
                     setState(() {
-                      _selectedCategory = category['key']!;
+                      _selectedCategory = 'all';
                     });
                   },
                 ),
-              );
-            }).toList(),
+              ),
+              // Categories from kDocumentCategories
+              ...kDocumentCategories.map((category) {
+                return Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: CategoryChip(
+                    label: AppLocalizations.tr(context, category.key),
+                    isSelected: _selectedCategory == category.key,
+                    onTap: () {
+                      setState(() {
+                        _selectedCategory = category.key;
+                      });
+                    },
+                  ),
+                );
+              }).toList(),
+            ],
           ),
         ),
 
@@ -500,7 +472,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         padding: const EdgeInsets.only(bottom: 12),
                         child: DocumentCard(
                           title: doc.title,
-                          category: _getCategoryLabel(doc.categoryKey),
+                          category: AppLocalizations.tr(context, doc.categoryKey),
                           date: doc.formattedCreatedAt,
                           deadline: doc.formattedDeadline,
                           status: _getStatusLabel(doc.statusKey),

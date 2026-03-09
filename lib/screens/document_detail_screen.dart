@@ -29,10 +29,18 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
   bool _isLoading = false;
   bool _isSaving = false;
   String ocrText = "";
+  
+  final ScrollController _scrollController = ScrollController();
+  double _scrollOffset = 0.0;
 
   @override
   void initState() {
     super.initState();
+    _scrollController.addListener(() {
+      setState(() {
+        _scrollOffset = _scrollController.offset;
+      });
+    });
 
     // Use post-frame callback to access context safely
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -42,6 +50,7 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
 
   @override
   void dispose() {
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -220,29 +229,180 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
       return _buildErrorScreen(context);
     }
 
+    final imagePaths = _document?.imagePaths ?? [];
+    final opacity = (_scrollOffset / 200).clamp(0.0, 1.0);
+
     return Scaffold(
-      body: SafeArea(
-        child: Column(
-          children: [
-            _buildAppBar(context, isDark, primaryColor),
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    _buildDocumentPreview(isDark, primaryColor),
-                    const SizedBox(height: 16),
-                    _buildInfoPanel(context, isDark, primaryColor),
-                    const SizedBox(height: 16),
-                    _buildSummarySection(context, isDark),
-                    const SizedBox(height: 16),
-                    _buildRiskLevelSection(context, isDark),
-                    const SizedBox(height: 20),
-                  ],
-                ),
+      body: Stack(
+        children: [
+          // Full-screen image viewer
+          if (imagePaths.isNotEmpty)
+            Positioned.fill(
+              child: PageView.builder(
+                onPageChanged: (index) {
+                  setState(() {
+                    _currentPage = index;
+                  });
+                },
+                itemCount: imagePaths.length,
+                itemBuilder: (context, index) {
+                  return Image.file(
+                    File(imagePaths[index]),
+                    fit: BoxFit.cover,
+                  );
+                },
               ),
             ),
-          ],
-        ),
+          
+          // Scrollable content overlay
+          CustomScrollView(
+            controller: _scrollController,
+            slivers: [
+              SliverAppBar(
+                expandedHeight: MediaQuery.of(context).size.height * 1.0,
+                pinned: true,
+                backgroundColor: Colors.transparent,
+                leading: Container(
+                  margin: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.3),
+                    shape: BoxShape.circle,
+                  ),
+                  child: IconButton(
+                    icon: const Icon(Icons.arrow_back, color: Colors.white),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ),
+                actions: [
+                  Container(
+                    margin: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.3),
+                      shape: BoxShape.circle,
+                    ),
+                    child: IconButton(
+                      icon: const Icon(Icons.share, color: Colors.white),
+                      onPressed: () => _showShareOptions(context),
+                    ),
+                  ),
+                  Container(
+                    margin: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.3),
+                      shape: BoxShape.circle,
+                    ),
+                    child: PopupMenuButton<String>(
+                      icon: const Icon(Icons.more_vert, color: Colors.white),
+                      color: isDark ? AppTheme.darkCard : AppTheme.lightCard,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                      onSelected: (value) async {
+                        switch (value) {
+                          case 'edit':
+                            if (_document?.imagePaths != null && _document?.id != null) {
+                              Navigator.pushNamed(
+                                context,
+                                '/scan',
+                                arguments: {
+                                  'existingImages': _document!.imagePaths,
+                                  'documentId': _document!.id,
+                                },
+                              );
+                            }
+                            break;
+                          case 'delete':
+                            _showDeleteDialog(context);
+                            break;
+                        }
+                      },
+                      itemBuilder: (context) => [
+                        PopupMenuItem(
+                          value: 'edit',
+                          child: Row(
+                            children: [
+                              Icon(Icons.edit, color: primaryColor, size: 20),
+                              const SizedBox(width: 12),
+                              Text(AppLocalizations.tr(context, 'edit')),
+                            ],
+                          ),
+                        ),
+                        PopupMenuItem(
+                          value: 'delete',
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.delete_outline,
+                                color: isDark ? AppTheme.darkDanger : AppTheme.lightDanger,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 12),
+                              Text(
+                                AppLocalizations.tr(context, 'delete'),
+                                style: TextStyle(
+                                  color: isDark ? AppTheme.darkDanger : AppTheme.lightDanger,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+                flexibleSpace: FlexibleSpaceBar(
+                  background: Stack(
+                    children: [
+                      // Page indicator
+                      if (imagePaths.length > 1)
+                        Positioned(
+                          bottom: 20,
+                          left: 0,
+                          right: 0,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: List.generate(
+                              imagePaths.length,
+                              (index) => Container(
+                                width: 8,
+                                height: 8,
+                                margin: const EdgeInsets.symmetric(horizontal: 4),
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: _currentPage == index
+                                      ? Colors.white
+                                      : Colors.white.withOpacity(0.5),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+              
+              // Content
+              SliverToBoxAdapter(
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: isDark ? AppTheme.darkBackground : AppTheme.lightBackground,
+                    borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
+                  ),
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 20),
+                      _buildInfoPanel(context, isDark, primaryColor),
+                      const SizedBox(height: 16),
+                      _buildSummarySection(context, isDark),
+                      const SizedBox(height: 16),
+                      _buildRiskLevelSection(context, isDark),
+                      const SizedBox(height: 100),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
       bottomNavigationBar: _buildBottomBar(context, isDark),
     );
