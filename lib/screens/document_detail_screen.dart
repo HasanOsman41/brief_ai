@@ -7,6 +7,8 @@ import 'package:brief_ai/services/document_service.dart';
 import 'package:brief_ai/theme/app_theme.dart';
 import 'package:brief_ai/widgets/glass_card.dart';
 import 'package:flutter/material.dart';
+import 'package:photo_view/photo_view.dart';
+import 'package:photo_view/photo_view_gallery.dart';
 
 class DocumentDetailScreen extends StatefulWidget {
   const DocumentDetailScreen({super.key});
@@ -27,20 +29,14 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
   late DateTime _addedDate;
   Document? _document;
   bool _isLoading = false;
-  bool _isSaving = false;
   String ocrText = "";
-  
-  final ScrollController _scrollController = ScrollController();
-  double _scrollOffset = 0.0;
+
+  late PageController _pageController;
 
   @override
   void initState() {
     super.initState();
-    _scrollController.addListener(() {
-      setState(() {
-        _scrollOffset = _scrollController.offset;
-      });
-    });
+    _pageController = PageController();
 
     // Use post-frame callback to access context safely
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -50,7 +46,7 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
 
   @override
   void dispose() {
-    _scrollController.dispose();
+    _pageController.dispose();
     super.dispose();
   }
 
@@ -111,56 +107,6 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
     return ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
   }
 
-  Future<void> _saveChanges() async {
-    if (_document == null || _isSaving) return;
-
-    setState(() => _isSaving = true);
-
-    try {
-      final base = DateTime(_dueDate.year, _dueDate.month, _dueDate.day, 9);
-
-      final updatedDocument = await DocumentService().updateDocument(
-        _document!.id!,
-        deadline: _dueDate,
-        reminder3DaysTime: _reminderEnabled && _reminder3Days
-            ? base.subtract(const Duration(days: 3))
-            : null,
-        reminder1DayTime: _reminderEnabled && _reminder1Day
-            ? base.subtract(const Duration(days: 1))
-            : null,
-        reminder12HoursTime: _reminderEnabled && _reminder12Hours
-            ? base.subtract(const Duration(hours: 12))
-            : null,
-        reminderCustomTime: _reminderEnabled && _reminderCustom
-            ? _document!.reminderCustomTime
-            : null,
-      );
-
-      if (!mounted) return;
-
-      setState(() {
-        _document = updatedDocument;
-      });
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(AppLocalizations.tr(context, 'changesSaved')),
-          backgroundColor: Theme.of(context).brightness == Brightness.dark
-              ? AppTheme.darkSuccess
-              : AppTheme.lightSuccess,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-    } catch (e) {
-      if (!mounted) return;
-      _showErrorSnackBar('Error saving changes: $e');
-    } finally {
-      if (mounted) {
-        setState(() => _isSaving = false);
-      }
-    }
-  }
-
   void _showErrorSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -171,45 +117,6 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
         behavior: SnackBarBehavior.floating,
       ),
     );
-  }
-
-  Future<void> _selectDate(BuildContext context, bool isDueDate) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: isDueDate ? _dueDate : _addedDate,
-      firstDate: DateTime(2020),
-      lastDate: DateTime(2030),
-      builder: (context, child) {
-        final isDark = Theme.of(context).brightness == Brightness.dark;
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: ColorScheme.light(
-              primary: Theme.of(context).colorScheme.primary,
-              onPrimary: Colors.white,
-              surface: isDark ? AppTheme.darkCard : AppTheme.lightCard,
-              onSurface: isDark
-                  ? AppTheme.darkTextPrimary
-                  : AppTheme.lightTextPrimary,
-            ),
-            dialogBackgroundColor: isDark
-                ? AppTheme.darkBackground
-                : AppTheme.lightBackground,
-          ),
-          child: child!,
-        );
-      },
-    );
-
-    if (picked != null) {
-      setState(() {
-        if (isDueDate) {
-          _dueDate = picked;
-        } else {
-          _addedDate = picked;
-        }
-      });
-      _saveChanges();
-    }
   }
 
   String _formatDate(DateTime date) {
@@ -230,7 +137,6 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
     }
 
     final imagePaths = _document?.imagePaths ?? [];
-    final opacity = (_scrollOffset / 200).clamp(0.0, 1.0);
 
     return Scaffold(
       body: Stack(
@@ -238,107 +144,164 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
           // Full-screen image viewer
           if (imagePaths.isNotEmpty)
             Positioned.fill(
-              child: PageView.builder(
+              child: PhotoViewGallery.builder(
+                scrollPhysics: const BouncingScrollPhysics(),
+                backgroundDecoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      isDark
+                          ? const Color(0xFF1A1A1A)
+                          : const Color(0xFF2C3E50),
+                      isDark
+                          ? const Color(0xFF2D2D2D)
+                          : const Color(0xFF34495E),
+                    ],
+                  ),
+                ),
+                pageController: _pageController,
                 onPageChanged: (index) {
                   setState(() {
                     _currentPage = index;
                   });
                 },
-                itemCount: imagePaths.length,
-                itemBuilder: (context, index) {
-                  return Image.file(
-                    File(imagePaths[index]),
-                    fit: BoxFit.cover,
+                builder: (BuildContext context, int index) {
+                  return PhotoViewGalleryPageOptions(
+                    imageProvider: Image.file(File(imagePaths[index])).image,
+                    initialScale: PhotoViewComputedScale.contained,
+                    heroAttributes: PhotoViewHeroAttributes(
+                      tag: imagePaths[index],
+                    ),
                   );
                 },
+                itemCount: imagePaths.length,
               ),
             ),
-          
-          // Scrollable content overlay
-          CustomScrollView(
-            controller: _scrollController,
-            slivers: [
-              SliverAppBar(
-                expandedHeight: MediaQuery.of(context).size.height * 1.0,
-                pinned: true,
-                backgroundColor: Colors.transparent,
-                leading: Container(
-                  margin: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.3),
-                    shape: BoxShape.circle,
-                  ),
-                  child: IconButton(
-                    icon: const Icon(Icons.arrow_back, color: Colors.white),
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                ),
-                actions: [
-                  Container(
-                    margin: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.3),
-                      shape: BoxShape.circle,
+          // App bar overlay
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: SafeArea(
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.3),
+                        shape: BoxShape.circle,
+                      ),
+                      child: IconButton(
+                        icon: const Icon(Icons.arrow_back, color: Colors.white),
+                        onPressed: () => Navigator.pop(context),
+                      ),
                     ),
-                    child: IconButton(
-                      icon: const Icon(Icons.share, color: Colors.white),
-                      onPressed: () => _showShareOptions(context),
-                    ),
-                  ),
-                  Container(
-                    margin: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.3),
-                      shape: BoxShape.circle,
-                    ),
-                    child: PopupMenuButton<String>(
-                      icon: const Icon(Icons.more_vert, color: Colors.white),
-                      color: isDark ? AppTheme.darkCard : AppTheme.lightCard,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                      onSelected: (value) async {
-                        switch (value) {
-                          case 'edit':
-                            if (_document?.imagePaths != null && _document?.id != null) {
-                              Navigator.pushNamed(
-                                context,
-                                '/scan',
-                                arguments: {
-                                  'existingImages': _document!.imagePaths,
-                                  'documentId': _document!.id,
-                                },
-                              );
-                            }
-                            break;
-                          case 'delete':
-                            _showDeleteDialog(context);
-                            break;
-                        }
-                      },
-                      itemBuilder: (context) => [
-                        PopupMenuItem(
-                          value: 'edit',
-                          child: Row(
-                            children: [
-                              Icon(Icons.edit, color: primaryColor, size: 20),
-                              const SizedBox(width: 12),
-                              Text(AppLocalizations.tr(context, 'edit')),
-                            ],
+                    Row(
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.3),
+                            shape: BoxShape.circle,
+                          ),
+                          child: IconButton(
+                            icon: const Icon(Icons.share, color: Colors.white),
+                            onPressed: () => _showShareOptions(context),
                           ),
                         ),
-                        PopupMenuItem(
-                          value: 'delete',
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.delete_outline,
-                                color: isDark ? AppTheme.darkDanger : AppTheme.lightDanger,
-                                size: 20,
+                        const SizedBox(width: 8),
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.3),
+                            shape: BoxShape.circle,
+                          ),
+                          child: PopupMenuButton<String>(
+                            icon: const Icon(
+                              Icons.more_vert,
+                              color: Colors.white,
+                            ),
+                            color: isDark
+                                ? AppTheme.darkCard
+                                : AppTheme.lightCard,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            onSelected: (value) async {
+                              switch (value) {
+                                case 'edit':
+                                  if (_document?.imagePaths != null &&
+                                      _document?.id != null) {
+                                    Navigator.pushNamed(
+                                      context,
+                                      '/scan',
+                                      arguments: {
+                                        'existingImages': _document!.imagePaths,
+                                        'documentId': _document!.id,
+                                      },
+                                    );
+                                  }
+                                  break;
+                                case 'export':
+                                  break;
+                                case 'delete':
+                                  _showDeleteDialog(context);
+                                  break;
+                              }
+                            },
+                            itemBuilder: (context) => [
+                              PopupMenuItem(
+                                value: 'edit',
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.edit,
+                                      color: primaryColor,
+                                      size: 20,
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Text(AppLocalizations.tr(context, 'edit')),
+                                  ],
+                                ),
                               ),
-                              const SizedBox(width: 12),
-                              Text(
-                                AppLocalizations.tr(context, 'delete'),
-                                style: TextStyle(
-                                  color: isDark ? AppTheme.darkDanger : AppTheme.lightDanger,
+                              PopupMenuItem(
+                                value: 'export',
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.picture_as_pdf,
+                                      color: primaryColor,
+                                      size: 20,
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Text(
+                                      AppLocalizations.tr(context, 'exportPDF'),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              PopupMenuItem(
+                                value: 'delete',
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.delete_outline,
+                                      color: isDark
+                                          ? AppTheme.darkDanger
+                                          : AppTheme.lightDanger,
+                                      size: 20,
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Text(
+                                      AppLocalizations.tr(context, 'delete'),
+                                      style: TextStyle(
+                                        color: isDark
+                                            ? AppTheme.darkDanger
+                                            : AppTheme.lightDanger,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ],
@@ -346,65 +309,96 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
                         ),
                       ],
                     ),
-                  ),
-                ],
-                flexibleSpace: FlexibleSpaceBar(
-                  background: Stack(
-                    children: [
-                      // Page indicator
-                      if (imagePaths.length > 1)
-                        Positioned(
-                          bottom: 20,
-                          left: 0,
-                          right: 0,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: List.generate(
-                              imagePaths.length,
-                              (index) => Container(
-                                width: 8,
-                                height: 8,
-                                margin: const EdgeInsets.symmetric(horizontal: 4),
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: _currentPage == index
-                                      ? Colors.white
-                                      : Colors.white.withOpacity(0.5),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                    ],
+                  ],
+                ),
+              ),
+            ),
+          ),
+
+          // Page indicator
+          if (imagePaths.length > 1)
+            Positioned(
+              bottom: 100,
+              left: 0,
+              right: 0,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(
+                  imagePaths.length,
+                  (index) => Container(
+                    width: 8,
+                    height: 8,
+                    margin: const EdgeInsets.symmetric(horizontal: 4),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: _currentPage == index
+                          ? Colors.white
+                          : Colors.white.withOpacity(0.5),
+                    ),
                   ),
                 ),
               ),
-              
-              // Content
-              SliverToBoxAdapter(
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: isDark ? AppTheme.darkBackground : AppTheme.lightBackground,
-                    borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
+            ),
+
+          // Scrollable content card
+          DraggableScrollableSheet(
+            initialChildSize: 0.3,
+            minChildSize: 0.1,
+            maxChildSize: 0.9,
+            builder: (context, scrollController) {
+              return Container(
+                decoration: BoxDecoration(
+                  color: isDark
+                      ? AppTheme.darkBackground
+                      : AppTheme.lightBackground,
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(30),
                   ),
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 20),
-                      _buildInfoPanel(context, isDark, primaryColor),
-                      const SizedBox(height: 16),
-                      _buildSummarySection(context, isDark),
-                      const SizedBox(height: 16),
-                      _buildRiskLevelSection(context, isDark),
-                      const SizedBox(height: 100),
-                    ],
-                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 10,
+                      offset: const Offset(0, -5),
+                    ),
+                  ],
                 ),
-              ),
-            ],
+                child: Column(
+                  children: [
+                    // Handle bar
+                    Container(
+                      margin: const EdgeInsets.only(top: 12),
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: isDark
+                            ? Colors.white.withOpacity(0.3)
+                            : Colors.black.withOpacity(0.3),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+
+                    // Content
+                    Expanded(
+                      child: ListView(
+                        controller: scrollController,
+                        padding: const EdgeInsets.all(20),
+                        children: [
+                          _buildInfoPanel(context, isDark, primaryColor),
+                          const SizedBox(height: 16),
+                          _buildSummarySection(context, isDark),
+                          const SizedBox(height: 16),
+                          _buildRiskLevelSection(context, isDark),
+                          const SizedBox(height: 80),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
           ),
         ],
       ),
-      bottomNavigationBar: _buildBottomBar(context, isDark),
     );
   }
 
@@ -448,248 +442,34 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
     );
   }
 
-  Widget _buildAppBar(BuildContext context, bool isDark, Color primaryColor) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () => Navigator.pop(context),
-            color: Theme.of(context).textTheme.bodyLarge?.color,
-          ),
-          Row(
-            children: [
-              if (_isSaving)
-                Padding(
-                  padding: const EdgeInsets.only(right: 12),
-                  child: SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation(primaryColor),
-                    ),
-                  ),
-                ),
-              IconButton(
-                icon: Icon(
-                  Icons.share_outlined,
-                  color: Theme.of(context).textTheme.bodyLarge?.color,
-                ),
-                onPressed: () => _showShareOptions(context),
-              ),
-              PopupMenuButton<String>(
-                icon: Icon(
-                  Icons.more_vert,
-                  color: Theme.of(context).textTheme.bodyLarge?.color,
-                ),
-                color: isDark ? AppTheme.darkCard : AppTheme.lightCard,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                onSelected: (value) async {
-                  switch (value) {
-                    case 'edit':
-                      if (_document?.imagePaths != null && _document?.id != null) {
-                        Navigator.pushNamed(
-                          context,
-                          '/scan',
-                          arguments: {
-                            'existingImages': _document!.imagePaths,
-                            'documentId': _document!.id,
-                          },
-                        );
-                      }
-                      break;
-                    case 'export':
-                      // Handle export
-                      break;
-                    case 'delete':
-                      _showDeleteDialog(context);
-                      break;
-                  }
-                },
-                itemBuilder: (context) => [
-                  PopupMenuItem(
-                    value: 'edit',
-                    child: Row(
-                      children: [
-                        Icon(Icons.edit, color: primaryColor, size: 20),
-                        const SizedBox(width: 12),
-                        Text(AppLocalizations.tr(context, 'edit')),
-                      ],
-                    ),
-                  ),
-                  PopupMenuItem(
-                    value: 'export',
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.picture_as_pdf,
-                          color: primaryColor,
-                          size: 20,
-                        ),
-                        const SizedBox(width: 12),
-                        Text(AppLocalizations.tr(context, 'exportPDF')),
-                      ],
-                    ),
-                  ),
-                  PopupMenuItem(
-                    value: 'delete',
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.delete_outline,
-                          color: isDark
-                              ? AppTheme.darkDanger
-                              : AppTheme.lightDanger,
-                          size: 20,
-                        ),
-                        const SizedBox(width: 12),
-                        Text(
-                          AppLocalizations.tr(context, 'delete'),
-                          style: TextStyle(
-                            color: isDark
-                                ? AppTheme.darkDanger
-                                : AppTheme.lightDanger,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDocumentPreview(bool isDark, Color primaryColor) {
-    final imagePaths = _document?.imagePaths ?? [];
-
-    if (imagePaths.isEmpty) {
-      return Container(
-        height: 220,
-        margin: const EdgeInsets.symmetric(horizontal: 20),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          color: isDark ? Colors.grey[900] : Colors.grey[200],
-        ),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.image_not_supported_outlined,
-                size: 48,
-                color: isDark ? Colors.grey[600] : Colors.grey[400],
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'No images available',
-                style: TextStyle(
-                  color: isDark ? Colors.grey[600] : Colors.grey[400],
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
-    return Container(
-      height: 220,
-      margin: const EdgeInsets.symmetric(horizontal: 20),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        color: isDark ? Colors.grey[900] : Colors.grey[200],
-      ),
-      child: Stack(
-        children: [
-          PageView.builder(
-            onPageChanged: (index) {
-              setState(() {
-                _currentPage = index;
-              });
-            },
-            itemCount: imagePaths.length,
-            itemBuilder: (context, index) {
-              return Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  image: DecorationImage(
-                    image: FileImage(File(imagePaths[index])),
-                    fit: BoxFit.contain,
-                  ),
-                ),
-              );
-            },
-          ),
-          Positioned(
-            bottom: 10,
-            left: 0,
-            right: 0,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(
-                imagePaths.length,
-                (index) => Container(
-                  width: 8,
-                  height: 8,
-                  margin: const EdgeInsets.symmetric(horizontal: 4),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: _currentPage == index
-                        ? primaryColor
-                        : Colors.white.withOpacity(0.5),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildInfoPanel(
     BuildContext context,
     bool isDark,
     Color primaryColor,
   ) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: GlassCard(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _buildCategoryChip(context, primaryColor),
-                Row(
-                  children: [
-                    _buildDueDateChip(context, isDark),
-                    const SizedBox(width: 8),
-                    _buildReminderSwitch(primaryColor),
-                  ],
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Text(
-              _document!.title,
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            const SizedBox(height: 8),
-            _buildAddedDateRow(context),
-            if (_reminderEnabled) _buildReminderOptions(context, primaryColor),
-          ],
-        ),
+    return GlassCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _buildCategoryChip(context, primaryColor),
+              Row(
+                children: [
+                  _buildDueDateChip(context, isDark),
+                  const SizedBox(width: 8),
+                  _buildReminderSwitch(primaryColor),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Text(_document!.title, style: Theme.of(context).textTheme.titleLarge),
+          const SizedBox(height: 8),
+          _buildAddedDateRow(context),
+          if (_reminderEnabled) _buildReminderOptions(context, primaryColor),
+        ],
       ),
     );
   }
@@ -911,29 +691,24 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
   }
 
   Widget _buildSummarySection(BuildContext context, bool isDark) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: GlassCard(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              AppLocalizations.tr(context, 'summary'),
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              _document!.summary.isNotEmpty
-                  ? _document!.summary
-                  : 'No summary available',
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                height: 1.6,
-              ),
-            ),
-          ],
-        ),
+    return GlassCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            AppLocalizations.tr(context, 'summary'),
+            style: Theme.of(
+              context,
+            ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            _document!.summary.isNotEmpty
+                ? _document!.summary
+                : 'No summary available',
+            style: Theme.of(context).textTheme.bodyLarge?.copyWith(height: 1.6),
+          ),
+        ],
       ),
     );
   }
@@ -941,11 +716,11 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
   Widget _buildRiskLevelSection(BuildContext context, bool isDark) {
     final now = DateTime.now();
     final daysLeft = _dueDate.difference(now).inDays;
-    
+
     Color riskColor;
     String riskText;
     IconData riskIcon;
-    
+
     if (daysLeft < 0) {
       riskColor = isDark ? AppTheme.darkDanger : AppTheme.lightDanger;
       riskText = AppLocalizations.tr(context, 'overdue');
@@ -964,180 +739,41 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
       riskIcon = Icons.check_circle_outline;
     }
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: GlassCard(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
+    return GlassCard(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.speed_outlined, color: riskColor, size: 24),
+              const SizedBox(width: 12),
+              Text(
+                AppLocalizations.tr(context, 'riskLevel'),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
+              ),
+            ],
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
+              color: riskColor.withOpacity(0.15),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Row(
               children: [
-                Icon(
-                  Icons.speed_outlined,
-                  color: riskColor,
-                  size: 24,
-                ),
-                const SizedBox(width: 12),
+                Icon(riskIcon, color: riskColor, size: 18),
+                const SizedBox(width: 6),
                 Text(
-                  AppLocalizations.tr(context, 'riskLevel'),
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  riskText,
+                  style: TextStyle(
+                    color: riskColor,
                     fontWeight: FontWeight.w600,
+                    fontSize: 15,
                   ),
                 ),
               ],
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 8,
-              ),
-              decoration: BoxDecoration(
-                color: riskColor.withOpacity(0.15),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    riskIcon,
-                    color: riskColor,
-                    size: 18,
-                  ),
-                  const SizedBox(width: 6),
-                  Text(
-                    riskText,
-                    style: TextStyle(
-                      color: riskColor,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 15,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildBottomBar(BuildContext context, bool isDark) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xBF141928) : const Color(0xE5FFFFFF),
-        border: Border(
-          top: BorderSide(
-            color: isDark ? const Color(0x14FFFFFF) : const Color(0x0F000000),
-          ),
-        ),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          _buildActionButton(
-            context,
-            Icons.share,
-            AppLocalizations.tr(context, 'share'),
-          ),
-          _buildActionButton(
-            context,
-            Icons.picture_as_pdf,
-            AppLocalizations.tr(context, 'exportPDF'),
-          ),
-          _buildActionButton(
-            context,
-            Icons.edit,
-            AppLocalizations.tr(context, 'edit'),
-            onTap: () {
-              if (_document?.imagePaths != null && _document?.id != null) {
-                Navigator.pushNamed(
-                  context,
-                  '/scan',
-                  arguments: {
-                    'existingImages': _document!.imagePaths,
-                    'documentId': _document!.id,
-                  },
-                );
-              }
-            },
-          ),
-          _buildActionButton(
-            context,
-            Icons.delete_outline,
-            AppLocalizations.tr(context, 'delete'),
-            isDestructive: true,
-            onTap: () => _showDeleteDialog(context),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildActionButton(
-    BuildContext context,
-    IconData icon,
-    String label, {
-    bool isDestructive = false,
-    VoidCallback? onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap ?? () {},
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            icon,
-            color: isDestructive
-                ? (Theme.of(context).brightness == Brightness.dark
-                      ? AppTheme.darkDanger
-                      : AppTheme.lightDanger)
-                : Theme.of(context).textTheme.bodyLarge?.color,
-          ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              color: isDestructive
-                  ? (Theme.of(context).brightness == Brightness.dark
-                        ? AppTheme.darkDanger
-                        : AppTheme.lightDanger)
-                  : Theme.of(context).textTheme.bodyMedium?.color,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildChecklistItem(
-    BuildContext context,
-    String text,
-    bool isChecked,
-  ) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Row(
-        children: [
-          Icon(
-            isChecked ? Icons.check_circle : Icons.radio_button_unchecked,
-            color: isChecked
-                ? (Theme.of(context).brightness == Brightness.dark
-                      ? AppTheme.darkSuccess
-                      : AppTheme.lightSuccess)
-                : Theme.of(context).textTheme.bodyMedium?.color,
-            size: 20,
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              text,
-              style: TextStyle(
-                decoration: isChecked ? TextDecoration.lineThrough : null,
-                color: isChecked
-                    ? Theme.of(context).textTheme.bodyMedium?.color
-                    : Theme.of(context).textTheme.bodyLarge?.color,
-              ),
             ),
           ),
         ],

@@ -3,6 +3,7 @@ import 'package:brief_ai/data/repositories/document_repository.dart';
 import 'package:brief_ai/data/repositories/image_repository.dart';
 import 'package:brief_ai/models/document.dart';
 import 'package:brief_ai/models/document_image.dart';
+import 'package:brief_ai/services/notification_service.dart';
 
 /// DocumentService - Central service for document management
 ///
@@ -122,20 +123,33 @@ class DocumentService {
       if (current == null) {
         throw Exception('Document with id $id not found');
       }
-
-      final updated = current.copyWith(
-        title: title,
-        categoryKey: categoryKey,
-        createdAt: createdAt,
-        deadline: deadline,
-        statusKey: statusKey,
-        summary: summary,
-        ocrText: ocrText,
+      final updated = Document(
+        id: id,
+        title: title ?? current.title,
+        categoryKey: categoryKey ?? current.categoryKey,
+        statusKey: statusKey ?? current.statusKey,
+        summary: summary ?? current.summary,
+        ocrText: ocrText ?? current.ocrText,
+        createdAt: createdAt ?? current.createdAt,
+        deadline: deadline ?? current.deadline,
         reminder3DaysTime: reminder3DaysTime,
         reminder1DayTime: reminder1DayTime,
         reminder12HoursTime: reminder12HoursTime,
         reminderCustomTime: reminderCustomTime,
       );
+      // final updated = current.copyWith(
+      //   title: title,
+      //   categoryKey: categoryKey,
+      //   createdAt: createdAt,
+      //   deadline: deadline,
+      //   statusKey: statusKey,
+      //   summary: summary,
+      //   ocrText: ocrText,
+      //   reminder3DaysTime: reminder3DaysTime,
+      //   reminder1DayTime: reminder1DayTime,
+      //   reminder12HoursTime: reminder12HoursTime,
+      //   reminderCustomTime: reminderCustomTime,
+      // );
 
       await _documentRepo.update(updated);
       print('✅ Document updated successfully with id: $id');
@@ -382,6 +396,88 @@ class DocumentService {
       print('✅ All images deleted for document $documentId');
     } catch (e) {
       print('❌ Error deleting images for document $documentId: $e');
+      rethrow;
+    }
+  }
+
+  /// Schedule or update reminders for a document
+  ///
+  /// This method handles scheduling reminders based on the document's reminder settings.
+  /// It generates predictable notification IDs based on documentId and reminder type.
+  /// Reminder ID formula: documentId * 10 + offset
+  /// - offset 0: 3-day reminder
+  /// - offset 1: 1-day reminder
+  /// - offset 2: 12-hour reminder
+  /// - offset 3: custom reminder
+  Future<void> scheduleReminders(
+    int documentId,
+    String title,
+    DateTime deadline, {
+    DateTime? reminder3DaysTime,
+    DateTime? reminder1DayTime,
+    DateTime? reminder12HoursTime,
+    DateTime? reminderCustomTime,
+  }) async {
+    try {
+      final notificationService = NotificationService();
+
+      // Format title for notification (max 50 chars)
+      final notifyTitle = title.length > 50 ? title.substring(0, 50) : title;
+      final body =
+          'Deadline: ${deadline.day}.${deadline.month}.${deadline.year}';
+
+      // Schedule reminders with predictable IDs
+      if (reminder3DaysTime != null) {
+        await notificationService.scheduleNotification(
+          documentId * 10 + 0,
+          notifyTitle,
+          body,
+          reminder3DaysTime,
+          payload: 'doc_$documentId',
+        );
+      }
+      if (reminder1DayTime != null) {
+        await notificationService.scheduleNotification(
+          documentId * 10 + 1,
+          notifyTitle,
+          body,
+          reminder1DayTime,
+          payload: 'doc_$documentId',
+        );
+      }
+      if (reminder12HoursTime != null) {
+        await notificationService.scheduleNotification(
+          documentId * 10 + 2,
+          notifyTitle,
+          body,
+          reminder12HoursTime,
+          payload: 'doc_$documentId',
+        );
+      }
+      if (reminderCustomTime != null) {
+        await notificationService.scheduleNotification(
+          documentId * 10 + 3,
+          notifyTitle,
+          body,
+          reminderCustomTime,
+          payload: 'doc_$documentId',
+        );
+      }
+
+      print('✅ Reminders scheduled for document $documentId');
+    } catch (e) {
+      print('❌ Error scheduling reminders for document $documentId: $e');
+      rethrow;
+    }
+  }
+
+  /// Cancel all reminders for a document
+  Future<void> cancelReminders(int documentId) async {
+    try {
+      await NotificationService().cancelRemindersForDocument(documentId);
+      print('✅ Reminders cancelled for document $documentId');
+    } catch (e) {
+      print('❌ Error cancelling reminders for document $documentId: $e');
       rethrow;
     }
   }

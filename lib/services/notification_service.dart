@@ -103,4 +103,12 @@ class NotificationService {
   Future<List<PendingNotificationRequest>> getPendingNotifications() async {
     return await _local.pendingNotificationRequests();
   }
+
+  /// Cancel all reminders for a document (4 possible reminder types)
+  Future<void> cancelRemindersForDocument(int documentId) async {
+    // Reminder IDs are: documentId * 10, documentId * 10 + 1, etc.
+    for (int i = 0; i < 4; i++) {
+      await cancel(documentId * 10 + i);
+    }
+  }
 }

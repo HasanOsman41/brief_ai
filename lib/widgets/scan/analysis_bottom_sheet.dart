@@ -3,7 +3,6 @@ import 'package:brief_ai/data/categories_data.dart';
 import 'package:brief_ai/localization/app_localizations.dart';
 import 'package:brief_ai/models/analysis_result.dart';
 import 'package:brief_ai/services/document_service.dart';
-import 'package:brief_ai/services/notification_service.dart';
 import 'package:brief_ai/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -170,30 +169,53 @@ class _AnalysisBottomSheetState extends State<AnalysisBottomSheet> {
     try {
       final base = DateTime(_deadline.year, _deadline.month, _deadline.day, 9);
       
+      final reminder3Days = _remindersEnabled && _remind3Days ? base.subtract(const Duration(days: 3)) : null;
+      final reminder1Day = _remindersEnabled && _remind1Day ? base.subtract(const Duration(days: 1)) : null;
+      final reminder12Hours = _remindersEnabled && _remind12Hours ? base.subtract(const Duration(hours: 12)) : null;
+      final reminderCustom = _remindersEnabled && _remindCustom ? _customTime : null;
+      
       if (widget.documentId != null) {
         // Update existing document
+        final docId = widget.documentId!;
+        
+        // Cancel old reminders before updating
+        await DocumentService().cancelReminders(docId);
+        
         await DocumentService().updateDocument(
-          widget.documentId!,
+          docId,
           title: _editableTitle,
           categoryKey: _selectedCategoryKey,
           deadline: _deadline,
           statusKey: 'pending',
           summary: _editableSummary,
           ocrText: widget.ocrText,
-          reminder3DaysTime: _remindersEnabled && _remind3Days ? base.subtract(const Duration(days: 3)) : null,
-          reminder1DayTime: _remindersEnabled && _remind1Day ? base.subtract(const Duration(days: 1)) : null,
-          reminder12HoursTime: _remindersEnabled && _remind12Hours ? base.subtract(const Duration(hours: 12)) : null,
-          reminderCustomTime: _remindersEnabled && _remindCustom ? _customTime : null,
+          reminder3DaysTime: reminder3Days,
+          reminder1DayTime: reminder1Day,
+          reminder12HoursTime: reminder12Hours,
+          reminderCustomTime: reminderCustom,
         );
         
         // Update images: delete old ones and add new ones
-        await DocumentService().deleteAllImages(widget.documentId!);
+        await DocumentService().deleteAllImages(docId);
         if (widget.imagePaths.isNotEmpty) {
-          await DocumentService().addImagesToDocument(widget.documentId!, widget.imagePaths);
+          await DocumentService().addImagesToDocument(docId, widget.imagePaths);
+        }
+        
+        // Schedule new reminders
+        if (_remindersEnabled) {
+          await DocumentService().scheduleReminders(
+            docId,
+            _editableTitle,
+            _deadline,
+            reminder3DaysTime: reminder3Days,
+            reminder1DayTime: reminder1Day,
+            reminder12HoursTime: reminder12Hours,
+            reminderCustomTime: reminderCustom,
+          );
         }
       } else {
         // Add new document
-        await DocumentService().addDocument(
+        final docId = await DocumentService().addDocument(
           title: _editableTitle,
           categoryKey: _selectedCategoryKey,
           deadline: _deadline,
@@ -201,48 +223,32 @@ class _AnalysisBottomSheetState extends State<AnalysisBottomSheet> {
           summary: _editableSummary,
           ocrText: widget.ocrText,
           imagePaths: widget.imagePaths,
-          reminder3DaysTime: _remindersEnabled && _remind3Days ? base.subtract(const Duration(days: 3)) : null,
-          reminder1DayTime: _remindersEnabled && _remind1Day ? base.subtract(const Duration(days: 1)) : null,
-          reminder12HoursTime: _remindersEnabled && _remind12Hours ? base.subtract(const Duration(hours: 12)) : null,
-          reminderCustomTime: _remindersEnabled && _remindCustom ? _customTime : null,
+          reminder3DaysTime: reminder3Days,
+          reminder1DayTime: reminder1Day,
+          reminder12HoursTime: reminder12Hours,
+          reminderCustomTime: reminderCustom,
         );
+        
+        // Schedule reminders for new document
+        if (_remindersEnabled) {
+          await DocumentService().scheduleReminders(
+            docId,
+            _editableTitle,
+            _deadline,
+            reminder3DaysTime: reminder3Days,
+            reminder1DayTime: reminder1Day,
+            reminder12HoursTime: reminder12Hours,
+            reminderCustomTime: reminderCustom,
+          );
+        }
       }
 
       widget.onSave(_deadline);
-      if (_remindersEnabled) _scheduleReminders();
       Navigator.pop(context);
       _snack(AppLocalizations.tr(context, 'analysisSaved'), success: true);
     } catch (e) {
       _snack('Error: $e', success: false);
     }
-  }
-
-  void _scheduleReminders() {
-    final raw = _editableTitle.isNotEmpty
-        ? _editableTitle
-        : _editableSummary.split('.').first;
-    final title = raw.length > 50 ? raw.substring(0, 50) : raw;
-    final body =
-        '${AppLocalizations.tr(context, 'deadline')}: '
-        '${_deadline.day}.${_deadline.month}.${_deadline.year}';
-    final base = DateTime(_deadline.year, _deadline.month, _deadline.day, 9);
-
-    void sched(int offset, DateTime dt) =>
-        NotificationService().scheduleNotification(
-          title.hashCode.abs() + offset,
-          title,
-          body,
-          dt,
-          payload:
-              '${dt.day}.${dt.month}.${dt.year} '
-              '${dt.hour.toString().padLeft(2, '0')}:'
-              '${dt.minute.toString().padLeft(2, '0')}',
-        );
-
-    if (_remind3Days) sched(0, base.subtract(const Duration(days: 3)));
-    if (_remind1Day) sched(1, base.subtract(const Duration(days: 1)));
-    if (_remind12Hours) sched(2, base.subtract(const Duration(hours: 12)));
-    if (_remindCustom && _customTime != null) sched(3, _customTime!);
   }
 
   void _snack(String msg, {required bool success, SnackBarAction? action}) {
