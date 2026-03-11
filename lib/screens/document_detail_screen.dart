@@ -199,6 +199,8 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
                         onPressed: () => Navigator.pop(context),
                       ),
                     ),
+                    // Status badge at top
+                    _buildStatusBadge(isDark),
                     Row(
                       children: [
                         Container(
@@ -388,6 +390,8 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
                           _buildSummarySection(context, isDark),
                           const SizedBox(height: 16),
                           _buildRiskLevelSection(context, isDark),
+                          const SizedBox(height: 16),
+                          _buildActionButtonsSection(context, isDark),
                           const SizedBox(height: 80),
                         ],
                       ),
@@ -740,43 +744,176 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
     }
 
     return GlassCard(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            children: [
-              Icon(Icons.speed_outlined, color: riskColor, size: 24),
-              const SizedBox(width: 12),
-              Text(
-                AppLocalizations.tr(context, 'riskLevel'),
-                style: Theme.of(
-                  context,
-                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
-              ),
-            ],
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            decoration: BoxDecoration(
-              color: riskColor.withOpacity(0.15),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Row(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
               children: [
-                Icon(riskIcon, color: riskColor, size: 18),
-                const SizedBox(width: 6),
+                Container(
+                  margin: const EdgeInsets.only(left: 8),
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: riskColor.withOpacity(0.15),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(Icons.speed_outlined, color: riskColor, size: 22),
+                ),
+                const SizedBox(width: 12),
                 Text(
-                  riskText,
-                  style: TextStyle(
-                    color: riskColor,
+                  AppLocalizations.tr(context, 'riskLevel'),
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w600,
-                    fontSize: 15,
                   ),
                 ),
               ],
             ),
+            Container(
+              margin: const EdgeInsets.only(right: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              decoration: BoxDecoration(
+                color: riskColor.withOpacity(0.15),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: riskColor.withOpacity(0.3), width: 1),
+              ),
+              child: Row(
+                children: [
+                  Icon(riskIcon, color: riskColor, size: 18),
+                  const SizedBox(width: 6),
+                  Text(
+                    riskText,
+                    style: TextStyle(
+                      color: riskColor,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStatusBadge(bool isDark) {
+    final isDone = _document?.statusKey == 'done';
+
+    if (!isDone) {
+      return const SizedBox.shrink();
+    }
+
+    final successColor = isDark ? AppTheme.darkSuccess : AppTheme.lightSuccess;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.black.withOpacity(0.4),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: successColor.withOpacity(0.6), width: 1.5),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.check_circle, color: successColor, size: 16),
+          const SizedBox(width: 6),
+          Text(
+            AppLocalizations.tr(context, 'done'),
+            style: TextStyle(
+              color: successColor,
+              fontWeight: FontWeight.w600,
+              fontSize: 12,
+            ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildActionButtonsSection(BuildContext context, bool isDark) {
+    final successColor = isDark ? AppTheme.darkSuccess : AppTheme.lightSuccess;
+    final isDone = _document?.statusKey == 'done';
+
+    // Show completed label if document is done
+    if (isDone) {
+      return GlassCard(
+        child: Container(
+          height: 56,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+              colors: [successColor, successColor.withOpacity(0.85)],
+            ),
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.check_circle, color: Colors.white, size: 24),
+              const SizedBox(width: 12),
+              Text(
+                AppLocalizations.tr(context, 'done'),
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    // Show action button if not done
+    return GlassCard(
+      child: SizedBox(
+        height: 56,
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () => _showMarkAsDoneDialog(context),
+            borderRadius: BorderRadius.circular(14),
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                  colors: [successColor, successColor.withOpacity(0.85)],
+                ),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    margin: const EdgeInsets.only(left: 12),
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.25),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.check_circle,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
+                    AppLocalizations.tr(context, 'markAsDone'),
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -827,6 +964,70 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  void _showMarkAsDoneDialog(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: isDark ? AppTheme.darkCard : AppTheme.lightCard,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Text(AppLocalizations.tr(context, 'markAsDone')),
+        content: Text(AppLocalizations.tr(context, 'markAsDoneConfirm')),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              AppLocalizations.tr(context, 'cancel'),
+              style: TextStyle(
+                color: Theme.of(context).textTheme.bodyMedium?.color,
+              ),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.pop(context); // Close dialog
+
+              if (_document?.id != null) {
+                try {
+                  await DocumentService().markDocumentAsDone(_document!.id!);
+
+                  if (!mounted) return;
+
+                  // Update local state
+                  setState(() {
+                    _document = _document?.copyWith(statusKey: 'done');
+                  });
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        AppLocalizations.tr(context, 'documentMarkedAsDone'),
+                      ),
+                      backgroundColor: isDark
+                          ? AppTheme.darkSuccess
+                          : AppTheme.lightSuccess,
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
+                } catch (e) {
+                  if (!mounted) return;
+                  _showErrorSnackBar('Error marking document as done: $e');
+                }
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: isDark
+                  ? AppTheme.darkSuccess
+                  : AppTheme.lightSuccess,
+            ),
+            child: Text(AppLocalizations.tr(context, 'markAsDone')),
+          ),
+        ],
       ),
     );
   }

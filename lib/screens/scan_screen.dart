@@ -58,7 +58,7 @@ class _ScanScreenState extends State<ScanScreen>
   void initState() {
     super.initState();
     _deadline = DateTime.now().add(const Duration(days: 14));
-    
+
     // Initialize animations
     _animationController = AnimationController(
       vsync: this,
@@ -67,16 +67,17 @@ class _ScanScreenState extends State<ScanScreen>
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
     );
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.1),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(parent: _animationController, curve: Curves.easeOut));
-    
+    _slideAnimation =
+        Tween<Offset>(begin: const Offset(0, 0.1), end: Offset.zero).animate(
+          CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
+        );
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+      final args =
+          ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
       final existingImages = args?['existingImages'] as List<String>?;
       _documentId = args?['documentId'] as int?;
-      
+
       if (existingImages != null && existingImages.isNotEmpty) {
         setState(() {
           _pages.addAll(existingImages);
@@ -104,12 +105,12 @@ class _ScanScreenState extends State<ScanScreen>
         page: 10,
       );
       if (!mounted) return;
-      
+
       if (scan == null || scan.images.isEmpty) {
         if (_pages.isEmpty) Navigator.pop(context);
         return;
       }
-      
+
       final cleaned = scan.images
           .map((p) => p.startsWith('file://') ? Uri.parse(p).toFilePath() : p)
           .where((p) => File(p).existsSync())
@@ -123,10 +124,10 @@ class _ScanScreenState extends State<ScanScreen>
         _pages.addAll(permanentPaths);
         _currentIndex = _pages.length - 1;
       });
-      
+
       _animationController.forward();
       _snackSuccess(AppLocalizations.tr(context, 'photoCapturedSuccessfully'));
-      
+
       await _performOcrAndShowDialog();
     } on DocScanException catch (e) {
       if (!mounted) return;
@@ -148,15 +149,15 @@ class _ScanScreenState extends State<ScanScreen>
 
   Future<void> _performOcrAndShowDialog() async {
     setState(() => _showingMagicEffect = true);
-    
+
     try {
       // Add slight delay for better UX
       // await Future.delayed(const Duration(milliseconds: 600));
       final data = await _detectCategory();
-      
+
       setState(() => _showingMagicEffect = false);
       if (!mounted) return;
-      
+
       HapticFeedback.mediumImpact();
       _showCategoryDialog(data);
     } catch (e) {
@@ -168,9 +169,13 @@ class _ScanScreenState extends State<ScanScreen>
 
   Future<void> _showCategoryDialog(Map<String, dynamic> data) async {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final category = data['category']==null? AppLocalizations.tr(context, 'generalDocument') :AppLocalizations.tr(context,data['category']);
-    final deadline = data['deadline'] as DateTime? ?? DateTime.now().add(const Duration(days: 14));
-    
+    final category = data['category'] == null
+        ? AppLocalizations.tr(context, 'generalDocument')
+        : AppLocalizations.tr(context, data['category']);
+    final deadline =
+        data['deadline'] as DateTime? ??
+        DateTime.now().add(const Duration(days: 14));
+
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -198,7 +203,8 @@ class _ScanScreenState extends State<ScanScreen>
               borderRadius: BorderRadius.circular(32),
               boxShadow: [
                 BoxShadow(
-                  color: (isDark ? AppTheme.darkPrimary : AppTheme.lightPrimary).withOpacity(0.2),
+                  color: (isDark ? AppTheme.darkPrimary : AppTheme.lightPrimary)
+                      .withOpacity(0.2),
                   blurRadius: 30,
                   offset: const Offset(0, 10),
                   spreadRadius: 0,
@@ -221,8 +227,14 @@ class _ScanScreenState extends State<ScanScreen>
                     decoration: BoxDecoration(
                       gradient: RadialGradient(
                         colors: [
-                          (isDark ? AppTheme.darkPrimary : AppTheme.lightPrimary).withOpacity(0.2),
-                          (isDark ? AppTheme.darkPrimary : AppTheme.lightPrimary).withOpacity(0.05),
+                          (isDark
+                                  ? AppTheme.darkPrimary
+                                  : AppTheme.lightPrimary)
+                              .withOpacity(0.2),
+                          (isDark
+                                  ? AppTheme.darkPrimary
+                                  : AppTheme.lightPrimary)
+                              .withOpacity(0.05),
                         ],
                       ),
                       shape: BoxShape.circle,
@@ -238,11 +250,17 @@ class _ScanScreenState extends State<ScanScreen>
                             child: Container(
                               padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
-                                color: (isDark ? AppTheme.darkPrimary : AppTheme.lightPrimary),
+                                color: (isDark
+                                    ? AppTheme.darkPrimary
+                                    : AppTheme.lightPrimary),
                                 shape: BoxShape.circle,
                                 boxShadow: [
                                   BoxShadow(
-                                    color: (isDark ? AppTheme.darkPrimary : AppTheme.lightPrimary).withOpacity(0.3),
+                                    color:
+                                        (isDark
+                                                ? AppTheme.darkPrimary
+                                                : AppTheme.lightPrimary)
+                                            .withOpacity(0.3),
                                     blurRadius: 15,
                                     spreadRadius: 0,
                                   ),
@@ -259,9 +277,9 @@ class _ScanScreenState extends State<ScanScreen>
                       ),
                     ),
                   ),
-                  
+
                   const SizedBox(height: 24),
-                  
+
                   // Title
                   Text(
                     AppLocalizations.tr(context, 'documentDetected'),
@@ -269,32 +287,44 @@ class _ScanScreenState extends State<ScanScreen>
                       fontSize: 24,
                       fontWeight: FontWeight.w700,
                       letterSpacing: -0.5,
-                      color: isDark ? AppTheme.darkTextPrimary : AppTheme.lightTextPrimary,
+                      color: isDark
+                          ? AppTheme.darkTextPrimary
+                          : AppTheme.lightTextPrimary,
                     ),
                   ),
-                  
+
                   const SizedBox(height: 8),
-                  
+
                   // Subtitle
                   Text(
                     AppLocalizations.tr(context, 'weFoundDocument'),
                     style: TextStyle(
                       fontSize: 15,
-                      color: isDark ? AppTheme.darkTextSecondary : AppTheme.lightTextSecondary,
+                      color: isDark
+                          ? AppTheme.darkTextSecondary
+                          : AppTheme.lightTextSecondary,
                     ),
                   ),
-                  
+
                   const SizedBox(height: 32),
-                  
+
                   // Category card
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: (isDark ? AppTheme.darkPrimary : AppTheme.lightPrimary).withOpacity(0.08),
+                      color:
+                          (isDark
+                                  ? AppTheme.darkPrimary
+                                  : AppTheme.lightPrimary)
+                              .withOpacity(0.08),
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(
-                        color: (isDark ? AppTheme.darkPrimary : AppTheme.lightPrimary).withOpacity(0.2),
+                        color:
+                            (isDark
+                                    ? AppTheme.darkPrimary
+                                    : AppTheme.lightPrimary)
+                                .withOpacity(0.2),
                         width: 1,
                       ),
                     ),
@@ -308,36 +338,34 @@ class _ScanScreenState extends State<ScanScreen>
                           value: category,
                           isDark: isDark,
                         ),
-                        
+
                         const Padding(
                           padding: EdgeInsets.symmetric(vertical: 12),
                           child: Divider(height: 1),
                         ),
-                        
+
                         // Deadline
                         _buildInfoRow(
                           icon: Icons.event_outlined,
                           label: AppLocalizations.tr(context, 'deadline'),
-                          value: '${deadline.day}/${deadline.month}/${deadline.year}',
+                          value:
+                              '${deadline.day}/${deadline.month}/${deadline.year}',
                           isDark: isDark,
                         ),
-                        
+
                         const Padding(
                           padding: EdgeInsets.symmetric(vertical: 12),
                           child: Divider(height: 1),
                         ),
-                        
+
                         // Risk Level
-                        _buildRiskRow(
-                          deadline: deadline,
-                          isDark: isDark,
-                        ),
+                        _buildRiskRow(deadline: deadline, isDark: isDark),
                       ],
                     ),
                   ),
-                  
+
                   const SizedBox(height: 28),
-                  
+
                   // Action buttons
                   Row(
                     children: [
@@ -354,14 +382,14 @@ class _ScanScreenState extends State<ScanScreen>
                           },
                         ),
                       ),
-                      
+
                       const SizedBox(width: 12),
-                      
+
                       // AI Analyze Button
                       Expanded(
                         child: _buildActionButton(
-                          icon: Icons.auto_awesome_rounded,
-                          label: AppLocalizations.tr(context, 'aiAnalyze'),
+                          icon: Icons.bolt_rounded,
+                          label: AppLocalizations.tr(context, 'whatNext'),
                           isPrimary: true,
                           isDark: isDark,
                           onTap: () {
@@ -381,17 +409,14 @@ class _ScanScreenState extends State<ScanScreen>
     );
   }
 
-  Widget _buildRiskRow({
-    required DateTime deadline,
-    required bool isDark,
-  }) {
+  Widget _buildRiskRow({required DateTime deadline, required bool isDark}) {
     final now = DateTime.now();
     final daysLeft = deadline.difference(now).inDays;
-    
+
     Color riskColor;
     IconData riskIcon;
     String riskText;
-    
+
     if (daysLeft < 0) {
       riskColor = isDark ? AppTheme.darkDanger : AppTheme.lightDanger;
       riskIcon = Icons.error_outline;
@@ -399,27 +424,26 @@ class _ScanScreenState extends State<ScanScreen>
     } else if (daysLeft <= 3) {
       riskColor = isDark ? AppTheme.darkDanger : AppTheme.lightDanger;
       riskIcon = Icons.warning_amber_rounded;
-      riskText = '${AppLocalizations.tr(context, 'high')} - $daysLeft ${AppLocalizations.tr(context, 'daysLeft')}';
+      riskText =
+          '${AppLocalizations.tr(context, 'high')} - $daysLeft ${AppLocalizations.tr(context, 'daysLeft')}';
     } else if (daysLeft <= 7) {
       riskColor = Colors.orange;
       riskIcon = Icons.info_outline;
-      riskText = '${AppLocalizations.tr(context, 'medium')} - $daysLeft ${AppLocalizations.tr(context, 'daysLeft')}';
+      riskText =
+          '${AppLocalizations.tr(context, 'medium')} - $daysLeft ${AppLocalizations.tr(context, 'daysLeft')}';
     } else {
       riskColor = isDark ? AppTheme.darkSuccess : AppTheme.lightSuccess;
       riskIcon = Icons.check_circle_outline;
-      riskText = '${AppLocalizations.tr(context, 'low')} - $daysLeft ${AppLocalizations.tr(context, 'daysLeft')}';
+      riskText =
+          '${AppLocalizations.tr(context, 'low')} - $daysLeft ${AppLocalizations.tr(context, 'daysLeft')}';
     }
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
-            Icon(
-              Icons.speed_outlined,
-              size: 18,
-              color: riskColor,
-            ),
+            Icon(Icons.speed_outlined, size: 18, color: riskColor),
             const SizedBox(width: 8),
             Text(
               AppLocalizations.tr(context, 'riskLevel'),
@@ -427,7 +451,9 @@ class _ScanScreenState extends State<ScanScreen>
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
                 letterSpacing: 0.3,
-                color: isDark ? AppTheme.darkTextSecondary : AppTheme.lightTextSecondary,
+                color: isDark
+                    ? AppTheme.darkTextSecondary
+                    : AppTheme.lightTextSecondary,
               ),
             ),
           ],
@@ -437,11 +463,7 @@ class _ScanScreenState extends State<ScanScreen>
           padding: const EdgeInsets.only(left: 26),
           child: Row(
             children: [
-              Icon(
-                riskIcon,
-                size: 16,
-                color: riskColor,
-              ),
+              Icon(riskIcon, size: 16, color: riskColor),
               const SizedBox(width: 6),
               Text(
                 riskText,
@@ -481,7 +503,9 @@ class _ScanScreenState extends State<ScanScreen>
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
                 letterSpacing: 0.3,
-                color: isDark ? AppTheme.darkTextSecondary : AppTheme.lightTextSecondary,
+                color: isDark
+                    ? AppTheme.darkTextSecondary
+                    : AppTheme.lightTextSecondary,
               ),
             ),
           ],
@@ -494,7 +518,9 @@ class _ScanScreenState extends State<ScanScreen>
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
-              color: isDark ? AppTheme.darkTextPrimary : AppTheme.lightTextPrimary,
+              color: isDark
+                  ? AppTheme.darkTextPrimary
+                  : AppTheme.lightTextPrimary,
             ),
           ),
         ),
@@ -513,7 +539,9 @@ class _ScanScreenState extends State<ScanScreen>
       return ElevatedButton(
         onPressed: onTap,
         style: ElevatedButton.styleFrom(
-          backgroundColor: isDark ? AppTheme.darkPrimary : AppTheme.lightPrimary,
+          backgroundColor: isDark
+              ? AppTheme.darkPrimary
+              : AppTheme.lightPrimary,
           foregroundColor: Colors.white,
           padding: const EdgeInsets.symmetric(vertical: 16),
           elevation: 0,
@@ -528,10 +556,7 @@ class _ScanScreenState extends State<ScanScreen>
             const SizedBox(height: 6),
             Text(
               label,
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-              ),
+              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
             ),
           ],
         ),
@@ -540,10 +565,16 @@ class _ScanScreenState extends State<ScanScreen>
       return OutlinedButton(
         onPressed: onTap,
         style: OutlinedButton.styleFrom(
-          foregroundColor: isDark ? AppTheme.darkTextPrimary : AppTheme.lightTextPrimary,
+          foregroundColor: isDark
+              ? AppTheme.darkTextPrimary
+              : AppTheme.lightTextPrimary,
           side: BorderSide(
             width: 1.5,
-            color: (isDark ? AppTheme.darkTextSecondary : AppTheme.lightTextSecondary).withOpacity(0.3),
+            color:
+                (isDark
+                        ? AppTheme.darkTextSecondary
+                        : AppTheme.lightTextSecondary)
+                    .withOpacity(0.3),
           ),
           padding: const EdgeInsets.symmetric(vertical: 16),
           shape: RoundedRectangleBorder(
@@ -557,10 +588,7 @@ class _ScanScreenState extends State<ScanScreen>
             const SizedBox(height: 6),
             Text(
               label,
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-              ),
+              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
             ),
           ],
         ),
@@ -573,10 +601,7 @@ class _ScanScreenState extends State<ScanScreen>
     try {
       final text = await OcrService.instance.recogniseAll(_pages);
       final result = DocumentExtractorService.instance.extract(text);
-      return {
-        'category': result.category,
-        'deadline': result.deadline,
-      };
+      return {'category': result.category, 'deadline': result.deadline};
     } catch (e) {
       return {'category': null};
     }
@@ -589,9 +614,9 @@ class _ScanScreenState extends State<ScanScreen>
       _snackError(AppLocalizations.tr(context, 'pleaseCaptureOrSelectImages'));
       return;
     }
-    
+
     HapticFeedback.mediumImpact();
-    
+
     setState(() {
       _processing = true;
       _processingStep = AppLocalizations.tr(context, 'startingOcr');
@@ -621,7 +646,7 @@ class _ScanScreenState extends State<ScanScreen>
           'extractingDocumentInfo',
         ),
       );
-      
+
       await Future.delayed(const Duration(milliseconds: 600));
       final result = DocumentExtractorService.instance.extract(text);
 
@@ -662,12 +687,12 @@ class _ScanScreenState extends State<ScanScreen>
   Future<void> _handlePdfExport() async {
     setState(() => _generatingPdf = true);
     HapticFeedback.lightImpact();
-    
+
     try {
       final path = await PdfService.instance.generateAndSave(_pages);
       if (!mounted) return;
       setState(() => _generatingPdf = false);
-      
+
       if (path != null) {
         HapticFeedback.heavyImpact();
         await OpenFile.open(path);
@@ -700,7 +725,7 @@ class _ScanScreenState extends State<ScanScreen>
 
   void _deleteCurrentPage() {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -826,7 +851,7 @@ class _ScanScreenState extends State<ScanScreen>
                 ),
               ),
             ),
-            
+
             // Main content with animations
             AnimatedBuilder(
               animation: _animationController,
@@ -853,7 +878,7 @@ class _ScanScreenState extends State<ScanScreen>
                     )
                   : _buildViewer(),
             ),
-            
+
             // Processing overlay
             if (_processing)
               _ProcessingOverlay(
@@ -861,10 +886,9 @@ class _ScanScreenState extends State<ScanScreen>
                     ? _processingStep
                     : AppLocalizations.tr(context, 'processing'),
               ),
-            
+
             // Magic animation
-            if (_showingMagicEffect)
-              const _MagicLoadingAnimation(),
+            if (_showingMagicEffect) const _MagicLoadingAnimation(),
           ],
         ),
       ),
@@ -881,9 +905,7 @@ class _ScanScreenState extends State<ScanScreen>
         // Image / empty state
         AnimatedSwitcher(
           duration: const Duration(milliseconds: 300),
-          child: hasPages
-              ? _buildImageViewer()
-              : _buildEmptyState(isDark),
+          child: hasPages ? _buildImageViewer() : _buildEmptyState(isDark),
         ),
 
         // Page counter with animation
@@ -905,7 +927,10 @@ class _ScanScreenState extends State<ScanScreen>
                     ),
                   );
                 },
-                child: _PageCounter(current: _currentIndex + 1, total: _pages.length),
+                child: _PageCounter(
+                  current: _currentIndex + 1,
+                  total: _pages.length,
+                ),
               ),
             ),
           ),
@@ -946,7 +971,8 @@ class _ScanScreenState extends State<ScanScreen>
       onHorizontalDragEnd: (d) {
         if (d.primaryVelocity! > 0 && _currentIndex > 0) {
           _navigate(-1);
-        } else if (d.primaryVelocity! < 0 && _currentIndex < _pages.length - 1) {
+        } else if (d.primaryVelocity! < 0 &&
+            _currentIndex < _pages.length - 1) {
           _navigate(1);
         }
       },
@@ -987,24 +1013,26 @@ class _ScanScreenState extends State<ScanScreen>
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: (isDark ? AppTheme.darkSurface : AppTheme.lightSurface)
-                        .withOpacity(0.5),
+                    color:
+                        (isDark ? AppTheme.darkSurface : AppTheme.lightSurface)
+                            .withOpacity(0.5),
                   ),
                   child: Icon(
                     Icons.document_scanner_outlined,
                     size: 80,
-                    color: (isDark
-                            ? AppTheme.darkTextSecondary
-                            : AppTheme.lightTextSecondary)
-                        .withOpacity(0.5),
+                    color:
+                        (isDark
+                                ? AppTheme.darkTextSecondary
+                                : AppTheme.lightTextSecondary)
+                            .withOpacity(0.5),
                   ),
                 ),
               );
             },
           ),
-          
+
           const SizedBox(height: 32),
-          
+
           // Text with fade animation
           TweenAnimationBuilder<double>(
             tween: Tween(begin: 0.0, end: 1.0),
@@ -1018,10 +1046,11 @@ class _ScanScreenState extends State<ScanScreen>
                     Text(
                       AppLocalizations.tr(context, 'cameraPreview'),
                       style: TextStyle(
-                        color: (isDark
-                                ? AppTheme.darkTextSecondary
-                                : AppTheme.lightTextSecondary)
-                            .withOpacity(0.9),
+                        color:
+                            (isDark
+                                    ? AppTheme.darkTextSecondary
+                                    : AppTheme.lightTextSecondary)
+                                .withOpacity(0.9),
                         fontSize: 20,
                         fontWeight: FontWeight.w600,
                       ),
@@ -1030,10 +1059,11 @@ class _ScanScreenState extends State<ScanScreen>
                     Text(
                       AppLocalizations.tr(context, 'tapToScan'),
                       style: TextStyle(
-                        color: (isDark
-                                ? AppTheme.darkTextSecondary
-                                : AppTheme.lightTextSecondary)
-                            .withOpacity(0.6),
+                        color:
+                            (isDark
+                                    ? AppTheme.darkTextSecondary
+                                    : AppTheme.lightTextSecondary)
+                                .withOpacity(0.6),
                         fontSize: 15,
                       ),
                     ),
@@ -1046,7 +1076,6 @@ class _ScanScreenState extends State<ScanScreen>
       ),
     );
   }
-  
 }
 
 // ── Consolidated small widgets ─────────────────────────────────────────────
@@ -1152,17 +1181,11 @@ class _SwipeNavArrows extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           if (canGoBack)
-            _Arrow(
-              icon: Icons.chevron_left,
-              onTap: onBack,
-            )
+            _Arrow(icon: Icons.chevron_left, onTap: onBack)
           else
             const SizedBox(width: 60),
           if (canGoForward)
-            _Arrow(
-              icon: Icons.chevron_right,
-              onTap: onForward,
-            )
+            _Arrow(icon: Icons.chevron_right, onTap: onForward)
           else
             const SizedBox(width: 60),
         ],
@@ -1201,9 +1224,7 @@ class _Arrow extends StatelessWidget {
             ),
           ],
         ),
-        child: Center(
-          child: Icon(icon, size: 32, color: Colors.white),
-        ),
+        child: Center(child: Icon(icon, size: 32, color: Colors.white)),
       ),
     );
   }
@@ -1271,16 +1292,12 @@ class _ProcessingOverlay extends StatelessWidget {
                         valueColor: AlwaysStoppedAnimation<Color>(primaryColor),
                       ),
                     ),
-                    Icon(
-                      Icons.auto_awesome,
-                      color: primaryColor,
-                      size: 28,
-                    ),
+                    Icon(Icons.auto_awesome, color: primaryColor, size: 28),
                   ],
                 ),
-                
+
                 const SizedBox(height: 28),
-                
+
                 // Step label
                 Text(
                   label,
@@ -1302,6 +1319,7 @@ class _ProcessingOverlay extends StatelessWidget {
     );
   }
 }
+
 /// Professional magic loading animation - Google Lens/Image Search style
 class _MagicLoadingAnimation extends StatefulWidget {
   const _MagicLoadingAnimation();
@@ -1311,7 +1329,8 @@ class _MagicLoadingAnimation extends StatefulWidget {
 }
 
 class _MagicLoadingAnimationState extends State<_MagicLoadingAnimation>
-    with TickerProviderStateMixin {  // Changed to TickerProviderStateMixin
+    with TickerProviderStateMixin {
+  // Changed to TickerProviderStateMixin
   late AnimationController _mainController;
   late AnimationController _pulseController;
   late AnimationController _shimmerController;
@@ -1321,40 +1340,35 @@ class _MagicLoadingAnimationState extends State<_MagicLoadingAnimation>
   @override
   void initState() {
     super.initState();
-    
+
     // Main animation controller for continuous effects
     _mainController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 3000),
     )..repeat();
-    
+
     // Pulse controller for breathing effects
     _pulseController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 2000),
     )..repeat(reverse: true);
-    
+
     // Shimmer controller for text effects
     _shimmerController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 2500),
     )..repeat();
-    
+
     // Ripple animation
     _rippleAnimation = Tween<double>(begin: 0.5, end: 1.5).animate(
-      CurvedAnimation(
-        parent: _pulseController,
-        curve: Curves.easeInOut,
-      ),
+      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
     );
-    
+
     // Rotation animation for scanning effect
-    _rotateAnimation = Tween<double>(begin: 0.0, end: 2 * pi).animate(
-      CurvedAnimation(
-        parent: _mainController,
-        curve: Curves.linear,
-      ),
-    );
+    _rotateAnimation = Tween<double>(
+      begin: 0.0,
+      end: 2 * pi,
+    ).animate(CurvedAnimation(parent: _mainController, curve: Curves.linear));
   }
 
   @override
@@ -1370,13 +1384,17 @@ class _MagicLoadingAnimationState extends State<_MagicLoadingAnimation>
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final primaryColor = Theme.of(context).colorScheme.primary;
     final secondaryColor = Theme.of(context).colorScheme.secondary;
-    
+
     return Container(
-      color: isDark 
-          ? Colors.black.withOpacity(0.85) 
+      color: isDark
+          ? Colors.black.withOpacity(0.85)
           : Colors.white.withOpacity(0.85),
       child: AnimatedBuilder(
-        animation: Listenable.merge([_mainController, _pulseController, _shimmerController]),
+        animation: Listenable.merge([
+          _mainController,
+          _pulseController,
+          _shimmerController,
+        ]),
         builder: (context, child) {
           return Stack(
             children: [
@@ -1430,7 +1448,9 @@ class _MagicLoadingAnimationState extends State<_MagicLoadingAnimation>
                             gradient: RadialGradient(
                               colors: [
                                 primaryColor.withOpacity(0.0),
-                                primaryColor.withOpacity(0.1 * _rippleAnimation.value),
+                                primaryColor.withOpacity(
+                                  0.1 * _rippleAnimation.value,
+                                ),
                                 primaryColor.withOpacity(0.0),
                               ],
                               stops: const [0.4, 0.7, 1.0],
@@ -1445,7 +1465,9 @@ class _MagicLoadingAnimationState extends State<_MagicLoadingAnimation>
                                 gradient: SweepGradient(
                                   startAngle: 0,
                                   endAngle: 2 * pi,
-                                  transform: GradientRotation(_rotateAnimation.value),
+                                  transform: GradientRotation(
+                                    _rotateAnimation.value,
+                                  ),
                                   colors: [
                                     primaryColor.withOpacity(0.3),
                                     secondaryColor.withOpacity(0.3),
@@ -1463,10 +1485,7 @@ class _MagicLoadingAnimationState extends State<_MagicLoadingAnimation>
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
                                     gradient: RadialGradient(
-                                      colors: [
-                                        primaryColor,
-                                        secondaryColor,
-                                      ],
+                                      colors: [primaryColor, secondaryColor],
                                     ),
                                     boxShadow: [
                                       BoxShadow(
@@ -1529,15 +1548,14 @@ class _MagicLoadingAnimationState extends State<_MagicLoadingAnimation>
                             animation: _mainController,
                             builder: (context, child) {
                               return FractionallySizedBox(
-                                widthFactor: 0.3 + 0.4 * sin(_mainController.value * pi).abs(),
+                                widthFactor:
+                                    0.3 +
+                                    0.4 * sin(_mainController.value * pi).abs(),
                                 alignment: Alignment.centerLeft,
                                 child: Container(
                                   decoration: BoxDecoration(
                                     gradient: LinearGradient(
-                                      colors: [
-                                        primaryColor,
-                                        secondaryColor,
-                                      ],
+                                      colors: [primaryColor, secondaryColor],
                                     ),
                                     borderRadius: BorderRadius.circular(2),
                                     boxShadow: [
@@ -1679,14 +1697,16 @@ class _MagicLoadingAnimationState extends State<_MagicLoadingAnimation>
   List<Widget> _buildParticles(Color primaryColor, Color secondaryColor) {
     return List.generate(12, (index) {
       final angle = (index / 12) * 2 * pi + _mainController.value * 2 * pi;
-      final radius = 200.0 + 30 * sin(_mainController.value * 2 * pi + index).abs();
+      final radius =
+          200.0 + 30 * sin(_mainController.value * 2 * pi + index).abs();
       final size = MediaQuery.of(context).size;
-      
+
       return Positioned(
         left: size.width / 2 + radius * cos(angle) - 4,
         top: size.height / 2 + radius * sin(angle) - 4,
         child: Opacity(
-          opacity: 0.2 + 0.2 * sin(_mainController.value * 2 * pi + index).abs(),
+          opacity:
+              0.2 + 0.2 * sin(_mainController.value * 2 * pi + index).abs(),
           child: Container(
             width: 8,
             height: 8,
@@ -1695,7 +1715,8 @@ class _MagicLoadingAnimationState extends State<_MagicLoadingAnimation>
               color: index % 2 == 0 ? primaryColor : secondaryColor,
               boxShadow: [
                 BoxShadow(
-                  color: (index % 2 == 0 ? primaryColor : secondaryColor).withOpacity(0.3),
+                  color: (index % 2 == 0 ? primaryColor : secondaryColor)
+                      .withOpacity(0.3),
                   blurRadius: 10,
                   spreadRadius: 2,
                 ),
@@ -1718,7 +1739,7 @@ class _ScanningBeamPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final beamY = size.height * (0.3 + 0.4 * sin(animation * 2 * pi).abs());
-    
+
     // Gradient beam
     final beamPaint = Paint()
       ..shader = LinearGradient(
@@ -1732,10 +1753,7 @@ class _ScanningBeamPainter extends CustomPainter {
         stops: const [0.0, 0.5, 1.0],
       ).createShader(Rect.fromLTWH(0, beamY - 40, size.width, 80));
 
-    canvas.drawRect(
-      Rect.fromLTWH(0, beamY - 40, size.width, 80),
-      beamPaint,
-    );
+    canvas.drawRect(Rect.fromLTWH(0, beamY - 40, size.width, 80), beamPaint);
 
     // Main scan line
     final linePaint = Paint()
@@ -1743,22 +1761,18 @@ class _ScanningBeamPainter extends CustomPainter {
       ..strokeWidth = 2
       ..style = PaintingStyle.stroke;
 
-    canvas.drawLine(
-      Offset(0, beamY),
-      Offset(size.width, beamY),
-      linePaint,
-    );
+    canvas.drawLine(Offset(0, beamY), Offset(size.width, beamY), linePaint);
 
     // Scanning dots
     final dotPaint = Paint()..style = PaintingStyle.fill;
-    
+
     for (var i = 0; i < 5; i++) {
       final x = size.width * (0.2 + 0.6 * (i / 4));
       final dotOpacity = 0.4 + 0.4 * sin(animation * 2 * pi + i * 2).abs();
-      
+
       dotPaint.color = color.withOpacity(dotOpacity);
       canvas.drawCircle(Offset(x, beamY), 3, dotPaint);
-      
+
       // Small glow
       dotPaint.color = color.withOpacity(dotOpacity * 0.3);
       canvas.drawCircle(Offset(x, beamY), 6, dotPaint);
@@ -1768,6 +1782,7 @@ class _ScanningBeamPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
+
 /// Professional shimmer text effect - Google Lens style
 class _ShimmerText extends StatefulWidget {
   final String text;
@@ -1792,13 +1807,10 @@ class _ShimmerTextState extends State<_ShimmerText> {
   @override
   void initState() {
     super.initState();
-    
+
     // Create a subtle opacity pulse
     _opacityAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
-      CurvedAnimation(
-        parent: widget.controller,
-        curve: Curves.easeInOut,
-      ),
+      CurvedAnimation(parent: widget.controller, curve: Curves.easeInOut),
     );
   }
 
@@ -1813,8 +1825,9 @@ class _ShimmerTextState extends State<_ShimmerText> {
             shaderCallback: (bounds) {
               // Create a sweeping gradient that moves across the text
               final gradientWidth = bounds.width * 2;
-              final position = (widget.controller.value * gradientWidth) - bounds.width;
-              
+              final position =
+                  (widget.controller.value * gradientWidth) - bounds.width;
+
               return LinearGradient(
                 colors: [
                   Colors.white.withOpacity(0.2),
@@ -1828,7 +1841,12 @@ class _ShimmerTextState extends State<_ShimmerText> {
                 end: Alignment.centerRight,
                 transform: _SlideGradientTransform(position),
               ).createShader(
-                Rect.fromLTWH(-position, 0, bounds.width + gradientWidth, bounds.height),
+                Rect.fromLTWH(
+                  -position,
+                  0,
+                  bounds.width + gradientWidth,
+                  bounds.height,
+                ),
               );
             },
             child: Text(

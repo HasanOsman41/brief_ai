@@ -13,6 +13,7 @@ class DocumentService {
   static final DocumentService _instance = DocumentService._internal();
   final DocumentRepository _documentRepo = DocumentRepository();
   final ImageRepository _imageRepo = ImageRepository();
+  final NotificationService _notificationService = NotificationService();
 
   factory DocumentService() {
     return _instance;
@@ -137,19 +138,6 @@ class DocumentService {
         reminder12HoursTime: reminder12HoursTime,
         reminderCustomTime: reminderCustomTime,
       );
-      // final updated = current.copyWith(
-      //   title: title,
-      //   categoryKey: categoryKey,
-      //   createdAt: createdAt,
-      //   deadline: deadline,
-      //   statusKey: statusKey,
-      //   summary: summary,
-      //   ocrText: ocrText,
-      //   reminder3DaysTime: reminder3DaysTime,
-      //   reminder1DayTime: reminder1DayTime,
-      //   reminder12HoursTime: reminder12HoursTime,
-      //   reminderCustomTime: reminderCustomTime,
-      // );
 
       await _documentRepo.update(updated);
       print('✅ Document updated successfully with id: $id');
@@ -176,6 +164,9 @@ class DocumentService {
   /// Delete document (and its images via cascade)
   Future<void> deleteDocument(int id) async {
     try {
+      // Cancel all reminders for this document
+      await _notificationService.cancelRemindersForDocument(id);
+
       await _documentRepo.delete(id);
       print('✅ Document deleted successfully with id: $id');
     } catch (e) {
@@ -318,10 +309,6 @@ class DocumentService {
     List<String> imagePaths,
   ) async {
     try {
-      // Get current image count for this document
-      final existingImages = await _imageRepo.getByDocumentId(documentId);
-      final startOrder = existingImages?.length ?? 0;
-
       final ids = await _imageRepo.insertMultiple(documentId, imagePaths);
 
       final images = <DocumentImage>[];
@@ -478,6 +465,139 @@ class DocumentService {
       print('✅ Reminders cancelled for document $documentId');
     } catch (e) {
       print('❌ Error cancelling reminders for document $documentId: $e');
+      rethrow;
+    }
+  }
+
+  /// Create a new document with images and schedule reminders
+  Future<int> createDocumentWithImagesAndReminders({
+    required String title,
+    required String categoryKey,
+    required DateTime deadline,
+    required String statusKey,
+    required String summary,
+    String ocrText = '',
+    List<String> imagePaths = const [],
+    DateTime? reminder3DaysTime,
+    DateTime? reminder1DayTime,
+    DateTime? reminder12HoursTime,
+    DateTime? reminderCustomTime,
+  }) async {
+    try {
+      // Create the document
+      final docId = await addDocument(
+        title: title,
+        categoryKey: categoryKey,
+        deadline: deadline,
+        statusKey: statusKey,
+        summary: summary,
+        ocrText: ocrText,
+        imagePaths: imagePaths,
+        reminder3DaysTime: reminder3DaysTime,
+        reminder1DayTime: reminder1DayTime,
+        reminder12HoursTime: reminder12HoursTime,
+        reminderCustomTime: reminderCustomTime,
+      );
+
+      // Schedule reminders
+      if (reminder3DaysTime != null ||
+          reminder1DayTime != null ||
+          reminder12HoursTime != null ||
+          reminderCustomTime != null) {
+        await scheduleReminders(
+          docId,
+          title,
+          deadline,
+          reminder3DaysTime: reminder3DaysTime,
+          reminder1DayTime: reminder1DayTime,
+          reminder12HoursTime: reminder12HoursTime,
+          reminderCustomTime: reminderCustomTime,
+        );
+      }
+
+      print('✅ Document created with images and reminders: $docId');
+      return docId;
+    } catch (e) {
+      print('❌ Error creating document with images and reminders: $e');
+      rethrow;
+    }
+  }
+
+  /// Update existing document, replace images, and reschedule reminders
+  Future<void> updateDocumentWithImagesAndReminders(
+    int id, {
+    required String title,
+    required String categoryKey,
+    required DateTime deadline,
+    required String statusKey,
+    required String summary,
+    String ocrText = '',
+    List<String> imagePaths = const [],
+    DateTime? reminder3DaysTime,
+    DateTime? reminder1DayTime,
+    DateTime? reminder12HoursTime,
+    DateTime? reminderCustomTime,
+  }) async {
+    try {
+      // Cancel old reminders first
+      await cancelReminders(id);
+
+      // Update document info
+      await updateDocument(
+        id,
+        title: title,
+        categoryKey: categoryKey,
+        deadline: deadline,
+        statusKey: statusKey,
+        summary: summary,
+        ocrText: ocrText,
+        reminder3DaysTime: reminder3DaysTime,
+        reminder1DayTime: reminder1DayTime,
+        reminder12HoursTime: reminder12HoursTime,
+        reminderCustomTime: reminderCustomTime,
+      );
+
+      // Replace images: delete all old ones and add new ones
+      await deleteAllImages(id);
+      if (imagePaths.isNotEmpty) {
+        await addImagesToDocument(id, imagePaths);
+      }
+
+      // Schedule new reminders
+      if (reminder3DaysTime != null ||
+          reminder1DayTime != null ||
+          reminder12HoursTime != null ||
+          reminderCustomTime != null) {
+        await scheduleReminders(
+          id,
+          title,
+          deadline,
+          reminder3DaysTime: reminder3DaysTime,
+          reminder1DayTime: reminder1DayTime,
+          reminder12HoursTime: reminder12HoursTime,
+          reminderCustomTime: reminderCustomTime,
+        );
+      }
+
+      print('✅ Document updated with images and reminders: $id');
+    } catch (e) {
+      print('❌ Error updating document with images and reminders: $e');
+      rethrow;
+    }
+  }
+
+  /// Mark a document as done and cancel all associated reminders
+  Future<void> markDocumentAsDone(int id) async {
+    try {
+      // Cancel all reminders for this document
+      await cancelReminders(id);
+
+      // Update document status to 'done'
+      await updateDocumentStatus(id, 'done');
+
+      print('✅ Document marked as done with id: $id');
+    } catch (e) {
+      print('❌ Error marking document as done with id $id: $e');
       rethrow;
     }
   }

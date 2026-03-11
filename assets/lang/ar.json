@@ -141,6 +141,9 @@
     "deleteDocument": "حذف المستند",
     "deleteDocumentConfirm": "هل تريد حقاً حذف هذا المستند؟ لا يمكن التراجع عن هذا الإجراء.",
     "documentDeleted": "تم حذف المستند",
+    "markAsDone": "تحديد كمكتمل",
+    "markAsDoneConfirm": "تحديد هذا المستند كمكتمل؟ سيتم إلغاء التذكيرات.",
+    "documentMarkedAsDone": "تم تحديد المستند كمكتمل",
     "legalInfo": "معلومات قانونية وفقًا للفقرة § 5 DDG",
     "company": "الشركة",
     "address": "العنوان",
@@ -223,5 +226,6 @@
     "extractingDocumentInfo": "جاري استخراج معلومات المستند…",
     "tapToScan": "اضغط للمسح",
     "documentDetected": "تم اكتشاف المستند",
-    "weFoundDocument": "لقد وجدنا المستند التالي"
+    "weFoundDocument": "لقد وجدنا المستند التالي",
+    "whatNext": "ما التالي؟"
 }

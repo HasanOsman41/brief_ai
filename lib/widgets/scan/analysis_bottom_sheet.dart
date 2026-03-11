@@ -168,54 +168,24 @@ class _AnalysisBottomSheetState extends State<AnalysisBottomSheet> {
   Future<void> _handleSave() async {
     try {
       final base = DateTime(_deadline.year, _deadline.month, _deadline.day, 9);
-      
-      final reminder3Days = _remindersEnabled && _remind3Days ? base.subtract(const Duration(days: 3)) : null;
-      final reminder1Day = _remindersEnabled && _remind1Day ? base.subtract(const Duration(days: 1)) : null;
-      final reminder12Hours = _remindersEnabled && _remind12Hours ? base.subtract(const Duration(hours: 12)) : null;
-      final reminderCustom = _remindersEnabled && _remindCustom ? _customTime : null;
-      
+
+      final reminder3Days = _remindersEnabled && _remind3Days
+          ? base.subtract(const Duration(days: 3))
+          : null;
+      final reminder1Day = _remindersEnabled && _remind1Day
+          ? base.subtract(const Duration(days: 1))
+          : null;
+      final reminder12Hours = _remindersEnabled && _remind12Hours
+          ? base.subtract(const Duration(hours: 12))
+          : null;
+      final reminderCustom = _remindersEnabled && _remindCustom
+          ? _customTime
+          : null;
+
       if (widget.documentId != null) {
-        // Update existing document
-        final docId = widget.documentId!;
-        
-        // Cancel old reminders before updating
-        await DocumentService().cancelReminders(docId);
-        
-        await DocumentService().updateDocument(
-          docId,
-          title: _editableTitle,
-          categoryKey: _selectedCategoryKey,
-          deadline: _deadline,
-          statusKey: 'pending',
-          summary: _editableSummary,
-          ocrText: widget.ocrText,
-          reminder3DaysTime: reminder3Days,
-          reminder1DayTime: reminder1Day,
-          reminder12HoursTime: reminder12Hours,
-          reminderCustomTime: reminderCustom,
-        );
-        
-        // Update images: delete old ones and add new ones
-        await DocumentService().deleteAllImages(docId);
-        if (widget.imagePaths.isNotEmpty) {
-          await DocumentService().addImagesToDocument(docId, widget.imagePaths);
-        }
-        
-        // Schedule new reminders
-        if (_remindersEnabled) {
-          await DocumentService().scheduleReminders(
-            docId,
-            _editableTitle,
-            _deadline,
-            reminder3DaysTime: reminder3Days,
-            reminder1DayTime: reminder1Day,
-            reminder12HoursTime: reminder12Hours,
-            reminderCustomTime: reminderCustom,
-          );
-        }
-      } else {
-        // Add new document
-        final docId = await DocumentService().addDocument(
+        // Update existing document with images and reminders
+        await DocumentService().updateDocumentWithImagesAndReminders(
+          widget.documentId!,
           title: _editableTitle,
           categoryKey: _selectedCategoryKey,
           deadline: _deadline,
@@ -228,19 +198,21 @@ class _AnalysisBottomSheetState extends State<AnalysisBottomSheet> {
           reminder12HoursTime: reminder12Hours,
           reminderCustomTime: reminderCustom,
         );
-        
-        // Schedule reminders for new document
-        if (_remindersEnabled) {
-          await DocumentService().scheduleReminders(
-            docId,
-            _editableTitle,
-            _deadline,
-            reminder3DaysTime: reminder3Days,
-            reminder1DayTime: reminder1Day,
-            reminder12HoursTime: reminder12Hours,
-            reminderCustomTime: reminderCustom,
-          );
-        }
+      } else {
+        // Create new document with images and reminders
+        await DocumentService().createDocumentWithImagesAndReminders(
+          title: _editableTitle,
+          categoryKey: _selectedCategoryKey,
+          deadline: _deadline,
+          statusKey: 'pending',
+          summary: _editableSummary,
+          ocrText: widget.ocrText,
+          imagePaths: widget.imagePaths,
+          reminder3DaysTime: reminder3Days,
+          reminder1DayTime: reminder1Day,
+          reminder12HoursTime: reminder12Hours,
+          reminderCustomTime: reminderCustom,
+        );
       }
 
       widget.onSave(_deadline);
