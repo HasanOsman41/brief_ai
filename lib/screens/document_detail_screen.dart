@@ -347,7 +347,7 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
           // Scrollable content card
           DraggableScrollableSheet(
             initialChildSize: 0.35,
-            minChildSize: 0.15,
+            minChildSize: 0.1,
             maxChildSize: 0.95,
             snap: true,
             snapSizes: const [0.35, 0.7, 0.95],

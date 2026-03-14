@@ -7,32 +7,72 @@ import 'package:flutter/material.dart';
 ///
 /// Designed to be shown prominently in forms or dialogs where the user needs
 /// to take a specific next step.
-class WhatYouShouldCard extends StatelessWidget {
+class WhatYouShouldCard extends StatefulWidget {
   const WhatYouShouldCard({
     Key? key,
     required this.isDark,
     required this.primary,
     this.titleKey = 'whatYouShould',
     this.hintKey = 'whatYouShouldHint',
+    this.enablePulseAnimation = false,
   }) : super(key: key);
 
   final bool isDark;
   final Color primary;
   final String titleKey;
   final String hintKey;
+  final bool enablePulseAnimation;
+
+  @override
+  State<WhatYouShouldCard> createState() => _WhatYouShouldCardState();
+}
+
+class _WhatYouShouldCardState extends State<WhatYouShouldCard>
+    with SingleTickerProviderStateMixin {
+  AnimationController? _pulseController;
+  Animation<double>? _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    
+    if (widget.enablePulseAnimation) {
+      _pulseController = AnimationController(
+        duration: const Duration(milliseconds: 1500),
+        vsync: this,
+      );
+      
+      _scaleAnimation = Tween<double>(
+        begin: 0.98,
+        end: 1.02,
+      ).animate(CurvedAnimation(
+        parent: _pulseController!,
+        curve: Curves.easeInOut,
+      ));
+      
+      // Start the infinite pulse animation
+      _pulseController!.repeat(reverse: true);
+    }
+  }
+
+  @override
+  void dispose() {
+    _pulseController?.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    final cardContent = Container(
       width: double.infinity,
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: isDark ? primary.withOpacity(0.18) : primary.withOpacity(0.14),
+        color: widget.isDark ? widget.primary.withOpacity(0.18) : widget.primary.withOpacity(0.14),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: primary.withOpacity(0.35), width: 1.4),
+        border: Border.all(color: widget.primary.withOpacity(0.35), width: 1.4),
         boxShadow: [
           BoxShadow(
-            color: primary.withOpacity(0.25),
+            color: widget.primary.withOpacity(0.25),
             blurRadius: 14,
             spreadRadius: 1,
             offset: const Offset(0, 4),
@@ -42,39 +82,39 @@ class WhatYouShouldCard extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.lightbulb_outline, color: primary, size: 22),
+          Icon(Icons.lightbulb_outline, color: widget.primary, size: 22),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  AppLocalizations.tr(context, titleKey),
+                  AppLocalizations.tr(context, widget.titleKey),
                   style:
                       Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w700,
-                        color: isDark
+                        color: widget.isDark
                             ? AppTheme.darkTextPrimary
                             : AppTheme.lightTextPrimary,
                       ) ??
                       TextStyle(
                         fontWeight: FontWeight.w700,
-                        color: isDark
+                        color: widget.isDark
                             ? AppTheme.darkTextPrimary
                             : AppTheme.lightTextPrimary,
                       ),
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  AppLocalizations.tr(context, hintKey),
+                  AppLocalizations.tr(context, widget.hintKey),
                   style:
                       Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: isDark
+                        color: widget.isDark
                             ? AppTheme.darkTextSecondary
                             : AppTheme.lightTextSecondary,
                       ) ??
                       TextStyle(
-                        color: isDark
+                        color: widget.isDark
                             ? AppTheme.darkTextSecondary
                             : AppTheme.lightTextSecondary,
                       ),
@@ -85,5 +125,21 @@ class WhatYouShouldCard extends StatelessWidget {
         ],
       ),
     );
+
+    // Return animated version if pulse is enabled
+    if (widget.enablePulseAnimation && _scaleAnimation != null) {
+      return AnimatedBuilder(
+        animation: _scaleAnimation!,
+        builder: (context, child) {
+          return Transform.scale(
+            scale: _scaleAnimation!.value,
+            child: cardContent,
+          );
+        },
+      );
+    }
+
+    // Return static version if no animation
+    return cardContent;
   }
 }

@@ -538,7 +538,11 @@ class _DocumentInfoCardState extends State<_DocumentInfoCard> {
           ),
         ),
         const SizedBox(height: 6),
-        WhatYouShouldCard(isDark: widget.isDark, primary: widget.primary),
+        WhatYouShouldCard(
+          isDark: widget.isDark, 
+          primary: widget.primary,
+          enablePulseAnimation: true,
+        ),
       ],
     ),
   );
