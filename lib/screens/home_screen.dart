@@ -231,7 +231,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         padding: const EdgeInsets.only(bottom: 12),
                         child: DocumentCard(
                           title: doc.title,
-                          category: AppLocalizations.tr(context, doc.categoryKey),
+                          category: AppLocalizations.tr(
+                            context,
+                            doc.categoryKey,
+                          ),
                           date: doc.formattedCreatedAt,
                           deadline: doc.formattedDeadline,
                           status: _getStatusLabel(doc.statusKey),
@@ -472,7 +475,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         padding: const EdgeInsets.only(bottom: 12),
                         child: DocumentCard(
                           title: doc.title,
-                          category: AppLocalizations.tr(context, doc.categoryKey),
+                          category: AppLocalizations.tr(
+                            context,
+                            doc.categoryKey,
+                          ),
                           date: doc.formattedCreatedAt,
                           deadline: doc.formattedDeadline,
                           status: _getStatusLabel(doc.statusKey),
@@ -699,15 +705,6 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ),
                         const SizedBox(height: 8),
-                        Text(
-                          'Coming soon...',
-                          style: TextStyle(
-                            color: isDark
-                                ? AppTheme.darkTextSecondary
-                                : AppTheme.lightTextSecondary,
-                            fontSize: 16,
-                          ),
-                        ),
                       ],
                     ),
                   ),

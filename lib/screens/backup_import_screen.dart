@@ -1,6 +1,8 @@
 // lib/screens/backup_import_screen.dart
 import 'package:brief_ai/localization/app_localizations.dart';
 import 'package:brief_ai/theme/app_theme.dart';
+import 'package:brief_ai/widgets/backup_item_tile.dart';
+import 'package:brief_ai/widgets/confirm_dialog.dart';
 import 'package:brief_ai/widgets/glass_card.dart';
 import 'package:flutter/material.dart';
 
@@ -70,8 +72,15 @@ class BackupImportScreen extends StatelessWidget {
                           onPressed: () {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                content: Text(AppLocalizations.tr(context, 'backupCreating')),
-                                backgroundColor: isDark ? AppTheme.darkSuccess : AppTheme.lightSuccess,
+                                content: Text(
+                                  AppLocalizations.tr(
+                                    context,
+                                    'backupCreating',
+                                  ),
+                                ),
+                                backgroundColor: isDark
+                                    ? AppTheme.darkSuccess
+                                    : AppTheme.lightSuccess,
                               ),
                             );
                           },
@@ -92,9 +101,9 @@ class BackupImportScreen extends StatelessWidget {
                     ],
                   ),
                 ),
-                
+
                 const Divider(height: 32),
-                
+
                 // Second ListTile - Import
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8),
@@ -159,9 +168,9 @@ class BackupImportScreen extends StatelessWidget {
               ],
             ),
           ),
-          
+
           const SizedBox(height: 20),
-          
+
           // Recent backups section
           GlassCard(
             child: Column(
@@ -174,32 +183,41 @@ class BackupImportScreen extends StatelessWidget {
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                 ),
-                _buildBackupItem(
-                  context,
-                  'backup_2024_03_15.zip',
-                  '15.03.2024, 14:30',
-                  '245 MB',
+                BackupItemTile(
+                  name: 'backup_2024_03_15.zip',
+                  date: '15.03.2024, 14:30',
+                  size: '245 MB',
+                  onRestorePressed: () => _showRestoreConfirmDialog(
+                    context,
+                    'backup_2024_03_15.zip',
+                  ),
                 ),
                 const Divider(height: 1),
-                _buildBackupItem(
-                  context,
-                  'backup_2024_03_10.zip',
-                  '10.03.2024, 09:15',
-                  '198 MB',
+                BackupItemTile(
+                  name: 'backup_2024_03_10.zip',
+                  date: '10.03.2024, 09:15',
+                  size: '198 MB',
+                  onRestorePressed: () => _showRestoreConfirmDialog(
+                    context,
+                    'backup_2024_03_10.zip',
+                  ),
                 ),
                 const Divider(height: 1),
-                _buildBackupItem(
-                  context,
-                  'backup_2024_03_01.zip',
-                  '01.03.2024, 18:45',
-                  '312 MB',
+                BackupItemTile(
+                  name: 'backup_2024_03_01.zip',
+                  date: '01.03.2024, 18:45',
+                  size: '312 MB',
+                  onRestorePressed: () => _showRestoreConfirmDialog(
+                    context,
+                    'backup_2024_03_01.zip',
+                  ),
                 ),
               ],
             ),
           ),
-          
+
           const SizedBox(height: 20),
-          
+
           // Information section
           GlassCard(
             child: Padding(
@@ -225,120 +243,51 @@ class BackupImportScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildBackupItem(BuildContext context, String name, String date, String size) {
-    return ListTile(
-      title: Text(
-        name,
-        style: Theme.of(context).textTheme.bodyLarge,
-      ),
-      subtitle: Text(
-        '$date • $size',
-        style: Theme.of(context).textTheme.bodyMedium,
-      ),
-      trailing: IconButton(
-        icon: const Icon(Icons.restore),
-        onPressed: () {
-          _showRestoreConfirmDialog(context, name);
-        },
-        color: Theme.of(context).colorScheme.primary,
-        iconSize: 24,
-        padding: EdgeInsets.zero,
-        constraints: const BoxConstraints(),
-      ),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-    );
-  }
-
   void _showImportDialog(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: isDark ? AppTheme.darkCard : AppTheme.lightCard,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
-        title: Text(AppLocalizations.tr(context, 'importBackup')),
-        content: Text(AppLocalizations.tr(context, 'importConfirmMessage')),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(
-              AppLocalizations.tr(context, 'cancel'),
-              style: TextStyle(
-                color: Theme.of(context).textTheme.bodyMedium?.color,
-              ),
+      builder: (context) => ConfirmDialog(
+        title: AppLocalizations.tr(context, 'importBackup'),
+        content: AppLocalizations.tr(context, 'importConfirmMessage'),
+        confirmText: AppLocalizations.tr(context, 'import'),
+        onConfirm: () {
+          Navigator.pop(context);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(AppLocalizations.tr(context, 'backupImporting')),
+              backgroundColor: isDark
+                  ? AppTheme.darkSuccess
+                  : AppTheme.lightSuccess,
             ),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(AppLocalizations.tr(context, 'backupImporting')),
-                  backgroundColor: isDark ? AppTheme.darkSuccess : AppTheme.lightSuccess,
-                ),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: isDark ? AppTheme.darkSuccess : AppTheme.lightSuccess,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
-            ),
-            child: Text(AppLocalizations.tr(context, 'import')),
-          ),
-        ],
+          );
+        },
       ),
     );
   }
 
   void _showRestoreConfirmDialog(BuildContext context, String backupName) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: isDark ? AppTheme.darkCard : AppTheme.lightCard,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
-        title: Text(AppLocalizations.tr(context, 'restoreBackup')),
-        content: Text(
-          '${AppLocalizations.tr(context, 'restoreConfirmMessage')}\n\n$backupName',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(
-              AppLocalizations.tr(context, 'cancel'),
-              style: TextStyle(
-                color: Theme.of(context).textTheme.bodyMedium?.color,
-              ),
+      builder: (context) => ConfirmDialog(
+        title: AppLocalizations.tr(context, 'restoreBackup'),
+        content:
+            '${AppLocalizations.tr(context, 'restoreConfirmMessage')}\n\n$backupName',
+        confirmText: AppLocalizations.tr(context, 'restore'),
+        onConfirm: () {
+          Navigator.pop(context);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(AppLocalizations.tr(context, 'backupRestoring')),
+              backgroundColor: isDark
+                  ? AppTheme.darkSuccess
+                  : AppTheme.lightSuccess,
             ),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(AppLocalizations.tr(context, 'backupRestoring')),
-                  backgroundColor: isDark ? AppTheme.darkSuccess : AppTheme.lightSuccess,
-                ),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: isDark ? AppTheme.darkSuccess : AppTheme.lightSuccess,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
-            ),
-            child: Text(AppLocalizations.tr(context, 'restore')),
-          ),
-        ],
+          );
+        },
       ),
     );
   }

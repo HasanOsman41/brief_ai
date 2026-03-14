@@ -5,7 +5,9 @@ import 'package:brief_ai/localization/app_localizations.dart';
 import 'package:brief_ai/models/document.dart';
 import 'package:brief_ai/services/document_service.dart';
 import 'package:brief_ai/theme/app_theme.dart';
+import 'package:brief_ai/widgets/confirm_dialog.dart';
 import 'package:brief_ai/widgets/glass_card.dart';
+import 'package:brief_ai/widgets/what_you_should_card.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
@@ -344,56 +346,111 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
 
           // Scrollable content card
           DraggableScrollableSheet(
-            initialChildSize: 0.3,
-            minChildSize: 0.1,
-            maxChildSize: 0.9,
+            initialChildSize: 0.35,
+            minChildSize: 0.15,
+            maxChildSize: 0.95,
+            snap: true,
+            snapSizes: const [0.35, 0.7, 0.95],
             builder: (context, scrollController) {
-              return Container(
+              return AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
                 decoration: BoxDecoration(
                   color: isDark
                       ? AppTheme.darkBackground
                       : AppTheme.lightBackground,
                   borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(30),
+                    top: Radius.circular(32),
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 10,
-                      offset: const Offset(0, -5),
+                      color: Colors.black.withOpacity(isDark ? 0.3 : 0.15),
+                      blurRadius: 20,
+                      spreadRadius: 2,
+                      offset: const Offset(0, -8),
+                    ),
+                    BoxShadow(
+                      color: Colors.black.withOpacity(isDark ? 0.1 : 0.05),
+                      blurRadius: 40,
+                      spreadRadius: 5,
+                      offset: const Offset(0, -15),
                     ),
                   ],
                 ),
                 child: Column(
                   children: [
-                    // Handle bar
+                    // Enhanced handle bar with indicator
                     Container(
-                      margin: const EdgeInsets.only(top: 12),
-                      width: 40,
-                      height: 4,
-                      decoration: BoxDecoration(
-                        color: isDark
-                            ? Colors.white.withOpacity(0.3)
-                            : Colors.black.withOpacity(0.3),
-                        borderRadius: BorderRadius.circular(2),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      child: Column(
+                        children: [
+                          Container(
+                            width: 50,
+                            height: 5,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  primaryColor.withOpacity(0.6),
+                                  primaryColor.withOpacity(0.3),
+                                ],
+                              ),
+                              borderRadius: BorderRadius.circular(3),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Container(
+                            width: 30,
+                            height: 2,
+                            decoration: BoxDecoration(
+                              color: isDark
+                                  ? Colors.white.withOpacity(0.2)
+                                  : Colors.black.withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(1),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
 
-                    // Content
+                    // Enhanced content with fade effect
                     Expanded(
-                      child: ListView(
-                        controller: scrollController,
-                        padding: const EdgeInsets.all(20),
-                        children: [
-                          _buildInfoPanel(context, isDark, primaryColor),
-                          const SizedBox(height: 16),
-                          _buildSummarySection(context, isDark),
-                          const SizedBox(height: 16),
-                          _buildRiskLevelSection(context, isDark),
-                          const SizedBox(height: 16),
-                          _buildActionButtonsSection(context, isDark),
-                          const SizedBox(height: 80),
-                        ],
+                      child: ShaderMask(
+                        shaderCallback: (Rect bounds) {
+                          return LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              Colors.transparent,
+                              Colors.black,
+                              Colors.black,
+                              Colors.transparent,
+                            ],
+                            stops: const [0.0, 0.05, 0.95, 1.0],
+                          ).createShader(bounds);
+                        },
+                        blendMode: BlendMode.dstIn,
+                        child: ListView(
+                          controller: scrollController,
+                          physics: const BouncingScrollPhysics(),
+                          padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+                          children: [
+                            _buildInfoPanel(context, isDark, primaryColor),
+                            const SizedBox(height: 20),
+                            _buildSummarySection(context, isDark),
+                            const SizedBox(height: 20),
+                            WhatYouShouldCard(
+                              isDark: isDark,
+                              primary: primaryColor,
+                            ),
+                            const SizedBox(height: 20),
+                            if (_reminderEnabled)
+                              _buildReminderOptions(context, primaryColor),
+                            const SizedBox(height: 20),
+                            _buildRiskLevelSection(context, isDark),
+                            const SizedBox(height: 20),
+                            _buildActionButtonsSection(context, isDark),
+                            const SizedBox(height: 100),
+                          ],
+                        ),
                       ),
                     ),
                   ],
@@ -469,10 +526,15 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
             ],
           ),
           const SizedBox(height: 16),
-          Text(_document!.title, style: Theme.of(context).textTheme.titleLarge),
+          Text(
+            _document!.title,
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
           const SizedBox(height: 8),
           _buildAddedDateRow(context),
-          if (_reminderEnabled) _buildReminderOptions(context, primaryColor),
         ],
       ),
     );
@@ -489,8 +551,8 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
         AppLocalizations.tr(context, _document!.categoryKey),
         style: TextStyle(
           color: primaryColor,
-          fontSize: 14,
-          fontWeight: FontWeight.w500,
+          fontSize: 13,
+          fontWeight: FontWeight.w600,
         ),
       ),
     );
@@ -515,7 +577,7 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
         style: TextStyle(
           color: color,
           fontWeight: FontWeight.w600,
-          fontSize: 12,
+          fontSize: 11,
         ),
       ),
     );
@@ -540,7 +602,10 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
         const SizedBox(width: 4),
         Text(
           '${AppLocalizations.tr(context, 'addedDate')} ${_formatDate(_addedDate)}',
-          style: Theme.of(context).textTheme.bodyMedium,
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+          ),
         ),
       ],
     );
@@ -562,7 +627,7 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
                 color: Theme.of(context).brightness == Brightness.dark
                     ? AppTheme.darkTextPrimary
                     : AppTheme.lightTextPrimary,
-                fontSize: 14,
+                fontSize: 15,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -628,7 +693,8 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
                   color: isDark
                       ? AppTheme.darkTextPrimary
                       : AppTheme.lightTextPrimary,
-                  fontSize: 12,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
             ],
@@ -648,7 +714,8 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
                   color: isDark
                       ? AppTheme.darkTextPrimary
                       : AppTheme.lightTextPrimary,
-                  fontSize: 12,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
             ],
@@ -686,7 +753,8 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
               color: isDark
                   ? AppTheme.darkTextPrimary
                   : AppTheme.lightTextPrimary,
-              fontSize: 13,
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
             ),
           ),
         ],
@@ -701,16 +769,21 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
         children: [
           Text(
             AppLocalizations.tr(context, 'summary'),
-            style: Theme.of(
-              context,
-            ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.w600,
+              fontSize: 18,
+            ),
           ),
           const SizedBox(height: 12),
           Text(
             _document!.summary.isNotEmpty
                 ? _document!.summary
                 : 'No summary available',
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(height: 1.6),
+            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+              height: 1.6,
+              fontSize: 15,
+              fontWeight: FontWeight.w400,
+            ),
           ),
         ],
       ),
@@ -765,6 +838,7 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
                   AppLocalizations.tr(context, 'riskLevel'),
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w600,
+                    fontSize: 16,
                   ),
                 ),
               ],
@@ -786,7 +860,7 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
                     style: TextStyle(
                       color: riskColor,
                       fontWeight: FontWeight.w600,
-                      fontSize: 14,
+                      fontSize: 13,
                     ),
                   ),
                 ],
@@ -824,7 +898,7 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
             style: TextStyle(
               color: successColor,
               fontWeight: FontWeight.w600,
-              fontSize: 12,
+              fontSize: 13,
             ),
           ),
         ],
@@ -859,6 +933,7 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   color: Colors.white,
                   fontWeight: FontWeight.w600,
+                  fontSize: 16,
                 ),
               ),
             ],
@@ -907,6 +982,7 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       color: Colors.white,
                       fontWeight: FontWeight.w600,
+                      fontSize: 16,
                     ),
                   ),
                 ],
@@ -973,61 +1049,41 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: isDark ? AppTheme.darkCard : AppTheme.lightCard,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text(AppLocalizations.tr(context, 'markAsDone')),
-        content: Text(AppLocalizations.tr(context, 'markAsDoneConfirm')),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(
-              AppLocalizations.tr(context, 'cancel'),
-              style: TextStyle(
-                color: Theme.of(context).textTheme.bodyMedium?.color,
-              ),
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              Navigator.pop(context); // Close dialog
+      builder: (context) => ConfirmDialog(
+        title: AppLocalizations.tr(context, 'markAsDone'),
+        content: AppLocalizations.tr(context, 'markAsDoneConfirm'),
+        confirmText: AppLocalizations.tr(context, 'markAsDone'),
+        onConfirm: () async {
+          Navigator.pop(context); // Close dialog
 
-              if (_document?.id != null) {
-                try {
-                  await DocumentService().markDocumentAsDone(_document!.id!);
+          if (_document?.id != null) {
+            try {
+              await DocumentService().markDocumentAsDone(_document!.id!);
 
-                  if (!mounted) return;
+              if (!mounted) return;
 
-                  // Update local state
-                  setState(() {
-                    _document = _document?.copyWith(statusKey: 'done');
-                  });
+              // Update local state
+              setState(() {
+                _document = _document?.copyWith(statusKey: 'done');
+              });
 
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        AppLocalizations.tr(context, 'documentMarkedAsDone'),
-                      ),
-                      backgroundColor: isDark
-                          ? AppTheme.darkSuccess
-                          : AppTheme.lightSuccess,
-                      behavior: SnackBarBehavior.floating,
-                    ),
-                  );
-                } catch (e) {
-                  if (!mounted) return;
-                  _showErrorSnackBar('Error marking document as done: $e');
-                }
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: isDark
-                  ? AppTheme.darkSuccess
-                  : AppTheme.lightSuccess,
-            ),
-            child: Text(AppLocalizations.tr(context, 'markAsDone')),
-          ),
-        ],
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    AppLocalizations.tr(context, 'documentMarkedAsDone'),
+                  ),
+                  backgroundColor: isDark
+                      ? AppTheme.darkSuccess
+                      : AppTheme.lightSuccess,
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+            } catch (e) {
+              if (!mounted) return;
+              _showErrorSnackBar('Error marking document as done: $e');
+            }
+          }
+        },
       ),
     );
   }
@@ -1037,58 +1093,39 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: isDark ? AppTheme.darkCard : AppTheme.lightCard,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text(AppLocalizations.tr(context, 'deleteDocument')),
-        content: Text(AppLocalizations.tr(context, 'deleteDocumentConfirm')),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(
-              AppLocalizations.tr(context, 'cancel'),
-              style: TextStyle(
-                color: Theme.of(context).textTheme.bodyMedium?.color,
-              ),
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              Navigator.pop(context); // Close dialog
+      builder: (context) => ConfirmDialog(
+        title: AppLocalizations.tr(context, 'deleteDocument'),
+        content: AppLocalizations.tr(context, 'deleteDocumentConfirm'),
+        confirmText: AppLocalizations.tr(context, 'delete'),
+        isDestructive: true,
+        onConfirm: () async {
+          Navigator.pop(context); // Close dialog
 
-              if (_document?.id != null) {
-                try {
-                  await DocumentService().deleteDocument(_document!.id!);
+          if (_document?.id != null) {
+            try {
+              await DocumentService().deleteDocument(_document!.id!);
 
-                  if (!mounted) return;
+              if (!mounted) return;
 
-                  Navigator.pop(context); // Return to previous screen
+              Navigator.pop(context); // Return to previous screen
 
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        AppLocalizations.tr(context, 'documentDeleted'),
-                      ),
-                      backgroundColor: isDark
-                          ? AppTheme.darkSuccess
-                          : AppTheme.lightSuccess,
-                      behavior: SnackBarBehavior.floating,
-                    ),
-                  );
-                } catch (e) {
-                  if (!mounted) return;
-                  _showErrorSnackBar('Error deleting document: $e');
-                }
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: isDark
-                  ? AppTheme.darkDanger
-                  : AppTheme.lightDanger,
-            ),
-            child: Text(AppLocalizations.tr(context, 'delete')),
-          ),
-        ],
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    AppLocalizations.tr(context, 'documentDeleted'),
+                  ),
+                  backgroundColor: isDark
+                      ? AppTheme.darkSuccess
+                      : AppTheme.lightSuccess,
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+            } catch (e) {
+              if (!mounted) return;
+              _showErrorSnackBar('Error deleting document: $e');
+            }
+          }
+        },
       ),
     );
   }

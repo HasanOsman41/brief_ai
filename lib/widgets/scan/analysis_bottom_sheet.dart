@@ -4,6 +4,7 @@ import 'package:brief_ai/localization/app_localizations.dart';
 import 'package:brief_ai/models/analysis_result.dart';
 import 'package:brief_ai/services/document_service.dart';
 import 'package:brief_ai/theme/app_theme.dart';
+import 'package:brief_ai/widgets/what_you_should_card.dart';
 import 'package:flutter/material.dart';
 
 /// Shows the AI analysis result as a draggable bottom sheet.
@@ -130,6 +131,7 @@ class _AnalysisBottomSheetState extends State<AnalysisBottomSheet> {
                       onSummaryChanged: (summary) =>
                           setState(() => _editableSummary = summary),
                     ),
+
                     const SizedBox(height: 16),
                     _DeadlineReminderCard(
                       isDark: isDark,
@@ -523,6 +525,20 @@ class _DocumentInfoCardState extends State<_DocumentInfoCard> {
             ),
           ),
         ),
+        const SizedBox(height: 16),
+        Text(
+          AppLocalizations.tr(context, 'whatYouShould'),
+          style: TextStyle(
+            color: widget.isDark
+                ? AppTheme.darkTextSecondary
+                : AppTheme.lightTextSecondary,
+            fontSize: 11,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 0.8,
+          ),
+        ),
+        const SizedBox(height: 6),
+        WhatYouShouldCard(isDark: widget.isDark, primary: widget.primary),
       ],
     ),
   );

@@ -1,6 +1,7 @@
 // lib/screens/privacy_screen.dart
 import 'package:brief_ai/localization/app_localizations.dart';
 import 'package:brief_ai/theme/app_theme.dart';
+import 'package:brief_ai/widgets/confirm_dialog.dart';
 import 'package:brief_ai/widgets/glass_card.dart';
 import 'package:flutter/material.dart';
 
@@ -94,9 +95,9 @@ class PrivacyScreen extends StatelessWidget {
               ],
             ),
           ),
-          
+
           const SizedBox(height: 20),
-          
+
           // GDPR Rights card
           GlassCard(
             child: Column(
@@ -125,9 +126,9 @@ class PrivacyScreen extends StatelessWidget {
               ],
             ),
           ),
-          
+
           const SizedBox(height: 20),
-          
+
           // Action buttons
           Row(
             children: [
@@ -136,8 +137,12 @@ class PrivacyScreen extends StatelessWidget {
                   onPressed: () {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text(AppLocalizations.tr(context, 'backupCreating')),
-                        backgroundColor: isDark ? AppTheme.darkSuccess : AppTheme.lightSuccess,
+                        content: Text(
+                          AppLocalizations.tr(context, 'backupCreating'),
+                        ),
+                        backgroundColor: isDark
+                            ? AppTheme.darkSuccess
+                            : AppTheme.lightSuccess,
                       ),
                     );
                   },
@@ -151,9 +156,13 @@ class PrivacyScreen extends StatelessWidget {
                     _showDeleteDialog(context);
                   },
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: isDark ? AppTheme.darkDanger : AppTheme.lightDanger,
+                    foregroundColor: isDark
+                        ? AppTheme.darkDanger
+                        : AppTheme.lightDanger,
                     side: BorderSide(
-                      color: isDark ? AppTheme.darkDanger : AppTheme.lightDanger,
+                      color: isDark
+                          ? AppTheme.darkDanger
+                          : AppTheme.lightDanger,
                     ),
                   ),
                   child: Text(AppLocalizations.tr(context, 'deleteMyData')),
@@ -161,9 +170,9 @@ class PrivacyScreen extends StatelessWidget {
               ),
             ],
           ),
-          
+
           const SizedBox(height: 20),
-          
+
           // Additional info
           GlassCard(
             child: Padding(
@@ -172,11 +181,7 @@ class PrivacyScreen extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      Icon(
-                        Icons.info_outline,
-                        size: 20,
-                        color: primaryColor,
-                      ),
+                      Icon(Icons.info_outline, size: 20, color: primaryColor),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
@@ -201,29 +206,24 @@ class PrivacyScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildPrivacyPoint(BuildContext context, IconData icon, String title, String description) {
+  Widget _buildPrivacyPoint(
+    BuildContext context,
+    IconData icon,
+    String title,
+    String description,
+  ) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(
-          icon,
-          size: 20,
-          color: Theme.of(context).colorScheme.primary,
-        ),
+        Icon(icon, size: 20, color: Theme.of(context).colorScheme.primary),
         const SizedBox(width: 12),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                title,
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
+              Text(title, style: Theme.of(context).textTheme.titleMedium),
               const SizedBox(height: 4),
-              Text(
-                description,
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
+              Text(description, style: Theme.of(context).textTheme.bodyMedium),
             ],
           ),
         ),
@@ -231,7 +231,11 @@ class PrivacyScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildRightItem(BuildContext context, String title, String description) {
+  Widget _buildRightItem(
+    BuildContext context,
+    String title,
+    String description,
+  ) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Row(
@@ -253,9 +257,9 @@ class PrivacyScreen extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontSize: 15,
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleMedium?.copyWith(fontSize: 15),
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -272,42 +276,25 @@ class PrivacyScreen extends StatelessWidget {
 
   void _showDeleteDialog(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: isDark ? AppTheme.darkCard : AppTheme.lightCard,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
-        title: Text(AppLocalizations.tr(context, 'deleteConfirmTitle')),
-        content: Text(AppLocalizations.tr(context, 'deleteConfirmMessage')),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(
-              AppLocalizations.tr(context, 'cancel'),
-              style: TextStyle(
-                color: Theme.of(context).textTheme.bodyMedium?.color,
-              ),
+      builder: (context) => ConfirmDialog(
+        title: AppLocalizations.tr(context, 'deleteConfirmTitle'),
+        content: AppLocalizations.tr(context, 'deleteConfirmMessage'),
+        confirmText: AppLocalizations.tr(context, 'delete'),
+        isDestructive: true,
+        onConfirm: () {
+          Navigator.pop(context);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(AppLocalizations.tr(context, 'dataDeleted')),
+              backgroundColor: isDark
+                  ? AppTheme.darkSuccess
+                  : AppTheme.lightSuccess,
             ),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(AppLocalizations.tr(context, 'dataDeleted')),
-                  backgroundColor: isDark ? AppTheme.darkSuccess : AppTheme.lightSuccess,
-                ),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: isDark ? AppTheme.darkDanger : AppTheme.lightDanger,
-            ),
-            child: Text(AppLocalizations.tr(context, 'delete')),
-          ),
-        ],
+          );
+        },
       ),
     );
   }

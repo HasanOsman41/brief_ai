@@ -39,7 +39,7 @@ class BriefAIApp extends StatefulWidget {
 }
 
 class _BriefAIAppState extends State<BriefAIApp> {
-  ThemeMode _themeMode = ThemeMode.system;
+  ThemeMode _themeMode = ThemeMode.light;
   Locale? _locale;
   final LocaleService _localeService = LocaleService();
 

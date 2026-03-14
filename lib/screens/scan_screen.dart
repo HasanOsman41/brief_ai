@@ -9,6 +9,7 @@ import 'package:brief_ai/services/file_storage_service.dart';
 import 'package:brief_ai/services/ocr_service.dart';
 import 'package:brief_ai/services/pdf_service.dart';
 import 'package:brief_ai/theme/app_theme.dart';
+import 'package:brief_ai/widgets/confirm_dialog.dart';
 import 'package:brief_ai/widgets/scan/analysis_bottom_sheet.dart';
 import 'package:brief_ai/widgets/scan/scan_bottom_bar.dart';
 import 'package:brief_ai/widgets/scan/scan_gallery.dart';
@@ -724,67 +725,27 @@ class _ScanScreenState extends State<ScanScreen>
   }
 
   void _deleteCurrentPage() {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: isDark ? AppTheme.darkCard : AppTheme.lightCard,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        title: Text(
-          AppLocalizations.tr(context, 'deleteImage'),
-          style: TextStyle(
-            fontWeight: FontWeight.w600,
-            color: isDark
-                ? AppTheme.darkTextPrimary
-                : AppTheme.lightTextPrimary,
-          ),
-        ),
-        content: Text(
-          AppLocalizations.tr(context, 'deleteImageConfirmation'),
-          style: TextStyle(
-            color: isDark
-                ? AppTheme.darkTextSecondary
-                : AppTheme.lightTextSecondary,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            style: TextButton.styleFrom(
-              foregroundColor: isDark
-                  ? AppTheme.darkTextSecondary
-                  : AppTheme.lightTextSecondary,
-            ),
-            child: Text(AppLocalizations.tr(context, 'cancel')),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: isDark
-                  ? AppTheme.darkDanger
-                  : AppTheme.lightDanger,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            onPressed: () {
-              HapticFeedback.heavyImpact();
-              setState(() {
-                _pages.removeAt(_currentIndex);
-                if (_pages.isEmpty) {
-                  _showGallery = false;
-                  _currentIndex = 0;
-                } else {
-                  _currentIndex = _currentIndex.clamp(0, _pages.length - 1);
-                }
-              });
-              Navigator.pop(ctx);
-              _snackSuccess(AppLocalizations.tr(context, 'imageDeleted'));
-            },
-            child: Text(AppLocalizations.tr(context, 'delete')),
-          ),
-        ],
+      builder: (ctx) => ConfirmDialog(
+        title: AppLocalizations.tr(context, 'deleteImage'),
+        content: AppLocalizations.tr(context, 'deleteImageConfirmation'),
+        confirmText: AppLocalizations.tr(context, 'delete'),
+        isDestructive: true,
+        onConfirm: () {
+          HapticFeedback.heavyImpact();
+          setState(() {
+            _pages.removeAt(_currentIndex);
+            if (_pages.isEmpty) {
+              _showGallery = false;
+              _currentIndex = 0;
+            } else {
+              _currentIndex = _currentIndex.clamp(0, _pages.length - 1);
+            }
+          });
+          Navigator.pop(ctx);
+          _snackSuccess(AppLocalizations.tr(context, 'imageDeleted'));
+        },
       ),
     );
   }

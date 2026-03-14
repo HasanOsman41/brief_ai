@@ -106,6 +106,8 @@ class AppStrings {
   static const String today = 'today';
   static const String tomorrow = 'tomorrow';
   static const String overdue = 'overdue';
+  static const String reminderOptions = 'reminderOptions';
+  static const String noDeadline = 'noDeadline';
 
   // AI Analysis
   static const String aiSummary = 'aiSummary';

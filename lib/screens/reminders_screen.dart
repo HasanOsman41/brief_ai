@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:brief_ai/theme/app_theme.dart';
 import 'package:brief_ai/services/notification_service.dart';
+import 'package:brief_ai/widgets/confirm_dialog.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 // Ensure this import matches your project structure
-import 'package:brief_ai/localization/app_localizations.dart'; 
+import 'package:brief_ai/localization/app_localizations.dart';
 
 class RemindersScreen extends StatefulWidget {
   const RemindersScreen({Key? key}) : super(key: key);
@@ -214,46 +215,28 @@ class _RemindersScreenState extends State<RemindersScreen> {
                             onPressed: () {
                               showDialog(
                                 context: context,
-                                builder: (context) => AlertDialog(
-                                  backgroundColor: isDark
-                                      ? AppTheme.darkCard
-                                      : AppTheme.lightCard,
-                                  title: Text(
-                                    AppLocalizations.tr(
-                                        context, 'cancelReminder'),
-                                    style: TextStyle(
-                                      color: isDark
-                                          ? AppTheme.darkTextPrimary
-                                          : AppTheme.lightTextPrimary,
-                                    ),
+                                builder: (context) => ConfirmDialog(
+                                  title: AppLocalizations.tr(
+                                    context,
+                                    'cancelReminder',
                                   ),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () => Navigator.pop(context),
-                                      child: Text(
-                                        AppLocalizations.tr(context, 'keep'),
-                                        style: TextStyle(
-                                          color: isDark
-                                              ? AppTheme.darkTextSecondary
-                                              : AppTheme.lightTextSecondary,
-                                        ),
-                                      ),
-                                    ),
-                                    TextButton(
-                                      onPressed: () {
-                                        Navigator.pop(context);
-                                        _deleteReminder(reminder.id);
-                                      },
-                                      child: Text(
-                                        AppLocalizations.tr(context, 'cancel'),
-                                        style: TextStyle(
-                                          color: isDark
-                                              ? AppTheme.darkTextSecondary
-                                              : AppTheme.lightTextSecondary,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
+                                  content: AppLocalizations.tr(
+                                    context,
+                                    'cancelReminder',
+                                  ),
+                                  cancelText: AppLocalizations.tr(
+                                    context,
+                                    'keep',
+                                  ),
+                                  confirmText: AppLocalizations.tr(
+                                    context,
+                                    'cancel',
+                                  ),
+                                  isDestructive: true,
+                                  onConfirm: () {
+                                    Navigator.pop(context);
+                                    _deleteReminder(reminder.id);
+                                  },
                                 ),
                               );
                             },

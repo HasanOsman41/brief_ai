@@ -1,13 +1,15 @@
 // lib/screens/settings_screen.dart
 import 'package:brief_ai/localization/app_localizations.dart';
 import 'package:brief_ai/theme/app_theme.dart';
+import 'package:brief_ai/widgets/confirm_dialog.dart';
 import 'package:brief_ai/widgets/glass_card.dart';
 import 'package:flutter/material.dart';
 
 class SettingsScreen extends StatelessWidget {
   final VoidCallback onToggleTheme;
 
-  const SettingsScreen({Key? key, required this.onToggleTheme}) : super(key: key);
+  const SettingsScreen({Key? key, required this.onToggleTheme})
+    : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -69,10 +71,7 @@ class SettingsScreen extends StatelessWidget {
                       color: primaryColor.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Icon(
-                      Icons.language,
-                      color: primaryColor,
-                    ),
+                    child: Icon(Icons.language, color: primaryColor),
                   ),
                   title: Text(AppLocalizations.tr(context, 'language')),
                   subtitle: Text(
@@ -97,13 +96,20 @@ class SettingsScreen extends StatelessWidget {
                     ],
                   ),
                   onTap: () async {
-                    final result = await Navigator.pushNamed(context, '/language');
+                    final result = await Navigator.pushNamed(
+                      context,
+                      '/language',
+                    );
                     if (result != null && context.mounted) {
                       // Language was changed, show confirmation
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: Text(AppLocalizations.tr(context, 'languageChanged')),
-                          backgroundColor: isDark ? AppTheme.darkSuccess : AppTheme.lightSuccess,
+                          content: Text(
+                            AppLocalizations.tr(context, 'languageChanged'),
+                          ),
+                          backgroundColor: isDark
+                              ? AppTheme.darkSuccess
+                              : AppTheme.lightSuccess,
                           duration: const Duration(seconds: 1),
                         ),
                       );
@@ -113,9 +119,9 @@ class SettingsScreen extends StatelessWidget {
               ],
             ),
           ),
-          
+
           const SizedBox(height: 24),
-          
+
           // Data & Privacy section
           Text(
             AppLocalizations.tr(context, 'dataPrivacy').toUpperCase(),
@@ -160,7 +166,9 @@ class SettingsScreen extends StatelessWidget {
                   context: context,
                   icon: Icons.delete_outline,
                   label: AppLocalizations.tr(context, 'deleteAllData'),
-                  textColor: isDark ? AppTheme.darkDanger : AppTheme.lightDanger,
+                  textColor: isDark
+                      ? AppTheme.darkDanger
+                      : AppTheme.lightDanger,
                   onTap: () {
                     _showDeleteDialog(context);
                   },
@@ -168,9 +176,9 @@ class SettingsScreen extends StatelessWidget {
               ],
             ),
           ),
-          
+
           const SizedBox(height: 24),
-          
+
           // Legal section
           Text(
             AppLocalizations.tr(context, 'legal').toUpperCase(),
@@ -204,9 +212,9 @@ class SettingsScreen extends StatelessWidget {
               ],
             ),
           ),
-          
+
           const SizedBox(height: 24),
-          
+
           // App info
           Center(
             child: Column(
@@ -228,10 +236,7 @@ class SettingsScreen extends StatelessWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(
-                        Icons.lock_outline,
-                        size: 14,
-                      ),
+                      const Icon(Icons.lock_outline, size: 14),
                       const SizedBox(width: 4),
                       Text(
                         AppLocalizations.tr(context, 'localOnly'),
@@ -247,9 +252,9 @@ class SettingsScreen extends StatelessWidget {
               ],
             ),
           ),
-          
+
           const SizedBox(height: 20),
-          
+
           // Disclaimer
           GlassCard(
             child: Padding(
@@ -338,42 +343,25 @@ class SettingsScreen extends StatelessWidget {
 
   void _showDeleteDialog(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: isDark ? AppTheme.darkCard : AppTheme.lightCard,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
-        title: Text(AppLocalizations.tr(context, 'deleteConfirmTitle')),
-        content: Text(AppLocalizations.tr(context, 'deleteConfirmMessage')),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(
-              AppLocalizations.tr(context, 'cancel'),
-              style: TextStyle(
-                color: Theme.of(context).textTheme.bodyMedium?.color,
-              ),
+      builder: (context) => ConfirmDialog(
+        title: AppLocalizations.tr(context, 'deleteConfirmTitle'),
+        content: AppLocalizations.tr(context, 'deleteConfirmMessage'),
+        confirmText: AppLocalizations.tr(context, 'delete'),
+        isDestructive: true,
+        onConfirm: () {
+          Navigator.pop(context);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(AppLocalizations.tr(context, 'dataDeleted')),
+              backgroundColor: isDark
+                  ? AppTheme.darkSuccess
+                  : AppTheme.lightSuccess,
             ),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(AppLocalizations.tr(context, 'dataDeleted')),
-                  backgroundColor: isDark ? AppTheme.darkSuccess : AppTheme.lightSuccess,
-                ),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: isDark ? AppTheme.darkDanger : AppTheme.lightDanger,
-            ),
-            child: Text(AppLocalizations.tr(context, 'delete')),
-          ),
-        ],
+          );
+        },
       ),
     );
   }
