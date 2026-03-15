@@ -1,4 +1,6 @@
 // lib/services/document_extractor_service.dart
+import 'package:brief_ai/services/document_analyzer.dart';
+
 import '../data/categories_data.dart';
 import '../models/analysis_result.dart';
 
@@ -17,69 +19,195 @@ class DocumentExtractorService {
 
   static const _categoryKeywords = <String, List<String>>{
     'categoryJobcenter': [
-      'jobcenter', 'bundesagentur für arbeit', 'arbeitslosengeld',
-      'arbeitslosigkeit', 'hartz', 'sgb ii', 'sgb iii', 'arbeitsamt',
-      'vermittlung', 'eingliederung', 'arbeitsvermittlung',
-      'unemployment', 'job centre',
+      'jobcenter',
+      'bundesagentur für arbeit',
+      'arbeitslosengeld',
+      'arbeitslosigkeit',
+      'hartz',
+      'sgb ii',
+      'sgb iii',
+      'arbeitsamt',
+      'vermittlung',
+      'eingliederung',
+      'arbeitsvermittlung',
+      'unemployment',
+      'job centre',
     ],
     'categoryAuslaenderbehoerde': [
-      'ausländerbehörde', 'aufenthaltstitel', 'aufenthaltserlaubnis',
-      'niederlassungserlaubnis', 'visum', 'visa', 'duldung',
-      'ausländerrecht', 'aufenthaltsgesetz', 'ausreisepflicht',
-      'einbürgerung', 'staatsangehörigkeit', 'immigration', 'residence permit',
-      'foreigner', 'alien registration',
+      'ausländerbehörde',
+      'aufenthaltstitel',
+      'aufenthaltserlaubnis',
+      'niederlassungserlaubnis',
+      'visum',
+      'visa',
+      'duldung',
+      'ausländerrecht',
+      'aufenthaltsgesetz',
+      'ausreisepflicht',
+      'einbürgerung',
+      'staatsangehörigkeit',
+      'immigration',
+      'residence permit',
+      'foreigner',
+      'alien registration',
     ],
     'categoryKrankenkasse': [
-      'krankenkasse', 'krankenversicherung', 'versicherungsnummer',
-      'mitgliedschaft', 'beitrag', 'gesundheit', 'klinik', 'arzt',
-      'diagnose', 'rezept', 'patient', 'befund', 'therapie',
-      'medikament', 'krankenhaus', 'hospital', 'prescription',
-      'doctor', 'health insurance', 'medical',
+      'krankenkasse',
+      'krankenversicherung',
+      'versicherungsnummer',
+      'mitgliedschaft',
+      'beitrag',
+      'gesundheit',
+      'klinik',
+      'arzt',
+      'diagnose',
+      'rezept',
+      'patient',
+      'befund',
+      'therapie',
+      'medikament',
+      'krankenhaus',
+      'hospital',
+      'prescription',
+      'doctor',
+      'health insurance',
+      'medical',
     ],
     'categoryFinanzamt': [
-      'finanzamt', 'steuerbescheid', 'steuererklärung', 'steuer',
-      'einkommensteuer', 'umsatzsteuer', 'mwst', 'ust', 'steuer-id',
-      'steueridentifikationsnummer', 'jahresabschluss',
-      'tax office', 'tax return', 'tax assessment', 'inland revenue',
+      'finanzamt',
+      'steuerbescheid',
+      'steuererklärung',
+      'steuer',
+      'einkommensteuer',
+      'umsatzsteuer',
+      'mwst',
+      'ust',
+      'steuer-id',
+      'steueridentifikationsnummer',
+      'jahresabschluss',
+      'tax office',
+      'tax return',
+      'tax assessment',
+      'inland revenue',
     ],
     'categoryContracts': [
-      'vertrag', 'contract', 'agreement', 'arbeitsvertrag',
-      'kaufvertrag', 'leasing', 'laufzeit', 'vertragsdauer',
-      'kündigung', 'vertragspartner', 'klausel', 'notar',
-      'vollmacht', 'rechtsanwalt', 'unterschrift', 'signature',
+      'vertrag',
+      'contract',
+      'agreement',
+      'arbeitsvertrag',
+      'kaufvertrag',
+      'leasing',
+      'laufzeit',
+      'vertragsdauer',
+      'kündigung',
+      'vertragspartner',
+      'klausel',
+      'notar',
+      'vollmacht',
+      'rechtsanwalt',
+      'unterschrift',
+      'signature',
     ],
     'categoryBills': [
-      'rechnung', 'invoice', 'faktura', 'betrag', 'total',
-      'amount due', 'zahlungsziel', 'fälligkeit', 'bitte überweisen',
-      'please pay', 'quittung', 'kassenbon', 'receipt',
-      'bezahlt', 'paid', 'danke für ihren', 'thank you for your',
+      'rechnung',
+      'invoice',
+      'faktura',
+      'betrag',
+      'total',
+      'amount due',
+      'zahlungsziel',
+      'fälligkeit',
+      'bitte überweisen',
+      'please pay',
+      'quittung',
+      'kassenbon',
+      'receipt',
+      'bezahlt',
+      'paid',
+      'danke für ihren',
+      'thank you for your',
     ],
     'categoryBank': [
-      'iban', 'bic', 'kontoauszug', 'bank', 'überweisung',
-      'lastschrift', 'zinsen', 'darlehen', 'kredit', 'konto',
-      'transaction', 'account', 'balance', 'deposit', 'withdrawal',
-      'sparkasse', 'volksbank', 'commerzbank', 'deutsche bank',
+      'iban',
+      'bic',
+      'kontoauszug',
+      'bank',
+      'überweisung',
+      'lastschrift',
+      'zinsen',
+      'darlehen',
+      'kredit',
+      'konto',
+      'transaction',
+      'account',
+      'balance',
+      'deposit',
+      'withdrawal',
+      'sparkasse',
+      'volksbank',
+      'commerzbank',
+      'deutsche bank',
     ],
     'categoryInsurance': [
-      'versicherung', 'police', 'versicherungsschein',
-      'versicherungsnummer', 'schaden', 'prämie', 'haftpflicht',
-      'hausrat', 'kfz-versicherung', 'lebensversicherung',
-      'insurance', 'policy', 'claim', 'coverage', 'premium',
+      'versicherung',
+      'police',
+      'versicherungsschein',
+      'versicherungsnummer',
+      'schaden',
+      'prämie',
+      'haftpflicht',
+      'hausrat',
+      'kfz-versicherung',
+      'lebensversicherung',
+      'insurance',
+      'policy',
+      'claim',
+      'coverage',
+      'premium',
     ],
     'categoryRent': [
-      'mietvertrag', 'miete', 'mieter', 'vermieter', 'nebenkosten',
-      'betriebskosten', 'kaution', 'wohnung', 'mietobjekt',
-      'rent', 'rental', 'landlord', 'tenant', 'lease',
-      'apartment', 'flat', 'property',
+      'mietvertrag',
+      'miete',
+      'mieter',
+      'vermieter',
+      'nebenkosten',
+      'betriebskosten',
+      'kaution',
+      'wohnung',
+      'mietobjekt',
+      'rent',
+      'rental',
+      'landlord',
+      'tenant',
+      'lease',
+      'apartment',
+      'flat',
+      'property',
     ],
-    'categoryOther': [],   // fallback — no keywords needed
+    'categoryOther': [], // fallback — no keywords needed
   };
 
   static const _monthMap = <String, int>{
-    'januar':1,'january':1,'februar':2,'february':2,'märz':3,'march':3,
-    'april':4,'mai':5,'may':5,'juni':6,'june':6,'juli':7,'july':7,
-    'august':8,'september':9,'oktober':10,'october':10,'november':11,
-    'dezember':12,'december':12,
+    'januar': 1,
+    'january': 1,
+    'februar': 2,
+    'february': 2,
+    'märz': 3,
+    'march': 3,
+    'april': 4,
+    'mai': 5,
+    'may': 5,
+    'juni': 6,
+    'june': 6,
+    'juli': 7,
+    'july': 7,
+    'august': 8,
+    'september': 9,
+    'oktober': 10,
+    'october': 10,
+    'november': 11,
+    'dezember': 12,
+    'december': 12,
   };
 
   static final _datePat1 = RegExp(r'(\d{1,2})[./](\d{1,2})[./](\d{4})');
@@ -113,11 +241,24 @@ class DocumentExtractorService {
         .map((l) => l.trim())
         .where((l) => l.isNotEmpty)
         .toList();
+
+    // After OCR gives you text:
+    final result = DocumentAnalyzer.analyze(ocrText, lang: 'ar');
+
+    print(result.category?.id); // e.g. "jobcenter_termin"
+    print(result.category?.labelAr); // "مركز التوظيف – دعوة لموعد"
+    print(result.category?.riskLevel); // RiskLevel.medium
+    print(result.title); // "Einladung zum Termin"
+    print(result.summary); // extracted body text
+    print(result.deadline); // "22.04.2026" or null
+    print(result.nextSteps); // Arabic action list
+    print(result.confidence); // AnalysisConfidence.high
+
     return AnalysisResult(
-      category:   _detectCategory(ocrText.toLowerCase()),
-      title:      _extractTitle(lines),
-      deadline:   _extractDeadline(ocrText),
-      summary:    _extractSummary(ocrText, lines),
+      category: _detectCategory(ocrText.toLowerCase()),
+      title: _extractTitle(lines),
+      deadline: _extractDeadline(ocrText),
+      summary: _extractSummary(ocrText, lines),
       rawOcrText: ocrText,
     );
   }
@@ -127,8 +268,8 @@ class DocumentExtractorService {
   /// Returns a localization key from [kDocumentCategories],
   /// e.g. 'categoryBills' or 'categoryOther'.
   String _detectCategory(String lower) {
-    String bestKey   = 'categoryOther';
-    int    bestScore = 0;
+    String bestKey = 'categoryOther';
+    int bestScore = 0;
 
     for (final entry in _categoryKeywords.entries) {
       // Skip the fallback bucket
@@ -136,7 +277,7 @@ class DocumentExtractorService {
       final score = entry.value.where(lower.contains).length;
       if (score > bestScore) {
         bestScore = score;
-        bestKey   = entry.key;
+        bestKey = entry.key;
       }
     }
 
@@ -165,25 +306,25 @@ class DocumentExtractorService {
     final now = DateTime.now();
 
     DateTime? try1(RegExpMatch m) {
-      final d  = int.tryParse(m.group(1)!) ?? 0;
+      final d = int.tryParse(m.group(1)!) ?? 0;
       final mo = int.tryParse(m.group(2)!) ?? 0;
-      final y  = int.tryParse(m.group(3)!) ?? 0;
+      final y = int.tryParse(m.group(3)!) ?? 0;
       if (mo < 1 || mo > 12 || d < 1 || d > 31) return null;
       return DateTime(y, mo, d);
     }
 
     DateTime? try2(RegExpMatch m) {
-      final y  = int.tryParse(m.group(1)!) ?? 0;
+      final y = int.tryParse(m.group(1)!) ?? 0;
       final mo = int.tryParse(m.group(2)!) ?? 0;
-      final d  = int.tryParse(m.group(3)!) ?? 0;
+      final d = int.tryParse(m.group(3)!) ?? 0;
       if (mo < 1 || mo > 12 || d < 1 || d > 31) return null;
       return DateTime(y, mo, d);
     }
 
     DateTime? try3(RegExpMatch m) {
-      final d  = int.tryParse(m.group(1)!) ?? 0;
+      final d = int.tryParse(m.group(1)!) ?? 0;
       final mo = _monthMap[m.group(2)!.toLowerCase()] ?? 0;
-      final y  = int.tryParse(m.group(3)!) ?? 0;
+      final y = int.tryParse(m.group(3)!) ?? 0;
       if (mo < 1 || mo > 12) return null;
       return DateTime(y, mo, d);
     }
@@ -197,7 +338,9 @@ class DocumentExtractorService {
     // Pass 1: date near a deadline keyword
     for (final kw in _deadlineKw.allMatches(text)) {
       final window = text.substring(
-          kw.start, (kw.end + 60).clamp(0, text.length));
+        kw.start,
+        (kw.end + 60).clamp(0, text.length),
+      );
       for (final p in patterns) {
         final m = p.pat.firstMatch(window);
         if (m != null) {
