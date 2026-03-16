@@ -1,12 +1,18 @@
-/// BriefAI – Category Definitions
+/// BriefAI – Category Registry  (single source of truth)
 ///
-/// 67 document categories across 10 groups.
-/// Jobcenter section updated from BriefAI_Jobcenter_Schluesselwoerter_ohne_Konflikte.docx
-/// Each category contains:
-///   - decisiveKeywords  : one match → confident classification
-///   - supportingKeywords: 2+ matches needed when no decisive keyword found
-///   - negativeKeywords  : any match → category disqualified (prevents conflicts)
-///   - nextStepsDe / nextStepsAr : constant action steps shown to the user
+/// HOW TO ADD A NEW CATEGORY
+/// ─────────────────────────
+/// All labels and next-step strings live in l10n/app_*.arb.
+/// Use 'cat_<id>_label' for the name and 'cat_<id>_step1..N' for steps.
+/// 1. If it needs a new main group → add a value to [MainCategory] in
+///    document_result.dart, then add a [MainCategoryDefinition] to [mainGroups].
+/// 2. Add a [CategoryDefinition] to [all], setting [mainCategory] to the
+///    correct group. That's it – the analyzer picks it up automatically.
+///
+/// 67 sub-categories across 10 main groups.
+/// Jobcenter section: BriefAI_Jobcenter_Schluesselwoerter_ohne_Konflikte.docx
+
+// ignore_for_file: prefer_single_quotes
 
 import '../models/category_definition.dart';
 import '../models/document_result.dart';
@@ -14,6 +20,59 @@ import '../models/document_result.dart';
 class BriefAiCategories {
   BriefAiCategories._();
 
+  // ───────────────────────────────────────────────────────────────────────────
+  // MAIN GROUPS
+  // Labels for the 10 top-level buckets shown in the app UI.
+  // Sub-categories reference these via their [mainCategory] field.
+  // ───────────────────────────────────────────────────────────────────────────
+  static const List<MainCategoryDefinition> mainGroups = [
+    MainCategoryDefinition(
+      value: MainCategory.categoryJobcenter,
+      labelKey: 'cat_categoryJobcenter_label',
+    ),
+    MainCategoryDefinition(
+      value: MainCategory.categoryAuslaenderbehoerde,
+      labelKey: 'cat_categoryAuslaenderbehoerde_label',
+    ),
+    MainCategoryDefinition(
+      value: MainCategory.categoryKrankenkasse,
+      labelKey: 'cat_categoryKrankenkasse_label',
+    ),
+    MainCategoryDefinition(
+      value: MainCategory.categoryFinanzamt,
+      labelKey: 'cat_categoryFinanzamt_label',
+    ),
+    MainCategoryDefinition(
+      value: MainCategory.categoryBank,
+      labelKey: 'cat_categoryBank_label',
+    ),
+    MainCategoryDefinition(
+      value: MainCategory.categoryInsurance,
+      labelKey: 'cat_categoryInsurance_label',
+    ),
+    MainCategoryDefinition(
+      value: MainCategory.categoryRent,
+      labelKey: 'cat_categoryRent_label',
+    ),
+    MainCategoryDefinition(
+      value: MainCategory.categoryBills,
+      labelKey: 'cat_categoryBills_label',
+    ),
+    MainCategoryDefinition(
+      value: MainCategory.categoryContracts,
+      labelKey: 'cat_categoryContracts_label',
+    ),
+    MainCategoryDefinition(
+      value: MainCategory.categoryOther,
+      labelKey: 'cat_categoryOther_label',
+    ),
+  ];
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // SUB-CATEGORIES
+  // Every entry declares its own [mainCategory] so the full picture of any
+  // category is visible in one place. The analyzer reads only this list.
+  // ───────────────────────────────────────────────────────────────────────────
   static const List<CategoryDefinition> all = [
     // ─────────────────────────────────────────────────────────────────────
     // JOBCENTER  (22 categories – updated from dataset file)
@@ -22,8 +81,8 @@ class BriefAiCategories {
     // ── Core forms ────────────────────────────────────────────────────────
     CategoryDefinition(
       id: 'jobcenter_termin',
-      labelDe: 'Jobcenter – Einladung zum Termin',
-      labelAr: 'مركز التوظيف – دعوة لموعد',
+      labelKey: 'cat_jobcenter_termin_label',
+      mainCategory: MainCategory.categoryJobcenter,
       decisiveKeywords: [
         'Einladung zum Termin',
         'bitte erscheinen Sie',
@@ -31,24 +90,18 @@ class BriefAiCategories {
       ],
       supportingKeywords: ['Jobcenter', 'Termin', 'Personalausweis', 'Uhrzeit'],
       negativeKeywords: ['Inkasso', 'Mahnbescheid', 'Steuerbescheid'],
-      nextStepsDe: [
-        'Termin im Kalender eintragen.',
-        'Personalausweis und geforderte Unterlagen vorbereiten.',
-        'Pünktlich zum Termin erscheinen.',
-        'Bei Verhinderung das Jobcenter vorab informieren.',
-      ],
-      nextStepsAr: [
-        'سجّل الموعد في التقويم.',
-        'حضّر بطاقة الهوية والأوراق المطلوبة.',
-        'احضر في الوقت المحدد.',
-        'إذا لم تستطع الحضور، أخبر مركز التوظيف مسبقًا.',
+      nextStepKeys: [
+        'cat_jobcenter_termin_step1',
+        'cat_jobcenter_termin_step2',
+        'cat_jobcenter_termin_step3',
+        'cat_jobcenter_termin_step4',
       ],
       riskLevel: RiskLevel.medium,
     ),
     CategoryDefinition(
       id: 'jobcenter_mitwirkung',
-      labelDe: 'Jobcenter – Aufforderung zur Mitwirkung',
-      labelAr: 'مركز التوظيف – طلب تقديم مستندات',
+      labelKey: 'cat_jobcenter_mitwirkung_label',
+      mainCategory: MainCategory.categoryJobcenter,
       decisiveKeywords: [
         'Aufforderung zur Mitwirkung',
         'Mitwirkungspflicht',
@@ -56,24 +109,18 @@ class BriefAiCategories {
       ],
       supportingKeywords: ['Jobcenter', 'Unterlagen', 'Nachweis', 'einreichen'],
       negativeKeywords: ['Inkasso', 'Steuerbescheid'],
-      nextStepsDe: [
-        'Geforderte Unterlagen zusammenstellen.',
-        'Kopien anfertigen.',
-        'Vor der genannten Frist beim Jobcenter einreichen.',
-        'Einreichungsnachweis aufbewahren.',
-      ],
-      nextStepsAr: [
-        'جهّز المستندات المطلوبة.',
-        'صوّر نسخًا منها.',
-        'أرسلها قبل الموعد النهائي المذكور.',
-        'احتفظ بإثبات الإرسال.',
+      nextStepKeys: [
+        'cat_jobcenter_mitwirkung_step1',
+        'cat_jobcenter_mitwirkung_step2',
+        'cat_jobcenter_mitwirkung_step3',
+        'cat_jobcenter_mitwirkung_step4',
       ],
       riskLevel: RiskLevel.high,
     ),
     CategoryDefinition(
       id: 'jobcenter_hauptantrag',
-      labelDe: 'Jobcenter – Hauptantrag Bürgergeld (HA)',
-      labelAr: 'مركز التوظيف – الطلب الرئيسي للبوريغيلد',
+      labelKey: 'cat_jobcenter_hauptantrag_label',
+      mainCategory: MainCategory.categoryJobcenter,
       decisiveKeywords: [
         'Hauptantrag',
         'Antrag auf Bürgergeld',
@@ -85,24 +132,18 @@ class BriefAiCategories {
         'erforderliche Anlagen',
       ],
       negativeKeywords: ['Weiterbewilligungsantrag', 'WBA', 'Inkasso'],
-      nextStepsDe: [
-        'Antrag vollständig ausfüllen.',
-        'Alle Pflichtanlagen beifügen (EK, KDU, WEP falls nötig).',
-        'Beim Jobcenter einreichen oder online absenden.',
-        'Eingangsbestätigung aufbewahren.',
-      ],
-      nextStepsAr: [
-        'أكمل الطلب بالكامل.',
-        'أرفق الملحقات الضرورية (EK وKDU وWEP إذا لزم).',
-        'سلّمه لمركز التوظيف أو أرسله إلكترونيًا.',
-        'احتفظ بتأكيد الاستلام.',
+      nextStepKeys: [
+        'cat_jobcenter_hauptantrag_step1',
+        'cat_jobcenter_hauptantrag_step2',
+        'cat_jobcenter_hauptantrag_step3',
+        'cat_jobcenter_hauptantrag_step4',
       ],
       riskLevel: RiskLevel.medium,
     ),
     CategoryDefinition(
       id: 'jobcenter_weiterbewilligung',
-      labelDe: 'Jobcenter – Weiterbewilligungsantrag (WBA)',
-      labelAr: 'مركز التوظيف – طلب تجديد البوريغيلد',
+      labelKey: 'cat_jobcenter_weiterbewilligung_label',
+      mainCategory: MainCategory.categoryJobcenter,
       decisiveKeywords: [
         'Weiterbewilligungsantrag',
         'WBA',
@@ -114,22 +155,17 @@ class BriefAiCategories {
         'weitere Bewilligung',
       ],
       negativeKeywords: ['Hauptantrag', 'Inkasso'],
-      nextStepsDe: [
-        'WBA rechtzeitig vor Ablauf des Bewilligungszeitraums einreichen.',
-        'Änderungen in Einkommen oder Wohnsituation angeben.',
-        'Alle aktuellen Nachweise beilegen.',
-      ],
-      nextStepsAr: [
-        'قدّم طلب التجديد قبل انتهاء فترة الاستحقاق.',
-        'اذكر أي تغييرات في الدخل أو السكن.',
-        'أرفق كل الإثباتات الحالية.',
+      nextStepKeys: [
+        'cat_jobcenter_weiterbewilligung_step1',
+        'cat_jobcenter_weiterbewilligung_step2',
+        'cat_jobcenter_weiterbewilligung_step3',
       ],
       riskLevel: RiskLevel.medium,
     ),
     CategoryDefinition(
       id: 'jobcenter_veraenderung',
-      labelDe: 'Jobcenter – Veränderungsmitteilung (VÄM)',
-      labelAr: 'مركز التوظيف – إشعار بتغيير',
+      labelKey: 'cat_jobcenter_veraenderung_label',
+      mainCategory: MainCategory.categoryJobcenter,
       decisiveKeywords: [
         'Veränderungsmitteilung',
         'VÄM',
@@ -142,22 +178,17 @@ class BriefAiCategories {
         'Änderung der Verhältnisse',
       ],
       negativeKeywords: ['Inkasso', 'Mahnbescheid'],
-      nextStepsDe: [
-        'Änderung unverzüglich beim Jobcenter melden.',
-        'Nachweise zur Änderung einreichen.',
-        'Rückmeldung des Jobcenters abwarten.',
-      ],
-      nextStepsAr: [
-        'أبلغ مركز التوظيف فورًا بالتغيير.',
-        'قدّم الإثباتات المتعلقة بالتغيير.',
-        'انتظر الرد من مركز التوظيف.',
+      nextStepKeys: [
+        'cat_jobcenter_veraenderung_step1',
+        'cat_jobcenter_veraenderung_step2',
+        'cat_jobcenter_veraenderung_step3',
       ],
       riskLevel: RiskLevel.medium,
     ),
     CategoryDefinition(
       id: 'jobcenter_ausfuellhinweise',
-      labelDe: 'Jobcenter – Ausfüllhinweise (AH)',
-      labelAr: 'مركز التوظيف – تعليمات التعبئة',
+      labelKey: 'cat_jobcenter_ausfuellhinweise_label',
+      mainCategory: MainCategory.categoryJobcenter,
       decisiveKeywords: [
         'Ausfüllhinweise',
         'Hinweise zur Beantragung von Bürgergeld',
@@ -168,13 +199,9 @@ class BriefAiCategories {
         'Hinweise zum Antrag',
       ],
       negativeKeywords: ['Hauptantrag', 'Weiterbewilligungsantrag', 'Inkasso'],
-      nextStepsDe: [
-        'Hinweise sorgfältig lesen, bevor Sie den Antrag ausfüllen.',
-        'Bei Unklarheiten das Jobcenter kontaktieren.',
-      ],
-      nextStepsAr: [
-        'اقرأ التعليمات بعناية قبل تعبئة الطلب.',
-        'تواصل مع مركز التوظيف عند الشك.',
+      nextStepKeys: [
+        'cat_jobcenter_ausfuellhinweise_step1',
+        'cat_jobcenter_ausfuellhinweise_step2',
       ],
       riskLevel: RiskLevel.low,
     ),
@@ -182,8 +209,8 @@ class BriefAiCategories {
     // ── Anlagen (Attachments) ─────────────────────────────────────────────
     CategoryDefinition(
       id: 'jobcenter_anlage_wep',
-      labelDe: 'Jobcenter – Anlage WEP (weitere Person ab 15 Jahren)',
-      labelAr: 'مركز التوظيف – ملحق WEP (شخص إضافي 15+ سنة)',
+      labelKey: 'cat_jobcenter_anlage_wep_label',
+      mainCategory: MainCategory.categoryJobcenter,
       decisiveKeywords: [
         'Anlage WEP',
         'weitere Person ab 15 Jahren',
@@ -195,20 +222,16 @@ class BriefAiCategories {
         'Kranken- und Pflegeversicherung',
       ],
       negativeKeywords: ['Kind unter 15', 'Inkasso'],
-      nextStepsDe: [
-        'Anlage WEP für jede weitere Person ab 15 Jahren ausfüllen.',
-        'Zusammen mit dem Hauptantrag einreichen.',
-      ],
-      nextStepsAr: [
-        'أكمل ملحق WEP لكل شخص إضافي عمره 15 سنة أو أكثر.',
-        'أرسله مع الطلب الرئيسي.',
+      nextStepKeys: [
+        'cat_jobcenter_anlage_wep_step1',
+        'cat_jobcenter_anlage_wep_step2',
       ],
       riskLevel: RiskLevel.low,
     ),
     CategoryDefinition(
       id: 'jobcenter_anlage_ki',
-      labelDe: 'Jobcenter – Anlage KI (Kinder unter 15 Jahren)',
-      labelAr: 'مركز التوظيف – ملحق KI (أطفال دون 15 سنة)',
+      labelKey: 'cat_jobcenter_anlage_ki_label',
+      mainCategory: MainCategory.categoryJobcenter,
       decisiveKeywords: ['Anlage KI', 'Kind unter 15 Jahren'],
       supportingKeywords: [
         'Kindergeld',
@@ -217,20 +240,16 @@ class BriefAiCategories {
         'Schüler',
       ],
       negativeKeywords: ['Kindesunterhalt', 'Anlage WEP', 'Inkasso'],
-      nextStepsDe: [
-        'Anlage KI für jedes Kind unter 15 Jahren ausfüllen.',
-        'Kindergeld- und Unterhaltsangaben bereithalten.',
-      ],
-      nextStepsAr: [
-        'أكمل ملحق KI لكل طفل عمره أقل من 15 سنة.',
-        'جهّز معلومات الكيندرغيلد والنفقة.',
+      nextStepKeys: [
+        'cat_jobcenter_anlage_ki_step1',
+        'cat_jobcenter_anlage_ki_step2',
       ],
       riskLevel: RiskLevel.low,
     ),
     CategoryDefinition(
       id: 'jobcenter_anlage_hg',
-      labelDe: 'Jobcenter – Anlage HG (Haushaltsgemeinschaft)',
-      labelAr: 'مركز التوظيف – ملحق HG (السكن مع أقارب)',
+      labelKey: 'cat_jobcenter_anlage_hg_label',
+      mainCategory: MainCategory.categoryJobcenter,
       decisiveKeywords: ['Anlage HG', 'Haushaltsgemeinschaft'],
       supportingKeywords: [
         'Verwandte',
@@ -241,21 +260,16 @@ class BriefAiCategories {
         'Verantwortungs- und Einstehensgemeinschaft',
         'Inkasso',
       ],
-      nextStepsDe: [
-        'Anlage HG ausfüllen wenn Sie mit Verwandten zusammenwohnen.',
-        'Angaben zur finanziellen Unterstützung wahrheitsgemäß machen.',
-      ],
-      nextStepsAr: [
-        'أكمل ملحق HG إذا كنت تسكن مع أقارب.',
-        'اذكر معلومات الدعم المالي بصدق.',
+      nextStepKeys: [
+        'cat_jobcenter_anlage_hg_step1',
+        'cat_jobcenter_anlage_hg_step2',
       ],
       riskLevel: RiskLevel.low,
     ),
     CategoryDefinition(
       id: 'jobcenter_anlage_ve',
-      labelDe:
-          'Jobcenter – Anlage VE (Verantwortungs- und Einstehensgemeinschaft)',
-      labelAr: 'مركز التوظيف – ملحق VE (الشراكة المعيشية)',
+      labelKey: 'cat_jobcenter_anlage_ve_label',
+      mainCategory: MainCategory.categoryJobcenter,
       decisiveKeywords: [
         'Anlage VE',
         'Verantwortungs- und Einstehensgemeinschaft',
@@ -267,20 +281,16 @@ class BriefAiCategories {
         'gemeinsam ein Kind',
       ],
       negativeKeywords: ['Haushaltsgemeinschaft', 'Inkasso'],
-      nextStepsDe: [
-        'Anlage VE ausfüllen wenn Sie mit einem Partner zusammenleben.',
-        'Alle gemeinsamen finanziellen Verhältnisse angeben.',
-      ],
-      nextStepsAr: [
-        'أكمل ملحق VE إذا كنت تعيش مع شريك/ة.',
-        'اذكر كل الأوضاع المالية المشتركة.',
+      nextStepKeys: [
+        'cat_jobcenter_anlage_ve_step1',
+        'cat_jobcenter_anlage_ve_step2',
       ],
       riskLevel: RiskLevel.low,
     ),
     CategoryDefinition(
       id: 'jobcenter_anlage_ek',
-      labelDe: 'Jobcenter – Anlage EK (Einkommen)',
-      labelAr: 'مركز التوظيف – ملحق EK (الدخل)',
+      labelKey: 'cat_jobcenter_anlage_ek_label',
+      mainCategory: MainCategory.categoryJobcenter,
       decisiveKeywords: ['Anlage EK', 'Anlage zum Einkommen'],
       supportingKeywords: [
         'Einkommensnachweise',
@@ -294,20 +304,16 @@ class BriefAiCategories {
         'Betriebsausgaben',
         'Inkasso',
       ],
-      nextStepsDe: [
-        'Anlage EK für jede Person mit Einkommen in der Bedarfsgemeinschaft ausfüllen.',
-        'Gehaltsabrechnungen der letzten Monate beilegen.',
-      ],
-      nextStepsAr: [
-        'أكمل ملحق EK لكل شخص لديه دخل في مجموعة الاحتياج.',
-        'أرفق كشوف الراتب للأشهر الأخيرة.',
+      nextStepKeys: [
+        'cat_jobcenter_anlage_ek_step1',
+        'cat_jobcenter_anlage_ek_step2',
       ],
       riskLevel: RiskLevel.low,
     ),
     CategoryDefinition(
       id: 'jobcenter_anlage_vm',
-      labelDe: 'Jobcenter – Anlage VM (Vermögen)',
-      labelAr: 'مركز التوظيف – ملحق VM (الأصول والثروة)',
+      labelKey: 'cat_jobcenter_anlage_vm_label',
+      mainCategory: MainCategory.categoryJobcenter,
       decisiveKeywords: ['Anlage VM', 'Selbstauskunft über das Vermögen'],
       supportingKeywords: [
         'Vermögensverhältnisse',
@@ -316,20 +322,16 @@ class BriefAiCategories {
         'Schmuck',
       ],
       negativeKeywords: ['Inkasso'],
-      nextStepsDe: [
-        'Alle Vermögenswerte vollständig und wahrheitsgemäß angeben.',
-        'Kontoauszüge und Nachweise über Geldanlagen beilegen.',
-      ],
-      nextStepsAr: [
-        'اذكر جميع الأصول بشكل كامل وصادق.',
-        'أرفق كشوف الحساب وإثباتات الاستثمارات.',
+      nextStepKeys: [
+        'cat_jobcenter_anlage_vm_step1',
+        'cat_jobcenter_anlage_vm_step2',
       ],
       riskLevel: RiskLevel.low,
     ),
     CategoryDefinition(
       id: 'jobcenter_anlage_kdu',
-      labelDe: 'Jobcenter – Anlage KDU (Kosten der Unterkunft und Heizung)',
-      labelAr: 'مركز التوظيف – ملحق KDU (تكاليف السكن والتدفئة)',
+      labelKey: 'cat_jobcenter_anlage_kdu_label',
+      mainCategory: MainCategory.categoryJobcenter,
       decisiveKeywords: ['Anlage KDU', 'Bedarfe für Unterkunft und Heizung'],
       supportingKeywords: [
         'Grundmiete',
@@ -342,20 +344,16 @@ class BriefAiCategories {
         'Vermieterbescheinigung',
         'Inkasso',
       ],
-      nextStepsDe: [
-        'Mietvertrag und aktuelle Nebenkostenabrechnungen bereithalten.',
-        'Alle Wohn- und Heizkosten vollständig eintragen.',
-      ],
-      nextStepsAr: [
-        'جهّز عقد الإيجار وكشوف التكاليف الإضافية الحالية.',
-        'أدخل كل تكاليف السكن والتدفئة بالكامل.',
+      nextStepKeys: [
+        'cat_jobcenter_anlage_kdu_step1',
+        'cat_jobcenter_anlage_kdu_step2',
       ],
       riskLevel: RiskLevel.low,
     ),
     CategoryDefinition(
       id: 'jobcenter_anlage_eks',
-      labelDe: 'Jobcenter – Anlage EKS (Selbständige Tätigkeit)',
-      labelAr: 'مركز التوظيف – ملحق EKS (دخل العمل الحر)',
+      labelKey: 'cat_jobcenter_anlage_eks_label',
+      mainCategory: MainCategory.categoryJobcenter,
       decisiveKeywords: [
         'Anlage EKS',
         'Einkommen aus selbständiger',
@@ -368,22 +366,17 @@ class BriefAiCategories {
         'Umsatzsteuerpflicht',
       ],
       negativeKeywords: ['Anlage EK', 'Anlage zum Einkommen', 'Inkasso'],
-      nextStepsDe: [
-        'EKS für selbständige oder freiberufliche Tätigkeit ausfüllen.',
-        'Einnahmen und Betriebsausgaben detailliert angeben.',
-        'Nicht mit Anlage EK (Arbeitnehmer) verwechseln.',
-      ],
-      nextStepsAr: [
-        'أكمل EKS للعمل الحر أو المستقل.',
-        'اذكر الإيرادات والمصاريف بالتفصيل.',
-        'لا تخلطه مع ملحق EK (الموظفين).',
+      nextStepKeys: [
+        'cat_jobcenter_anlage_eks_step1',
+        'cat_jobcenter_anlage_eks_step2',
+        'cat_jobcenter_anlage_eks_step3',
       ],
       riskLevel: RiskLevel.low,
     ),
     CategoryDefinition(
       id: 'jobcenter_anlage_meb',
-      labelDe: 'Jobcenter – Anlage MEB (Mehrbedarf Ernährung)',
-      labelAr: 'مركز التوظيف – ملحق MEB (احتياج غذائي إضافي)',
+      labelKey: 'cat_jobcenter_anlage_meb_label',
+      mainCategory: MainCategory.categoryJobcenter,
       decisiveKeywords: [
         'Anlage MEB',
         'Mehrbedarf für kostenaufwändige Ernährung',
@@ -394,20 +387,16 @@ class BriefAiCategories {
         'Erkrankung',
       ],
       negativeKeywords: ['Inkasso'],
-      nextStepsDe: [
-        'Ärztliche Bescheinigung über die notwendige Ernährungsform beilegen.',
-        'Anlage MEB zusammen mit dem Antrag einreichen.',
-      ],
-      nextStepsAr: [
-        'أرفق شهادة طبية تثبت النظام الغذائي الضروري.',
-        'أرسل ملحق MEB مع الطلب.',
+      nextStepKeys: [
+        'cat_jobcenter_anlage_meb_step1',
+        'cat_jobcenter_anlage_meb_step2',
       ],
       riskLevel: RiskLevel.low,
     ),
     CategoryDefinition(
       id: 'jobcenter_anlage_sv',
-      labelDe: 'Jobcenter – Anlage SV (Kranken- und Sozialversicherung)',
-      labelAr: 'مركز التوظيف – ملحق SV (التأمين الصحي والاجتماعي)',
+      labelKey: 'cat_jobcenter_anlage_sv_label',
+      mainCategory: MainCategory.categoryJobcenter,
       decisiveKeywords: ['Anlage SV'],
       supportingKeywords: [
         'Kranken- und Pflegeversicherung',
@@ -416,37 +405,29 @@ class BriefAiCategories {
         'Zuschuss zu den Beiträgen',
       ],
       negativeKeywords: ['Inkasso'],
-      nextStepsDe: [
-        'Anlage SV ausfüllen wenn Sie privat krankenversichert sind.',
-        'Nachweis über Versicherung und Beitragshöhe beilegen.',
-      ],
-      nextStepsAr: [
-        'أكمل ملحق SV إذا كنت مؤمّنًا صحيًا بشكل خاص.',
-        'أرفق إثبات التأمين وقيمة الاشتراك.',
+      nextStepKeys: [
+        'cat_jobcenter_anlage_sv_step1',
+        'cat_jobcenter_anlage_sv_step2',
       ],
       riskLevel: RiskLevel.low,
     ),
     CategoryDefinition(
       id: 'jobcenter_anlage_bb',
-      labelDe: 'Jobcenter – Anlage BB (Besonderer Bedarf)',
-      labelAr: 'مركز التوظيف – ملحق BB (احتياج خاص لا يمكن تأجيله)',
+      labelKey: 'cat_jobcenter_anlage_bb_label',
+      mainCategory: MainCategory.categoryJobcenter,
       decisiveKeywords: ['Anlage BB', 'unabweisbarer besonderer Bedarf'],
       supportingKeywords: ['Kostenvoranschlag', 'Vorschuss', 'Quittungen'],
       negativeKeywords: ['Inkasso'],
-      nextStepsDe: [
-        'Unabweisbaren Bedarf konkret begründen.',
-        'Kostenvoranschlag oder Quittungen beilegen.',
-      ],
-      nextStepsAr: [
-        'اشرح الاحتياج الضروري بشكل محدد.',
-        'أرفق عرض تكلفة أو إيصالات.',
+      nextStepKeys: [
+        'cat_jobcenter_anlage_bb_step1',
+        'cat_jobcenter_anlage_bb_step2',
       ],
       riskLevel: RiskLevel.low,
     ),
     CategoryDefinition(
       id: 'jobcenter_anlage_uf',
-      labelDe: 'Jobcenter – Anlage UF (Unfall / Schaden durch Dritte)',
-      labelAr: 'مركز التوظيف – ملحق UF (حادث أو ضرر من طرف ثالث)',
+      labelKey: 'cat_jobcenter_anlage_uf_label',
+      mainCategory: MainCategory.categoryJobcenter,
       decisiveKeywords: ['Anlage UF', 'Schadensereignis'],
       supportingKeywords: [
         'Unfallbericht',
@@ -454,13 +435,9 @@ class BriefAiCategories {
         'Schadensnummer',
       ],
       negativeKeywords: ['Inkasso'],
-      nextStepsDe: [
-        'Anlage UF ausfüllen wenn ein Unfall oder Schaden durch Dritte vorliegt.',
-        'Unfallbericht und alle Belege beilegen.',
-      ],
-      nextStepsAr: [
-        'أكمل ملحق UF في حالة وقوع حادث أو ضرر من طرف ثالث.',
-        'أرفق تقرير الحادث وكل الإثباتات.',
+      nextStepKeys: [
+        'cat_jobcenter_anlage_uf_step1',
+        'cat_jobcenter_anlage_uf_step2',
       ],
       riskLevel: RiskLevel.medium,
     ),
@@ -468,9 +445,8 @@ class BriefAiCategories {
     // ── Unterhalt (Maintenance) ────────────────────────────────────────────
     CategoryDefinition(
       id: 'jobcenter_anlage_uh1',
-      labelDe:
-          'Jobcenter – Anlage UH1 (Trennungsunterhalt / nachehelicher Unterhalt)',
-      labelAr: 'مركز التوظيف – ملحق UH1 (نفقة الانفصال أو ما بعد الطلاق)',
+      labelKey: 'cat_jobcenter_anlage_uh1_label',
+      mainCategory: MainCategory.categoryJobcenter,
       decisiveKeywords: [
         'Anlage UH1',
         'Trennungsunterhalt',
@@ -483,20 +459,16 @@ class BriefAiCategories {
         'schriftliche Vereinbarung',
       ],
       negativeKeywords: ['Kindesunterhalt', 'Schwangerschaft', 'Inkasso'],
-      nextStepsDe: [
-        'Anlage UH1 bei Trennungs- oder nachehelichem Unterhalt ausfüllen.',
-        'Gerichtliche Vereinbarungen oder Urteile beilegen.',
-      ],
-      nextStepsAr: [
-        'أكمل ملحق UH1 في حالة نفقة الانفصال أو ما بعد الطلاق.',
-        'أرفق الاتفاقيات القضائية أو الأحكام.',
+      nextStepKeys: [
+        'cat_jobcenter_anlage_uh1_step1',
+        'cat_jobcenter_anlage_uh1_step2',
       ],
       riskLevel: RiskLevel.medium,
     ),
     CategoryDefinition(
       id: 'jobcenter_anlage_uh2',
-      labelDe: 'Jobcenter – Anlage UH2 (Unterhalt wegen Schwangerschaft)',
-      labelAr: 'مركز التوظيف – ملحق UH2 (نفقة الحمل)',
+      labelKey: 'cat_jobcenter_anlage_uh2_label',
+      mainCategory: MainCategory.categoryJobcenter,
       decisiveKeywords: [
         'Anlage UH2',
         'Unterhaltsansprüche aufgrund von Schwangerschaft',
@@ -507,20 +479,16 @@ class BriefAiCategories {
         'Vaterschaftsanerkennung',
       ],
       negativeKeywords: ['Trennungsunterhalt', 'Kindesunterhalt', 'Inkasso'],
-      nextStepsDe: [
-        'Anlage UH2 bei Schwangerschaft und Unterhaltsansprüchen ausfüllen.',
-        'Angaben zum voraussichtlichen Geburtstermin machen.',
-      ],
-      nextStepsAr: [
-        'أكمل ملحق UH2 عند وجود نفقة مرتبطة بالحمل.',
-        'اذكر الموعد المتوقع للولادة.',
+      nextStepKeys: [
+        'cat_jobcenter_anlage_uh2_step1',
+        'cat_jobcenter_anlage_uh2_step2',
       ],
       riskLevel: RiskLevel.medium,
     ),
     CategoryDefinition(
       id: 'jobcenter_anlage_uh3',
-      labelDe: 'Jobcenter – Anlage UH3 (Kindesunterhalt)',
-      labelAr: 'مركز التوظيف – ملحق UH3 (نفقة الأطفال)',
+      labelKey: 'cat_jobcenter_anlage_uh3_label',
+      mainCategory: MainCategory.categoryJobcenter,
       decisiveKeywords: ['Anlage UH3', 'Prüfung von Kindesunterhalt'],
       supportingKeywords: [
         'unterhaltsberechtigte Person',
@@ -533,13 +501,9 @@ class BriefAiCategories {
         'Trennungsunterhalt',
         'Inkasso',
       ],
-      nextStepsDe: [
-        'Anlage UH3 ausfüllen wenn ein Elternteil außerhalb der Bedarfsgemeinschaft lebt.',
-        'Unterhaltstitel oder Vereinbarungen beilegen.',
-      ],
-      nextStepsAr: [
-        'أكمل ملحق UH3 إذا كان أحد الوالدين خارج مجموعة الاحتياج.',
-        'أرفق سند النفقة أو الاتفاقيات.',
+      nextStepKeys: [
+        'cat_jobcenter_anlage_uh3_step1',
+        'cat_jobcenter_anlage_uh3_step2',
       ],
       riskLevel: RiskLevel.medium,
     ),
@@ -547,8 +511,8 @@ class BriefAiCategories {
     // ── Employer-issued forms ─────────────────────────────────────────────
     CategoryDefinition(
       id: 'jobcenter_einkommensbescheinigung',
-      labelDe: 'Jobcenter – Einkommensbescheinigung (vom Arbeitgeber)',
-      labelAr: 'مركز التوظيف – شهادة الدخل من صاحب العمل',
+      labelKey: 'cat_jobcenter_einkommensbescheinigung_label',
+      mainCategory: MainCategory.categoryJobcenter,
       decisiveKeywords: [
         'Einkommensbescheinigung',
         'Nachweis über die Höhe des Arbeitsentgelts',
@@ -560,20 +524,16 @@ class BriefAiCategories {
         'Urkunde',
       ],
       negativeKeywords: ['Anlage EK', 'Selbständige', 'Inkasso'],
-      nextStepsDe: [
-        'Formular dem Arbeitgeber zur Ausfüllung vorlegen.',
-        'Ausgefüllte Bescheinigung beim Jobcenter einreichen.',
-      ],
-      nextStepsAr: [
-        'قدّم النموذج لصاحب العمل لتعبئته.',
-        'أرسل الشهادة المكتملة إلى مركز التوظيف.',
+      nextStepKeys: [
+        'cat_jobcenter_einkommensbescheinigung_step1',
+        'cat_jobcenter_einkommensbescheinigung_step2',
       ],
       riskLevel: RiskLevel.low,
     ),
     CategoryDefinition(
       id: 'jobcenter_arbeitsbescheinigung',
-      labelDe: 'Jobcenter – Arbeitsbescheinigung SGB II',
-      labelAr: 'مركز التوظيف – شهادة العمل SGB II',
+      labelKey: 'cat_jobcenter_arbeitsbescheinigung_label',
+      mainCategory: MainCategory.categoryJobcenter,
       decisiveKeywords: [
         'Arbeitsbescheinigung',
         '§ 57 Zweites Buch Sozialgesetzbuch (SGB II)',
@@ -584,22 +544,17 @@ class BriefAiCategories {
         'Beschäftigungsverhältnis',
       ],
       negativeKeywords: ['Einkommensbescheinigung', 'Anlage EK', 'Inkasso'],
-      nextStepsDe: [
-        'Formular dem Arbeitgeber zur Ausfüllung vorlegen.',
-        'Sicherstellen dass SGB II auf dem Formular steht.',
-        'Ausgefüllte Bescheinigung beim Jobcenter einreichen.',
-      ],
-      nextStepsAr: [
-        'قدّم النموذج لصاحب العمل لتعبئته.',
-        'تأكد من ظهور SGB II على النموذج.',
-        'أرسل الشهادة المكتملة إلى مركز التوظيف.',
+      nextStepKeys: [
+        'cat_jobcenter_arbeitsbescheinigung_step1',
+        'cat_jobcenter_arbeitsbescheinigung_step2',
+        'cat_jobcenter_arbeitsbescheinigung_step3',
       ],
       riskLevel: RiskLevel.low,
     ),
     CategoryDefinition(
       id: 'jobcenter_mietbescheinigung',
-      labelDe: 'Jobcenter – Mietbescheinigung / Vermieterbescheinigung',
-      labelAr: 'مركز التوظيف – شهادة السكن من المالك',
+      labelKey: 'cat_jobcenter_mietbescheinigung_label',
+      mainCategory: MainCategory.categoryJobcenter,
       decisiveKeywords: ['Mietbescheinigung', 'Vermieterbescheinigung'],
       supportingKeywords: [
         'Vermieter',
@@ -612,15 +567,10 @@ class BriefAiCategories {
         'Anlage KDU',
         'Inkasso',
       ],
-      nextStepsDe: [
-        'Formular dem Vermieter zur Ausfüllung vorlegen.',
-        'Ausgefüllte Bescheinigung beim Jobcenter einreichen.',
-        'Nicht mit Anlage KDU verwechseln.',
-      ],
-      nextStepsAr: [
-        'قدّم النموذج للمالك لتعبئته.',
-        'أرسل الشهادة المكتملة إلى مركز التوظيف.',
-        'لا تخلطه مع ملحق KDU.',
+      nextStepKeys: [
+        'cat_jobcenter_mietbescheinigung_step1',
+        'cat_jobcenter_mietbescheinigung_step2',
+        'cat_jobcenter_mietbescheinigung_step3',
       ],
       riskLevel: RiskLevel.low,
     ),
@@ -630,8 +580,8 @@ class BriefAiCategories {
     // ─────────────────────────────────────────────────────────────────────
     CategoryDefinition(
       id: 'auslaender_termin',
-      labelDe: 'Ausländerbehörde – Terminbestätigung / Einladung',
-      labelAr: 'دائرة الأجانب – تأكيد موعد أو دعوة للحضور',
+      labelKey: 'cat_auslaender_termin_label',
+      mainCategory: MainCategory.categoryAuslaenderbehoerde,
       decisiveKeywords: [
         'Terminbestätigung',
         'Einladung zur persönlichen Vorsprache',
@@ -649,24 +599,18 @@ class BriefAiCategories {
         'Dokumentenausgabebox',
         'Inkasso',
       ],
-      nextStepsDe: [
-        'Termin im Kalender speichern.',
-        'Alle geforderten Unterlagen vorbereiten (Pass, Foto, Aufenthaltstitel).',
-        'Pünktlich erscheinen.',
-        'Bei Verhinderung Termin vorab absagen oder verlegen.',
-      ],
-      nextStepsAr: [
-        'سجّل الموعد في التقويم.',
-        'جهّز الأوراق المطلوبة (جواز، صورة، بطاقة إقامة).',
-        'احضر في الوقت المحدد.',
-        'إذا تعذّر الحضور، ألغِ أو أعد الجدولة مسبقًا.',
+      nextStepKeys: [
+        'cat_auslaender_termin_step1',
+        'cat_auslaender_termin_step2',
+        'cat_auslaender_termin_step3',
+        'cat_auslaender_termin_step4',
       ],
       riskLevel: RiskLevel.high,
     ),
     CategoryDefinition(
       id: 'auslaender_unterlagen',
-      labelDe: 'Ausländerbehörde – Aufforderung zur Vorlage von Unterlagen',
-      labelAr: 'دائرة الأجانب – طلب تقديم مستندات',
+      labelKey: 'cat_auslaender_unterlagen_label',
+      mainCategory: MainCategory.categoryAuslaenderbehoerde,
       decisiveKeywords: [
         'Aufforderung zur Vorlage von Unterlagen',
         'Nachforderung von Unterlagen',
@@ -680,24 +624,18 @@ class BriefAiCategories {
         'Kopie des Reisepasses',
       ],
       negativeKeywords: ['Terminbestätigung', 'Inkasso'],
-      nextStepsDe: [
-        'Deadline aus der Frist entnehmen.',
-        'Alle genannten Dokumente zusammenstellen.',
-        'Fristgerecht einreichen oder hochladen.',
-        'Eingangsbestätigung aufbewahren.',
-      ],
-      nextStepsAr: [
-        'استخرج الموعد النهائي من المهلة المذكورة.',
-        'اجمع كل المستندات المذكورة.',
-        'أرسلها أو ارفعها قبل انتهاء المهلة.',
-        'احتفظ بتأكيد الاستلام.',
+      nextStepKeys: [
+        'cat_auslaender_unterlagen_step1',
+        'cat_auslaender_unterlagen_step2',
+        'cat_auslaender_unterlagen_step3',
+        'cat_auslaender_unterlagen_step4',
       ],
       riskLevel: RiskLevel.high,
     ),
     CategoryDefinition(
       id: 'auslaender_verlaengerung',
-      labelDe: 'Ausländerbehörde – Verlängerung des Aufenthaltstitels',
-      labelAr: 'دائرة الأجانب – تمديد الإقامة',
+      labelKey: 'cat_auslaender_verlaengerung_label',
+      mainCategory: MainCategory.categoryAuslaenderbehoerde,
       decisiveKeywords: [
         'Verlängerung des Aufenthaltstitels',
         'läuft bald ab',
@@ -711,24 +649,18 @@ class BriefAiCategories {
         'Verlängerung',
       ],
       negativeKeywords: ['Erstantrag', 'Erteilung', 'Inkasso'],
-      nextStepsDe: [
-        'Verlängerungsantrag rechtzeitig vor Ablauf stellen.',
-        'Aktuelle Unterlagen (Pass, Foto, Nachweise) vorbereiten.',
-        'Termin bei der Ausländerbehörde buchen.',
-        'Fiktionsbescheinigung anfragen, falls Titel bereits abläuft.',
-      ],
-      nextStepsAr: [
-        'قدّم طلب التمديد قبل انتهاء صلاحية الإقامة.',
-        'جهّز الأوراق الحالية (جواز، صورة، إثباتات).',
-        'احجز موعدًا في دائرة الأجانب.',
-        'اطلب شهادة الاستمرار المؤقت إذا كانت الإقامة على وشك الانتهاء.',
+      nextStepKeys: [
+        'cat_auslaender_verlaengerung_step1',
+        'cat_auslaender_verlaengerung_step2',
+        'cat_auslaender_verlaengerung_step3',
+        'cat_auslaender_verlaengerung_step4',
       ],
       riskLevel: RiskLevel.high,
     ),
     CategoryDefinition(
       id: 'auslaender_bewilligung',
-      labelDe: 'Ausländerbehörde – Bewilligungsbescheid (Zustimmung)',
-      labelAr: 'دائرة الأجانب – موافقة على الإقامة',
+      labelKey: 'cat_auslaender_bewilligung_label',
+      mainCategory: MainCategory.categoryAuslaenderbehoerde,
       decisiveKeywords: [
         'stattgegeben',
         'wird erteilt',
@@ -736,22 +668,17 @@ class BriefAiCategories {
       ],
       supportingKeywords: ['Aufenthaltserlaubnis', 'genehmigt', 'Erteilung'],
       negativeKeywords: ['abgelehnt', 'wird nicht erteilt', 'Inkasso'],
-      nextStepsDe: [
-        'Bescheid sorgfältig lesen und Auflagen notieren.',
-        'Neuen Aufenthaltstitel abholen (Termin beachten).',
-        'Dokument sicher aufbewahren.',
-      ],
-      nextStepsAr: [
-        'اقرأ القرار بعناية وسجّل أي شروط.',
-        'استلم بطاقة الإقامة الجديدة (لاحظ موعد الاستلام).',
-        'احفظ الوثيقة في مكان آمن.',
+      nextStepKeys: [
+        'cat_auslaender_bewilligung_step1',
+        'cat_auslaender_bewilligung_step2',
+        'cat_auslaender_bewilligung_step3',
       ],
       riskLevel: RiskLevel.low,
     ),
     CategoryDefinition(
       id: 'auslaender_ablehnung',
-      labelDe: 'Ausländerbehörde – Ablehnungsbescheid',
-      labelAr: 'دائرة الأجانب – رفض طلب الإقامة',
+      labelKey: 'cat_auslaender_ablehnung_label',
+      mainCategory: MainCategory.categoryAuslaenderbehoerde,
       decisiveKeywords: [
         'Ablehnungsbescheid',
         'abgelehnt',
@@ -763,24 +690,18 @@ class BriefAiCategories {
         'Voraussetzungen nicht erfüllt',
       ],
       negativeKeywords: ['stattgegeben', 'Inkasso'],
-      nextStepsDe: [
-        'Ablehnungsgrund genau lesen.',
-        'Innerhalb der Rechtsbehelfsfrist Widerspruch prüfen (1 Monat).',
-        'Rechtsberatung oder Migrationsberatung aufsuchen.',
-        'Fehlende Unterlagen nachreichen, falls möglich.',
-      ],
-      nextStepsAr: [
-        'اقرأ سبب الرفض بعناية.',
-        'ادرس تقديم اعتراض خلال مهلة الطعن (عادةً شهر واحد).',
-        'استشر محاميًا أو مستشار هجرة.',
-        'أكمل المستندات الناقصة إذا أمكن.',
+      nextStepKeys: [
+        'cat_auslaender_ablehnung_step1',
+        'cat_auslaender_ablehnung_step2',
+        'cat_auslaender_ablehnung_step3',
+        'cat_auslaender_ablehnung_step4',
       ],
       riskLevel: RiskLevel.critical,
     ),
     CategoryDefinition(
       id: 'auslaender_fiktionsbescheinigung',
-      labelDe: 'Ausländerbehörde – Fiktionsbescheinigung',
-      labelAr: 'دائرة الأجانب – تأكيد استمرار الإقامة مؤقتًا',
+      labelKey: 'cat_auslaender_fiktionsbescheinigung_label',
+      mainCategory: MainCategory.categoryAuslaenderbehoerde,
       decisiveKeywords: [
         'Fiktionsbescheinigung',
         'bis zu unserer Entscheidung weiterhin',
@@ -792,22 +713,17 @@ class BriefAiCategories {
         'Bearbeitung noch nicht abgeschlossen',
       ],
       negativeKeywords: ['stattgegeben', 'abgelehnt', 'Inkasso'],
-      nextStepsDe: [
-        'Bescheinigung als aktuellen Aufenthaltsnachweis nutzen.',
-        'Auf Entscheidung der Behörde warten.',
-        'Eventuelle Nachforderungen fristgerecht erfüllen.',
-      ],
-      nextStepsAr: [
-        'استخدم الشهادة كإثبات إقامة حالي.',
-        'انتظر قرار الجهة الرسمية.',
-        'أكمل أي طلبات إضافية في الوقت المحدد.',
+      nextStepKeys: [
+        'cat_auslaender_fiktionsbescheinigung_step1',
+        'cat_auslaender_fiktionsbescheinigung_step2',
+        'cat_auslaender_fiktionsbescheinigung_step3',
       ],
       riskLevel: RiskLevel.medium,
     ),
     CategoryDefinition(
       id: 'auslaender_abholung_eat',
-      labelDe: 'Ausländerbehörde – Abholung des eAT',
-      labelAr: 'دائرة الأجانب – استلام بطاقة الإقامة الإلكترونية',
+      labelKey: 'cat_auslaender_abholung_eat_label',
+      mainCategory: MainCategory.categoryAuslaenderbehoerde,
       decisiveKeywords: [
         'liegt zur Abholung bereit',
         'elektronischer Aufenthaltstitel',
@@ -815,15 +731,10 @@ class BriefAiCategories {
       ],
       supportingKeywords: ['eAT', 'Abholung', 'Reisepass mitbringen'],
       negativeKeywords: ['Termin', 'Inkasso'],
-      nextStepsDe: [
-        'Ausweis / Pass zur Abholung mitbringen.',
-        'eAT im angegebenen Zeitraum abholen.',
-        'Daten auf dem eAT nach Erhalt überprüfen.',
-      ],
-      nextStepsAr: [
-        'أحضر الهوية أو الجواز لاستلام البطاقة.',
-        'استلم البطاقة خلال الفترة المحددة.',
-        'تحقق من بيانات البطاقة بعد الاستلام.',
+      nextStepKeys: [
+        'cat_auslaender_abholung_eat_step1',
+        'cat_auslaender_abholung_eat_step2',
+        'cat_auslaender_abholung_eat_step3',
       ],
       riskLevel: RiskLevel.low,
     ),
@@ -833,8 +744,8 @@ class BriefAiCategories {
     // ─────────────────────────────────────────────────────────────────────
     CategoryDefinition(
       id: 'krankenkasse_bescheinigung',
-      labelDe: 'Krankenkasse – Versicherungsbescheinigung',
-      labelAr: 'التأمين الصحي – شهادة التأمين أو العضوية',
+      labelKey: 'cat_krankenkasse_bescheinigung_label',
+      mainCategory: MainCategory.categoryKrankenkasse,
       decisiveKeywords: [
         'Versicherungsbescheinigung',
         'Mitgliedsbescheinigung',
@@ -847,20 +758,16 @@ class BriefAiCategories {
         'Mitglied',
       ],
       negativeKeywords: ['Beitrag', 'Zahlungsfrist', 'Mahnung', 'Inkasso'],
-      nextStepsDe: [
-        'Bescheinigung speichern – wird für Behörden, Arbeitgeber oder Ausländerbehörde benötigt.',
-        'Bei Ausländerbehörde als Nachweis der Krankenversicherung vorlegen.',
-      ],
-      nextStepsAr: [
-        'احفظ الشهادة – ستحتاجها للجهات الرسمية أو صاحب العمل أو دائرة الأجانب.',
-        'قدّمها كإثبات تأمين صحي عند دائرة الأجانب.',
+      nextStepKeys: [
+        'cat_krankenkasse_bescheinigung_step1',
+        'cat_krankenkasse_bescheinigung_step2',
       ],
       riskLevel: RiskLevel.low,
     ),
     CategoryDefinition(
       id: 'krankenkasse_beitrag',
-      labelDe: 'Krankenkasse – Beitragsbescheid',
-      labelAr: 'التأمين الصحي – إشعار الاشتراك',
+      labelKey: 'cat_krankenkasse_beitrag_label',
+      mainCategory: MainCategory.categoryKrankenkasse,
       decisiveKeywords: [
         'Beitragsbescheid',
         'Beitragshöhe',
@@ -873,22 +780,17 @@ class BriefAiCategories {
         'monatlich',
       ],
       negativeKeywords: ['Mitgliedsbescheinigung', 'Inkasso', 'Mahnung'],
-      nextStepsDe: [
-        'Beitragshöhe und Fälligkeitsdatum prüfen.',
-        'Beitrag rechtzeitig überweisen.',
-        'Bei Änderungen des Einkommens ggf. Ermäßigung beantragen.',
-      ],
-      nextStepsAr: [
-        'راجع قيمة الاشتراك وتاريخ الاستحقاق.',
-        'ادفع الاشتراك في الوقت المحدد.',
-        'إذا تغيّر دخلك، فكّر في طلب تخفيض الاشتراك.',
+      nextStepKeys: [
+        'cat_krankenkasse_beitrag_step1',
+        'cat_krankenkasse_beitrag_step2',
+        'cat_krankenkasse_beitrag_step3',
       ],
       riskLevel: RiskLevel.medium,
     ),
     CategoryDefinition(
       id: 'krankenkasse_mahnung',
-      labelDe: 'Krankenkasse – Mahnung / Beitragsrückstand',
-      labelAr: 'التأمين الصحي – إنذار أو تأخر بالدفع',
+      labelKey: 'cat_krankenkasse_mahnung_label',
+      mainCategory: MainCategory.categoryKrankenkasse,
       decisiveKeywords: [
         'Beitragsrückstand',
         'Mahnung Krankenkasse',
@@ -901,22 +803,17 @@ class BriefAiCategories {
         'Mahnung',
       ],
       negativeKeywords: ['Mitgliedsbescheinigung', 'Inkasso Justiz'],
-      nextStepsDe: [
-        'Offenen Beitrag sofort begleichen.',
-        'Bei finanziellen Schwierigkeiten Ratenzahlung mit der Krankenkasse vereinbaren.',
-        'Nicht ignorieren – Rückstände können zu Leistungskürzungen führen.',
-      ],
-      nextStepsAr: [
-        'ادفع الاشتراك المتأخر فورًا.',
-        'إذا كنت في صعوبة مالية، اتفق على دفع بالتقسيط مع شركة التأمين.',
-        'لا تتجاهل الأمر – التأخيرات قد تؤثر على التغطية التأمينية.',
+      nextStepKeys: [
+        'cat_krankenkasse_mahnung_step1',
+        'cat_krankenkasse_mahnung_step2',
+        'cat_krankenkasse_mahnung_step3',
       ],
       riskLevel: RiskLevel.high,
     ),
     CategoryDefinition(
       id: 'krankenkasse_krankengeld',
-      labelDe: 'Krankenkasse – Krankengeld',
-      labelAr: 'التأمين الصحي – تعويض المرض',
+      labelKey: 'cat_krankenkasse_krankengeld_label',
+      mainCategory: MainCategory.categoryKrankenkasse,
       decisiveKeywords: [
         'Krankengeld',
         'Arbeitsunfähigkeit',
@@ -924,22 +821,17 @@ class BriefAiCategories {
       ],
       supportingKeywords: ['Krankenkasse', 'AU', 'krank', 'Lohnfortzahlung'],
       negativeKeywords: ['Mahnung', 'Inkasso'],
-      nextStepsDe: [
-        'Arbeitsunfähigkeitsbescheinigung (AU) rechtzeitig einreichen.',
-        'Zeitraum und Höhe des Krankengeldes prüfen.',
-        'Arbeitgeber und Jobcenter (falls Bürgergeld) informieren.',
-      ],
-      nextStepsAr: [
-        'أرسل شهادة العجز عن العمل في الوقت المحدد.',
-        'راجع مدة وقيمة تعويض المرض.',
-        'أبلغ صاحب العمل ومركز التوظيف (إذا كنت تتلقى بوريغيلد).',
+      nextStepKeys: [
+        'cat_krankenkasse_krankengeld_step1',
+        'cat_krankenkasse_krankengeld_step2',
+        'cat_krankenkasse_krankengeld_step3',
       ],
       riskLevel: RiskLevel.medium,
     ),
     CategoryDefinition(
       id: 'krankenkasse_kuendigung',
-      labelDe: 'Krankenkasse – Kündigung / Kassenwechsel',
-      labelAr: 'التأمين الصحي – إلغاء أو تغيير التأمين',
+      labelKey: 'cat_krankenkasse_kuendigung_label',
+      mainCategory: MainCategory.categoryKrankenkasse,
       decisiveKeywords: [
         'Kassenwechsel',
         'Kündigung Krankenkasse',
@@ -952,15 +844,10 @@ class BriefAiCategories {
         'wechseln',
       ],
       negativeKeywords: ['Mahnung', 'Inkasso'],
-      nextStepsDe: [
-        'Neue Krankenkasse rechtzeitig auswählen und anmelden.',
-        'Sicherstellen, dass keine Versicherungslücke entsteht.',
-        'Arbeitgeber über Wechsel informieren.',
-      ],
-      nextStepsAr: [
-        'اختر شركة تأمين صحي جديدة وسجّل فيها مسبقًا.',
-        'تأكد من عدم وجود فجوة في التغطية التأمينية.',
-        'أبلغ صاحب العمل بالتغيير.',
+      nextStepKeys: [
+        'cat_krankenkasse_kuendigung_step1',
+        'cat_krankenkasse_kuendigung_step2',
+        'cat_krankenkasse_kuendigung_step3',
       ],
       riskLevel: RiskLevel.medium,
     ),
@@ -970,8 +857,8 @@ class BriefAiCategories {
     // ─────────────────────────────────────────────────────────────────────
     CategoryDefinition(
       id: 'finanzamt_steuerbescheid',
-      labelDe: 'Finanzamt – Steuerbescheid (Nachzahlung)',
-      labelAr: 'مكتب الضرائب – قرار ضريبي (مطالبة بالدفع)',
+      labelKey: 'cat_finanzamt_steuerbescheid_label',
+      mainCategory: MainCategory.categoryFinanzamt,
       decisiveKeywords: [
         'Steuerbescheid',
         'festgesetzte Steuer',
@@ -984,22 +871,17 @@ class BriefAiCategories {
         'Betrag überweisen',
       ],
       negativeKeywords: ['Erstattung', 'Inkasso', 'Mahnung'],
-      nextStepsDe: [
-        'Bescheid prüfen – Frist für Einspruch beachten (1 Monat).',
-        'Nachzahlungsbetrag bis zum genannten Datum überweisen.',
-        'Bei Unklarheiten Steuerberater konsultieren.',
-      ],
-      nextStepsAr: [
-        'راجع القرار – لاحظ مهلة الاعتراض (شهر واحد).',
-        'ادفع المبلغ المطلوب قبل التاريخ المذكور.',
-        'استشر مستشارًا ضريبيًا عند الشك.',
+      nextStepKeys: [
+        'cat_finanzamt_steuerbescheid_step1',
+        'cat_finanzamt_steuerbescheid_step2',
+        'cat_finanzamt_steuerbescheid_step3',
       ],
       riskLevel: RiskLevel.medium,
     ),
     CategoryDefinition(
       id: 'finanzamt_erstattung',
-      labelDe: 'Finanzamt – Steuererstattung',
-      labelAr: 'مكتب الضرائب – استرداد ضريبي',
+      labelKey: 'cat_finanzamt_erstattung_label',
+      mainCategory: MainCategory.categoryFinanzamt,
       decisiveKeywords: [
         'Erstattung',
         'Rückzahlung Steuer',
@@ -1011,56 +893,41 @@ class BriefAiCategories {
         'Betrag wird überwiesen',
       ],
       negativeKeywords: ['Nachzahlung', 'Inkasso', 'Mahnung'],
-      nextStepsDe: [
-        'Kein dringender Handlungsbedarf.',
-        'Erstattungsbetrag und Bankverbindung im Bescheid prüfen.',
-        'Rückzahlung abwarten.',
-      ],
-      nextStepsAr: [
-        'لا يلزم إجراء عاجل.',
-        'راجع مبلغ الاسترداد وبيانات الحساب في القرار.',
-        'انتظر تحويل المبلغ.',
+      nextStepKeys: [
+        'cat_finanzamt_erstattung_step1',
+        'cat_finanzamt_erstattung_step2',
+        'cat_finanzamt_erstattung_step3',
       ],
       riskLevel: RiskLevel.low,
     ),
     CategoryDefinition(
       id: 'finanzamt_abgabe',
-      labelDe: 'Finanzamt – Aufforderung zur Abgabe der Steuererklärung',
-      labelAr: 'مكتب الضرائب – طلب تقديم الإقرار الضريبي',
+      labelKey: 'cat_finanzamt_abgabe_label',
+      mainCategory: MainCategory.categoryFinanzamt,
       decisiveKeywords: [
         'Abgabe der Steuererklärung',
         'Aufforderung Steuererklärung',
       ],
       supportingKeywords: ['Finanzamt', 'Frist', 'Steuerjahr', 'einreichen'],
       negativeKeywords: ['Inkasso', 'Mahnung'],
-      nextStepsDe: [
-        'Steuererklärung für das angegebene Jahr vorbereiten.',
-        'Frist einhalten (meist 31.07. des Folgejahres).',
-        'Bei Bedarf Fristverlängerung beantragen oder Steuerberater hinzuziehen.',
-      ],
-      nextStepsAr: [
-        'جهّز الإقرار الضريبي للسنة المذكورة.',
-        'الزم الموعد النهائي (عادةً 31.07 من السنة التالية).',
-        'اطلب تمديدًا أو استعن بمستشار ضريبي عند الحاجة.',
+      nextStepKeys: [
+        'cat_finanzamt_abgabe_step1',
+        'cat_finanzamt_abgabe_step2',
+        'cat_finanzamt_abgabe_step3',
       ],
       riskLevel: RiskLevel.medium,
     ),
     CategoryDefinition(
       id: 'finanzamt_verspaetung',
-      labelDe: 'Finanzamt – Verspätungszuschlag',
-      labelAr: 'مكتب الضرائب – غرامة تأخير',
+      labelKey: 'cat_finanzamt_verspaetung_label',
+      mainCategory: MainCategory.categoryFinanzamt,
       decisiveKeywords: ['Verspätungszuschlag', 'verspätet eingereicht'],
       supportingKeywords: ['Finanzamt', 'Zuschlag', 'Steuererklärung'],
       negativeKeywords: ['Inkasso'],
-      nextStepsDe: [
-        'Zuschlagsbescheid prüfen.',
-        'Betrag fristgerecht bezahlen.',
-        'Künftig Steuererklärung pünktlich abgeben.',
-      ],
-      nextStepsAr: [
-        'راجع قرار الغرامة.',
-        'ادفع المبلغ في الوقت المحدد.',
-        'قدّم الإقرار الضريبي في المستقبل في وقته.',
+      nextStepKeys: [
+        'cat_finanzamt_verspaetung_step1',
+        'cat_finanzamt_verspaetung_step2',
+        'cat_finanzamt_verspaetung_step3',
       ],
       riskLevel: RiskLevel.medium,
     ),
@@ -1070,8 +937,8 @@ class BriefAiCategories {
     // ─────────────────────────────────────────────────────────────────────
     CategoryDefinition(
       id: 'bank_kontoauszug',
-      labelDe: 'Bank – Kontoauszug',
-      labelAr: 'البنك – كشف حساب',
+      labelKey: 'cat_bank_kontoauszug_label',
+      mainCategory: MainCategory.categoryBank,
       decisiveKeywords: [
         'Kontoauszug',
         'Kontostand',
@@ -1086,22 +953,17 @@ class BriefAiCategories {
         'Valuta',
       ],
       negativeKeywords: ['Rechnung', 'Mahnung', 'Inkasso'],
-      nextStepsDe: [
-        'Kontobewegungen sorgfältig prüfen.',
-        'Unbekannte Abbuchungen sofort der Bank melden.',
-        'Kontoauszug für Steuererklärung oder Behörden aufbewahren.',
-      ],
-      nextStepsAr: [
-        'راجع حركات الحساب بعناية.',
-        'أبلغ البنك فورًا عن أي خصم غير معروف.',
-        'احتفظ بكشف الحساب للإقرار الضريبي أو الجهات الرسمية.',
+      nextStepKeys: [
+        'cat_bank_kontoauszug_step1',
+        'cat_bank_kontoauszug_step2',
+        'cat_bank_kontoauszug_step3',
       ],
       riskLevel: RiskLevel.low,
     ),
     CategoryDefinition(
       id: 'bank_sicherheitswarnung',
-      labelDe: 'Bank – Sicherheitswarnung',
-      labelAr: 'البنك – تحذير أمني',
+      labelKey: 'cat_bank_sicherheitswarnung_label',
+      mainCategory: MainCategory.categoryBank,
       decisiveKeywords: [
         'Sicherheitswarnung',
         'ungewöhnliche Aktivität',
@@ -1109,24 +971,18 @@ class BriefAiCategories {
       ],
       supportingKeywords: ['Konto', 'verdächtig', 'Überprüfung', 'Bank'],
       negativeKeywords: ['Rechnung', 'Inkasso'],
-      nextStepsDe: [
-        'Konto sofort prüfen.',
-        'Direkt die Bank kontaktieren (nur über offizielle Nummer).',
-        'Online-Banking-Passwort ändern.',
-        'Keine Links in der E-Mail anklicken – könnte Phishing sein.',
-      ],
-      nextStepsAr: [
-        'افحص حسابك فورًا.',
-        'تواصل مع البنك مباشرةً (عبر الرقم الرسمي فقط).',
-        'غيّر كلمة مرور الخدمات المصرفية.',
-        'لا تنقر على أي رابط في الرسالة – قد يكون احتيالًا.',
+      nextStepKeys: [
+        'cat_bank_sicherheitswarnung_step1',
+        'cat_bank_sicherheitswarnung_step2',
+        'cat_bank_sicherheitswarnung_step3',
+        'cat_bank_sicherheitswarnung_step4',
       ],
       riskLevel: RiskLevel.critical,
     ),
     CategoryDefinition(
       id: 'bank_ueberweisung',
-      labelDe: 'Bank – Überweisungsbestätigung',
-      labelAr: 'البنك – تأكيد تحويل مالي',
+      labelKey: 'cat_bank_ueberweisung_label',
+      mainCategory: MainCategory.categoryBank,
       decisiveKeywords: [
         'Überweisung erfolgreich',
         'Überweisungsauftrag',
@@ -1134,14 +990,13 @@ class BriefAiCategories {
       ],
       supportingKeywords: ['IBAN', 'Betrag', 'SEPA', 'ausgeführt'],
       negativeKeywords: ['Mahnung', 'Inkasso'],
-      nextStepsDe: ['Überweisungsbestätigung für Ihre Unterlagen speichern.'],
-      nextStepsAr: ['احفظ تأكيد التحويل للرجوع إليه لاحقًا.'],
+      nextStepKeys: ['cat_bank_ueberweisung_step1'],
       riskLevel: RiskLevel.low,
     ),
     CategoryDefinition(
       id: 'bank_ruecklastschrift',
-      labelDe: 'Bank – Rücklastschrift',
-      labelAr: 'البنك – فشل السحب المباشر',
+      labelKey: 'cat_bank_ruecklastschrift_label',
+      mainCategory: MainCategory.categoryBank,
       decisiveKeywords: [
         'Rücklastschrift',
         'nicht durchgeführt',
@@ -1149,34 +1004,24 @@ class BriefAiCategories {
       ],
       supportingKeywords: ['Lastschrift', 'Abbuchung', 'Betrag'],
       negativeKeywords: ['Rechnung', 'Inkasso'],
-      nextStepsDe: [
-        'Ausreichende Kontodeckung sicherstellen.',
-        'Ursache mit der Bank klären.',
-        'Zahlungsempfänger informieren, damit kein Mahnverfahren eingeleitet wird.',
-      ],
-      nextStepsAr: [
-        'تأكد من وجود رصيد كافٍ.',
-        'تواصل مع البنك لمعرفة السبب.',
-        'أبلغ المستلم حتى لا يُفتح إجراء إنذار.',
+      nextStepKeys: [
+        'cat_bank_ruecklastschrift_step1',
+        'cat_bank_ruecklastschrift_step2',
+        'cat_bank_ruecklastschrift_step3',
       ],
       riskLevel: RiskLevel.medium,
     ),
     CategoryDefinition(
       id: 'bank_ueberziehung',
-      labelDe: 'Bank – Kontoüberziehung',
-      labelAr: 'البنك – تجاوز رصيد الحساب',
+      labelKey: 'cat_bank_ueberziehung_label',
+      mainCategory: MainCategory.categoryBank,
       decisiveKeywords: ['Kontoüberziehung', 'negativer Saldo', 'Überziehung'],
       supportingKeywords: ['Konto', 'Saldo', 'ausgleichen'],
       negativeKeywords: ['Rechnung', 'Inkasso'],
-      nextStepsDe: [
-        'Konto so schnell wie möglich ausgleichen.',
-        'Überziehungszinsen (Dispositionszinsen) prüfen.',
-        'Bei dauerhafter Überziehung Beratung bei der Bank suchen.',
-      ],
-      nextStepsAr: [
-        'اعمل على تغطية الرصيد السلبي في أقرب وقت.',
-        'راجع فوائد السحب على المكشوف.',
-        'إذا كان الوضع متكررًا، استشر البنك.',
+      nextStepKeys: [
+        'cat_bank_ueberziehung_step1',
+        'cat_bank_ueberziehung_step2',
+        'cat_bank_ueberziehung_step3',
       ],
       riskLevel: RiskLevel.medium,
     ),
@@ -1186,8 +1031,8 @@ class BriefAiCategories {
     // ─────────────────────────────────────────────────────────────────────
     CategoryDefinition(
       id: 'rechnung',
-      labelDe: 'Rechnung',
-      labelAr: 'فاتورة',
+      labelKey: 'cat_rechnung_label',
+      mainCategory: MainCategory.categoryBills,
       decisiveKeywords: [
         'Rechnungsnummer',
         'Rechnungsdatum',
@@ -1207,22 +1052,17 @@ class BriefAiCategories {
         'Mahnbescheid',
         'Vollstreckungsbescheid',
       ],
-      nextStepsDe: [
-        'Rechnung auf Richtigkeit prüfen.',
-        'Betrag vor dem Fälligkeitsdatum überweisen.',
-        'Rechnung für die Buchhaltung aufbewahren.',
-      ],
-      nextStepsAr: [
-        'تحقق من صحة الفاتورة.',
-        'ادفع المبلغ قبل تاريخ الاستحقاق.',
-        'احتفظ بالفاتورة للمحاسبة.',
+      nextStepKeys: [
+        'cat_rechnung_step1',
+        'cat_rechnung_step2',
+        'cat_rechnung_step3',
       ],
       riskLevel: RiskLevel.low,
     ),
     CategoryDefinition(
       id: 'zahlungserinnerung',
-      labelDe: 'Zahlungserinnerung',
-      labelAr: 'تذكير بالدفع',
+      labelKey: 'cat_zahlungserinnerung_label',
+      mainCategory: MainCategory.categoryBills,
       decisiveKeywords: [
         'Zahlungserinnerung',
         'offener Betrag',
@@ -1230,60 +1070,45 @@ class BriefAiCategories {
       ],
       supportingKeywords: ['Rechnung', 'bitte zahlen', 'innerhalb von'],
       negativeKeywords: ['Inkasso', 'Mahnbescheid'],
-      nextStepsDe: [
-        'Prüfen, ob die Rechnung bereits bezahlt wurde.',
-        'Betrag sofort überweisen, falls noch nicht geschehen.',
-        'Zahlungsbeleg aufbewahren.',
-      ],
-      nextStepsAr: [
-        'تحقق مما إذا كنت قد دفعت الفاتورة.',
-        'ادفع المبلغ فورًا إذا لم يتم الدفع.',
-        'احتفظ بإيصال الدفع.',
+      nextStepKeys: [
+        'cat_zahlungserinnerung_step1',
+        'cat_zahlungserinnerung_step2',
+        'cat_zahlungserinnerung_step3',
       ],
       riskLevel: RiskLevel.medium,
     ),
     CategoryDefinition(
       id: 'mahnung',
-      labelDe: 'Mahnung',
-      labelAr: 'إنذار دفع',
+      labelKey: 'cat_mahnung_label',
+      mainCategory: MainCategory.categoryBills,
       decisiveKeywords: ['Mahnung', 'offene Forderung', 'Zahlungsfrist'],
       supportingKeywords: ['kein Zahlungseingang', 'Betrag', 'zahlen'],
       negativeKeywords: ['Inkasso', 'Mahnbescheid', 'Vollstreckungsbescheid'],
-      nextStepsDe: [
-        'Sofort prüfen, ob der Betrag korrekt ist.',
-        'Zahlung unverzüglich durchführen oder Ratenzahlung vereinbaren.',
-        'Nicht ignorieren – weitere Mahnstufen drohen.',
-      ],
-      nextStepsAr: [
-        'تحقق فورًا من صحة المبلغ.',
-        'ادفع على الفور أو اتفق على تقسيط.',
-        'لا تتجاهل الأمر – قد تأتي مستويات إنذار أشد.',
+      nextStepKeys: [
+        'cat_mahnung_step1',
+        'cat_mahnung_step2',
+        'cat_mahnung_step3',
       ],
       riskLevel: RiskLevel.high,
     ),
     CategoryDefinition(
       id: 'letzte_mahnung',
-      labelDe: 'Letzte Mahnung',
-      labelAr: 'الإنذار الأخير',
+      labelKey: 'cat_letzte_mahnung_label',
+      mainCategory: MainCategory.categoryBills,
       decisiveKeywords: ['Letzte Mahnung', 'letzte Frist'],
       supportingKeywords: ['spätestens', 'Inkasso', 'offener Betrag'],
       negativeKeywords: ['Mahnbescheid', 'Vollstreckungsbescheid'],
-      nextStepsDe: [
-        'Betrag sofort bezahlen.',
-        'Andernfalls wird das Inkassoverfahren eingeleitet.',
-        'Bei bestrittener Forderung sofort schriftlich widersprechen.',
-      ],
-      nextStepsAr: [
-        'ادفع المبلغ فورًا.',
-        'وإلا سيُفتح إجراء تحصيل الديون.',
-        'إذا كنت تعترض على الدين، قدّم اعتراضًا كتابيًا فورًا.',
+      nextStepKeys: [
+        'cat_letzte_mahnung_step1',
+        'cat_letzte_mahnung_step2',
+        'cat_letzte_mahnung_step3',
       ],
       riskLevel: RiskLevel.critical,
     ),
     CategoryDefinition(
       id: 'inkasso',
-      labelDe: 'Inkasso-Forderung',
-      labelAr: 'مطالبة إنكاسو (تحصيل ديون)',
+      labelKey: 'cat_inkasso_label',
+      mainCategory: MainCategory.categoryBills,
       decisiveKeywords: [
         'Inkasso',
         'Inkassoforderung',
@@ -1292,45 +1117,33 @@ class BriefAiCategories {
       ],
       supportingKeywords: ['Gesamtforderung', 'Auftraggeber', 'Inkassobüro'],
       negativeKeywords: ['Mahnbescheid', 'Vollstreckungsbescheid'],
-      nextStepsDe: [
-        'Forderung auf Richtigkeit und Verjährung prüfen.',
-        'Schuldnerberatung aufsuchen, wenn nötig.',
-        'Nicht ignorieren – Klage oder Mahnbescheid drohen.',
-        'Zahlen oder schriftlich widersprechen.',
-      ],
-      nextStepsAr: [
-        'تحقق من صحة الدين وإذا كان قد تقادم.',
-        'استشر مستشار ديون إذا لزم.',
-        'لا تتجاهل – قد تأتي دعوى قضائية أو إشعار محكمة.',
-        'ادفع أو قدّم اعتراضًا كتابيًا.',
+      nextStepKeys: [
+        'cat_inkasso_step1',
+        'cat_inkasso_step2',
+        'cat_inkasso_step3',
+        'cat_inkasso_step4',
       ],
       riskLevel: RiskLevel.critical,
     ),
     CategoryDefinition(
       id: 'mahnbescheid',
-      labelDe: 'Mahnbescheid (Gericht)',
-      labelAr: 'إشعار محكمة بالمطالبة',
+      labelKey: 'cat_mahnbescheid_label',
+      mainCategory: MainCategory.categoryBills,
       decisiveKeywords: ['Mahnbescheid', 'Widerspruch', 'Gericht'],
       supportingKeywords: ['Hauptforderung', 'Zustellung', 'zwei Wochen'],
       negativeKeywords: ['Vollstreckungsbescheid'],
-      nextStepsDe: [
-        'DRINGEND: Frist von 2 Wochen für Widerspruch beachten.',
-        'Forderung prüfen – ist sie berechtigt?',
-        'Widerspruch einlegen, wenn Forderung falsch ist.',
-        'Anwalt oder Schuldnerberatung aufsuchen.',
-      ],
-      nextStepsAr: [
-        'عاجل: لاحظ مهلة الاعتراض خلال أسبوعين.',
-        'تحقق من الدين – هل هو صحيح؟',
-        'قدّم اعتراضًا إذا كان الدين خاطئًا.',
-        'استشر محاميًا أو مستشار ديون.',
+      nextStepKeys: [
+        'cat_mahnbescheid_step1',
+        'cat_mahnbescheid_step2',
+        'cat_mahnbescheid_step3',
+        'cat_mahnbescheid_step4',
       ],
       riskLevel: RiskLevel.critical,
     ),
     CategoryDefinition(
       id: 'vollstreckungsbescheid',
-      labelDe: 'Vollstreckungsbescheid / Zwangsvollstreckung',
-      labelAr: 'أمر تنفيذ / تنفيذ جبري',
+      labelKey: 'cat_vollstreckungsbescheid_label',
+      mainCategory: MainCategory.categoryBills,
       decisiveKeywords: [
         'Vollstreckungsbescheid',
         'Zwangsvollstreckung',
@@ -1339,15 +1152,10 @@ class BriefAiCategories {
       ],
       supportingKeywords: ['Einspruch', 'vollstreckbar', 'Mahnbescheid'],
       negativeKeywords: [],
-      nextStepsDe: [
-        'SOFORT handeln – Frist für Einspruch (2 Wochen) beachten.',
-        'Rechtsberatung oder Schuldnerberatung aufsuchen.',
-        'Möglichkeit prüfen, die Schuld zu begleichen oder Ratenzahlung zu vereinbaren.',
-      ],
-      nextStepsAr: [
-        'تصرف فورًا – لاحظ مهلة الاعتراض (أسبوعان).',
-        'استشر محاميًا أو مستشار ديون.',
-        'ادرس سداد الدين أو الاتفاق على تقسيط.',
+      nextStepKeys: [
+        'cat_vollstreckungsbescheid_step1',
+        'cat_vollstreckungsbescheid_step2',
+        'cat_vollstreckungsbescheid_step3',
       ],
       riskLevel: RiskLevel.critical,
     ),
@@ -1357,8 +1165,8 @@ class BriefAiCategories {
     // ─────────────────────────────────────────────────────────────────────
     CategoryDefinition(
       id: 'miete_kuendigung',
-      labelDe: 'Kündigung Mietvertrag',
-      labelAr: 'إلغاء عقد الإيجار',
+      labelKey: 'cat_miete_kuendigung_label',
+      mainCategory: MainCategory.categoryRent,
       decisiveKeywords: [
         'Kündigung Mietvertrag',
         'kündigen wir den Mietvertrag',
@@ -1368,24 +1176,18 @@ class BriefAiCategories {
       ],
       supportingKeywords: ['Wohnung', 'Mietende', 'Vermieter', 'Mieter'],
       negativeKeywords: ['Mahnung', 'Inkasso'],
-      nextStepsDe: [
-        'Kündigungsdatum und -fristen prüfen.',
-        'Neue Unterkunft rechtzeitig suchen.',
-        'Wohnungsübergabe und Kautionsrückgabe klären.',
-        'Ummeldung nicht vergessen.',
-      ],
-      nextStepsAr: [
-        'راجع تاريخ الإلغاء ومهله.',
-        'ابحث عن سكن جديد في الوقت المناسب.',
-        'رتّب تسليم الشقة واسترداد الكفالة.',
-        'لا تنسَ تغيير عنوانك الرسمي.',
+      nextStepKeys: [
+        'cat_miete_kuendigung_step1',
+        'cat_miete_kuendigung_step2',
+        'cat_miete_kuendigung_step3',
+        'cat_miete_kuendigung_step4',
       ],
       riskLevel: RiskLevel.high,
     ),
     CategoryDefinition(
       id: 'mietvertrag',
-      labelDe: 'Mietvertrag',
-      labelAr: 'عقد إيجار',
+      labelKey: 'cat_mietvertrag_label',
+      mainCategory: MainCategory.categoryRent,
       decisiveKeywords: ['Mietvertrag', 'Kaltmiete', 'Warmmiete', 'Mietbeginn'],
       supportingKeywords: ['Mieter', 'Vermieter', 'Wohnung', 'Nebenkosten'],
       negativeKeywords: [
@@ -1395,24 +1197,18 @@ class BriefAiCategories {
         'Kündigung',
         'kündigen',
       ],
-      nextStepsDe: [
-        'Alle Vertragsdaten sorgfältig prüfen.',
-        'Mietbeginn und Kaution notieren.',
-        'Wohnungsübergabeprotokoll anfertigen.',
-        'Anmeldung bei der Meldebehörde vornehmen.',
-      ],
-      nextStepsAr: [
-        'راجع كل بيانات العقد بعناية.',
-        'سجّل بداية الإيجار وقيمة الكفالة.',
-        'أعدّ محضر تسليم الشقة.',
-        'سجّل عنوانك في دائرة السكان.',
+      nextStepKeys: [
+        'cat_mietvertrag_step1',
+        'cat_mietvertrag_step2',
+        'cat_mietvertrag_step3',
+        'cat_mietvertrag_step4',
       ],
       riskLevel: RiskLevel.low,
     ),
     CategoryDefinition(
       id: 'nebenkostenabrechnung',
-      labelDe: 'Nebenkostenabrechnung',
-      labelAr: 'تسوية التكاليف الإضافية',
+      labelKey: 'cat_nebenkostenabrechnung_label',
+      mainCategory: MainCategory.categoryRent,
       decisiveKeywords: [
         'Nebenkostenabrechnung',
         'Betriebskostenabrechnung',
@@ -1421,43 +1217,32 @@ class BriefAiCategories {
       ],
       supportingKeywords: ['Heizung', 'Wasser', 'Vorauszahlung', 'Abrechnung'],
       negativeKeywords: ['Steuerbescheid', 'Inkasso', 'Mahnbescheid'],
-      nextStepsDe: [
-        'Abrechnungszeitraum und Positionen prüfen.',
-        'Nachzahlung oder Gutschrift notieren.',
-        'Bei Unklarheiten innerhalb von 12 Monaten Einspruch einlegen.',
-        'Nachzahlung rechtzeitig begleichen.',
-      ],
-      nextStepsAr: [
-        'راجع فترة المحاسبة والبنود.',
-        'سجّل المبلغ الإضافي أو الرصيد المستحق.',
-        'قدّم اعتراضًا خلال 12 شهرًا عند الشك.',
-        'ادفع المبلغ الإضافي في الوقت المحدد.',
+      nextStepKeys: [
+        'cat_nebenkostenabrechnung_step1',
+        'cat_nebenkostenabrechnung_step2',
+        'cat_nebenkostenabrechnung_step3',
+        'cat_nebenkostenabrechnung_step4',
       ],
       riskLevel: RiskLevel.medium,
     ),
     CategoryDefinition(
       id: 'mieterhoehung',
-      labelDe: 'Mieterhöhung',
-      labelAr: 'زيادة الإيجار',
+      labelKey: 'cat_mieterhoehung_label',
+      mainCategory: MainCategory.categoryRent,
       decisiveKeywords: ['Mieterhöhung', 'monatliche Miete', 'erhöht sich'],
       supportingKeywords: ['Mietvertrag', 'neue Miethöhe', 'Vermieter'],
       negativeKeywords: ['Mahnung', 'Inkasso'],
-      nextStepsDe: [
-        'Neue Miethöhe und Datum des Inkrafttretens prüfen.',
-        'Prüfen, ob die Erhöhung rechtmäßig ist (Mietspiegel).',
-        'Zustimmung geben oder widersprechen (innerhalb der gesetzlichen Frist).',
-      ],
-      nextStepsAr: [
-        'راجع قيمة الإيجار الجديدة وتاريخ تطبيقها.',
-        'تحقق مما إذا كانت الزيادة قانونية (مقارنةً بمؤشر الإيجارات).',
-        'وافق أو اعترض خلال المهلة القانونية.',
+      nextStepKeys: [
+        'cat_mieterhoehung_step1',
+        'cat_mieterhoehung_step2',
+        'cat_mieterhoehung_step3',
       ],
       riskLevel: RiskLevel.medium,
     ),
     CategoryDefinition(
       id: 'kaution',
-      labelDe: 'Mietkaution',
-      labelAr: 'كفالة الإيجار',
+      labelKey: 'cat_kaution_label',
+      mainCategory: MainCategory.categoryRent,
       decisiveKeywords: [
         'Mietkaution',
         'Kautionsvereinbarung',
@@ -1472,17 +1257,11 @@ class BriefAiCategories {
         'Kautionskonto',
       ],
       negativeKeywords: ['Kontostand', 'Valuta', 'Buchungstag', 'Inkasso'],
-      nextStepsDe: [
-        'Kautionsbetrag im Mietvertrag prüfen.',
-        'Kautionszahlungsbeleg aufbewahren.',
-        'Bei Kautionsabrechnung: Abzüge prüfen und ggf. widersprechen.',
-        'Rückzahlung innerhalb von 3–6 Monaten nach Auszug erwarten.',
-      ],
-      nextStepsAr: [
-        'تحقق من قيمة الكفالة في عقد الإيجار.',
-        'احتفظ بإيصال دفع الكفالة.',
-        'عند تسوية الكفالة: راجع الخصومات واعترض إذا لزم.',
-        'توقع استرداد الكفالة خلال 3-6 أشهر بعد المغادرة.',
+      nextStepKeys: [
+        'cat_kaution_step1',
+        'cat_kaution_step2',
+        'cat_kaution_step3',
+        'cat_kaution_step4',
       ],
       riskLevel: RiskLevel.medium,
     ),
@@ -1492,8 +1271,8 @@ class BriefAiCategories {
     // ─────────────────────────────────────────────────────────────────────
     CategoryDefinition(
       id: 'versicherung_schein',
-      labelDe: 'Versicherungsschein / Police',
-      labelAr: 'وثيقة التأمين',
+      labelKey: 'cat_versicherung_schein_label',
+      mainCategory: MainCategory.categoryInsurance,
       decisiveKeywords: [
         'Versicherungsschein',
         'Versicherungsnummer',
@@ -1512,22 +1291,17 @@ class BriefAiCategories {
         'Kontoauszug',
         'Mitgliedsbescheinigung',
       ],
-      nextStepsDe: [
-        'Versicherungsschein sicher aufbewahren.',
-        'Vertragsdaten und Deckungsumfang prüfen.',
-        'Beginn und eventuelle Kündigungsfristen notieren.',
-      ],
-      nextStepsAr: [
-        'احفظ وثيقة التأمين في مكان آمن.',
-        'راجع بيانات العقد ونطاق التغطية.',
-        'سجّل تاريخ البداية ومهل الإلغاء.',
+      nextStepKeys: [
+        'cat_versicherung_schein_step1',
+        'cat_versicherung_schein_step2',
+        'cat_versicherung_schein_step3',
       ],
       riskLevel: RiskLevel.low,
     ),
     CategoryDefinition(
       id: 'versicherung_beitrag',
-      labelDe: 'Versicherung – Beitragsrechnung',
-      labelAr: 'التأمين – فاتورة القسط',
+      labelKey: 'cat_versicherung_beitrag_label',
+      mainCategory: MainCategory.categoryInsurance,
       decisiveKeywords: [
         'Beitragsrechnung',
         'Jahresbeitrag',
@@ -1540,20 +1314,16 @@ class BriefAiCategories {
         'Versicherung',
       ],
       negativeKeywords: ['Rechnungsnummer', 'MwSt', 'Buchungstag', 'Mahnung'],
-      nextStepsDe: [
-        'Beitrag und Fälligkeitsdatum prüfen.',
-        'Pünktlich zahlen – Nichtbezahlen kann zum Verlust des Versicherungsschutzes führen.',
-      ],
-      nextStepsAr: [
-        'راجع القسط وموعد الاستحقاق.',
-        'ادفع في الوقت المحدد – عدم الدفع قد يُلغي التغطية التأمينية.',
+      nextStepKeys: [
+        'cat_versicherung_beitrag_step1',
+        'cat_versicherung_beitrag_step2',
       ],
       riskLevel: RiskLevel.medium,
     ),
     CategoryDefinition(
       id: 'versicherung_schaden_meldung',
-      labelDe: 'Versicherung – Schadenmeldung Bestätigung',
-      labelAr: 'التأمين – تأكيد استلام بلاغ الحادث',
+      labelKey: 'cat_versicherung_schaden_meldung_label',
+      mainCategory: MainCategory.categoryInsurance,
       decisiveKeywords: [
         'Schadenmeldung',
         'Schadennummer',
@@ -1561,43 +1331,32 @@ class BriefAiCategories {
       ],
       supportingKeywords: ['Schadenfall', 'Prüfung', 'Bearbeitung'],
       negativeKeywords: ['Rechnung', 'Mahnung', 'Inkasso'],
-      nextStepsDe: [
-        'Schadennummer notieren.',
-        'Alle Unterlagen und Fotos zum Schaden aufbewahren.',
-        'Auf Rückmeldung der Versicherung warten.',
-      ],
-      nextStepsAr: [
-        'سجّل رقم الحادث.',
-        'احتفظ بجميع المستندات والصور المتعلقة بالحادث.',
-        'انتظر رد شركة التأمين.',
+      nextStepKeys: [
+        'cat_versicherung_schaden_meldung_step1',
+        'cat_versicherung_schaden_meldung_step2',
+        'cat_versicherung_schaden_meldung_step3',
       ],
       riskLevel: RiskLevel.medium,
     ),
     CategoryDefinition(
       id: 'versicherung_schaden_ablehnung',
-      labelDe: 'Versicherung – Schadenablehnung',
-      labelAr: 'التأمين – رفض تعويض الحادث',
+      labelKey: 'cat_versicherung_schaden_ablehnung_label',
+      mainCategory: MainCategory.categoryInsurance,
       decisiveKeywords: ['Ablehnung', 'keine Leistung', 'Versicherungsschutz'],
       supportingKeywords: ['Schadenfall', 'Grund', 'Prüfung'],
       negativeKeywords: ['Rechnung', 'Mahnung', 'Inkasso'],
-      nextStepsDe: [
-        'Ablehnungsgrund sorgfältig lesen.',
-        'Beweise und Unterlagen sammeln.',
-        'Innerhalb der Widerspruchsfrist Beschwerde einlegen.',
-        'Bei Bedarf Rechtsschutzversicherung oder Anwalt einschalten.',
-      ],
-      nextStepsAr: [
-        'اقرأ سبب الرفض بعناية.',
-        'اجمع الأدلة والمستندات.',
-        'قدّم اعتراضًا خلال مهلة الطعن.',
-        'إذا لزم، استعن بتأمين الحماية القانونية أو محامٍ.',
+      nextStepKeys: [
+        'cat_versicherung_schaden_ablehnung_step1',
+        'cat_versicherung_schaden_ablehnung_step2',
+        'cat_versicherung_schaden_ablehnung_step3',
+        'cat_versicherung_schaden_ablehnung_step4',
       ],
       riskLevel: RiskLevel.high,
     ),
     CategoryDefinition(
       id: 'versicherung_kuendigung',
-      labelDe: 'Versicherung – Kündigungsbestätigung',
-      labelAr: 'التأمين – تأكيد إلغاء العقد',
+      labelKey: 'cat_versicherung_kuendigung_label',
+      mainCategory: MainCategory.categoryInsurance,
       decisiveKeywords: [
         'Kündigungsbestätigung',
         'Eingang Ihrer Kündigung',
@@ -1605,15 +1364,10 @@ class BriefAiCategories {
       ],
       supportingKeywords: ['Versicherung', 'Kündigung', 'Vertragsende'],
       negativeKeywords: ['Mahnung', 'Inkasso'],
-      nextStepsDe: [
-        'Vertragsende und letzten Versicherungstag notieren.',
-        'Sicherstellen, dass eine Anschlussversicherung besteht.',
-        'Bestätigung aufbewahren.',
-      ],
-      nextStepsAr: [
-        'سجّل تاريخ انتهاء العقد وآخر يوم تأمين.',
-        'تأكد من وجود تأمين بديل.',
-        'احتفظ بتأكيد الإلغاء.',
+      nextStepKeys: [
+        'cat_versicherung_kuendigung_step1',
+        'cat_versicherung_kuendigung_step2',
+        'cat_versicherung_kuendigung_step3',
       ],
       riskLevel: RiskLevel.medium,
     ),
@@ -1623,8 +1377,8 @@ class BriefAiCategories {
     // ─────────────────────────────────────────────────────────────────────
     CategoryDefinition(
       id: 'kfz_evb',
-      labelDe: 'Kfz-Versicherung – eVB',
-      labelAr: 'تأمين السيارة – رقم eVB للتسجيل',
+      labelKey: 'cat_kfz_evb_label',
+      mainCategory: MainCategory.categoryInsurance,
       decisiveKeywords: [
         'eVB',
         'Elektronische Versicherungsbestätigung',
@@ -1633,32 +1387,20 @@ class BriefAiCategories {
       ],
       supportingKeywords: ['Fahrzeugzulassung', 'Zulassungsstelle'],
       negativeKeywords: ['Mahnung', 'Inkasso'],
-      nextStepsDe: [
-        'eVB-Nummer bei der Zulassungsstelle angeben.',
-        'Nummer aufbewahren bis die Zulassung abgeschlossen ist.',
-      ],
-      nextStepsAr: [
-        'أدخل رقم eVB في دائرة الترخيص.',
-        'احتفظ بالرقم حتى اكتمال التسجيل.',
-      ],
+      nextStepKeys: ['cat_kfz_evb_step1', 'cat_kfz_evb_step2'],
       riskLevel: RiskLevel.low,
     ),
     CategoryDefinition(
       id: 'kfz_schaden',
-      labelDe: 'Kfz-Versicherung – Schadenmeldung',
-      labelAr: 'تأمين السيارة – بلاغ حادث',
+      labelKey: 'cat_kfz_schaden_label',
+      mainCategory: MainCategory.categoryInsurance,
       decisiveKeywords: ['Kfz-Schaden', 'Schadennummer Kfz', 'Kfz-Schadenfall'],
       supportingKeywords: ['Schadenmeldung', 'Fahrzeug', 'Unfall'],
       negativeKeywords: ['Rechnung', 'Mahnung'],
-      nextStepsDe: [
-        'Alle Unfallfotos und Unterlagen aufbewahren.',
-        'Reparaturauftrag nicht ohne Genehmigung der Versicherung erteilen.',
-        'Auf Regulierungsentscheid warten.',
-      ],
-      nextStepsAr: [
-        'احتفظ بكل صور وأوراق الحادث.',
-        'لا تطلب إصلاح السيارة قبل موافقة شركة التأمين.',
-        'انتظر قرار التعويض.',
+      nextStepKeys: [
+        'cat_kfz_schaden_step1',
+        'cat_kfz_schaden_step2',
+        'cat_kfz_schaden_step3',
       ],
       riskLevel: RiskLevel.medium,
     ),
@@ -1668,8 +1410,8 @@ class BriefAiCategories {
     // ─────────────────────────────────────────────────────────────────────
     CategoryDefinition(
       id: 'vertrag_kuendigung',
-      labelDe: 'Vertragskündigung / Kündigungsbestätigung',
-      labelAr: 'إلغاء عقد أو تأكيد إلغائه',
+      labelKey: 'cat_vertrag_kuendigung_label',
+      mainCategory: MainCategory.categoryContracts,
       decisiveKeywords: [
         'Kündigung',
         'Vertragsverhältnis endet',
@@ -1683,22 +1425,17 @@ class BriefAiCategories {
         'Vertragsnummer',
       ],
       negativeKeywords: ['Mahnung', 'Inkasso', 'Rechnung', 'offener Betrag'],
-      nextStepsDe: [
-        'Vertragsende und eventuelle Restlaufzeit prüfen.',
-        'Rückgabe von Geräten oder Materialien (falls nötig) planen.',
-        'Kündigung aufbewahren als Nachweis.',
-      ],
-      nextStepsAr: [
-        'راجع تاريخ انتهاء العقد وأي فترة متبقية.',
-        'خطّط لإعادة الأجهزة أو المواد إذا لزم.',
-        'احتفظ بالإلغاء كإثبات.',
+      nextStepKeys: [
+        'cat_vertrag_kuendigung_step1',
+        'cat_vertrag_kuendigung_step2',
+        'cat_vertrag_kuendigung_step3',
       ],
       riskLevel: RiskLevel.low,
     ),
     CategoryDefinition(
       id: 'vertrag_verlaengerung',
-      labelDe: 'Automatische Vertragsverlängerung',
-      labelAr: 'تمديد تلقائي للعقد',
+      labelKey: 'cat_vertrag_verlaengerung_label',
+      mainCategory: MainCategory.categoryContracts,
       decisiveKeywords: [
         'Vertragsverlängerung',
         'verlängert sich automatisch',
@@ -1706,20 +1443,16 @@ class BriefAiCategories {
       ],
       supportingKeywords: ['Laufzeit', 'automatisch', 'Vertrag'],
       negativeKeywords: ['Mahnung', 'Inkasso'],
-      nextStepsDe: [
-        'Prüfen, ob Sie den Vertrag behalten oder kündigen möchten.',
-        'Kündigungsfrist einhalten, um automatische Verlängerung zu verhindern.',
-      ],
-      nextStepsAr: [
-        'قرّر ما إذا كنت تريد الاستمرار أو الإلغاء.',
-        'الزم مهلة الإلغاء لتفادي التمديد التلقائي.',
+      nextStepKeys: [
+        'cat_vertrag_verlaengerung_step1',
+        'cat_vertrag_verlaengerung_step2',
       ],
       riskLevel: RiskLevel.medium,
     ),
     CategoryDefinition(
       id: 'arbeitsvertrag',
-      labelDe: 'Arbeitsvertrag',
-      labelAr: 'عقد عمل',
+      labelKey: 'cat_arbeitsvertrag_label',
+      mainCategory: MainCategory.categoryContracts,
       decisiveKeywords: [
         'Arbeitsvertrag',
         'Arbeitsverhältnis beginnt',
@@ -1734,15 +1467,10 @@ class BriefAiCategories {
         'Urlaub',
       ],
       negativeKeywords: ['Mahnung', 'Inkasso', 'Mindestlaufzeit'],
-      nextStepsDe: [
-        'Vertrag vollständig lesen – Gehalt, Urlaub, Probezeit, Kündigungsfristen.',
-        'Unterschriebene Kopie vom Arbeitgeber anfordern.',
-        'Sozialversicherung und Krankenkasse informieren.',
-      ],
-      nextStepsAr: [
-        'اقرأ العقد بالكامل – الراتب، الإجازة، فترة التجربة، مهل الإلغاء.',
-        'اطلب نسخة موقّعة من صاحب العمل.',
-        'أبلغ التأمين الاجتماعي وشركة التأمين الصحي.',
+      nextStepKeys: [
+        'cat_arbeitsvertrag_step1',
+        'cat_arbeitsvertrag_step2',
+        'cat_arbeitsvertrag_step3',
       ],
       riskLevel: RiskLevel.low,
     ),

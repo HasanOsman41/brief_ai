@@ -89,6 +89,11 @@ class DocumentCard extends StatelessWidget {
     }
   }
 
+  String _translateIfKey(BuildContext context, String value) {
+    final translated = AppLocalizations.tr(context, value);
+    return translated != value ? translated : value;
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -201,7 +206,7 @@ class DocumentCard extends StatelessWidget {
 
                   // Document title
                   Text(
-                    title,
+                    _translateIfKey(context, title),
                     style: Theme.of(
                       context,
                     ).textTheme.titleMedium?.copyWith(fontSize: 16),

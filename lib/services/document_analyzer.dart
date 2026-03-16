@@ -1,16 +1,18 @@
 /// BriefAI – Document Analyzer Service
 ///
 /// Usage:
-///   final result = DocumentAnalyzer.analyze(ocrText, lang: 'ar');
+///   final result = DocumentAnalyzer.analyze(ocrText);
 ///
 /// The returned [DocumentResult] contains:
-///   - category      : matched category (null if unknown)
-///   - title         : extracted or derived title
-///   - summary       : short summary from OCR body
-///   - deadline      : extracted date string (dd.MM.yyyy) or null
-///   - nextSteps     : language-aware action list
-///   - confidence    : high / medium / low / unknown
-///   - matchedKeywords : keywords that triggered the match
+///   - category.mainCategory : top-level group (MainCategory enum)
+///   - category.id           : specific sub-category id
+///   - category.labelKey     : l10n key → resolve via AppLocalizations
+///   - title                 : extracted or derived title
+///   - summary               : short summary from OCR body
+///   - deadline              : extracted date string (dd.MM.yyyy) or null
+///   - nextStepKeys          : ordered l10n keys, resolve via AppLocalizations
+///   - confidence            : high / medium / low / unknown
+///   - matchedKeywords       : keywords that triggered the match
 
 import 'package:brief_ai/data/brief_ai_categories.dart';
 
@@ -25,19 +27,18 @@ class DocumentAnalyzer {
   // ─────────────────────────────────────────────────────────────────────────
 
   /// Analyse [ocrText] and return structured document information.
-  ///
-  /// [lang] controls which language is used for [DocumentResult.nextSteps]:
-  ///   'ar' → Arabic   |   'de' (default) → German
-  static DocumentResult analyze(String ocrText, {String lang = 'de'}) {
+  /// All label and next-step strings are returned as l10n keys —
+  /// resolve them in your UI with AppLocalizations.of(context).
+  static DocumentResult analyze(String ocrText) {
     if (ocrText.trim().isEmpty) {
-      return DocumentResult(
+      return const DocumentResult(
         category: null,
         title: 'Unbekanntes Dokument',
         summary: '',
         deadline: null,
-        nextSteps: const [],
+        nextStepKeys: [],
         confidence: AnalysisConfidence.unknown,
-        matchedKeywords: const [],
+        matchedKeywords: [],
       );
     }
 
@@ -47,16 +48,13 @@ class DocumentAnalyzer {
     final classResult = _classify(normText);
 
     // 2. Extract fields
-    final title = _extractTitle(ocrText);
+    // Title is based on the category label key (localization key), not OCR text.
+    // This makes the stored title language-independent and translatable later.
     final deadline = _extractDeadline(ocrText);
     final summary = _extractSummary(ocrText, deadline);
 
-    // 3. Next steps in requested language
-    final nextSteps = classResult.category == null
-        ? <String>[]
-        : lang == 'ar'
-        ? classResult.category!.nextStepsAr
-        : classResult.category!.nextStepsDe;
+    // 3. Next step keys (language-independent)
+    final nextStepKeys = classResult.category?.nextStepKeys ?? const <String>[];
 
     // 4. Build result
     final cat = classResult.category;
@@ -65,14 +63,16 @@ class DocumentAnalyzer {
           ? null
           : DocumentCategory(
               id: cat.id,
-              labelDe: cat.labelDe,
-              labelAr: cat.labelAr,
+              labelKey: cat.labelKey,
               riskLevel: cat.riskLevel,
+              mainCategory: cat.mainCategory,
             ),
-      title: title,
+      // Store the category label key as the title (language-independent).
+      // UI should translate this value when displaying it.
+      title: cat?.labelKey ?? 'categoryOther',
       summary: summary,
       deadline: deadline,
-      nextSteps: nextSteps,
+      nextStepKeys: nextStepKeys,
       confidence: classResult.confidence,
       matchedKeywords: classResult.matchedKeywords,
     );

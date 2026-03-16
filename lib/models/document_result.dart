@@ -1,29 +1,79 @@
 /// BriefAI – Document Analysis Result Model
 
-class DocumentCategory {
-  final String id;
-  final String labelDe;
-  final String labelAr;
-  final RiskLevel riskLevel;
+/// Top-level document group shown in the app UI.
+import 'package:flutter/material.dart';
 
-  const DocumentCategory({
-    required this.id,
-    required this.labelDe,
-    required this.labelAr,
-    required this.riskLevel,
-  });
+enum MainCategory {
+  categoryJobcenter('categoryJobcenter', Icons.business_center),
+  categoryAuslaenderbehoerde(
+    'categoryAuslaenderbehoerde',
+    Icons.account_balance,
+  ),
+  categoryKrankenkasse('categoryKrankenkasse', Icons.local_hospital),
+  categoryFinanzamt('categoryFinanzamt', Icons.attach_money),
+  categoryContracts('categoryContracts', Icons.description),
+  categoryBills('categoryBills', Icons.receipt),
+  categoryBank('categoryBank', Icons.account_balance),
+  categoryInsurance('categoryInsurance', Icons.security),
+  categoryRent('categoryRent', Icons.home),
+  categoryOther('categoryOther', Icons.insert_drive_file);
 
-  Map<String, dynamic> toMap() => {
-        'id': id,
-        'label_de': labelDe,
-        'label_ar': labelAr,
-        'risk_level': riskLevel.name,
-      };
+  const MainCategory(this.key, this.iconData);
+
+  /// The localization key — used to look up the translated label.
+  final String key;
+
+  /// Icon data for the category
+  final IconData iconData;
+
+  /// Convenience alias to keep existing code working.
+  IconData get icon => iconData;
+
+  /// Returns the MainCategory whose key matches [key],
+  /// or null if no match is found.
+  static MainCategory? fromKey(String key) {
+    try {
+      return MainCategory.values.firstWhere((c) => c.key == key);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// Helper method to get an Icon widget with default size
+  Icon getIcon({double size = 24.0, Color? color}) {
+    return Icon(iconData, size: size, color: color);
+  }
 }
 
 enum RiskLevel { low, medium, high, critical }
 
 enum AnalysisConfidence { high, medium, low, unknown }
+
+class DocumentCategory {
+  final String id;
+
+  /// l10n key → resolve via AppLocalizations: 'cat_<id>_label'
+  final String labelKey;
+
+  final RiskLevel riskLevel;
+
+  /// Top-level group this category belongs to.
+  final MainCategory mainCategory;
+
+  const DocumentCategory({
+    required this.id,
+    required this.labelKey,
+    required this.riskLevel,
+    required this.mainCategory,
+  });
+
+  Map<String, dynamic> toMap() => {
+    'id': id,
+    'label_key': labelKey,
+    'risk_level': riskLevel.name,
+    'main_category': mainCategory.name,
+  };
+}
 
 class DocumentResult {
   /// Matched category (null if document could not be classified)
@@ -38,8 +88,9 @@ class DocumentResult {
   /// Extracted deadline / important date (dd.MM.yyyy format), or null
   final String? deadline;
 
-  /// Actionable next steps in the requested language
-  final List<String> nextSteps;
+  /// Ordered l10n keys for next steps – resolve via AppLocalizations
+  /// e.g. AppLocalizations.of(context).cat_jobcenter_termin_step1
+  final List<String> nextStepKeys;
 
   /// Classification confidence
   final AnalysisConfidence confidence;
@@ -52,20 +103,20 @@ class DocumentResult {
     required this.title,
     required this.summary,
     required this.deadline,
-    required this.nextSteps,
+    required this.nextStepKeys,
     required this.confidence,
     required this.matchedKeywords,
   });
 
   Map<String, dynamic> toMap() => {
-        'category': category?.toMap(),
-        'title': title,
-        'summary': summary,
-        'deadline': deadline,
-        'next_steps': nextSteps,
-        'confidence': confidence.name,
-        'matched_keywords': matchedKeywords,
-      };
+    'category': category?.toMap(),
+    'title': title,
+    'summary': summary,
+    'deadline': deadline,
+    'next_step_keys': nextStepKeys,
+    'confidence': confidence.name,
+    'matched_keywords': matchedKeywords,
+  };
 
   @override
   String toString() => toMap().toString();

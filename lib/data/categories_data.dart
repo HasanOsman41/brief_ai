@@ -15,16 +15,16 @@ class DocumentCategory {
 }
 
 const List<DocumentCategory> kDocumentCategories = [
-  DocumentCategory(key: 'categoryJobcenter',          icon: '💼'),
-  DocumentCategory(key: 'categoryAuslaenderbehoerde',  icon: '🏛️'),
-  DocumentCategory(key: 'categoryKrankenkasse',        icon: '🏥'),
-  DocumentCategory(key: 'categoryFinanzamt',           icon: '💰'),
-  DocumentCategory(key: 'categoryContracts',           icon: '📝'),
-  DocumentCategory(key: 'categoryBills',               icon: '🧾'),
-  DocumentCategory(key: 'categoryBank',                icon: '🏦'),
-  DocumentCategory(key: 'categoryInsurance',           icon: '🛡️'),
-  DocumentCategory(key: 'categoryRent',                icon: '🏠'),
-  DocumentCategory(key: 'categoryOther',               icon: '📄'),
+  DocumentCategory(key: 'categoryJobcenter', icon: '💼'),
+  DocumentCategory(key: 'categoryAuslaenderbehoerde', icon: '🏛️'),
+  DocumentCategory(key: 'categoryKrankenkasse', icon: '🏥'),
+  DocumentCategory(key: 'categoryFinanzamt', icon: '💰'),
+  DocumentCategory(key: 'categoryContracts', icon: '📝'),
+  DocumentCategory(key: 'categoryBills', icon: '🧾'),
+  DocumentCategory(key: 'categoryBank', icon: '🏦'),
+  DocumentCategory(key: 'categoryInsurance', icon: '🛡️'),
+  DocumentCategory(key: 'categoryRent', icon: '🏠'),
+  DocumentCategory(key: 'categoryOther', icon: '📄'),
 ];
 
 /// Returns the [DocumentCategory] whose key matches [key],

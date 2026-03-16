@@ -3,8 +3,8 @@ import 'dart:io';
 import 'dart:math' show pi, sin, cos;
 
 import 'package:brief_ai/localization/app_localizations.dart';
-import 'package:brief_ai/models/analysis_result.dart';
-import 'package:brief_ai/services/document_extractor_service.dart';
+import 'package:brief_ai/models/document_result.dart';
+import 'package:brief_ai/services/document_analyzer.dart';
 import 'package:brief_ai/services/file_storage_service.dart';
 import 'package:brief_ai/services/ocr_service.dart';
 import 'package:brief_ai/services/pdf_service.dart';
@@ -51,7 +51,7 @@ class _ScanScreenState extends State<ScanScreen>
   bool _showingMagicEffect = false;
 
   // ── Analysis result ────────────────────────────────────────────────────────
-  AnalysisResult? _result;
+  DocumentResult? _result;
   String _ocrText = '';
   late DateTime _deadline;
 
@@ -582,11 +582,25 @@ class _ScanScreenState extends State<ScanScreen>
     if (_pages.isEmpty) return {'category': 'Unknown'};
     try {
       final text = await OcrService.instance.recogniseAll(_pages);
-      final result = DocumentExtractorService.instance.extract(text);
-      return {'category': result.category, 'deadline': result.deadline};
+      final result = DocumentAnalyzer.analyze(text);
+      return {
+        'category': result.category?.mainCategory.key ?? 'categoryOther',
+        'deadline': _parseDeadline(result.deadline),
+      };
     } catch (e) {
       return {'category': null};
     }
+  }
+
+  DateTime? _parseDeadline(String? dateStr) {
+    if (dateStr == null) return null;
+    final parts = dateStr.split('.');
+    if (parts.length != 3) return null;
+    final d = int.tryParse(parts[0]);
+    final m = int.tryParse(parts[1]);
+    final y = int.tryParse(parts[2]);
+    if (d == null || m == null || y == null) return null;
+    return DateTime(y, m, d);
   }
 
   // ── Analysis ───────────────────────────────────────────────────────────────
@@ -629,14 +643,14 @@ class _ScanScreenState extends State<ScanScreen>
         ),
       );
 
-      await Future.delayed(const Duration(milliseconds: 600));
-      final result = DocumentExtractorService.instance.extract(text);
+      final docResult = DocumentAnalyzer.analyze(text);
 
       setState(() {
-        _result = result;
+        _result = docResult;
         _ocrText = text;
         _deadline =
-            result.deadline ?? DateTime.now().add(const Duration(days: 14));
+            _parseDeadline(docResult.deadline) ??
+            DateTime.now().add(const Duration(days: 14));
         _processing = false;
         _processingStep = '';
       });

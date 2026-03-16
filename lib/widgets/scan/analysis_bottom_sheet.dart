@@ -1,7 +1,6 @@
 // lib/widgets/scan/analysis_bottom_sheet.dart
-import 'package:brief_ai/data/categories_data.dart';
 import 'package:brief_ai/localization/app_localizations.dart';
-import 'package:brief_ai/models/analysis_result.dart';
+import 'package:brief_ai/models/document_result.dart';
 import 'package:brief_ai/services/document_service.dart';
 import 'package:brief_ai/theme/app_theme.dart';
 import 'package:brief_ai/widgets/what_you_should_card.dart';
@@ -22,7 +21,7 @@ class AnalysisBottomSheet extends StatefulWidget {
     this.documentId,
   });
 
-  final AnalysisResult result;
+  final DocumentResult result;
   final DateTime initialDeadline;
   final List<String> imagePaths;
   final String ocrText;
@@ -31,7 +30,7 @@ class AnalysisBottomSheet extends StatefulWidget {
 
   static void show(
     BuildContext context, {
-    required AnalysisResult result,
+    required DocumentResult result,
     required DateTime initialDeadline,
     required List<String> imagePaths,
     required String ocrText,
@@ -63,6 +62,7 @@ class _AnalysisBottomSheetState extends State<AnalysisBottomSheet> {
   // Stores the localization KEY (e.g. 'categoryBills'), not the translated label.
   // This stays stable regardless of the active language.
   late String _selectedCategoryKey;
+  late String _titleKey;
   late String _editableTitle;
   late String _editableSummary;
 
@@ -77,13 +77,29 @@ class _AnalysisBottomSheetState extends State<AnalysisBottomSheet> {
   void initState() {
     super.initState();
     _deadline = widget.initialDeadline;
-    _editableTitle = widget.result.title;
+
+    // The document title is stored as a localization key (labelKey).
+    // We'll translate it for display once we have a valid BuildContext.
+    _titleKey = widget.result.title;
+    _editableTitle = '';
+
     _editableSummary = widget.result.summary;
 
-    // Try to match the AI-detected category to a known key.
-    // The AI may return a translated label or the raw key — we handle both.
-    final matched = categoryByKey(widget.result.category);
-    _selectedCategoryKey = matched?.key ?? kDocumentCategories.first.key;
+    // Use the detected document's main category key (fallback to first category).
+    _selectedCategoryKey =
+        widget.result.category?.mainCategory.key ??
+        MainCategory.values.first.key;
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_editableTitle.isEmpty) {
+      final translated = AppLocalizations.tr(context, _titleKey);
+      setState(() {
+        _editableTitle = translated;
+      });
+    }
   }
 
   @override
@@ -184,11 +200,17 @@ class _AnalysisBottomSheetState extends State<AnalysisBottomSheet> {
           ? _customTime
           : null;
 
+      // If the user didn't change the title, store the key (language independent).
+      final translatedDefault = AppLocalizations.tr(context, _titleKey);
+      final titleToStore = _editableTitle == translatedDefault
+          ? _titleKey
+          : _editableTitle;
+
       if (widget.documentId != null) {
         // Update existing document with images and reminders
         await DocumentService().updateDocumentWithImagesAndReminders(
           widget.documentId!,
-          title: _editableTitle,
+          title: titleToStore,
           categoryKey: _selectedCategoryKey,
           deadline: _deadline,
           statusKey: 'pending',
@@ -203,7 +225,8 @@ class _AnalysisBottomSheetState extends State<AnalysisBottomSheet> {
       } else {
         // Create new document with images and reminders
         await DocumentService().createDocumentWithImagesAndReminders(
-          title: _editableTitle,
+          title: titleToStore,
+          categoryId: ,
           categoryKey: _selectedCategoryKey,
           deadline: _deadline,
           statusKey: 'pending',
@@ -378,7 +401,7 @@ class _DocumentInfoCard extends StatefulWidget {
     required this.onSummaryChanged,
   });
 
-  final AnalysisResult result;
+  final DocumentResult result;
   final bool isDark;
   final Color primary;
   final String selectedCategoryKey;
@@ -539,7 +562,7 @@ class _DocumentInfoCardState extends State<_DocumentInfoCard> {
         ),
         const SizedBox(height: 6),
         WhatYouShouldCard(
-          isDark: widget.isDark, 
+          isDark: widget.isDark,
           primary: widget.primary,
           enablePulseAnimation: true,
         ),
@@ -613,14 +636,18 @@ class _CategorySelector extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 12),
 
               // Each item: translate the key at render time
-              items: kDocumentCategories.map((cat) {
+              items: MainCategory.values.map((cat) {
                 final label = AppLocalizations.tr(context, cat.key);
                 final isSelected = cat.key == selectedKey;
                 return DropdownMenuItem<String>(
                   value: cat.key,
                   child: Row(
                     children: [
-                      Text(cat.icon, style: const TextStyle(fontSize: 16)),
+                      Icon(
+                        cat.iconData,
+                        size: 18,
+                        color: isSelected ? primary : textColor,
+                      ),
                       const SizedBox(width: 10),
                       Text(
                         label,
@@ -638,13 +665,13 @@ class _CategorySelector extends StatelessWidget {
               }).toList(),
 
               // Selected item shown in the closed box
-              selectedItemBuilder: (ctx) => kDocumentCategories.map((cat) {
+              selectedItemBuilder: (ctx) => MainCategory.values.map((cat) {
                 final label = AppLocalizations.tr(ctx, cat.key);
                 return Align(
                   alignment: Alignment.centerLeft,
                   child: Row(
                     children: [
-                      Text(cat.icon, style: const TextStyle(fontSize: 15)),
+                      Icon(cat.iconData, size: 15, color: primary),
                       const SizedBox(width: 8),
                       Text(
                         label,

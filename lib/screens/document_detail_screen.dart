@@ -26,6 +26,11 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
   bool _reminder12Hours = false;
   bool _reminderCustom = false;
 
+  String _translateTitle(String title) {
+    final translated = AppLocalizations.tr(context, title);
+    return translated != title ? translated : title;
+  }
+
   int _currentPage = 0;
   late DateTime _dueDate;
   late DateTime _addedDate;
@@ -527,7 +532,7 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
           ),
           const SizedBox(height: 16),
           Text(
-            _document!.title,
+            _translateTitle(_document!.title),
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
               fontSize: 20,
               fontWeight: FontWeight.w700,

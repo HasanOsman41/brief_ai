@@ -5,6 +5,7 @@ import 'package:brief_ai/models/document_image.dart';
 class Document {
   final int? id;
   final String title;
+  final String categoryId;
   final String categoryKey;
   final DateTime createdAt;
   final DateTime? deadline;
@@ -20,6 +21,7 @@ class Document {
   const Document({
     this.id,
     required this.title,
+    required this.categoryId,
     required this.categoryKey,
     required this.createdAt,
     this.deadline,
@@ -60,6 +62,7 @@ class Document {
     return {
       if (id != null) 'id': id,
       'title': title,
+      'categoryId': categoryId,
       'categoryKey': categoryKey,
       'date': createdAt.toIso8601String(),
       'createdAt': createdAt.toIso8601String(),
@@ -80,6 +83,7 @@ class Document {
     return Document(
       id: json['id'] as int?,
       title: json['title'] as String,
+      categoryId: json['categoryId'] as String,
       categoryKey: json['categoryKey'] as String,
       createdAt: DateTime.parse(json['createdAt'] as String),
       deadline: json['deadline'] != null
@@ -112,6 +116,7 @@ class Document {
   Document copyWith({
     int? id,
     String? title,
+    String? categoryId,
     String? categoryKey,
     DateTime? createdAt,
     DateTime? deadline,
@@ -127,6 +132,7 @@ class Document {
     return Document(
       id: id ?? this.id,
       title: title ?? this.title,
+      categoryId: categoryId ?? this.categoryId,
       categoryKey: categoryKey ?? this.categoryKey,
       createdAt: createdAt ?? this.createdAt,
       deadline: deadline ?? this.deadline,

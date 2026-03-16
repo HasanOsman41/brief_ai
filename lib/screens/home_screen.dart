@@ -1,9 +1,9 @@
 // lib/screens/home_screen.dart
 import 'dart:ui';
 
-import 'package:brief_ai/data/categories_data.dart';
 import 'package:brief_ai/localization/app_localizations.dart';
 import 'package:brief_ai/models/document.dart';
+import 'package:brief_ai/models/document_result.dart';
 import 'package:brief_ai/services/document_service.dart';
 import 'package:brief_ai/theme/app_theme.dart';
 import 'package:brief_ai/widgets/category_chip.dart';
@@ -402,12 +402,13 @@ class _HomeScreenState extends State<HomeScreen> {
                   },
                 ),
               ),
-              // Categories from kDocumentCategories
-              ...kDocumentCategories.map((category) {
+              // Categories from MainCategory enum
+              ...MainCategory.values.map((category) {
                 return Padding(
                   padding: const EdgeInsets.only(right: 8),
                   child: CategoryChip(
                     label: AppLocalizations.tr(context, category.key),
+                    icon: category.iconData,
                     isSelected: _selectedCategory == category.key,
                     onTap: () {
                       setState(() {

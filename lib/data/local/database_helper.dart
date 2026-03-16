@@ -45,6 +45,7 @@ class DatabaseHelper {
         CREATE TABLE documents(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         title TEXT NOT NULL,
+        category_id TEXT NOT NULL,
         categoryKey TEXT NOT NULL,
         date TEXT NOT NULL,
         deadline TEXT,

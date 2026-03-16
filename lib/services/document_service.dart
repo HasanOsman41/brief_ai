@@ -62,6 +62,7 @@ class DocumentService {
   /// Add a new document with images
   Future<int> addDocument({
     required String title,
+    required String categoryId,
     required String categoryKey,
     DateTime? createdAt,
     DateTime? deadline,
@@ -77,6 +78,7 @@ class DocumentService {
     try {
       final document = Document(
         title: title,
+        categoryId: categoryId,
         categoryKey: categoryKey,
         createdAt: createdAt ?? DateTime.now(),
         deadline: deadline,
@@ -108,6 +110,7 @@ class DocumentService {
   Future<Document> updateDocument(
     int id, {
     String? title,
+    String? categoryId,
     String? categoryKey,
     DateTime? createdAt,
     DateTime? deadline,
@@ -127,6 +130,7 @@ class DocumentService {
       final updated = Document(
         id: id,
         title: title ?? current.title,
+        categoryId: categoryId ?? current.categoryId,
         categoryKey: categoryKey ?? current.categoryKey,
         statusKey: statusKey ?? current.statusKey,
         summary: summary ?? current.summary,
@@ -472,6 +476,7 @@ class DocumentService {
   /// Create a new document with images and schedule reminders
   Future<int> createDocumentWithImagesAndReminders({
     required String title,
+    required String categoryId,
     required String categoryKey,
     required DateTime deadline,
     required String statusKey,
@@ -487,6 +492,7 @@ class DocumentService {
       // Create the document
       final docId = await addDocument(
         title: title,
+        categoryId: categoryId,
         categoryKey: categoryKey,
         deadline: deadline,
         statusKey: statusKey,
