@@ -251,7 +251,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 padding: const EdgeInsets.only(bottom: 12),
                 child: DocumentCard(
                   title: doc.title,
-                  category: _getCategoryLabel(doc.categoryKey),
+                  category: _getCategoryLabel(doc.mainCategoryKey),
                   date: doc.formattedCreatedAt,
                   deadline: doc.formattedDeadline,
                   status: _getStatusLabel(doc.statusKey),

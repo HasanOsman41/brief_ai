@@ -20,54 +20,61 @@ import '../models/document_result.dart';
 class BriefAiCategories {
   BriefAiCategories._();
 
-  // ───────────────────────────────────────────────────────────────────────────
-  // MAIN GROUPS
-  // Labels for the 10 top-level buckets shown in the app UI.
-  // Sub-categories reference these via their [mainCategory] field.
-  // ───────────────────────────────────────────────────────────────────────────
-  static const List<MainCategoryDefinition> mainGroups = [
-    MainCategoryDefinition(
-      value: MainCategory.categoryJobcenter,
-      labelKey: 'cat_categoryJobcenter_label',
-    ),
-    MainCategoryDefinition(
-      value: MainCategory.categoryAuslaenderbehoerde,
-      labelKey: 'cat_categoryAuslaenderbehoerde_label',
-    ),
-    MainCategoryDefinition(
-      value: MainCategory.categoryKrankenkasse,
-      labelKey: 'cat_categoryKrankenkasse_label',
-    ),
-    MainCategoryDefinition(
-      value: MainCategory.categoryFinanzamt,
-      labelKey: 'cat_categoryFinanzamt_label',
-    ),
-    MainCategoryDefinition(
-      value: MainCategory.categoryBank,
-      labelKey: 'cat_categoryBank_label',
-    ),
-    MainCategoryDefinition(
-      value: MainCategory.categoryInsurance,
-      labelKey: 'cat_categoryInsurance_label',
-    ),
-    MainCategoryDefinition(
-      value: MainCategory.categoryRent,
-      labelKey: 'cat_categoryRent_label',
-    ),
-    MainCategoryDefinition(
-      value: MainCategory.categoryBills,
-      labelKey: 'cat_categoryBills_label',
-    ),
-    MainCategoryDefinition(
-      value: MainCategory.categoryContracts,
-      labelKey: 'cat_categoryContracts_label',
-    ),
-    MainCategoryDefinition(
-      value: MainCategory.categoryOther,
-      labelKey: 'cat_categoryOther_label',
-    ),
-  ];
-
+  // // ───────────────────────────────────────────────────────────────────────────
+  // // MAIN GROUPS
+  // // Labels for the 10 top-level buckets shown in the app UI.
+  // // Sub-categories reference these via their [mainCategory] field.
+  // // ───────────────────────────────────────────────────────────────────────────
+  // static const List<MainCategoryDefinition> mainGroups = [
+  //   MainCategoryDefinition(
+  //     value: MainCategory.categoryJobcenter,
+  //     labelKey: 'cat_categoryJobcenter_label',
+  //   ),
+  //   MainCategoryDefinition(
+  //     value: MainCategory.categoryAuslaenderbehoerde,
+  //     labelKey: 'cat_categoryAuslaenderbehoerde_label',
+  //   ),
+  //   MainCategoryDefinition(
+  //     value: MainCategory.categoryKrankenkasse,
+  //     labelKey: 'cat_categoryKrankenkasse_label',
+  //   ),
+  //   MainCategoryDefinition(
+  //     value: MainCategory.categoryFinanzamt,
+  //     labelKey: 'cat_categoryFinanzamt_label',
+  //   ),
+  //   MainCategoryDefinition(
+  //     value: MainCategory.categoryBank,
+  //     labelKey: 'cat_categoryBank_label',
+  //   ),
+  //   MainCategoryDefinition(
+  //     value: MainCategory.categoryInsurance,
+  //     labelKey: 'cat_categoryInsurance_label',
+  //   ),
+  //   MainCategoryDefinition(
+  //     value: MainCategory.categoryRent,
+  //     labelKey: 'cat_categoryRent_label',
+  //   ),
+  //   MainCategoryDefinition(
+  //     value: MainCategory.categoryBills,
+  //     labelKey: 'cat_categoryBills_label',
+  //   ),
+  //   MainCategoryDefinition(
+  //     value: MainCategory.categoryContracts,
+  //     labelKey: 'cat_categoryContracts_label',
+  //   ),
+  //   MainCategoryDefinition(
+  //     value: MainCategory.categoryOther,
+  //     labelKey: 'cat_categoryOther_label',
+  //   ),
+  // ];
+  // GET STEPS BY ID
+  static List<String> getStepsById(String id) {
+    try {
+      return all.firstWhere((c) => c.id == id).nextStepKeys;
+    } catch (_) {
+      return [];
+    }
+  }
   // ───────────────────────────────────────────────────────────────────────────
   // SUB-CATEGORIES
   // Every entry declares its own [mainCategory] so the full picture of any

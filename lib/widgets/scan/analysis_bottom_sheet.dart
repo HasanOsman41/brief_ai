@@ -1,5 +1,7 @@
 // lib/widgets/scan/analysis_bottom_sheet.dart
+import 'package:brief_ai/data/brief_ai_categories.dart';
 import 'package:brief_ai/localization/app_localizations.dart';
+import 'package:brief_ai/models/category_definition.dart';
 import 'package:brief_ai/models/document_result.dart';
 import 'package:brief_ai/services/document_service.dart';
 import 'package:brief_ai/theme/app_theme.dart';
@@ -59,9 +61,10 @@ class AnalysisBottomSheet extends StatefulWidget {
 class _AnalysisBottomSheetState extends State<AnalysisBottomSheet> {
   late DateTime _deadline;
 
-  // Stores the localization KEY (e.g. 'categoryBills'), not the translated label.
-  // This stays stable regardless of the active language.
-  late String _selectedCategoryKey;
+  // subCategoryKey = CategoryDefinition.id (e.g. 'jobcenter_termin')
+  late String _subCategoryKey;
+  // mainCategoryKey = MainCategory.key (e.g. 'categoryJobcenter')
+  late String _mainCategoryKey;
   late String _titleKey;
   late String _editableTitle;
   late String _editableSummary;
@@ -82,13 +85,18 @@ class _AnalysisBottomSheetState extends State<AnalysisBottomSheet> {
     // We'll translate it for display once we have a valid BuildContext.
     _titleKey = widget.result.title;
     _editableTitle = '';
-
     _editableSummary = widget.result.summary;
 
-    // Use the detected document's main category key (fallback to first category).
-    _selectedCategoryKey =
-        widget.result.category?.mainCategory.key ??
-        MainCategory.values.first.key;
+    // Resolve the detected sub-category from the result, fallback to first.
+    final detectedId = widget.result.category?.id;
+    final matched = detectedId != null
+        ? BriefAiCategories.all.firstWhere(
+            (c) => c.id == detectedId,
+            orElse: () => BriefAiCategories.all.first,
+          )
+        : BriefAiCategories.all.first;
+    _subCategoryKey = matched.id;
+    _mainCategoryKey = matched.mainCategory.key;
   }
 
   @override
@@ -137,9 +145,12 @@ class _AnalysisBottomSheetState extends State<AnalysisBottomSheet> {
                       result: widget.result,
                       isDark: isDark,
                       primary: primary,
-                      selectedCategoryKey: _selectedCategoryKey,
-                      onCategoryChanged: (key) =>
-                          setState(() => _selectedCategoryKey = key),
+                      selectedCategoryId: _subCategoryKey,
+                      selectedCategoryKey: _mainCategoryKey,
+                      onCategoryChanged: (subKey, mainKey) => setState(() {
+                        _subCategoryKey = subKey;
+                        _mainCategoryKey = mainKey;
+                      }),
                       editableTitle: _editableTitle,
                       onTitleChanged: (title) =>
                           setState(() => _editableTitle = title),
@@ -207,11 +218,11 @@ class _AnalysisBottomSheetState extends State<AnalysisBottomSheet> {
           : _editableTitle;
 
       if (widget.documentId != null) {
-        // Update existing document with images and reminders
         await DocumentService().updateDocumentWithImagesAndReminders(
           widget.documentId!,
           title: titleToStore,
-          categoryKey: _selectedCategoryKey,
+          subCategoryKey: _subCategoryKey,
+          mainCategoryKey: _mainCategoryKey,
           deadline: _deadline,
           statusKey: 'pending',
           summary: _editableSummary,
@@ -223,11 +234,10 @@ class _AnalysisBottomSheetState extends State<AnalysisBottomSheet> {
           reminderCustomTime: reminderCustom,
         );
       } else {
-        // Create new document with images and reminders
         await DocumentService().createDocumentWithImagesAndReminders(
           title: titleToStore,
-          categoryId: ,
-          categoryKey: _selectedCategoryKey,
+          subCategoryKey: _subCategoryKey,
+          mainCategoryKey: _mainCategoryKey,
           deadline: _deadline,
           statusKey: 'pending',
           summary: _editableSummary,
@@ -393,6 +403,7 @@ class _DocumentInfoCard extends StatefulWidget {
     required this.result,
     required this.isDark,
     required this.primary,
+    required this.selectedCategoryId,
     required this.selectedCategoryKey,
     required this.onCategoryChanged,
     required this.editableTitle,
@@ -404,8 +415,9 @@ class _DocumentInfoCard extends StatefulWidget {
   final DocumentResult result;
   final bool isDark;
   final Color primary;
+  final String selectedCategoryId;
   final String selectedCategoryKey;
-  final ValueChanged<String> onCategoryChanged;
+  final void Function(String subCategoryKey, String mainCategoryKey) onCategoryChanged;
   final String editableTitle;
   final ValueChanged<String> onTitleChanged;
   final String editableSummary;
@@ -454,7 +466,8 @@ class _DocumentInfoCardState extends State<_DocumentInfoCard> {
         _CategorySelector(
           isDark: widget.isDark,
           primary: widget.primary,
-          selectedKey: widget.selectedCategoryKey,
+          selectedCategoryId: widget.selectedCategoryId,
+          selectedCategoryKey: widget.selectedCategoryKey,
           onChanged: widget.onCategoryChanged,
         ),
         if (widget.editableTitle.isNotEmpty) ...[
@@ -562,6 +575,7 @@ class _DocumentInfoCardState extends State<_DocumentInfoCard> {
         ),
         const SizedBox(height: 6),
         WhatYouShouldCard(
+          nextStepTitleKeys: BriefAiCategories.getStepsById(widget.selectedCategoryId),
           isDark: widget.isDark,
           primary: widget.primary,
           enablePulseAnimation: true,
@@ -577,104 +591,66 @@ class _CategorySelector extends StatelessWidget {
   const _CategorySelector({
     required this.isDark,
     required this.primary,
-    required this.selectedKey,
+    required this.selectedCategoryId,
+    required this.selectedCategoryKey,
     required this.onChanged,
   });
 
   final bool isDark;
   final Color primary;
-
-  /// The localization key of the currently selected category.
-  final String selectedKey;
-  final ValueChanged<String> onChanged;
+  final String selectedCategoryId;
+  final String selectedCategoryKey;
+  final void Function(String subCategoryKey, String mainCategoryKey) onChanged;
 
   @override
   Widget build(BuildContext context) {
-    final textColor = isDark
-        ? AppTheme.darkTextPrimary
-        : AppTheme.lightTextPrimary;
-    final bgColor = isDark ? AppTheme.darkBackground : AppTheme.lightBackground;
+    final cat = BriefAiCategories.all.firstWhere(
+      (c) => c.id == selectedCategoryId,
+      orElse: () => BriefAiCategories.all.first,
+    );
+    final mainLabel = AppLocalizations.tr(context, cat.mainCategory.key);
+    final subLabel = AppLocalizations.tr(context, cat.labelKey);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Section label
-        Row(
-          children: [
-            Text(
-              AppLocalizations.tr(context, 'category'),
-              style: TextStyle(
-                color: isDark
-                    ? AppTheme.darkTextSecondary
-                    : AppTheme.lightTextSecondary,
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                letterSpacing: 0.8,
-              ),
-            ),
-          ],
+        Text(
+          AppLocalizations.tr(context, 'category'),
+          style: TextStyle(
+            color: isDark ? AppTheme.darkTextSecondary : AppTheme.lightTextSecondary,
+            fontSize: 11,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 0.8,
+          ),
         ),
         const SizedBox(height: 8),
-
-        // Drop-down
-        Container(
-          decoration: BoxDecoration(
-            color: bgColor,
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: primary.withOpacity(0.5)),
-          ),
-          child: DropdownButtonHideUnderline(
-            child: DropdownButton<String>(
-              value: selectedKey,
-              isExpanded: true,
-              borderRadius: BorderRadius.circular(12),
-              dropdownColor: isDark ? AppTheme.darkCard : AppTheme.lightCard,
-              icon: Padding(
-                padding: const EdgeInsets.only(right: 8),
-                child: Icon(Icons.expand_more, color: primary, size: 20),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-
-              // Each item: translate the key at render time
-              items: MainCategory.values.map((cat) {
-                final label = AppLocalizations.tr(context, cat.key);
-                final isSelected = cat.key == selectedKey;
-                return DropdownMenuItem<String>(
-                  value: cat.key,
-                  child: Row(
+        GestureDetector(
+          onTap: () => _openPicker(context),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            decoration: BoxDecoration(
+              color: isDark ? AppTheme.darkBackground : AppTheme.lightBackground,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: primary.withOpacity(0.5)),
+            ),
+            child: Row(
+              children: [
+                Icon(cat.mainCategory.iconData, size: 18, color: primary),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Icon(
-                        cat.iconData,
-                        size: 18,
-                        color: isSelected ? primary : textColor,
-                      ),
-                      const SizedBox(width: 10),
                       Text(
-                        label,
+                        mainLabel,
                         style: TextStyle(
-                          color: isSelected ? primary : textColor,
-                          fontSize: 14,
-                          fontWeight: isSelected
-                              ? FontWeight.w600
-                              : FontWeight.normal,
+                          color: primary.withOpacity(0.7),
+                          fontSize: 10,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
-                    ],
-                  ),
-                );
-              }).toList(),
-
-              // Selected item shown in the closed box
-              selectedItemBuilder: (ctx) => MainCategory.values.map((cat) {
-                final label = AppLocalizations.tr(ctx, cat.key);
-                return Align(
-                  alignment: Alignment.centerLeft,
-                  child: Row(
-                    children: [
-                      Icon(cat.iconData, size: 15, color: primary),
-                      const SizedBox(width: 8),
                       Text(
-                        label,
+                        subLabel,
                         style: TextStyle(
                           color: primary,
                           fontSize: 14,
@@ -683,18 +659,259 @@ class _CategorySelector extends StatelessWidget {
                       ),
                     ],
                   ),
-                );
-              }).toList(),
-
-              onChanged: (key) {
-                if (key != null) onChanged(key);
-              },
+                ),
+                Icon(Icons.expand_more, color: primary, size: 20),
+              ],
             ),
           ),
         ),
       ],
     );
   }
+
+  void _openPicker(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => _CategoryPickerSheet(
+        isDark: isDark,
+        primary: primary,
+        currentCategoryId: selectedCategoryId,
+        onSelected: (cat) {
+          Navigator.pop(context);
+          onChanged(cat.id, cat.mainCategory.key);
+        },
+      ),
+    );
+  }
+}
+
+// ── Category Picker Sheet ─────────────────────────────────────────────────────
+
+class _CategoryPickerSheet extends StatefulWidget {
+  const _CategoryPickerSheet({
+    required this.isDark,
+    required this.primary,
+    required this.currentCategoryId,
+    required this.onSelected,
+  });
+
+  final bool isDark;
+  final Color primary;
+  final String currentCategoryId;
+  final void Function(CategoryDefinition) onSelected;
+
+  @override
+  State<_CategoryPickerSheet> createState() => _CategoryPickerSheetState();
+}
+
+class _CategoryPickerSheetState extends State<_CategoryPickerSheet> {
+  final TextEditingController _search = TextEditingController();
+  MainCategory? _selectedMain;
+  String _query = '';
+
+  @override
+  void initState() {
+    super.initState();
+    final current = BriefAiCategories.all.firstWhere(
+      (c) => c.id == widget.currentCategoryId,
+      orElse: () => BriefAiCategories.all.first,
+    );
+    _selectedMain = current.mainCategory;
+    _search.addListener(
+      () => setState(() => _query = _search.text.trim().toLowerCase()),
+    );
+  }
+
+  @override
+  void dispose() {
+    _search.dispose();
+    super.dispose();
+  }
+
+  List<CategoryDefinition> get _filtered {
+    final pool = _selectedMain == null
+        ? BriefAiCategories.all
+        : BriefAiCategories.all
+            .where((c) => c.mainCategory == _selectedMain)
+            .toList();
+    if (_query.isEmpty) return pool;
+    return pool.where((c) {
+      final label = AppLocalizations.tr(context, c.labelKey).toLowerCase();
+      return label.contains(_query) || c.id.contains(_query);
+    }).toList();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final bg = widget.isDark ? AppTheme.darkBackground : AppTheme.lightBackground;
+    final cardColor = widget.isDark ? AppTheme.darkCard : AppTheme.lightCard;
+
+    return DraggableScrollableSheet(
+      initialChildSize: 0.75,
+      minChildSize: 0.5,
+      maxChildSize: 0.95,
+      expand: false,
+      builder: (context, scrollController) => Container(
+        decoration: BoxDecoration(
+          color: bg,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+        ),
+        child: Column(
+          children: [
+            Container(
+              margin: const EdgeInsets.only(top: 12, bottom: 4),
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: widget.isDark ? Colors.white24 : Colors.black26,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+              child: Text(
+                AppLocalizations.tr(context, 'changeCategory'),
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+            // Search field
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: TextField(
+                controller: _search,
+                decoration: InputDecoration(
+                  hintText: AppLocalizations.tr(context, 'search'),
+                  prefixIcon: const Icon(Icons.search, size: 20),
+                  filled: true,
+                  fillColor: cardColor,
+                  contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
+            // Main category filter chips
+            SizedBox(
+              height: 36,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                children: [
+                  _FilterChip(
+                    label: AppLocalizations.tr(context, 'all'),
+                    selected: _selectedMain == null,
+                    primary: widget.primary,
+                    onTap: () => setState(() => _selectedMain = null),
+                  ),
+                  ...MainCategory.values.map(
+                    (m) => _FilterChip(
+                      label: AppLocalizations.tr(context, m.key),
+                      selected: _selectedMain == m,
+                      primary: widget.primary,
+                      onTap: () => setState(() => _selectedMain = m),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 8),
+            // Sub-category list
+            Expanded(
+              child: ListView.builder(
+                controller: scrollController,
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                itemCount: _filtered.length,
+                itemBuilder: (context, i) {
+                  final cat = _filtered[i];
+                  final isCurrent = cat.id == widget.currentCategoryId;
+                  final mainLabel = AppLocalizations.tr(context, cat.mainCategory.key);
+                  return ListTile(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    tileColor: isCurrent
+                        ? widget.primary.withOpacity(0.1)
+                        : null,
+                    leading: Icon(
+                      cat.mainCategory.iconData,
+                      color: isCurrent
+                          ? widget.primary
+                          : (widget.isDark ? Colors.white54 : Colors.black45),
+                      size: 22,
+                    ),
+                    title: Text(
+                      AppLocalizations.tr(context, cat.labelKey),
+                      style: TextStyle(
+                        fontWeight: isCurrent
+                            ? FontWeight.w700
+                            : FontWeight.w500,
+                        color: isCurrent ? widget.primary : null,
+                        fontSize: 14,
+                      ),
+                    ),
+                    subtitle: Text(
+                      mainLabel,
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: widget.isDark ? Colors.white38 : Colors.black38,
+                      ),
+                    ),
+                    trailing: isCurrent
+                        ? Icon(Icons.check_circle,
+                            color: widget.primary, size: 18)
+                        : null,
+                    onTap: () => widget.onSelected(cat),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _FilterChip extends StatelessWidget {
+  const _FilterChip({
+    required this.label,
+    required this.selected,
+    required this.primary,
+    required this.onTap,
+  });
+
+  final String label;
+  final bool selected;
+  final Color primary;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => GestureDetector(
+    onTap: onTap,
+    child: Container(
+      margin: const EdgeInsets.only(right: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: selected ? primary : primary.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          color: selected ? Colors.white : primary,
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    ),
+  );
 }
 
 // ── Deadline & Reminder Card ──────────────────────────────────────────────────

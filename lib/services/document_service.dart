@@ -62,8 +62,8 @@ class DocumentService {
   /// Add a new document with images
   Future<int> addDocument({
     required String title,
-    required String categoryId,
-    required String categoryKey,
+    required String subCategoryKey,
+    required String mainCategoryKey,
     DateTime? createdAt,
     DateTime? deadline,
     required String statusKey,
@@ -78,8 +78,8 @@ class DocumentService {
     try {
       final document = Document(
         title: title,
-        categoryId: categoryId,
-        categoryKey: categoryKey,
+        subCategoryKey: subCategoryKey,
+        mainCategoryKey: mainCategoryKey,
         createdAt: createdAt ?? DateTime.now(),
         deadline: deadline,
         statusKey: statusKey,
@@ -110,8 +110,8 @@ class DocumentService {
   Future<Document> updateDocument(
     int id, {
     String? title,
-    String? categoryId,
-    String? categoryKey,
+    String? subCategoryKey,
+    String? mainCategoryKey,
     DateTime? createdAt,
     DateTime? deadline,
     String? statusKey,
@@ -130,8 +130,8 @@ class DocumentService {
       final updated = Document(
         id: id,
         title: title ?? current.title,
-        categoryId: categoryId ?? current.categoryId,
-        categoryKey: categoryKey ?? current.categoryKey,
+        subCategoryKey: subCategoryKey ?? current.subCategoryKey,
+        mainCategoryKey: mainCategoryKey ?? current.mainCategoryKey,
         statusKey: statusKey ?? current.statusKey,
         summary: summary ?? current.summary,
         ocrText: ocrText ?? current.ocrText,
@@ -476,8 +476,8 @@ class DocumentService {
   /// Create a new document with images and schedule reminders
   Future<int> createDocumentWithImagesAndReminders({
     required String title,
-    required String categoryId,
-    required String categoryKey,
+    required String subCategoryKey,
+    required String mainCategoryKey,
     required DateTime deadline,
     required String statusKey,
     required String summary,
@@ -492,8 +492,8 @@ class DocumentService {
       // Create the document
       final docId = await addDocument(
         title: title,
-        categoryId: categoryId,
-        categoryKey: categoryKey,
+        subCategoryKey: subCategoryKey,
+        mainCategoryKey: mainCategoryKey,
         deadline: deadline,
         statusKey: statusKey,
         summary: summary,
@@ -533,7 +533,8 @@ class DocumentService {
   Future<void> updateDocumentWithImagesAndReminders(
     int id, {
     required String title,
-    required String categoryKey,
+    required String subCategoryKey,
+    required String mainCategoryKey,
     required DateTime deadline,
     required String statusKey,
     required String summary,
@@ -552,7 +553,8 @@ class DocumentService {
       await updateDocument(
         id,
         title: title,
-        categoryKey: categoryKey,
+        subCategoryKey: subCategoryKey,
+        mainCategoryKey: mainCategoryKey,
         deadline: deadline,
         statusKey: statusKey,
         summary: summary,

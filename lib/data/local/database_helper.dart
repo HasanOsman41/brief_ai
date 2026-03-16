@@ -35,7 +35,19 @@ class DatabaseHelper {
     final documentsDirectory = await getApplicationDocumentsDirectory();
     final path = join(documentsDirectory.path, 'brief_ai.db');
 
-    return await openDatabase(path, version: 1, onCreate: _createTables);
+    return await openDatabase(
+      path,
+      version: 2,
+      onCreate: _createTables,
+      onUpgrade: _onUpgrade,
+    );
+  }
+
+  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      await db.execute('ALTER TABLE documents RENAME COLUMN categoryId TO subCategoryKey');
+      await db.execute('ALTER TABLE documents RENAME COLUMN categoryKey TO mainCategoryKey');
+    }
   }
 
   /// Create database tables
@@ -45,8 +57,8 @@ class DatabaseHelper {
         CREATE TABLE documents(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         title TEXT NOT NULL,
-        category_id TEXT NOT NULL,
-        categoryKey TEXT NOT NULL,
+        subCategoryKey TEXT NOT NULL,
+        mainCategoryKey TEXT NOT NULL,
         date TEXT NOT NULL,
         deadline TEXT,
         statusKey TEXT NOT NULL,
@@ -75,7 +87,7 @@ class DatabaseHelper {
 
     // Create indexes for efficient queries
     await db.execute('''
-      CREATE INDEX idx_documents_category ON documents(categoryKey)
+      CREATE INDEX idx_documents_category ON documents(mainCategoryKey)
     ''');
 
     await db.execute('''

@@ -1,6 +1,7 @@
 // lib/screens/document_detail_screen.dart
 import 'dart:io';
 
+import 'package:brief_ai/data/brief_ai_categories.dart';
 import 'package:brief_ai/localization/app_localizations.dart';
 import 'package:brief_ai/models/document.dart';
 import 'package:brief_ai/services/document_service.dart';
@@ -443,6 +444,7 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
                             _buildSummarySection(context, isDark),
                             const SizedBox(height: 20),
                             WhatYouShouldCard(
+                              nextStepTitleKeys: BriefAiCategories.getStepsById(_document!.subCategoryKey),
                               isDark: isDark,
                               primary: primaryColor,
                             ),
@@ -553,7 +555,7 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
-        AppLocalizations.tr(context, _document!.categoryKey),
+        AppLocalizations.tr(context, _document!.mainCategoryKey),
         style: TextStyle(
           color: primaryColor,
           fontSize: 13,

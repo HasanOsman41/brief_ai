@@ -12,15 +12,13 @@ class WhatYouShouldCard extends StatefulWidget {
     Key? key,
     required this.isDark,
     required this.primary,
-    this.titleKey = 'whatYouShould',
-    this.hintKey = 'whatYouShouldHint',
+    required this.nextStepTitleKeys,
     this.enablePulseAnimation = false,
   }) : super(key: key);
 
   final bool isDark;
   final Color primary;
-  final String titleKey;
-  final String hintKey;
+  final List<String> nextStepTitleKeys;
   final bool enablePulseAnimation;
 
   @override
@@ -35,21 +33,17 @@ class _WhatYouShouldCardState extends State<WhatYouShouldCard>
   @override
   void initState() {
     super.initState();
-    
+
     if (widget.enablePulseAnimation) {
       _pulseController = AnimationController(
         duration: const Duration(milliseconds: 1500),
         vsync: this,
       );
-      
-      _scaleAnimation = Tween<double>(
-        begin: 0.98,
-        end: 1.02,
-      ).animate(CurvedAnimation(
-        parent: _pulseController!,
-        curve: Curves.easeInOut,
-      ));
-      
+
+      _scaleAnimation = Tween<double>(begin: 0.98, end: 1.02).animate(
+        CurvedAnimation(parent: _pulseController!, curve: Curves.easeInOut),
+      );
+
       // Start the infinite pulse animation
       _pulseController!.repeat(reverse: true);
     }
@@ -67,7 +61,9 @@ class _WhatYouShouldCardState extends State<WhatYouShouldCard>
       width: double.infinity,
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: widget.isDark ? widget.primary.withOpacity(0.18) : widget.primary.withOpacity(0.14),
+        color: widget.isDark
+            ? widget.primary.withOpacity(0.18)
+            : widget.primary.withOpacity(0.14),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: widget.primary.withOpacity(0.35), width: 1.4),
         boxShadow: [
@@ -89,7 +85,7 @@ class _WhatYouShouldCardState extends State<WhatYouShouldCard>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  AppLocalizations.tr(context, widget.titleKey),
+                  AppLocalizations.tr(context, 'whatYouShould'),
                   style:
                       Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w700,
@@ -105,20 +101,26 @@ class _WhatYouShouldCardState extends State<WhatYouShouldCard>
                       ),
                 ),
                 const SizedBox(height: 6),
-                Text(
-                  AppLocalizations.tr(context, widget.hintKey),
-                  style:
-                      Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: widget.isDark
-                            ? AppTheme.darkTextSecondary
-                            : AppTheme.lightTextSecondary,
-                      ) ??
-                      TextStyle(
-                        color: widget.isDark
-                            ? AppTheme.darkTextSecondary
-                            : AppTheme.lightTextSecondary,
-                      ),
-                ),
+                ...widget.nextStepTitleKeys.asMap().entries.map((entry) {
+                  int index = entry.key;
+                  String key = entry.value;
+                  String text = AppLocalizations.tr(context, key);
+
+                  return Text(
+                    "${index + 1}. $text",
+                    style:
+                        Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: widget.isDark
+                              ? AppTheme.darkTextSecondary
+                              : AppTheme.lightTextSecondary,
+                        ) ??
+                        TextStyle(
+                          color: widget.isDark
+                              ? AppTheme.darkTextSecondary
+                              : AppTheme.lightTextSecondary,
+                        ),
+                  );
+                }),
               ],
             ),
           ),

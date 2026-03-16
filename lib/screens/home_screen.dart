@@ -233,7 +233,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           title: doc.title,
                           category: AppLocalizations.tr(
                             context,
-                            doc.categoryKey,
+                            doc.mainCategoryKey,
                           ),
                           date: doc.formattedCreatedAt,
                           deadline: doc.formattedDeadline,
@@ -344,7 +344,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final filteredDocuments = _selectedCategory == 'all'
         ? _documents
         : _documents
-              .where((doc) => doc.categoryKey == _selectedCategory)
+              .where((doc) => doc.mainCategoryKey == _selectedCategory)
               .toList();
 
     return Column(
@@ -478,7 +478,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           title: doc.title,
                           category: AppLocalizations.tr(
                             context,
-                            doc.categoryKey,
+                            doc.mainCategoryKey,
                           ),
                           date: doc.formattedCreatedAt,
                           deadline: doc.formattedDeadline,
@@ -828,7 +828,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 break;
               case 'category':
                 _documents.sort(
-                  (a, b) => a.categoryKey.compareTo(b.categoryKey),
+                  (a, b) => a.mainCategoryKey.compareTo(b.mainCategoryKey),
                 );
                 break;
             }

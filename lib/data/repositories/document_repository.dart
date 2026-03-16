@@ -97,15 +97,14 @@ class DocumentRepository {
   }
 
   /// Get documents by category
-  Future<List<Document>> getByCategory(String categoryKey) async {
+  Future<List<Document>> getByCategory(String mainCategoryKey) async {
     final db = await _dbHelper.database;
     final result = await db.query(
       'documents',
-      where: 'categoryKey = ?',
-      whereArgs: [categoryKey],
+      where: 'mainCategoryKey = ?',
+      whereArgs: [mainCategoryKey],
       orderBy: 'createdAt DESC',
     );
-
     return result.map((json) => Document.fromJson(json)).toList();
   }
 
@@ -147,11 +146,11 @@ class DocumentRepository {
   }
 
   /// Get document count by category
-  Future<int> getCountByCategory(String categoryKey) async {
+  Future<int> getCountByCategory(String mainCategoryKey) async {
     final db = await _dbHelper.database;
     final result = await db.rawQuery(
-      'SELECT COUNT(*) as count FROM documents WHERE categoryKey = ?',
-      [categoryKey],
+      'SELECT COUNT(*) as count FROM documents WHERE mainCategoryKey = ?',
+      [mainCategoryKey],
     );
     return result.isNotEmpty ? (result.first['count'] as int?) ?? 0 : 0;
   }

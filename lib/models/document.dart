@@ -5,8 +5,8 @@ import 'package:brief_ai/models/document_image.dart';
 class Document {
   final int? id;
   final String title;
-  final String categoryId;
-  final String categoryKey;
+  final String subCategoryKey;
+  final String mainCategoryKey;
   final DateTime createdAt;
   final DateTime? deadline;
   final String statusKey;
@@ -21,8 +21,8 @@ class Document {
   const Document({
     this.id,
     required this.title,
-    required this.categoryId,
-    required this.categoryKey,
+    required this.subCategoryKey,
+    required this.mainCategoryKey,
     required this.createdAt,
     this.deadline,
     required this.statusKey,
@@ -62,8 +62,8 @@ class Document {
     return {
       if (id != null) 'id': id,
       'title': title,
-      'categoryId': categoryId,
-      'categoryKey': categoryKey,
+      'subCategoryKey': subCategoryKey,
+      'mainCategoryKey': mainCategoryKey,
       'date': createdAt.toIso8601String(),
       'createdAt': createdAt.toIso8601String(),
       'deadline': deadline?.toIso8601String(),
@@ -83,8 +83,8 @@ class Document {
     return Document(
       id: json['id'] as int?,
       title: json['title'] as String,
-      categoryId: json['categoryId'] as String,
-      categoryKey: json['categoryKey'] as String,
+      subCategoryKey: json['subCategoryKey'] as String,
+      mainCategoryKey: json['mainCategoryKey'] as String,
       createdAt: DateTime.parse(json['createdAt'] as String),
       deadline: json['deadline'] != null
           ? DateTime.parse(json['deadline'] as String)
@@ -116,8 +116,8 @@ class Document {
   Document copyWith({
     int? id,
     String? title,
-    String? categoryId,
-    String? categoryKey,
+    String? subCategoryKey,
+    String? mainCategoryKey,
     DateTime? createdAt,
     DateTime? deadline,
     String? statusKey,
@@ -132,8 +132,8 @@ class Document {
     return Document(
       id: id ?? this.id,
       title: title ?? this.title,
-      categoryId: categoryId ?? this.categoryId,
-      categoryKey: categoryKey ?? this.categoryKey,
+      subCategoryKey: subCategoryKey ?? this.subCategoryKey,
+      mainCategoryKey: mainCategoryKey ?? this.mainCategoryKey,
       createdAt: createdAt ?? this.createdAt,
       deadline: deadline ?? this.deadline,
       statusKey: statusKey ?? this.statusKey,
