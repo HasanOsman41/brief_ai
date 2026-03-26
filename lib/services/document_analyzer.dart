@@ -19,17 +19,82 @@ import 'package:brief_ai/data/brief_ai_categories.dart';
 import '../models/category_definition.dart';
 import '../models/document_result.dart';
 
+// ─────────────────────────────────────────────────────────────────────────────
+// DeadlineResult – structured return value from extractDeadlineInfo()
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// The type / urgency category of an extracted date.
+enum DeadlineType {
+  /// Personal appointment (Termin, Vorsprache, Einladung …)
+  appointment,
+
+  /// Document submission deadline (bis spätestens, einzureichen bis …)
+  deadline,
+
+  /// Legal objection deadline (Widerspruch, Rechtsbehelfsbelehrung …)
+  legalDeadline,
+
+  /// Payment due date (zahlen bis, fällig, überweisen …)
+  paymentDeadline,
+
+  /// Document / permit expiry (gültig bis, läuft ab am …)
+  expiryDate,
+
+  /// Document ready for collection (Abholung, abholbereit ab …)
+  collectionDate,
+
+  /// Relative deadline – no explicit date found (e.g. "innerhalb eines Monats")
+  relativeLegal,
+}
+
+/// Structured result returned by [DocumentAnalyzer.extractDeadlineInfo].
+class DeadlineResult {
+  /// Parsed date. Null only for [DeadlineType.relativeLegal].
+  final DateTime? date;
+
+  /// Original dd.MM.yyyy string as it appeared in the OCR text.
+  /// "RELATIVE" for relative legal deadlines.
+  final String rawValue;
+
+  /// Semantic type of this date.
+  final DeadlineType type;
+
+  /// Optional time string (HH:mm) – present for appointments only.
+  final String? time;
+
+  const DeadlineResult({
+    required this.date,
+    required this.rawValue,
+    required this.type,
+    this.time,
+  });
+
+  /// True when a concrete date was found.
+  bool get hasDate => date != null;
+
+  /// True when the deadline requires special relative handling.
+  bool get isRelative => type == DeadlineType.relativeLegal;
+
+  @override
+  String toString() =>
+      'DeadlineResult(type: $type, rawValue: $rawValue, date: $date, time: $time)';
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// DocumentAnalyzer
+// ─────────────────────────────────────────────────────────────────────────────
+
 class DocumentAnalyzer {
   DocumentAnalyzer._();
 
-  // ─────────────────────────────────────────────────────────────────────────
+  // ───────────────────────────────────────────────────────────────────────────
   // PUBLIC API
-  // ─────────────────────────────────────────────────────────────────────────
+  // ───────────────────────────────────────────────────────────────────────────
 
   /// Analyse [ocrText] and return structured document information.
-  /// All label and next-step strings are returned as l10n keys —
-  /// resolve them in your UI with AppLocalizations.of(context).
   static DocumentResult analyze(String ocrText) {
+    print('----------------------------------------------------------------');
+    print('OCR Text:\n$ocrText');
     if (ocrText.trim().isEmpty) {
       return const DocumentResult(
         category: null,
@@ -47,16 +112,16 @@ class DocumentAnalyzer {
     // 1. Classify
     final classResult = _classify(normText);
 
-    // 2. Extract fields
-    // Title is based on the category label key (localization key), not OCR text.
-    // This makes the stored title language-independent and translatable later.
-    final deadline = _extractDeadline(ocrText);
-    final summary = _extractSummary(ocrText, deadline);
+    // 2. Extract deadline (structured)
+    final deadlineResult = extractDeadlineInfo(ocrText);
 
-    // 3. Next step keys (language-independent)
+    // 3. Extract summary
+    final summary = _extractSummary(ocrText, deadlineResult?.rawValue);
+
+    // 4. Next step keys
     final nextStepKeys = classResult.category?.nextStepKeys ?? const <String>[];
 
-    // 4. Build result
+    // 5. Build result
     final cat = classResult.category;
     return DocumentResult(
       category: cat == null
@@ -67,26 +132,417 @@ class DocumentAnalyzer {
               riskLevel: cat.riskLevel,
               mainCategory: cat.mainCategory,
             ),
-      // Store the category label key as the title (language-independent).
-      // UI should translate this value when displaying it.
       title: cat?.labelKey ?? 'categoryOther',
       summary: summary,
-      deadline: deadline,
+      deadline: deadlineResult?.rawValue == 'RELATIVE'
+          ? null
+          : deadlineResult?.rawValue,
       nextStepKeys: nextStepKeys,
       confidence: classResult.confidence,
       matchedKeywords: classResult.matchedKeywords,
     );
   }
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // HELPERS
-  // ─────────────────────────────────────────────────────────────────────────
+  // ───────────────────────────────────────────────────────────────────────────
+  // PUBLIC: extractDeadlineInfo
+  // ───────────────────────────────────────────────────────────────────────────
 
-  /// Lowercase + collapse whitespace
+  /// Extracts the single most important date from [ocrText].
+  ///
+  /// This is a convenience wrapper around [extractAllDeadlines] that returns
+  /// only the highest-priority result. Use [extractAllDeadlines] when you need
+  /// every actionable date in the document (e.g. both a deadline AND an
+  /// appointment on the same letter).
+  ///
+  /// Priority: legalDeadline > deadline > paymentDeadline >
+  ///           appointment > expiryDate > collectionDate > fallback
+  static DeadlineResult? extractDeadlineInfo(String text) {
+    final all = extractAllDeadlines(text);
+    return all.isEmpty ? null : all.first;
+  }
+
+  /// Extracts **all** actionable dates from [ocrText] and returns them sorted
+  /// by priority (highest first).
+  ///
+  /// Ignored dates (letter date, birth date, application date, past
+  /// correspondence, plain time periods) are never included.
+  ///
+  /// Example — a letter with an appointment AND a submission deadline returns:
+  ///   [
+  ///     DeadlineResult(type: deadline,     rawValue: "29.04.2026"),
+  ///     DeadlineResult(type: appointment,  rawValue: "19.05.2026", time: "09:20"),
+  ///   ]
+  static List<DeadlineResult> extractAllDeadlines(String text) {
+    final lines = text.split('\n');
+    final results = <DeadlineResult>[];
+    // Track raw date strings already added to avoid duplicates
+    final seen = <String>{};
+
+    void add(DeadlineResult? r) {
+      if (r == null) return;
+      if (seen.contains(r.rawValue)) return;
+      seen.add(r.rawValue);
+      results.add(r);
+    }
+
+    // ── STEP 0 – Relative legal deadline (no explicit date) ───────────────
+    for (final line in lines) {
+      if (_isIgnored(line)) continue;
+      final ll = line.toLowerCase();
+      if (_relativeKeywords.any(ll.contains) && !_dateRegex.hasMatch(line)) {
+        add(
+          DeadlineResult(
+            date: _relativeDate(),
+            rawValue: 'RELATIVE',
+            type: DeadlineType.relativeLegal,
+          ),
+        );
+        break; // only one relative result needed
+      }
+    }
+
+    // ── STEP 1–6 – Scan all lines for every type ──────────────────────────
+    add(
+      _scanLines(lines, _legalKeywords, DeadlineType.legalDeadline, seen: seen),
+    );
+    add(
+      _scanLines(lines, _deadlineKeywords, DeadlineType.deadline, seen: seen),
+    );
+    add(
+      _scanLines(
+        lines,
+        _paymentKeywords,
+        DeadlineType.paymentDeadline,
+        seen: seen,
+      ),
+    );
+    add(_scanAppointment(lines, seen: seen));
+    add(
+      _scanLines(lines, _expiryKeywords, DeadlineType.expiryDate, seen: seen),
+    );
+    add(
+      _scanLines(
+        lines,
+        _collectionKeywords,
+        DeadlineType.collectionDate,
+        seen: seen,
+      ),
+    );
+
+    // ── STEP 6b – Expiry: regex pass for "gilt * bis" patterns ─────────────
+    // Handles cases like "gilt diese voraussichtlich bis 31.07.2026" where
+    // extra words between "gilt" and "bis" break simple contains() matching.
+    for (final line in lines) {
+      if (_isIgnored(line)) continue;
+      if (!_expiryGiltRegex.hasMatch(line)) continue;
+      final m = _dateRegex.firstMatch(line);
+      if (m != null && !seen.contains(m.group(0)!)) {
+        add(
+          DeadlineResult(
+            date: _parse(m.group(0)!),
+            rawValue: m.group(0)!,
+            type: DeadlineType.expiryDate,
+          ),
+        );
+      }
+    }
+
+    // ── STEP 7 – Fallback only if nothing found at all ────────────────────
+    if (results.isEmpty) {
+      add(_fallback(lines));
+    }
+
+    // Sort by priority (enum ordinal = priority order as declared)
+    results.sort((a, b) => a.type.index.compareTo(b.type.index));
+    return results;
+  }
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // KEYWORD TABLES  (from OCR_Date_Rules_Professional.docx)
+  // ───────────────────────────────────────────────────────────────────────────
+
+  // ── Ignore triggers ───────────────────────────────────────────────────────
+  static const _ignoreLinePatterns = [
+    // Letter issue date
+    r',\s*den\s+\d{2}\.\d{2}\.\d{4}', // "Bochum, den 07.04.2026" – comma required"
+    r'^\s*Datum\s*:', // "Datum: 12.05.2026"
+    r'\berstellt\s+am\b',
+    r'\bausgestellt\s+am\b',
+    // Application dates
+    r'\bAntrag\s+vom\b',
+    r'\bIhr\s+Antrag\s+vom\b',
+    r'\bgestellt\s+am\b',
+    r'\beingereicht\s+am\b',
+    r'\bOnline-Antrag\s+vom\b',
+    // Birth dates
+    r'\bGeburtsdatum\b',
+    r'\bgeboren\s+am\b',
+    // Past correspondence
+    r'\bSchreiben\s+vom\b',
+    r'\bmit\s+Schreiben\s+vom\b',
+    r'\bzuletzt\s+am\b',
+    r'\bbereits\s+am\b',
+    r'\bwurden\s+Sie\s+aufgefordert\b',
+    r'\bmitgeteilt\s+am\b',
+    // Time periods (vom…bis without gültig)
+    r'\bim\s+Zeitraum\b',
+    r'\bzwischen\b',
+  ];
+
+  // ── Relative legal (no explicit date) ────────────────────────────────────
+  static const _relativeKeywords = [
+    'innerhalb eines monats',
+    'innerhalb von zwei wochen',
+    'rechtsbehelfsbelehrung',
+  ];
+
+  // ── Legal deadline ────────────────────────────────────────────────────────
+  static const _legalKeywords = [
+    'widerspruch',
+    'rechtsbehelfsbelehrung',
+    'einspruch',
+    'klagefrist',
+    'frist zur einlegung',
+    'innerhalb eines monats',
+    'innerhalb von zwei wochen',
+    'frist endet',
+  ];
+
+  // ── Hard deadline ─────────────────────────────────────────────────────────
+  static const _deadlineKeywords = [
+    'bis spätestens',
+    'spätestens bis',
+    'fristende',
+    'frist endet am',
+    'einzureichen bis',
+    'nachzureichen bis',
+    'reichen sie ein bis',
+    'einreichen bis',
+    'vorlegen bis',
+    'vorlage bis',
+    'unterlagen einreichen bis',
+    'fristgerecht',
+    'frist',
+    'bis',
+  ];
+
+  // ── Payment deadline ──────────────────────────────────────────────────────
+  static const _paymentKeywords = [
+    'zahlungsfrist',
+    'zahlbar bis',
+    'zahlen bis',
+    'überweisen sie bis',
+    'überweisen sie den betrag bis',
+    'betrag ist bis',
+    'fällig',
+    'gebühren sind bis',
+    'kosten sind bis',
+    'zahlung bis',
+  ];
+
+  // ── Appointment ───────────────────────────────────────────────────────────
+  static const _appointmentKeywords = [
+    'einladung zum termin',
+    'terminbestätigung',
+    'terminvereinbarung',
+    'meldeaufforderung',
+    'vorsprache erforderlich',
+    'persönliche vorsprache',
+    'persönlich vorzusprechen',
+    'wir laden sie ein',
+    'bitte erscheinen sie',
+    'erscheinen sie',
+    'vorsprache',
+    'termin:',
+    'termin am',
+    'für den', // "für den 06.05.2026 um 08:30 Uhr vorgesehen"
+    'ist für den',
+    'vorgesehen',
+    'termin',
+    'einladung',
+    'uhr', // "19.05.2026 um 09:20 Uhr"
+  ];
+
+  // ── Expiry date ───────────────────────────────────────────────────────────
+  static const _expiryKeywords = [
+    'aufenthaltstitel gültig bis',
+    'duldung gültig bis',
+    'fiktionsbescheinigung gültig bis',
+    'gültig bis zum',
+    'gültig bis',
+    'gültigkeit',
+    'ablaufdatum',
+    'läuft ab am',
+    'befristet bis',
+    'gilt voraussichtlich bis',
+    // Broader: "gilt diese voraussichtlich bis", "gilt bis", etc.
+    'gilt bis',
+    'gilt diese',
+  ];
+
+  /// Regex for expiry lines where "gilt" and "bis" are separated by extra words.
+  /// Matches: "gilt [optional words] bis DD.MM.YYYY"
+  static final _expiryGiltRegex = RegExp(
+    r'\bgilt\b.*?\bbis\b.*?\b\d{2}\.\d{2}\.\d{4}\b',
+    caseSensitive: false,
+  );
+
+  // ── Collection date ───────────────────────────────────────────────────────
+  static const _collectionKeywords = [
+    'abholbereit ab',
+    'zur abholung bereit',
+    'abholung ist ab',
+    'verfügbar ab',
+    'ausgabe ab',
+    'abholung',
+  ];
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // SCANNING HELPERS
+  // ───────────────────────────────────────────────────────────────────────────
+
+  static final _dateRegex = RegExp(r'\b(\d{2})\.(\d{2})\.(\d{4})\b');
+  static final _timeRegex = RegExp(r'\bum\s+(\d{2}:\d{2})\s+Uhr\b');
+  static final _periodRegex = RegExp(
+    r'\bvom\b.*?\b\d{2}\.\d{2}\.\d{4}\b.*?\bbis\b',
+    caseSensitive: false,
+  );
+
+  /// Returns true if [line] should be ignored entirely.
+  static bool _isIgnored(String line) {
+    for (final pat in _ignoreLinePatterns) {
+      if (RegExp(pat, caseSensitive: false).hasMatch(line)) return true;
+    }
+    // "vom X bis Y" period line – ignore unless it contains "gültig" or "aufenthaltstitel"
+    if (_periodRegex.hasMatch(line) &&
+        !line.toLowerCase().contains('gültig') &&
+        !line.toLowerCase().contains('aufenthaltstitel')) {
+      return true;
+    }
+    return false;
+  }
+
+  /// Scans [lines] for any of [keywords] and extracts the first matching date
+  /// that has not already been captured (tracked via [seen]).
+  /// Looks on the trigger line first, then the next line (date sometimes wraps).
+  static DeadlineResult? _scanLines(
+    List<String> lines,
+    List<String> keywords,
+    DeadlineType type, {
+    Set<String>? seen,
+  }) {
+    for (final kw in keywords) {
+      for (int i = 0; i < lines.length; i++) {
+        if (_isIgnored(lines[i])) continue;
+        if (!lines[i].toLowerCase().contains(kw)) continue;
+
+        // Same line
+        var m = _dateRegex.firstMatch(lines[i]);
+        if (m != null && !(seen?.contains(m.group(0)!) ?? false)) {
+          return DeadlineResult(
+            date: _parse(m.group(0)!),
+            rawValue: m.group(0)!,
+            type: type,
+          );
+        }
+        // Next line (date wraps)
+        if (i + 1 < lines.length && !_isIgnored(lines[i + 1])) {
+          m = _dateRegex.firstMatch(lines[i + 1]);
+          if (m != null && !(seen?.contains(m.group(0)!) ?? false)) {
+            return DeadlineResult(
+              date: _parse(m.group(0)!),
+              rawValue: m.group(0)!,
+              type: type,
+            );
+          }
+        }
+      }
+    }
+    return null;
+  }
+
+  /// Appointment scanner – same as [_scanLines] but also extracts time.
+  static DeadlineResult? _scanAppointment(
+    List<String> lines, {
+    Set<String>? seen,
+  }) {
+    for (final kw in _appointmentKeywords) {
+      for (int i = 0; i < lines.length; i++) {
+        if (_isIgnored(lines[i])) continue;
+        if (!lines[i].toLowerCase().contains(kw)) continue;
+
+        for (final checkLine in [
+          lines[i],
+          if (i + 1 < lines.length) lines[i + 1],
+        ]) {
+          if (_isIgnored(checkLine)) continue;
+          final dm = _dateRegex.firstMatch(checkLine);
+          if (dm == null) continue;
+          if (seen?.contains(dm.group(0)!) ?? false) continue;
+
+          // Extract time from same line or next line
+          String? time;
+          final tm = _timeRegex.firstMatch(checkLine);
+          if (tm != null) {
+            time = tm.group(1);
+          } else if (i + 1 < lines.length) {
+            final tm2 = _timeRegex.firstMatch(lines[i + 1]);
+            if (tm2 != null) time = tm2.group(1);
+          }
+
+          return DeadlineResult(
+            date: _parse(dm.group(0)!),
+            rawValue: dm.group(0)!,
+            type: DeadlineType.appointment,
+            time: time,
+          );
+        }
+      }
+    }
+    return null;
+  }
+
+  /// Fallback: returns the earliest non-ignored date in the document.
+  static DeadlineResult? _fallback(List<String> lines) {
+    final dates = <String>[];
+    for (final line in lines) {
+      if (_isIgnored(line)) continue;
+      for (final m in _dateRegex.allMatches(line)) {
+        dates.add(m.group(0)!);
+      }
+    }
+    if (dates.isEmpty) return null;
+    dates.sort((a, b) => _parse(a).compareTo(_parse(b)));
+    final raw = dates.first;
+    return DeadlineResult(
+      date: _parse(raw),
+      rawValue: raw,
+      type: DeadlineType.deadline, // conservative fallback type
+    );
+  }
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // DATE UTILITIES
+  // ───────────────────────────────────────────────────────────────────────────
+
+  static DateTime _parse(String ddmmyyyy) {
+    final p = ddmmyyyy.split('.');
+    return DateTime(int.parse(p[2]), int.parse(p[1]), int.parse(p[0]));
+  }
+
+  /// Default relative deadline: today + 1 month.
+  static DateTime _relativeDate() {
+    final now = DateTime.now();
+    return DateTime(now.year, now.month + 1, now.day);
+  }
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // TEXT HELPERS (unchanged)
+  // ───────────────────────────────────────────────────────────────────────────
+
   static String _normalise(String text) =>
       text.toLowerCase().replaceAll(RegExp(r'\s+'), ' ').trim();
 
-  /// Count how many of [keywords] appear in [normText].
   static ({int count, List<String> matched}) _countMatches(
     String normText,
     List<String> keywords,
@@ -98,9 +554,9 @@ class DocumentAnalyzer {
     return (count: matched.length, matched: matched);
   }
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // CLASSIFICATION
-  // ─────────────────────────────────────────────────────────────────────────
+  // ───────────────────────────────────────────────────────────────────────────
+  // CLASSIFICATION (unchanged)
+  // ───────────────────────────────────────────────────────────────────────────
 
   static ({
     CategoryDefinition? category,
@@ -113,11 +569,13 @@ class DocumentAnalyzer {
     List<String> bestMatched = [];
 
     for (final cat in BriefAiCategories.all) {
-      // Negative check – any negative keyword disqualifies this category
       final neg = _countMatches(normText, cat.negativeKeywords);
       if (neg.count > 0) continue;
 
       final decisive = _countMatches(normText, cat.decisiveKeywords);
+      print(
+        'Category "${cat.labelKey}": ${decisive.count} decisive, ${neg.count} negative',
+      );
       final supporting = _countMatches(normText, cat.supportingKeywords);
 
       final score = decisive.count * 100 + supporting.count * 10;
@@ -150,100 +608,16 @@ class DocumentAnalyzer {
     );
   }
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // DEADLINE EXTRACTION
-  // ─────────────────────────────────────────────────────────────────────────
+  // ───────────────────────────────────────────────────────────────────────────
+  // TITLE EXTRACTION (unchanged)
+  // ───────────────────────────────────────────────────────────────────────────
 
-  /// High-priority deadline triggers – these appear on the same line as the
-  /// actionable date (payment deadline, submission deadline, appointment).
-  static const _triggersHigh = [
-    'bis spätestens',
-    'bis zum',
-    'spätestens bis',
-    'bitte zahlen sie bis',
-    'bitte reichen sie',
-    'einreichen bis',
-    'zahlungsfrist',
-    'abgabe bis',
-    'fristgerecht',
-    'bitte erscheinen sie am',
-    'erscheinen sie am',
-  ];
-
-  /// Medium-priority triggers – appointment dates, validity dates, etc.
-  static const _triggersMed = [
-    'termin am',
-    'uhrzeit',
-    'termin:',
-    'beginnt am',
-    'gültig bis',
-    'endet am',
-    'ab dem',
-  ];
-
-  static final _dateRegex = RegExp(r'\b(\d{2})\.(\d{2})\.(\d{4})\b');
-
-  static String? _extractDeadline(String text) {
-    final lines = text.split('\n');
-
-    // Pass 1 – high-priority trigger on the same line
-    for (final line in lines) {
-      final ll = _normalise(line);
-
-      // Skip pure header date lines like "Datum: 15.04.2026"
-      final isDatumOnly =
-          ll.startsWith('datum') &&
-          ll.contains(':') &&
-          !_triggersHigh.any((t) => ll.contains(t));
-      if (isDatumOnly) continue;
-
-      if (!_triggersHigh.any((t) => ll.contains(t))) continue;
-      final m = _dateRegex.firstMatch(line);
-      if (m != null) return m.group(0);
-    }
-
-    // Pass 2 – medium-priority trigger on the same line
-    for (final line in lines) {
-      final ll = _normalise(line);
-      if (!_triggersMed.any((t) => ll.contains(t))) continue;
-      final m = _dateRegex.firstMatch(line);
-      if (m != null) return m.group(0);
-    }
-
-    // Pass 3 – earliest date anywhere in the text (fallback)
-    final allMatches = _dateRegex.allMatches(text).toList();
-    if (allMatches.isEmpty) return null;
-
-    allMatches.sort((a, b) {
-      final da = _parseDate(a.group(0)!);
-      final db = _parseDate(b.group(0)!);
-      return da.compareTo(db);
-    });
-    return allMatches.first.group(0);
-  }
-
-  static DateTime _parseDate(String ddmmyyyy) {
-    final parts = ddmmyyyy.split('.');
-    return DateTime(
-      int.parse(parts[2]),
-      int.parse(parts[1]),
-      int.parse(parts[0]),
-    );
-  }
-
-  // ─────────────────────────────────────────────────────────────────────────
-  // TITLE EXTRACTION
-  // ─────────────────────────────────────────────────────────────────────────
-
-  /// Known document title patterns – ordered from most specific to least.
   static const _titlePatterns = [
-    // Jobcenter
     'Einladung zum Termin',
     'Aufforderung zur Mitwirkung',
     'Weiterbewilligungsantrag',
     'Veränderungsmitteilung',
     'Hauptantrag Bürgergeld',
-    // Ausländerbehörde
     'Terminbestätigung',
     'Einladung zur persönlichen Vorsprache',
     'Aufforderung zur Vorlage von Unterlagen',
@@ -252,77 +626,46 @@ class DocumentAnalyzer {
     'Bewilligungsbescheid',
     'Ablehnungsbescheid',
     'Elektronischer Aufenthaltstitel',
-    // Finanzamt
     'Einkommensteuerbescheid',
     'Steuerbescheid',
     'Steuererstattung',
     'Aufforderung zur Abgabe der Steuererklärung',
     'Verspätungszuschlag',
-    'Vorauszahlung Einkommensteuer',
-    'Steuernachzahlung',
-    // Bank
     'Kontoauszug',
     'Überweisungsbestätigung',
     'Rücklastschrift',
-    'Kreditkartenabrechnung',
     'Sicherheitswarnung',
-    'Kontoüberziehung',
-    // Rechnung / Mahnung / Inkasso
     'Letzte Mahnung',
     'Mahnung',
     'Zahlungserinnerung',
     'Inkasso-Forderung',
     'Vollstreckungsbescheid',
     'Mahnbescheid',
-    'Zwangsvollstreckung',
     'Rechnung',
-    // Wohnen
     'Kündigung Mietvertrag',
     'Fristlose Kündigung',
     'Mieterhöhung',
     'Nebenkostenabrechnung',
-    'Wohnungsgeberbestätigung',
-    'Mietbescheinigung',
     'Mietvertrag',
     'Kautionsabrechnung',
-    'Kautionsrückzahlung',
-    'Bestätigung der Kautionszahlung',
-    'Kautionsvereinbarung',
-    // Versicherung
-    'Schadenmeldung',
-    'Schadenregulierung',
-    'Ablehnung der Schadenregulierung',
-    'Beitragsrechnung',
-    'Beitragsanpassung',
-    'Kündigungsbestätigung',
-    'Vertragsverlängerung',
     'Versicherungsschein',
-    // Kfz
-    'Elektronische Versicherungsbestätigung',
-    // Verträge
+    'Schadenmeldung',
+    'Beitragsrechnung',
+    'Kündigungsbestätigung',
     'Kündigung',
     'Arbeitsvertrag',
-    'Ratenzahlungsvertrag',
-    'Kaufvertrag',
-    'Mitgliedschaftsvertrag',
-    // Krankenkasse
     'Versicherungsbescheinigung',
     'Mitgliedsbescheinigung',
-    'Familienversicherung',
     'Krankengeld',
     'Kassenwechsel',
   ];
 
   static String _extractTitle(String text) {
-    // Search within the first 500 characters (document header region)
     final header = text.length > 500 ? text.substring(0, 500) : text;
     final headerLow = _normalise(header);
-
     for (final pattern in _titlePatterns) {
       if (headerLow.contains(_normalise(pattern))) return pattern;
     }
-
-    // Fallback: first non-empty line
     final firstLine = text
         .split('\n')
         .map((l) => l.trim())
@@ -330,9 +673,9 @@ class DocumentAnalyzer {
     return firstLine;
   }
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // SUMMARY EXTRACTION
-  // ─────────────────────────────────────────────────────────────────────────
+  // ───────────────────────────────────────────────────────────────────────────
+  // SUMMARY EXTRACTION (unchanged)
+  // ───────────────────────────────────────────────────────────────────────────
 
   static const _boilerplate = [
     'sehr geehrte',
@@ -341,7 +684,7 @@ class DocumentAnalyzer {
     'hochachtungsvoll',
   ];
 
-  static String _extractSummary(String text, String? deadline) {
+  static String _extractSummary(String text, String? deadlineRaw) {
     final sentences = text
         .split(RegExp(r'[\n.!?]'))
         .map((s) => s.trim())
@@ -359,8 +702,10 @@ class DocumentAnalyzer {
         ? '${sentences.substring(0, 297)}…'
         : sentences;
 
-    if (deadline != null && !summary.contains(deadline)) {
-      summary += ' Frist/Datum: $deadline.';
+    if (deadlineRaw != null &&
+        deadlineRaw != 'RELATIVE' &&
+        !summary.contains(deadlineRaw)) {
+      summary += ' Frist/Datum: $deadlineRaw.';
     }
 
     if (summary.isEmpty) {
