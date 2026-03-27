@@ -478,7 +478,7 @@ class DocumentService {
     required String title,
     required String subCategoryKey,
     required String mainCategoryKey,
-    required DateTime deadline,
+    required DateTime? deadline,
     required String statusKey,
     required String summary,
     String ocrText = '',
@@ -506,10 +506,11 @@ class DocumentService {
       );
 
       // Schedule reminders
-      if (reminder3DaysTime != null ||
-          reminder1DayTime != null ||
-          reminder12HoursTime != null ||
-          reminderCustomTime != null) {
+      if (deadline != null &&
+          (reminder3DaysTime != null ||
+              reminder1DayTime != null ||
+              reminder12HoursTime != null ||
+              reminderCustomTime != null)) {
         await scheduleReminders(
           docId,
           title,
@@ -535,7 +536,7 @@ class DocumentService {
     required String title,
     required String subCategoryKey,
     required String mainCategoryKey,
-    required DateTime deadline,
+    required DateTime? deadline,
     required String statusKey,
     required String summary,
     String ocrText = '',
@@ -572,10 +573,11 @@ class DocumentService {
       }
 
       // Schedule new reminders
-      if (reminder3DaysTime != null ||
-          reminder1DayTime != null ||
-          reminder12HoursTime != null ||
-          reminderCustomTime != null) {
+      if (deadline != null &&
+          (reminder3DaysTime != null ||
+              reminder1DayTime != null ||
+              reminder12HoursTime != null ||
+              reminderCustomTime != null)) {
         await scheduleReminders(
           id,
           title,

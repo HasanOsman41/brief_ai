@@ -24,19 +24,19 @@ class AnalysisBottomSheet extends StatefulWidget {
   });
 
   final DocumentResult result;
-  final DateTime initialDeadline;
+  final DateTime? initialDeadline;
   final List<String> imagePaths;
   final String ocrText;
-  final ValueChanged<DateTime> onSave;
+  final ValueChanged<DateTime?> onSave;
   final int? documentId;
 
   static void show(
     BuildContext context, {
     required DocumentResult result,
-    required DateTime initialDeadline,
+    required DateTime? initialDeadline,
     required List<String> imagePaths,
     required String ocrText,
-    required ValueChanged<DateTime> onSave,
+    required ValueChanged<DateTime?> onSave,
     int? documentId,
   }) {
     showModalBottomSheet(
@@ -59,7 +59,7 @@ class AnalysisBottomSheet extends StatefulWidget {
 }
 
 class _AnalysisBottomSheetState extends State<AnalysisBottomSheet> {
-  late DateTime _deadline;
+  DateTime? _deadline;
 
   // subCategoryKey = CategoryDefinition.id (e.g. 'jobcenter_termin')
   late String _subCategoryKey;
@@ -196,15 +196,17 @@ class _AnalysisBottomSheetState extends State<AnalysisBottomSheet> {
 
   Future<void> _handleSave() async {
     try {
-      final base = DateTime(_deadline.year, _deadline.month, _deadline.day, 9);
+      final base = _deadline != null
+          ? DateTime(_deadline!.year, _deadline!.month, _deadline!.day, 9)
+          : null;
 
-      final reminder3Days = _remindersEnabled && _remind3Days
+      final reminder3Days = base != null && _remindersEnabled && _remind3Days
           ? base.subtract(const Duration(days: 3))
           : null;
-      final reminder1Day = _remindersEnabled && _remind1Day
+      final reminder1Day = base != null && _remindersEnabled && _remind1Day
           ? base.subtract(const Duration(days: 1))
           : null;
-      final reminder12Hours = _remindersEnabled && _remind12Hours
+      final reminder12Hours = base != null && _remindersEnabled && _remind12Hours
           ? base.subtract(const Duration(hours: 12))
           : null;
       final reminderCustom = _remindersEnabled && _remindCustom
@@ -938,7 +940,7 @@ class _DeadlineReminderCard extends StatelessWidget {
 
   final bool isDark;
   final Color primary;
-  final DateTime deadline;
+  final DateTime? deadline;
   final bool remindersEnabled,
       remind3Days,
       remind1Day,
@@ -1076,7 +1078,7 @@ class _DatePickerChip extends StatelessWidget {
   });
   final bool isDark;
   final Color primary;
-  final DateTime date;
+  final DateTime? date;
   final ValueChanged<DateTime> onChanged;
 
   @override
@@ -1084,7 +1086,7 @@ class _DatePickerChip extends StatelessWidget {
     onTap: () async {
       final picked = await showDatePicker(
         context: context,
-        initialDate: date,
+        initialDate: date ?? DateTime.now(),
         firstDate: DateTime.now(),
         lastDate: DateTime.now().add(const Duration(days: 365)),
         builder: (ctx, child) => Theme(
@@ -1119,11 +1121,17 @@ class _DatePickerChip extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            '${date.day}.${date.month}.${date.year}',
+            date != null
+                ? '${date!.day}.${date!.month}.${date!.year}'
+                : AppLocalizations.tr(context, 'noDateSelected'),
             style: TextStyle(
-              color: isDark
-                  ? AppTheme.darkTextPrimary
-                  : AppTheme.lightTextPrimary,
+              color: date != null
+                  ? (isDark
+                      ? AppTheme.darkTextPrimary
+                      : AppTheme.lightTextPrimary)
+                  : (isDark
+                      ? AppTheme.darkTextSecondary
+                      : AppTheme.lightTextSecondary),
               fontSize: 16,
               fontWeight: FontWeight.w600,
             ),

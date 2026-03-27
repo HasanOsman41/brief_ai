@@ -53,12 +53,12 @@ class _ScanScreenState extends State<ScanScreen>
   // ── Analysis result ────────────────────────────────────────────────────────
   DocumentResult? _result;
   String _ocrText = '';
-  late DateTime _deadline;
+  DateTime? _deadline;
 
   @override
   void initState() {
     super.initState();
-    _deadline = DateTime.now().add(const Duration(days: 14));
+    _deadline = null; // Start with no deadline
 
     // Initialize animations
     _animationController = AnimationController(
@@ -594,13 +594,7 @@ class _ScanScreenState extends State<ScanScreen>
 
   DateTime? _parseDeadline(String? dateStr) {
     if (dateStr == null) return null;
-    final parts = dateStr.split('.');
-    if (parts.length != 3) return null;
-    final d = int.tryParse(parts[0]);
-    final m = int.tryParse(parts[1]);
-    final y = int.tryParse(parts[2]);
-    if (d == null || m == null || y == null) return null;
-    return DateTime(y, m, d);
+    return DateTime.parse(dateStr);
   }
 
   // ── Analysis ───────────────────────────────────────────────────────────────
@@ -649,8 +643,7 @@ class _ScanScreenState extends State<ScanScreen>
         _result = docResult;
         _ocrText = text;
         _deadline =
-            _parseDeadline(docResult.deadline) ??
-            DateTime.now().add(const Duration(days: 14));
+            _parseDeadline(docResult.deadline);
         _processing = false;
         _processingStep = '';
       });
@@ -676,7 +669,7 @@ class _ScanScreenState extends State<ScanScreen>
       imagePaths: List.unmodifiable(_pages),
       ocrText: _ocrText,
       documentId: _documentId,
-      onSave: (d) => setState(() => _deadline = d),
+      onSave: (DateTime? d) => setState(() => _deadline = d),
     );
   }
 

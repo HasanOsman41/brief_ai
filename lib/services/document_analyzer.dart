@@ -93,8 +93,8 @@ class DocumentAnalyzer {
 
   /// Analyse [ocrText] and return structured document information.
   static DocumentResult analyze(String ocrText) {
-    print('----------------------------------------------------------------');
-    print('OCR Text:\n$ocrText');
+    // print('----------------------------------------------------------------');
+    // print('OCR Text:\n$ocrText');
     if (ocrText.trim().isEmpty) {
       return const DocumentResult(
         category: null,
@@ -108,7 +108,6 @@ class DocumentAnalyzer {
     }
 
     final normText = _normalise(ocrText);
-
     // 1. Classify
     final classResult = _classify(normText);
 
@@ -136,7 +135,7 @@ class DocumentAnalyzer {
       summary: summary,
       deadline: deadlineResult?.rawValue == 'RELATIVE'
           ? null
-          : deadlineResult?.rawValue,
+          : deadlineResult?.date.toString(),
       nextStepKeys: nextStepKeys,
       confidence: classResult.confidence,
       matchedKeywords: classResult.matchedKeywords,
@@ -189,7 +188,7 @@ class DocumentAnalyzer {
     for (final line in lines) {
       if (_isIgnored(line)) continue;
       final ll = line.toLowerCase();
-      if (_relativeKeywords.any(ll.contains) && !_dateRegex.hasMatch(line)) {
+      if (_relativeKeywords.any(ll.contains) && _findDate(line) == null) {
         add(
           DeadlineResult(
             date: _relativeDate(),
@@ -235,7 +234,7 @@ class DocumentAnalyzer {
     for (final line in lines) {
       if (_isIgnored(line)) continue;
       if (!_expiryGiltRegex.hasMatch(line)) continue;
-      final m = _dateRegex.firstMatch(line);
+      final m = _findDate(line);
       if (m != null && !seen.contains(m.group(0)!)) {
         add(
           DeadlineResult(
@@ -359,6 +358,7 @@ class DocumentAnalyzer {
     'ist für den',
     'vorgesehen',
     'termin',
+    'termindaten',
     'einladung',
     'uhr', // "19.05.2026 um 09:20 Uhr"
   ];
@@ -397,27 +397,55 @@ class DocumentAnalyzer {
     'abholung',
   ];
 
+  static const Map<String, int> _monthMap = {
+    'januar': 1,
+    'februar': 2,
+    'märz': 3,
+    'april': 4,
+    'mai': 5,
+    'juni': 6,
+    'juli': 7,
+    'august': 8,
+    'september': 9,
+    'oktober': 10,
+    'november': 11,
+    'dezember': 12,
+  };
+
+  static RegExpMatch? _findDate(String line) {
+    return _dateRegex.firstMatch(line) ?? _dateRegexGerman.firstMatch(line);
+  }
+
   // ───────────────────────────────────────────────────────────────────────────
   // SCANNING HELPERS
   // ───────────────────────────────────────────────────────────────────────────
 
-  static final _dateRegex = RegExp(r'\b(\d{2})\.(\d{2})\.(\d{4})\b');
+  static final _dateRegex = RegExp(r'\b(\d{2})[\.\/-](\d{2})[\.\/-](\d{4})\b');
+  static final _dateRegexGerman = RegExp(r'\b(\d{1,2})\.\s*(Januar|Februar|März|April|Mai|Juni|Juli|August|September|Oktober|November|Dezember)\s+(\d{4})\b', caseSensitive: false);
   static final _timeRegex = RegExp(r'\bum\s+(\d{2}:\d{2})\s+Uhr\b');
   static final _periodRegex = RegExp(
-    r'\bvom\b.*?\b\d{2}\.\d{2}\.\d{4}\b.*?\bbis\b',
+    r'\bvom\b.*?\b\d{2}[\.\/-]\d{2}[\.\/-]\d{4}\b.*?\bbis\b',
     caseSensitive: false,
   );
 
   /// Returns true if [line] should be ignored entirely.
   static bool _isIgnored(String line) {
     for (final pat in _ignoreLinePatterns) {
-      if (RegExp(pat, caseSensitive: false).hasMatch(line)) return true;
+      if (RegExp(pat, caseSensitive: false).hasMatch(line)) {
+        return true;
+      }
     }
-    // "vom X bis Y" period line – ignore unless it contains "gültig" or "aufenthaltstitel"
-    if (_periodRegex.hasMatch(line) &&
-        !line.toLowerCase().contains('gültig') &&
-        !line.toLowerCase().contains('aufenthaltstitel')) {
-      return true;
+    // "vom X bis Y" period line – ignore unless it contains specific words
+    if (_periodRegex.hasMatch(line)) {
+      final l = line.toLowerCase();
+
+      final hasAllowKeyword =
+          l.contains('gültig') ||
+          l.contains('gültigkeit') ||
+          l.contains('erteilt') ||
+          l.contains('verlängerung');
+
+      if (!hasAllowKeyword) return true;
     }
     return false;
   }
@@ -436,18 +464,14 @@ class DocumentAnalyzer {
         if (_isIgnored(lines[i])) continue;
         if (!lines[i].toLowerCase().contains(kw)) continue;
 
-        // Same line
-        var m = _dateRegex.firstMatch(lines[i]);
-        if (m != null && !(seen?.contains(m.group(0)!) ?? false)) {
-          return DeadlineResult(
-            date: _parse(m.group(0)!),
-            rawValue: m.group(0)!,
-            type: type,
-          );
-        }
-        // Next line (date wraps)
-        if (i + 1 < lines.length && !_isIgnored(lines[i + 1])) {
-          m = _dateRegex.firstMatch(lines[i + 1]);
+        // Same line and up to 4 lines after
+        RegExpMatch? m;
+        for (var offset = 0; offset <= 4; offset++) {
+          final idx = i + offset;
+          if (idx >= lines.length) break;
+          if (_isIgnored(lines[idx])) continue;
+
+          m = _findDate(lines[idx]);
           if (m != null && !(seen?.contains(m.group(0)!) ?? false)) {
             return DeadlineResult(
               date: _parse(m.group(0)!),
@@ -471,23 +495,30 @@ class DocumentAnalyzer {
         if (_isIgnored(lines[i])) continue;
         if (!lines[i].toLowerCase().contains(kw)) continue;
 
-        for (final checkLine in [
-          lines[i],
-          if (i + 1 < lines.length) lines[i + 1],
-        ]) {
-          if (_isIgnored(checkLine)) continue;
-          final dm = _dateRegex.firstMatch(checkLine);
+        for (var offset = 0; offset <= 4; offset++) {
+          final idx = i + offset;
+          if (idx >= lines.length) break;
+          final checkLine = lines[idx];
+          // if (_isIgnored(checkLine)) continue;
+          final dm = _findDate(checkLine);
           if (dm == null) continue;
           if (seen?.contains(dm.group(0)!) ?? false) continue;
 
-          // Extract time from same line or next line
+          // Extract time from same line or up to 4 lines after
           String? time;
           final tm = _timeRegex.firstMatch(checkLine);
           if (tm != null) {
             time = tm.group(1);
-          } else if (i + 1 < lines.length) {
-            final tm2 = _timeRegex.firstMatch(lines[i + 1]);
-            if (tm2 != null) time = tm2.group(1);
+          } else {
+            for (var tOffset = 1; tOffset <= 4; tOffset++) {
+              final timeIdx = i + tOffset;
+              if (timeIdx >= lines.length) break;
+              final tm2 = _timeRegex.firstMatch(lines[timeIdx]);
+              if (tm2 != null) {
+                time = tm2.group(1);
+                break;
+              }
+            }
           }
 
           return DeadlineResult(
@@ -507,7 +538,7 @@ class DocumentAnalyzer {
     final dates = <String>[];
     for (final line in lines) {
       if (_isIgnored(line)) continue;
-      for (final m in _dateRegex.allMatches(line)) {
+      for (final m in [..._dateRegex.allMatches(line), ..._dateRegexGerman.allMatches(line)]) {
         dates.add(m.group(0)!);
       }
     }
@@ -525,9 +556,27 @@ class DocumentAnalyzer {
   // DATE UTILITIES
   // ───────────────────────────────────────────────────────────────────────────
 
-  static DateTime _parse(String ddmmyyyy) {
-    final p = ddmmyyyy.split('.');
-    return DateTime(int.parse(p[2]), int.parse(p[1]), int.parse(p[0]));
+  static DateTime _parse(String dateStr) {
+    if (dateStr.contains(RegExp(r'[a-zA-Z]'))) {
+      // German format: 30. Juni 2025
+      final parts = dateStr.split(RegExp(r'\s+'));
+      if (parts.length != 3) throw FormatException('Invalid German date format');
+      final day = int.parse(parts[0].replaceAll('.', ''));
+      final monthStr = parts[1].toLowerCase();
+      final year = int.parse(parts[2]);
+      final month = _monthMap[monthStr];
+      if (month == null) throw FormatException('Unknown month: $monthStr');
+      return DateTime(year, month, day);
+    } else {
+      // Old format: 30.06.2025
+      final separator = dateStr.contains('.')
+          ? '.'
+          : dateStr.contains('-')
+          ? '-'
+          : '/';
+      final p = dateStr.split(separator);
+      return DateTime(int.parse(p[2]), int.parse(p[1]), int.parse(p[0]));
+    }
   }
 
   /// Default relative deadline: today + 1 month.
@@ -573,9 +622,9 @@ class DocumentAnalyzer {
       if (neg.count > 0) continue;
 
       final decisive = _countMatches(normText, cat.decisiveKeywords);
-      print(
-        'Category "${cat.labelKey}": ${decisive.count} decisive, ${neg.count} negative',
-      );
+      // print(
+      //   'Category "${cat.labelKey}": ${decisive.count} decisive, ${neg.count} negative',
+      // );
       final supporting = _countMatches(normText, cat.supportingKeywords);
 
       final score = decisive.count * 100 + supporting.count * 10;
