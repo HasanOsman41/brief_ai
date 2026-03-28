@@ -99,7 +99,7 @@ class DocumentAnalyzer {
       return const DocumentResult(
         category: null,
         title: 'Unbekanntes Dokument',
-        summary: '',
+        summaryKey: 'summary_unknown_document',
         deadline: null,
         nextStepKeys: [],
         confidence: AnalysisConfidence.unknown,
@@ -114,8 +114,8 @@ class DocumentAnalyzer {
     // 2. Extract deadline (structured)
     final deadlineResult = extractDeadlineInfo(ocrText);
 
-    // 3. Extract summary
-    final summary = _extractSummary(ocrText, deadlineResult?.rawValue);
+    // 3. Extract summary key (always provided)
+    final summaryKey = _extractSummaryKey(classResult.category);
 
     // 4. Next step keys
     final nextStepKeys = classResult.category?.nextStepKeys ?? const <String>[];
@@ -132,7 +132,7 @@ class DocumentAnalyzer {
               mainCategory: cat.mainCategory,
             ),
       title: cat?.labelKey ?? 'categoryOther',
-      summary: summary,
+      summaryKey: summaryKey,
       deadline: deadlineResult?.rawValue == 'RELATIVE'
           ? null
           : deadlineResult?.date.toString(),
@@ -421,7 +421,10 @@ class DocumentAnalyzer {
   // ───────────────────────────────────────────────────────────────────────────
 
   static final _dateRegex = RegExp(r'\b(\d{2})[\.\/-](\d{2})[\.\/-](\d{4})\b');
-  static final _dateRegexGerman = RegExp(r'\b(\d{1,2})\.\s*(Januar|Februar|März|April|Mai|Juni|Juli|August|September|Oktober|November|Dezember)\s+(\d{4})\b', caseSensitive: false);
+  static final _dateRegexGerman = RegExp(
+    r'\b(\d{1,2})\.\s*(Januar|Februar|März|April|Mai|Juni|Juli|August|September|Oktober|November|Dezember)\s+(\d{4})\b',
+    caseSensitive: false,
+  );
   static final _timeRegex = RegExp(r'\bum\s+(\d{2}:\d{2})\s+Uhr\b');
   static final _periodRegex = RegExp(
     r'\bvom\b.*?\b\d{2}[\.\/-]\d{2}[\.\/-]\d{4}\b.*?\bbis\b',
@@ -461,9 +464,8 @@ class DocumentAnalyzer {
   }) {
     for (final kw in keywords) {
       for (int i = 0; i < lines.length; i++) {
-        if (_isIgnored(lines[i])) continue;
+        // if (_isIgnored(lines[i])) continue;
         if (!lines[i].toLowerCase().contains(kw)) continue;
-
         // Same line and up to 4 lines after
         RegExpMatch? m;
         for (var offset = 0; offset <= 4; offset++) {
@@ -473,6 +475,9 @@ class DocumentAnalyzer {
 
           m = _findDate(lines[idx]);
           if (m != null && !(seen?.contains(m.group(0)!) ?? false)) {
+            print(
+              'found date "${m.group(0)!}" for trigger "$kw" in line: ${lines[idx]}',
+            );
             return DeadlineResult(
               date: _parse(m.group(0)!),
               rawValue: m.group(0)!,
@@ -538,7 +543,10 @@ class DocumentAnalyzer {
     final dates = <String>[];
     for (final line in lines) {
       if (_isIgnored(line)) continue;
-      for (final m in [..._dateRegex.allMatches(line), ..._dateRegexGerman.allMatches(line)]) {
+      for (final m in [
+        ..._dateRegex.allMatches(line),
+        ..._dateRegexGerman.allMatches(line),
+      ]) {
         dates.add(m.group(0)!);
       }
     }
@@ -560,7 +568,8 @@ class DocumentAnalyzer {
     if (dateStr.contains(RegExp(r'[a-zA-Z]'))) {
       // German format: 30. Juni 2025
       final parts = dateStr.split(RegExp(r'\s+'));
-      if (parts.length != 3) throw FormatException('Invalid German date format');
+      if (parts.length != 3)
+        throw FormatException('Invalid German date format');
       final day = int.parse(parts[0].replaceAll('.', ''));
       final monthStr = parts[1].toLowerCase();
       final year = int.parse(parts[2]);
@@ -723,7 +732,15 @@ class DocumentAnalyzer {
   }
 
   // ───────────────────────────────────────────────────────────────────────────
-  // SUMMARY EXTRACTION (unchanged)
+  // SUMMARY EXTRACTION
+  // ───────────────────────────────────────────────────────────────────────────
+
+  static String _extractSummaryKey(CategoryDefinition? category) {
+    return category?.summaryKey ?? 'summary_unknown_document';
+  }
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // SUMMARY EXTRACTION
   // ───────────────────────────────────────────────────────────────────────────
 
   static const _boilerplate = [
@@ -733,7 +750,11 @@ class DocumentAnalyzer {
     'hochachtungsvoll',
   ];
 
-  static String _extractSummary(String text, String? deadlineRaw) {
+  static String _extractSummary(
+    String text,
+    String? deadlineRaw,
+    String? categoryId,
+  ) {
     final sentences = text
         .split(RegExp(r'[\n.!?]'))
         .map((s) => s.trim())

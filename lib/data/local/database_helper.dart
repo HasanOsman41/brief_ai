@@ -35,19 +35,7 @@ class DatabaseHelper {
     final documentsDirectory = await getApplicationDocumentsDirectory();
     final path = join(documentsDirectory.path, 'brief_ai.db');
 
-    return await openDatabase(
-      path,
-      version: 2,
-      onCreate: _createTables,
-      onUpgrade: _onUpgrade,
-    );
-  }
-
-  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
-    if (oldVersion < 2) {
-      await db.execute('ALTER TABLE documents RENAME COLUMN categoryId TO subCategoryKey');
-      await db.execute('ALTER TABLE documents RENAME COLUMN categoryKey TO mainCategoryKey');
-    }
+    return await openDatabase(path, version: 1, onCreate: _createTables);
   }
 
   /// Create database tables
@@ -63,7 +51,7 @@ class DatabaseHelper {
         deadline TEXT,
         statusKey TEXT NOT NULL,
         hasDeadline INTEGER NOT NULL,
-        summary TEXT DEFAULT '',
+        summaryKey TEXT DEFAULT 'summary_unknown_document',
         ocrText TEXT DEFAULT '',
         reminder3DaysTime TEXT,
         reminder1DayTime TEXT,

@@ -10,7 +10,7 @@ class Document {
   final DateTime createdAt;
   final DateTime? deadline;
   final String statusKey;
-  final String summary;
+  final String summaryKey;
   final String ocrText;
   final List<DocumentImage> images;
   final DateTime? reminder3DaysTime;
@@ -26,7 +26,7 @@ class Document {
     required this.createdAt,
     this.deadline,
     required this.statusKey,
-    this.summary = '',
+    required this.summaryKey,
     this.ocrText = '',
     this.images = const [],
     this.reminder3DaysTime,
@@ -69,7 +69,7 @@ class Document {
       'deadline': deadline?.toIso8601String(),
       'statusKey': statusKey,
       'hasDeadline': hasDeadline ? 1 : 0,
-      'summary': summary,
+      'summaryKey': summaryKey,
       'ocrText': ocrText,
       'reminder3DaysTime': reminder3DaysTime?.toIso8601String(),
       'reminder1DayTime': reminder1DayTime?.toIso8601String(),
@@ -90,7 +90,7 @@ class Document {
           ? DateTime.parse(json['deadline'] as String)
           : null,
       statusKey: json['statusKey'] as String,
-      summary: json['summary'] as String? ?? '',
+      summaryKey: json['summaryKey'] as String? ?? 'summary_unknown_document',
       ocrText: json['ocrText'] as String? ?? '',
       reminder3DaysTime: json['reminder3DaysTime'] != null
           ? DateTime.parse(json['reminder3DaysTime'] as String)
@@ -122,6 +122,7 @@ class Document {
     DateTime? deadline,
     String? statusKey,
     String? summary,
+    String? summaryKey,
     String? ocrText,
     List<DocumentImage>? images,
     DateTime? reminder3DaysTime,
@@ -137,7 +138,7 @@ class Document {
       createdAt: createdAt ?? this.createdAt,
       deadline: deadline ?? this.deadline,
       statusKey: statusKey ?? this.statusKey,
-      summary: summary ?? this.summary,
+      summaryKey: summaryKey ?? this.summaryKey,
       ocrText: ocrText ?? this.ocrText,
       images: images ?? this.images,
       reminder3DaysTime: reminder3DaysTime ?? this.reminder3DaysTime,

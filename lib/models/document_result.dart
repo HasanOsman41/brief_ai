@@ -82,8 +82,8 @@ class DocumentResult {
   /// Extracted or derived document title
   final String title;
 
-  /// Short summary extracted from the OCR text
-  final String summary;
+  /// l10n key for fixed summary (always provided)
+  final String summaryKey;
 
   /// Extracted deadline / important date (dd.MM.yyyy format), or null
   final String? deadline;
@@ -101,7 +101,7 @@ class DocumentResult {
   const DocumentResult({
     required this.category,
     required this.title,
-    required this.summary,
+    required this.summaryKey,
     required this.deadline,
     required this.nextStepKeys,
     required this.confidence,
@@ -111,7 +111,7 @@ class DocumentResult {
   Map<String, dynamic> toMap() => {
     'category': category?.toMap(),
     'title': title,
-    'summary': summary,
+    'summary_key': summaryKey,
     'deadline': deadline,
     'next_step_keys': nextStepKeys,
     'confidence': confidence.name,

@@ -67,7 +67,6 @@ class _AnalysisBottomSheetState extends State<AnalysisBottomSheet> {
   late String _mainCategoryKey;
   late String _titleKey;
   late String _editableTitle;
-  late String _editableSummary;
 
   bool _remindersEnabled = true;
   bool _remind3Days = true;
@@ -85,7 +84,6 @@ class _AnalysisBottomSheetState extends State<AnalysisBottomSheet> {
     // We'll translate it for display once we have a valid BuildContext.
     _titleKey = widget.result.title;
     _editableTitle = '';
-    _editableSummary = widget.result.summary;
 
     // Resolve the detected sub-category from the result, fallback to first.
     final detectedId = widget.result.category?.id;
@@ -154,9 +152,6 @@ class _AnalysisBottomSheetState extends State<AnalysisBottomSheet> {
                       editableTitle: _editableTitle,
                       onTitleChanged: (title) =>
                           setState(() => _editableTitle = title),
-                      editableSummary: _editableSummary,
-                      onSummaryChanged: (summary) =>
-                          setState(() => _editableSummary = summary),
                     ),
 
                     const SizedBox(height: 16),
@@ -206,7 +201,8 @@ class _AnalysisBottomSheetState extends State<AnalysisBottomSheet> {
       final reminder1Day = base != null && _remindersEnabled && _remind1Day
           ? base.subtract(const Duration(days: 1))
           : null;
-      final reminder12Hours = base != null && _remindersEnabled && _remind12Hours
+      final reminder12Hours =
+          base != null && _remindersEnabled && _remind12Hours
           ? base.subtract(const Duration(hours: 12))
           : null;
       final reminderCustom = _remindersEnabled && _remindCustom
@@ -227,7 +223,7 @@ class _AnalysisBottomSheetState extends State<AnalysisBottomSheet> {
           mainCategoryKey: _mainCategoryKey,
           deadline: _deadline,
           statusKey: 'pending',
-          summary: _editableSummary,
+          summaryKey: widget.result.summaryKey,
           ocrText: widget.ocrText,
           imagePaths: widget.imagePaths,
           reminder3DaysTime: reminder3Days,
@@ -242,7 +238,7 @@ class _AnalysisBottomSheetState extends State<AnalysisBottomSheet> {
           mainCategoryKey: _mainCategoryKey,
           deadline: _deadline,
           statusKey: 'pending',
-          summary: _editableSummary,
+          summaryKey: widget.result.summaryKey,
           ocrText: widget.ocrText,
           imagePaths: widget.imagePaths,
           reminder3DaysTime: reminder3Days,
@@ -410,8 +406,6 @@ class _DocumentInfoCard extends StatefulWidget {
     required this.onCategoryChanged,
     required this.editableTitle,
     required this.onTitleChanged,
-    required this.editableSummary,
-    required this.onSummaryChanged,
   });
 
   final DocumentResult result;
@@ -419,11 +413,10 @@ class _DocumentInfoCard extends StatefulWidget {
   final Color primary;
   final String selectedCategoryId;
   final String selectedCategoryKey;
-  final void Function(String subCategoryKey, String mainCategoryKey) onCategoryChanged;
+  final void Function(String subCategoryKey, String mainCategoryKey)
+  onCategoryChanged;
   final String editableTitle;
   final ValueChanged<String> onTitleChanged;
-  final String editableSummary;
-  final ValueChanged<String> onSummaryChanged;
 
   @override
   State<_DocumentInfoCard> createState() => _DocumentInfoCardState();
@@ -431,13 +424,11 @@ class _DocumentInfoCard extends StatefulWidget {
 
 class _DocumentInfoCardState extends State<_DocumentInfoCard> {
   late TextEditingController _titleController;
-  late TextEditingController _summaryController;
 
   @override
   void initState() {
     super.initState();
     _titleController = TextEditingController(text: widget.editableTitle);
-    _summaryController = TextEditingController(text: widget.editableSummary);
   }
 
   @override
@@ -446,15 +437,11 @@ class _DocumentInfoCardState extends State<_DocumentInfoCard> {
     if (oldWidget.editableTitle != widget.editableTitle) {
       _titleController.text = widget.editableTitle;
     }
-    if (oldWidget.editableSummary != widget.editableSummary) {
-      _summaryController.text = widget.editableSummary;
-    }
   }
 
   @override
   void dispose() {
     _titleController.dispose();
-    _summaryController.dispose();
     super.dispose();
   }
 
@@ -521,50 +508,6 @@ class _DocumentInfoCardState extends State<_DocumentInfoCard> {
         ],
         const SizedBox(height: 16),
         Text(
-          AppLocalizations.tr(context, 'summary'),
-          style: TextStyle(
-            color: widget.isDark
-                ? AppTheme.darkTextSecondary
-                : AppTheme.lightTextSecondary,
-            fontSize: 11,
-            fontWeight: FontWeight.w600,
-            letterSpacing: 0.8,
-          ),
-        ),
-        const SizedBox(height: 6),
-        TextField(
-          controller: _summaryController,
-          onChanged: widget.onSummaryChanged,
-          maxLines: null,
-          style: TextStyle(
-            color: widget.isDark
-                ? AppTheme.darkTextPrimary
-                : AppTheme.lightTextPrimary,
-            fontSize: 14,
-            height: 1.5,
-          ),
-          decoration: InputDecoration(
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-              borderSide: BorderSide(
-                color: widget.isDark
-                    ? AppTheme.darkBorder
-                    : AppTheme.lightBorder,
-              ),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-              borderSide: BorderSide(color: widget.primary, width: 2),
-            ),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 12,
-              vertical: 10,
-            ),
-          ),
-        ),
-        const SizedBox(height: 16),
-        Text(
           AppLocalizations.tr(context, 'whatYouShould'),
           style: TextStyle(
             color: widget.isDark
@@ -577,7 +520,9 @@ class _DocumentInfoCardState extends State<_DocumentInfoCard> {
         ),
         const SizedBox(height: 6),
         WhatYouShouldCard(
-          nextStepTitleKeys: BriefAiCategories.getStepsById(widget.selectedCategoryId),
+          nextStepTitleKeys: BriefAiCategories.getStepsById(
+            widget.selectedCategoryId,
+          ),
           isDark: widget.isDark,
           primary: widget.primary,
           enablePulseAnimation: true,
@@ -619,7 +564,9 @@ class _CategorySelector extends StatelessWidget {
         Text(
           AppLocalizations.tr(context, 'category'),
           style: TextStyle(
-            color: isDark ? AppTheme.darkTextSecondary : AppTheme.lightTextSecondary,
+            color: isDark
+                ? AppTheme.darkTextSecondary
+                : AppTheme.lightTextSecondary,
             fontSize: 11,
             fontWeight: FontWeight.w600,
             letterSpacing: 0.8,
@@ -631,7 +578,9 @@ class _CategorySelector extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             decoration: BoxDecoration(
-              color: isDark ? AppTheme.darkBackground : AppTheme.lightBackground,
+              color: isDark
+                  ? AppTheme.darkBackground
+                  : AppTheme.lightBackground,
               borderRadius: BorderRadius.circular(10),
               border: Border.all(color: primary.withOpacity(0.5)),
             ),
@@ -736,8 +685,8 @@ class _CategoryPickerSheetState extends State<_CategoryPickerSheet> {
     final pool = _selectedMain == null
         ? BriefAiCategories.all
         : BriefAiCategories.all
-            .where((c) => c.mainCategory == _selectedMain)
-            .toList();
+              .where((c) => c.mainCategory == _selectedMain)
+              .toList();
     if (_query.isEmpty) return pool;
     return pool.where((c) {
       final label = AppLocalizations.tr(context, c.labelKey).toLowerCase();
@@ -747,7 +696,9 @@ class _CategoryPickerSheetState extends State<_CategoryPickerSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final bg = widget.isDark ? AppTheme.darkBackground : AppTheme.lightBackground;
+    final bg = widget.isDark
+        ? AppTheme.darkBackground
+        : AppTheme.lightBackground;
     final cardColor = widget.isDark ? AppTheme.darkCard : AppTheme.lightCard;
 
     return DraggableScrollableSheet(
@@ -775,9 +726,9 @@ class _CategoryPickerSheetState extends State<_CategoryPickerSheet> {
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
               child: Text(
                 AppLocalizations.tr(context, 'changeCategory'),
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
               ),
             ),
             // Search field
@@ -828,12 +779,18 @@ class _CategoryPickerSheetState extends State<_CategoryPickerSheet> {
             Expanded(
               child: ListView.builder(
                 controller: scrollController,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 4,
+                ),
                 itemCount: _filtered.length,
                 itemBuilder: (context, i) {
                   final cat = _filtered[i];
                   final isCurrent = cat.id == widget.currentCategoryId;
-                  final mainLabel = AppLocalizations.tr(context, cat.mainCategory.key);
+                  final mainLabel = AppLocalizations.tr(
+                    context,
+                    cat.mainCategory.key,
+                  );
                   return ListTile(
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -866,8 +823,11 @@ class _CategoryPickerSheetState extends State<_CategoryPickerSheet> {
                       ),
                     ),
                     trailing: isCurrent
-                        ? Icon(Icons.check_circle,
-                            color: widget.primary, size: 18)
+                        ? Icon(
+                            Icons.check_circle,
+                            color: widget.primary,
+                            size: 18,
+                          )
                         : null,
                     onTap: () => widget.onSelected(cat),
                   );
@@ -1127,11 +1087,11 @@ class _DatePickerChip extends StatelessWidget {
             style: TextStyle(
               color: date != null
                   ? (isDark
-                      ? AppTheme.darkTextPrimary
-                      : AppTheme.lightTextPrimary)
+                        ? AppTheme.darkTextPrimary
+                        : AppTheme.lightTextPrimary)
                   : (isDark
-                      ? AppTheme.darkTextSecondary
-                      : AppTheme.lightTextSecondary),
+                        ? AppTheme.darkTextSecondary
+                        : AppTheme.lightTextSecondary),
               fontSize: 16,
               fontWeight: FontWeight.w600,
             ),

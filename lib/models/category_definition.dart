@@ -25,6 +25,9 @@ class CategoryDefinition {
   /// l10n key for the category name → 'cat_<id>_label'
   final String labelKey;
 
+  /// l10n key for fixed summary → 'cat_<id>_summary' (null if no fixed summary)
+  final String? summaryKey;
+
   /// The main group this sub-category belongs to.
   final MainCategory mainCategory;
 
@@ -45,6 +48,7 @@ class CategoryDefinition {
   const CategoryDefinition({
     required this.id,
     required this.labelKey,
+    this.summaryKey,
     required this.mainCategory,
     required this.decisiveKeywords,
     required this.supportingKeywords,

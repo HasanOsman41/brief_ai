@@ -444,7 +444,9 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
                             _buildSummarySection(context, isDark),
                             const SizedBox(height: 20),
                             WhatYouShouldCard(
-                              nextStepTitleKeys: BriefAiCategories.getStepsById(_document!.subCategoryKey),
+                              nextStepTitleKeys: BriefAiCategories.getStepsById(
+                                _document!.subCategoryKey,
+                              ),
                               isDark: isDark,
                               primary: primaryColor,
                             ),
@@ -785,7 +787,7 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
           Text(
             _document!.summary.isNotEmpty
                 ? _document!.summary
-                : 'No summary available',
+                : AppLocalizations.tr(context, 'summary_unknown_document'),
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
               height: 1.6,
               fontSize: 15,
