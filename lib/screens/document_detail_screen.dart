@@ -785,8 +785,8 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
           ),
           const SizedBox(height: 12),
           Text(
-            _document!.summary.isNotEmpty
-                ? _document!.summary
+            _document!.summaryKey.isNotEmpty
+                ? AppLocalizations.tr(context, _document!.summaryKey)
                 : AppLocalizations.tr(context, 'summary_unknown_document'),
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
               height: 1.6,

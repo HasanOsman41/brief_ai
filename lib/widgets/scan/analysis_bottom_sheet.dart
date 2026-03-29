@@ -508,6 +508,38 @@ class _DocumentInfoCardState extends State<_DocumentInfoCard> {
         ],
         const SizedBox(height: 16),
         Text(
+          AppLocalizations.tr(context, 'aiSummary'),
+          style: TextStyle(
+            color: widget.isDark
+                ? AppTheme.darkTextSecondary
+                : AppTheme.lightTextSecondary,
+            fontSize: 11,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 0.8,
+          ),
+        ),
+        const SizedBox(height: 6),
+        Container(
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: widget.isDark ? AppTheme.darkBorder : AppTheme.lightBorder,
+            ),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          child: Text(
+            AppLocalizations.tr(context, widget.result.summaryKey),
+            style: TextStyle(
+              color: widget.isDark
+                  ? AppTheme.darkTextPrimary
+                  : AppTheme.lightTextPrimary,
+              fontSize: 14,
+              height: 1.5,
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+        Text(
           AppLocalizations.tr(context, 'whatYouShould'),
           style: TextStyle(
             color: widget.isDark
