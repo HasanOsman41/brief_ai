@@ -73,6 +73,17 @@ class ImageRepository {
     );
   }
 
+  /// Update image path
+  Future<int> updatePath(int id, String newPath) async {
+    final db = await _dbHelper.database;
+    return await db.update(
+      'images',
+      {'imagePath': newPath},
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
   /// Delete image
   Future<int> delete(int id) async {
     final db = await _dbHelper.database;

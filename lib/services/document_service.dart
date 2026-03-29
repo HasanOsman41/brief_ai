@@ -369,6 +369,17 @@ class DocumentService {
     }
   }
 
+  /// Update image path
+  Future<void> updateImagePath(int imageId, String newPath) async {
+    try {
+      await _imageRepo.updatePath(imageId, newPath);
+      print('✅ Image path updated for id: $imageId');
+    } catch (e) {
+      print('❌ Error updating image path for id $imageId: $e');
+      rethrow;
+    }
+  }
+
   /// Reorder images for a document
   Future<void> reorderImages(int documentId, List<int> imageIds) async {
     try {

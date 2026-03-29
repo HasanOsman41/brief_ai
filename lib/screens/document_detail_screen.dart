@@ -5,11 +5,17 @@ import 'package:brief_ai/data/brief_ai_categories.dart';
 import 'package:brief_ai/localization/app_localizations.dart';
 import 'package:brief_ai/models/document.dart';
 import 'package:brief_ai/services/document_service.dart';
+import 'package:brief_ai/services/ocr_service.dart';
+import 'package:brief_ai/services/pdf_service.dart';
 import 'package:brief_ai/theme/app_theme.dart';
 import 'package:brief_ai/widgets/confirm_dialog.dart';
 import 'package:brief_ai/widgets/glass_card.dart';
 import 'package:brief_ai/widgets/what_you_should_card.dart';
 import 'package:flutter/material.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:image_editor_plus/image_editor_plus.dart';
+import 'package:path/path.dart' as path;
+import 'package:path_provider/path_provider.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 
@@ -253,6 +259,9 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
                                     );
                                   }
                                   break;
+                                case 'edit_image':
+                                  _editCurrentImage();
+                                  break;
                                 case 'export':
                                   break;
                                 case 'delete':
@@ -272,6 +281,20 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
                                     ),
                                     const SizedBox(width: 12),
                                     Text(AppLocalizations.tr(context, 'edit')),
+                                  ],
+                                ),
+                              ),
+                              PopupMenuItem(
+                                value: 'edit_image',
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.image,
+                                      color: primaryColor,
+                                      size: 20,
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Text(AppLocalizations.tr(context, 'editImage')),
                                   ],
                                 ),
                               ),
@@ -1014,37 +1037,25 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
             ListTile(
               leading: const Icon(Icons.image),
               title: Text(AppLocalizations.tr(context, 'shareImage')),
-              onTap: () {
+              onTap: () async {
                 Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(AppLocalizations.tr(context, 'sharingImage')),
-                  ),
-                );
+                await _shareCurrentImage();
               },
             ),
             ListTile(
               leading: const Icon(Icons.picture_as_pdf),
               title: Text(AppLocalizations.tr(context, 'sharePDF')),
-              onTap: () {
+              onTap: () async {
                 Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(AppLocalizations.tr(context, 'sharingPDF')),
-                  ),
-                );
+                await _shareAsPDF();
               },
             ),
             ListTile(
               leading: const Icon(Icons.text_snippet),
               title: Text(AppLocalizations.tr(context, 'shareText')),
-              onTap: () {
+              onTap: () async {
                 Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(AppLocalizations.tr(context, 'sharingText')),
-                  ),
-                );
+                await _shareAsText();
               },
             ),
           ],
@@ -1137,5 +1148,147 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
         },
       ),
     );
+  }
+
+  Future<void> _editCurrentImage() async {
+    if (_document == null || _document!.images.isEmpty) return;
+
+    final currentImage = _document!.images[_currentPage];
+    final imageFile = File(currentImage.imagePath);
+
+    if (!await imageFile.exists()) {
+      _showErrorSnackBar('Image file not found');
+      return;
+    }
+
+    try {
+      // Open image editor
+      final editedImage = await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ImageEditor(
+            image: imageFile.readAsBytesSync(),
+          ),
+        ),
+      );
+
+      if (editedImage != null) {
+        // Save edited image to a new file
+        final directory = await getApplicationDocumentsDirectory();
+        final fileName = 'edited_${DateTime.now().millisecondsSinceEpoch}_${path.basename(currentImage.imagePath)}';
+        final newPath = path.join(directory.path, fileName);
+
+        final newFile = File(newPath);
+        await newFile.writeAsBytes(editedImage);
+
+        // Update the image path in database
+        await DocumentService().updateImagePath(currentImage.id!, newPath);
+
+        // Reload document to refresh UI
+        if (_document?.id != null) {
+          final updatedDocument = await DocumentService().getDocumentById(_document!.id!);
+          if (mounted && updatedDocument != null) {
+            setState(() {
+              _document = updatedDocument;
+            });
+          }
+        }
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Image updated successfully')),
+        );
+      }
+    } catch (e) {
+      _showErrorSnackBar('Error editing image: $e');
+    }
+  }
+
+  Future<void> _shareCurrentImage() async {
+    if (_document == null || _document!.images.isEmpty) return;
+
+    try {
+      final currentImage = _document!.images[_currentPage];
+      final imageFile = File(currentImage.imagePath);
+
+      if (!await imageFile.exists()) {
+        _showErrorSnackBar('Image file not found');
+        return;
+      }
+
+      await Share.shareXFiles(
+        [XFile(currentImage.imagePath)],
+        text: '${_translateTitle(_document!.title)} - ${AppLocalizations.tr(context, 'sharedFrom')} BriefAI',
+        subject: _translateTitle(_document!.title),
+      );
+    } catch (e) {
+      if (mounted) {
+        _showErrorSnackBar('Error sharing image: $e');
+      }
+    }
+  }
+
+  Future<void> _shareAsPDF() async {
+    if (_document == null || _document!.images.isEmpty) return;
+
+    try {
+      // Show loading indicator
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(AppLocalizations.tr(context, 'generatingPDF'))),
+        );
+      }
+
+      final imagePaths = _document!.imagePaths;
+      final pdfPath = await PdfService.instance.generateAndSave(imagePaths);
+
+      if (pdfPath != null) {
+        await Share.shareXFiles(
+          [XFile(pdfPath)],
+          text: '${_translateTitle(_document!.title)} - ${AppLocalizations.tr(context, 'sharedFrom')} BriefAI',
+          subject: '${_translateTitle(_document!.title)} - PDF',
+        );
+      } else {
+        if (mounted) {
+          _showErrorSnackBar('Failed to generate PDF');
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        _showErrorSnackBar('Error sharing PDF: $e');
+      }
+    }
+  }
+
+  Future<void> _shareAsText() async {
+    if (_document == null) return;
+
+    try {
+      // Show loading indicator
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(AppLocalizations.tr(context, 'extractingText'))),
+        );
+      }
+
+      final imagePaths = _document!.imagePaths;
+      final extractedText = await OcrService.instance.recogniseAll(imagePaths);
+
+      final textToShare = '''
+${_translateTitle(_document!.title)}
+
+${extractedText.isNotEmpty ? extractedText : AppLocalizations.tr(context, 'noTextFound')}
+
+${AppLocalizations.tr(context, 'sharedFrom')} BriefAI
+''';
+
+      await Share.share(
+        textToShare,
+        subject: _translateTitle(_document!.title),
+      );
+    } catch (e) {
+      if (mounted) {
+        _showErrorSnackBar('Error sharing text: $e');
+      }
+    }
   }
 }

@@ -32,6 +32,7 @@ dependencies:
   path: ^1.8.3
   photo_view: ^0.15.0
   google_mlkit_text_recognition: ^0.15.1
+  image_editor_plus: ^1.0.8
 
 dev_dependencies:
   flutter_test:
