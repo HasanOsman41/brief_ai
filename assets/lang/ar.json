@@ -741,8 +741,10 @@
     "medium": "متوسط",
     "multiPage": "متعدد الصفحات",
     "nextSteps": "الخطوات التالية",
+    "noDateDetected": "لم يتم اكتشاف تاريخ",
     "noDeadline": "لا يوجد موعد نهائي",
     "noDocuments": "لا توجد مستندات بعد",
+    "unableToAssess": "لا يمكن تقييمه",
     "noResults": "لم يتم العثور على نتائج",
     "noScheduledReminders": "لا توجد تذكيرات مجدولة",
     "notifications": "الإشعارات",
@@ -1116,5 +1118,8 @@
     "cat_uebergabeprotokoll_label": "بروتوكول التسليم",
     "cat_uebergabeprotokoll_step1": "اقرأ البروتوكول بعناية وتحقق من جميع البنود.",
     "cat_uebergabeprotokoll_step2": "أكّد قراءات العدادات وعدد المفاتيح.",
-    "cat_uebergabeprotokoll_step3": "احتفظ بنسخة من البروتوكول."
+    "cat_uebergabeprotokoll_step3": "احتفظ بنسخة من البروتوكول.",
+    "features": "الميزات",
+    "advancedAIMode": "وضع الذكاء الاصطناعي المتقدم",
+    "advancedAIModeDescription": "تجريبي – قريباً"
 }

@@ -744,12 +744,13 @@
   "medium": "Mittel",
   "multiPage": "Mehrseitig",
   "nextSteps": "Nächste Schritte",
+  "noDateDetected": "Kein Datum erkannt",
   "noDateSelected": "Kein Datum ausgewählt",
   "noDeadline": "Keine Frist",
   "noDocuments": "Noch keine Dokumente",
+  "unableToAssess": "Kann nicht beurteilt",
   "noResults": "Keine Ergebnisse gefunden",
   "noScheduledReminders": "Keine geplanten Erinnerungen",
-  "noTextFound": "Kein Text gefunden",
   "notifications": "Benachrichtigungen",
   "notificationsDetailed": "Erinnerungen werden lokal auf Ihrem Gerät verarbeitet und nicht an Server weitergeleitet.",
   "ocrPage": "OCR – Seite",
@@ -1125,5 +1126,8 @@
   "cat_uebergabeprotokoll_label": "Übergabeprotokoll",
   "cat_uebergabeprotokoll_step1": "Protokoll sorgfältig lesen und alle Punkte prüfen.",
   "cat_uebergabeprotokoll_step2": "Zählerstände und Schlüsselanzahl bestätigen.",
-  "cat_uebergabeprotokoll_step3": "Kopie des Protokolls aufbewahren."
+  "cat_uebergabeprotokoll_step3": "Kopie des Protokolls aufbewahren.",
+  "features": "Funktionen",
+  "advancedAIMode": "Erweiterter KI-Modus",
+  "advancedAIModeDescription": "Experimentell – Demnächst verfügbar"
 }

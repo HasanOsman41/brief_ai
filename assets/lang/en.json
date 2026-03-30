@@ -746,12 +746,13 @@
     "medium": "Medium",
     "multiPage": "Multi-page",
     "nextSteps": "Next Steps",
+    "noDateDetected": "No date detected",
     "noDateSelected": "No date selected",
     "noDeadline": "No deadline",
     "noDocuments": "No documents yet",
+    "unableToAssess": "Unable to assess",
     "noResults": "No results found",
     "noScheduledReminders": "No scheduled reminders",
-    "noTextFound": "No text found",
     "notifications": "Notifications",
     "notificationsDetailed": "Reminders are processed locally on your device and are not forwarded to servers.",
     "ocrPage": "OCR – page",
@@ -1125,5 +1126,8 @@
     "cat_uebergabeprotokoll_label": "Handover Protocol",
     "cat_uebergabeprotokoll_step1": "Read the protocol carefully and check all points.",
     "cat_uebergabeprotokoll_step2": "Confirm meter readings and number of keys.",
-    "cat_uebergabeprotokoll_step3": "Keep a copy of the protocol."
+    "cat_uebergabeprotokoll_step3": "Keep a copy of the protocol.",
+    "features": "Features",
+    "advancedAIMode": "Advanced AI Mode",
+    "advancedAIModeDescription": "Experimental – Coming Soon"
 }

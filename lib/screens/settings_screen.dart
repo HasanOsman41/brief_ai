@@ -5,11 +5,18 @@ import 'package:brief_ai/widgets/confirm_dialog.dart';
 import 'package:brief_ai/widgets/glass_card.dart';
 import 'package:flutter/material.dart';
 
-class SettingsScreen extends StatelessWidget {
+class SettingsScreen extends StatefulWidget {
   final VoidCallback onToggleTheme;
 
   const SettingsScreen({Key? key, required this.onToggleTheme})
     : super(key: key);
+
+  @override
+  State<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
+  bool _advancedAIModeEnabled = false;
 
   @override
   Widget build(BuildContext context) {
@@ -28,6 +35,49 @@ class SettingsScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
+          // Features section
+          Text(
+            AppLocalizations.tr(context, 'features').toUpperCase(),
+            style: Theme.of(context).textTheme.labelLarge?.copyWith(
+              color: Theme.of(context).textTheme.bodyMedium?.color,
+              fontSize: 12,
+              letterSpacing: 0.5,
+            ),
+          ),
+          const SizedBox(height: 12),
+          GlassCard(
+            child: ListTile(
+              leading: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: primaryColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(Icons.smart_toy, color: primaryColor),
+              ),
+              title: Text(AppLocalizations.tr(context, 'advancedAIMode')),
+              subtitle: Text(
+                AppLocalizations.tr(context, 'advancedAIModeDescription'),
+                style: TextStyle(
+                  color: Theme.of(context).textTheme.bodyMedium?.color,
+                  fontSize: 12,
+                ),
+              ),
+              trailing: Switch(
+                value: _advancedAIModeEnabled,
+                onChanged: (value) {
+                  setState(() {
+                    _advancedAIModeEnabled = value;
+                  });
+                  _showAdvancedAIModeMessage(context, value, isDark);
+                },
+                activeColor: primaryColor,
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 24),
+
           // Appearance section
           Text(
             AppLocalizations.tr(context, 'appearance').toUpperCase(),
@@ -57,7 +107,7 @@ class SettingsScreen extends StatelessWidget {
                   trailing: Switch(
                     value: isDark,
                     onChanged: (value) {
-                      onToggleTheme();
+                      widget.onToggleTheme();
                     },
                     activeColor: primaryColor,
                   ),
@@ -362,6 +412,25 @@ class SettingsScreen extends StatelessWidget {
             ),
           );
         },
+      ),
+    );
+  }
+
+  void _showAdvancedAIModeMessage(
+    BuildContext context,
+    bool enabled,
+    bool isDark,
+  ) {
+    final primaryColor = Theme.of(context).colorScheme.primary;
+    final message = enabled
+        ? '${AppLocalizations.tr(context, 'advancedAIMode')} enabled (Demo)'
+        : '${AppLocalizations.tr(context, 'advancedAIMode')} disabled (Demo)';
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: primaryColor,
+        duration: const Duration(seconds: 2),
       ),
     );
   }

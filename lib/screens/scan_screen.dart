@@ -173,9 +173,7 @@ class _ScanScreenState extends State<ScanScreen>
     final category = data['category'] == null
         ? AppLocalizations.tr(context, 'generalDocument')
         : AppLocalizations.tr(context, data['category']);
-    final deadline =
-        data['deadline'] as DateTime? ??
-        DateTime.now().add(const Duration(days: 14));
+    final deadline = data['deadline'] as DateTime?;
 
     showDialog(
       context: context,
@@ -349,8 +347,9 @@ class _ScanScreenState extends State<ScanScreen>
                         _buildInfoRow(
                           icon: Icons.event_outlined,
                           label: AppLocalizations.tr(context, 'deadline'),
-                          value:
-                              '${deadline.day}/${deadline.month}/${deadline.year}',
+                          value: deadline == null
+                              ? AppLocalizations.tr(context, 'noDateDetected')
+                              : '${deadline.day}/${deadline.month}/${deadline.year}',
                           isDark: isDark,
                         ),
 
@@ -410,7 +409,52 @@ class _ScanScreenState extends State<ScanScreen>
     );
   }
 
-  Widget _buildRiskRow({required DateTime deadline, required bool isDark}) {
+  Widget _buildRiskRow({required DateTime? deadline, required bool isDark}) {
+    if (deadline == null) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.speed_outlined, size: 18, color: Colors.grey),
+              const SizedBox(width: 8),
+              Text(
+                AppLocalizations.tr(context, 'riskLevel'),
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.3,
+                  color: isDark
+                      ? AppTheme.darkTextSecondary
+                      : AppTheme.lightTextSecondary,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Padding(
+            padding: const EdgeInsets.only(left: 26),
+            child: Row(
+              children: [
+                Icon(Icons.help_outline, size: 16, color: Colors.grey),
+                const SizedBox(width: 6),
+                Text(
+                  AppLocalizations.tr(context, 'unableToAssess'),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.grey,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      );
+    }
+
     final now = DateTime.now();
     final daysLeft = deadline.difference(now).inDays;
 
@@ -516,6 +560,8 @@ class _ScanScreenState extends State<ScanScreen>
           padding: const EdgeInsets.only(left: 26),
           child: Text(
             value,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
@@ -642,8 +688,7 @@ class _ScanScreenState extends State<ScanScreen>
       setState(() {
         _result = docResult;
         _ocrText = text;
-        _deadline =
-            _parseDeadline(docResult.deadline);
+        _deadline = _parseDeadline(docResult.deadline);
         _processing = false;
         _processingStep = '';
       });
