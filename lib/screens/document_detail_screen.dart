@@ -233,111 +233,49 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
                             color: Colors.black.withOpacity(0.3),
                             shape: BoxShape.circle,
                           ),
-                          child: PopupMenuButton<String>(
+                          child: IconButton(
                             icon: const Icon(
-                              Icons.more_vert,
+                              Icons.edit_square,
                               color: Colors.white,
                             ),
-                            color: isDark
-                                ? AppTheme.darkCard
-                                : AppTheme.lightCard,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            onSelected: (value) async {
-                              switch (value) {
-                                case 'edit':
-                                  if (_document?.imagePaths != null &&
-                                      _document?.id != null) {
-                                    Navigator.pushNamed(
-                                      context,
-                                      '/scan',
-                                      arguments: {
-                                        'existingImages': _document!.imagePaths,
-                                        'documentId': _document!.id,
-                                      },
-                                    );
-                                  }
-                                  break;
-                                case 'edit_image':
-                                  _editCurrentImage();
-                                  break;
-                                case 'export':
-                                  break;
-                                case 'delete':
-                                  _showDeleteDialog(context);
-                                  break;
+                            onPressed: () => _editCurrentImage(),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.3),
+                            shape: BoxShape.circle,
+                          ),
+                          child: IconButton(
+                            icon: const Icon(Icons.edit, color: Colors.white),
+                            onPressed: () {
+                              if (_document?.imagePaths != null &&
+                                  _document?.id != null) {
+                                Navigator.pushNamed(
+                                  context,
+                                  '/scan',
+                                  arguments: {
+                                    'existingImages': _document!.imagePaths,
+                                    'documentId': _document!.id,
+                                  },
+                                );
                               }
                             },
-                            itemBuilder: (context) => [
-                              PopupMenuItem(
-                                value: 'edit',
-                                child: Row(
-                                  children: [
-                                    Icon(
-                                      Icons.edit,
-                                      color: primaryColor,
-                                      size: 20,
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Text(AppLocalizations.tr(context, 'edit')),
-                                  ],
-                                ),
-                              ),
-                              PopupMenuItem(
-                                value: 'edit_image',
-                                child: Row(
-                                  children: [
-                                    Icon(
-                                      Icons.image,
-                                      color: primaryColor,
-                                      size: 20,
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Text(AppLocalizations.tr(context, 'editImage')),
-                                  ],
-                                ),
-                              ),
-                              PopupMenuItem(
-                                value: 'export',
-                                child: Row(
-                                  children: [
-                                    Icon(
-                                      Icons.picture_as_pdf,
-                                      color: primaryColor,
-                                      size: 20,
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Text(
-                                      AppLocalizations.tr(context, 'exportPDF'),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              PopupMenuItem(
-                                value: 'delete',
-                                child: Row(
-                                  children: [
-                                    Icon(
-                                      Icons.delete_outline,
-                                      color: isDark
-                                          ? AppTheme.darkDanger
-                                          : AppTheme.lightDanger,
-                                      size: 20,
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Text(
-                                      AppLocalizations.tr(context, 'delete'),
-                                      style: TextStyle(
-                                        color: isDark
-                                            ? AppTheme.darkDanger
-                                            : AppTheme.lightDanger,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.3),
+                            shape: BoxShape.circle,
+                          ),
+                          child: IconButton(
+                            icon: const Icon(
+                              Icons.delete_outline,
+                              color: Colors.white,
+                            ),
+                            onPressed: () => _showDeleteDialog(context),
                           ),
                         ),
                       ],
@@ -1166,16 +1104,15 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
       final editedImage = await Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => ImageEditor(
-            image: imageFile.readAsBytesSync(),
-          ),
+          builder: (context) => ImageEditor(image: imageFile.readAsBytesSync()),
         ),
       );
 
       if (editedImage != null) {
         // Save edited image to a new file
         final directory = await getApplicationDocumentsDirectory();
-        final fileName = 'edited_${DateTime.now().millisecondsSinceEpoch}_${path.basename(currentImage.imagePath)}';
+        final fileName =
+            'edited_${DateTime.now().millisecondsSinceEpoch}_${path.basename(currentImage.imagePath)}';
         final newPath = path.join(directory.path, fileName);
 
         final newFile = File(newPath);
@@ -1186,7 +1123,9 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
 
         // Reload document to refresh UI
         if (_document?.id != null) {
-          final updatedDocument = await DocumentService().getDocumentById(_document!.id!);
+          final updatedDocument = await DocumentService().getDocumentById(
+            _document!.id!,
+          );
           if (mounted && updatedDocument != null) {
             setState(() {
               _document = updatedDocument;
@@ -1217,7 +1156,8 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
 
       await Share.shareXFiles(
         [XFile(currentImage.imagePath)],
-        text: '${_translateTitle(_document!.title)} - ${AppLocalizations.tr(context, 'sharedFrom')} BriefAI',
+        text:
+            '${_translateTitle(_document!.title)} - ${AppLocalizations.tr(context, 'sharedFrom')} BriefAI',
         subject: _translateTitle(_document!.title),
       );
     } catch (e) {
@@ -1234,7 +1174,9 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
       // Show loading indicator
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.tr(context, 'generatingPDF'))),
+          SnackBar(
+            content: Text(AppLocalizations.tr(context, 'generatingPDF')),
+          ),
         );
       }
 
@@ -1244,7 +1186,8 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
       if (pdfPath != null) {
         await Share.shareXFiles(
           [XFile(pdfPath)],
-          text: '${_translateTitle(_document!.title)} - ${AppLocalizations.tr(context, 'sharedFrom')} BriefAI',
+          text:
+              '${_translateTitle(_document!.title)} - ${AppLocalizations.tr(context, 'sharedFrom')} BriefAI',
           subject: '${_translateTitle(_document!.title)} - PDF',
         );
       } else {
@@ -1266,14 +1209,17 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
       // Show loading indicator
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.tr(context, 'extractingText'))),
+          SnackBar(
+            content: Text(AppLocalizations.tr(context, 'extractingText')),
+          ),
         );
       }
 
       final imagePaths = _document!.imagePaths;
       final extractedText = await OcrService.instance.recogniseAll(imagePaths);
 
-      final textToShare = '''
+      final textToShare =
+          '''
 ${_translateTitle(_document!.title)}
 
 ${extractedText.isNotEmpty ? extractedText : AppLocalizations.tr(context, 'noTextFound')}

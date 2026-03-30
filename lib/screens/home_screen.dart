@@ -506,6 +506,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final primaryColor = Theme.of(context).colorScheme.primary;
+    final reverseColor = Theme.of(context).colorScheme.onPrimary;
 
     return Scaffold(
       body: SafeArea(
@@ -729,7 +730,7 @@ class _HomeScreenState extends State<HomeScreen> {
       // Bottom navigation
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
-          color: isDark ? const Color(0xBF141928) : const Color(0xE5FFFFFF),
+          color: Theme.of(context).colorScheme.primary,
           borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(30),
             topRight: Radius.circular(30),
@@ -764,10 +765,8 @@ class _HomeScreenState extends State<HomeScreen> {
               backgroundColor: Colors.transparent,
               elevation: 0,
               type: BottomNavigationBarType.fixed,
-              selectedItemColor: primaryColor,
-              unselectedItemColor: Theme.of(
-                context,
-              ).textTheme.bodyMedium?.color,
+              selectedItemColor: reverseColor,
+              unselectedItemColor: reverseColor.withOpacity(0.6),
               items: [
                 BottomNavigationBarItem(
                   icon: const Icon(Icons.home_outlined),
