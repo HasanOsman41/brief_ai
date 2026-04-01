@@ -1,5 +1,4 @@
 // lib/services/ocr_service.dart
-import 'package:flutter_native_ocr/flutter_native_ocr.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 
 /// Runs on-device OCR across every scanned image path.
@@ -8,7 +7,6 @@ class OcrService {
   OcrService._();
   static final instance = OcrService._();
 
-  final _ocr = FlutterNativeOcr();
 
   /// Tolerance in pixels: blocks whose vertical centres are within this
   /// distance of each other are considered to be on the same line.

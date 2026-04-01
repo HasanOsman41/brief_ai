@@ -31,14 +31,22 @@ class CategoryDefinition {
   /// The main group this sub-category belongs to.
   final MainCategory mainCategory;
 
+  /// Matched against the document header / title area.
+  /// A single match here strongly boosts classification confidence.
+  final List<String> headerKeywords;
+
   /// A single decisive keyword match is enough to classify
   final List<String> decisiveKeywords;
 
   /// Need 2+ supporting matches when no decisive keyword found
   final List<String> supportingKeywords;
 
-  /// If ANY negative keyword is present, this category is disqualified
-  final List<String> negativeKeywords;
+  /// If ANY strong negative keyword is present, this category is
+  /// immediately disqualified regardless of other matches.
+  final List<String> strongNegativeKeywords;
+
+  /// Reduces confidence score when present, but does not outright disqualify.
+  final List<String> weakNegativeKeywords;
 
   /// Ordered l10n keys for next steps → 'cat_<id>_step1', 'cat_<id>_step2', …
   final List<String> nextStepKeys;
@@ -50,9 +58,11 @@ class CategoryDefinition {
     required this.labelKey,
     this.summaryKey,
     required this.mainCategory,
+    this.headerKeywords = const [],
     required this.decisiveKeywords,
     required this.supportingKeywords,
-    required this.negativeKeywords,
+    this.strongNegativeKeywords = const [],
+    this.weakNegativeKeywords = const [],
     required this.nextStepKeys,
     required this.riskLevel,
   });

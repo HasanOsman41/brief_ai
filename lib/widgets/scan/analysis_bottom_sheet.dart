@@ -539,6 +539,12 @@ class _DocumentInfoCardState extends State<_DocumentInfoCard> {
           ),
         ),
         const SizedBox(height: 16),
+        _TrustScoreSlider(
+          isDark: widget.isDark,
+          primary: widget.primary,
+          score: widget.result.trustScore,
+        ),
+        const SizedBox(height: 16),
         Text(
           AppLocalizations.tr(context, 'whatYouShould'),
           style: TextStyle(
@@ -1311,5 +1317,72 @@ class _CustomDateTimePicker extends StatelessWidget {
         ),
       ],
     ),
+  );
+}
+
+// ── Trust Score Slider ────────────────────────────────────────────────────────
+
+class _TrustScoreSlider extends StatelessWidget {
+  const _TrustScoreSlider({
+    required this.isDark,
+    required this.primary,
+    required this.score,
+  });
+
+  final bool isDark;
+  final Color primary;
+  final int score;
+
+  Color get _trackColor {
+    if (score >= 70) return Colors.green;
+    if (score >= 40) return Colors.orange;
+    return Colors.red;
+  }
+
+  @override
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            AppLocalizations.tr(context, 'trustScore'),
+            style: TextStyle(
+              color: isDark
+                  ? AppTheme.darkTextSecondary
+                  : AppTheme.lightTextSecondary,
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.8,
+            ),
+          ),
+          Text(
+            '$score%',
+            style: TextStyle(
+              color: _trackColor,
+              fontSize: 13,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+      SliderTheme(
+        data: SliderTheme.of(context).copyWith(
+          activeTrackColor: _trackColor,
+          inactiveTrackColor: _trackColor.withOpacity(0.2),
+          thumbColor: _trackColor,
+          overlayColor: Colors.transparent,
+          thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
+          trackHeight: 4,
+        ),
+        child: Slider(
+          value: score.toDouble(),
+          min: 0,
+          max: 100,
+          onChanged: null,
+        ),
+      ),
+    ],
   );
 }

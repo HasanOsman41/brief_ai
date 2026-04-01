@@ -98,6 +98,9 @@ class DocumentResult {
   /// Keywords that triggered the classification (useful for debugging)
   final List<String> matchedKeywords;
 
+  /// Trust score as a percentage (0–100)
+  final int trustScore;
+
   const DocumentResult({
     required this.category,
     required this.title,
@@ -106,6 +109,7 @@ class DocumentResult {
     required this.nextStepKeys,
     required this.confidence,
     required this.matchedKeywords,
+    this.trustScore = 0,
   });
 
   Map<String, dynamic> toMap() => {

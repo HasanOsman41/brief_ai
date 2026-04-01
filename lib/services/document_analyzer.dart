@@ -139,6 +139,7 @@ class DocumentAnalyzer {
       nextStepKeys: nextStepKeys,
       confidence: classResult.confidence,
       matchedKeywords: classResult.matchedKeywords,
+      trustScore: classResult.trustScore,
     );
   }
 
@@ -616,172 +617,139 @@ class DocumentAnalyzer {
   // CLASSIFICATION (unchanged)
   // ───────────────────────────────────────────────────────────────────────────
 
-  static ({
-    CategoryDefinition? category,
-    AnalysisConfidence confidence,
-    List<String> matchedKeywords,
-  })
-  _classify(String normText) {
-    int bestScore = 0;
-    CategoryDefinition? bestCat;
-    List<String> bestMatched = [];
+static ({
+  CategoryDefinition? category,
+  AnalysisConfidence confidence,
+  List<String> matchedKeywords,
+  int trustScore,
+}) _classify(String ocrText) {
+  final normText = _normalise(ocrText);
 
-    for (final cat in BriefAiCategories.all) {
-      final neg = _countMatches(normText, cat.negativeKeywords);
-      if (neg.count > 0) continue;
+  // Header zone = first ~800 chars or first 8 lines (whichever is smaller in effect)
+  final lines = ocrText.split('\n');
+  final headerLines = lines.take(8).join(' ');
+  final headerSlice = ocrText.length > 800 ? ocrText.substring(0, 800) : ocrText;
+  final normHeader = _normalise('$headerLines $headerSlice');
 
-      final decisive = _countMatches(normText, cat.decisiveKeywords);
-      // print(
-      //   'Category "${cat.labelKey}": ${decisive.count} decisive, ${neg.count} negative',
-      // );
-      final supporting = _countMatches(normText, cat.supportingKeywords);
+  int bestScore = -999999;
+  CategoryDefinition? bestCat;
+  List<String> bestMatched = [];
 
-      final score = decisive.count * 100 + supporting.count * 10;
+  int bestHeaderCount = 0;
+  int bestDecisiveCount = 0;
+  int bestSupportingCount = 0;
+  int bestWeakNegativeCount = 0;
 
-      if (score > bestScore) {
-        bestScore = score;
-        bestCat = cat;
-        bestMatched = [...decisive.matched, ...supporting.matched];
-      }
+  for (final cat in BriefAiCategories.all) {
+    // 1) Strong negatives = immediate disqualify
+    final strongNeg = _countMatches(normText, cat.strongNegativeKeywords);
+    if (strongNeg.count > 0) {
+      continue;
     }
 
-    if (bestCat == null || bestScore == 0) {
-      return (
-        category: null,
-        confidence: AnalysisConfidence.unknown,
-        matchedKeywords: <String>[],
-      );
+    // 2) Match all groups
+    final header = _countMatches(normHeader, cat.headerKeywords);
+    final decisive = _countMatches(normText, cat.decisiveKeywords);
+    final supporting = _countMatches(normText, cat.supportingKeywords);
+    final weakNeg = _countMatches(normText, cat.weakNegativeKeywords);
+
+    // 3) Optional minimum gate:
+    // Prevent weak accidental matches from winning.
+    final hasMinimumSignal =
+        header.count > 0 ||
+        decisive.count > 0 ||
+        supporting.count >= 2;
+
+    if (!hasMinimumSignal) {
+      continue;
     }
 
-    final confidence = bestScore >= 100
-        ? AnalysisConfidence.high
-        : bestScore >= 20
-        ? AnalysisConfidence.medium
-        : AnalysisConfidence.low;
+    // 4) Weighted scoring
+    final score =
+        (header.count * 150) +
+        (decisive.count * 100) +
+        (supporting.count * 20) -
+        (weakNeg.count * 35);
 
+    // 5) Tie-breakers:
+    // Prefer:
+    //   higher score
+    //   more header matches
+    //   more decisive matches
+    //   more supporting matches
+    //   fewer weak negatives
+    final isBetter =
+        score > bestScore ||
+        (score == bestScore && header.count > bestHeaderCount) ||
+        (score == bestScore &&
+            header.count == bestHeaderCount &&
+            decisive.count > bestDecisiveCount) ||
+        (score == bestScore &&
+            header.count == bestHeaderCount &&
+            decisive.count == bestDecisiveCount &&
+            supporting.count > bestSupportingCount) ||
+        (score == bestScore &&
+            header.count == bestHeaderCount &&
+            decisive.count == bestDecisiveCount &&
+            supporting.count == bestSupportingCount &&
+            weakNeg.count < bestWeakNegativeCount);
+
+    if (isBetter) {
+      bestScore = score;
+      bestCat = cat;
+      bestMatched = [
+        ...header.matched,
+        ...decisive.matched,
+        ...supporting.matched,
+      ];
+
+      bestHeaderCount = header.count;
+      bestDecisiveCount = decisive.count;
+      bestSupportingCount = supporting.count;
+      bestWeakNegativeCount = weakNeg.count;
+    }
+  }
+
+  // No valid category
+  if (bestCat == null || bestScore <= 0) {
     return (
-      category: bestCat,
-      confidence: confidence,
-      matchedKeywords: bestMatched,
+      category: null,
+      confidence: AnalysisConfidence.unknown,
+      matchedKeywords: <String>[],
+      trustScore: 0,
     );
   }
 
-  // ───────────────────────────────────────────────────────────────────────────
-  // TITLE EXTRACTION (unchanged)
-  // ───────────────────────────────────────────────────────────────────────────
+  // 6) Better confidence rules
+  final confidence =
+      (bestHeaderCount >= 1 && bestDecisiveCount >= 1) ||
+          (bestHeaderCount >= 1 && bestSupportingCount >= 2) ||
+          (bestDecisiveCount >= 2) ||
+          (bestDecisiveCount >= 1 && bestSupportingCount >= 2)
+      ? AnalysisConfidence.high
+      : (bestHeaderCount >= 1) ||
+            (bestDecisiveCount >= 1) ||
+            (bestSupportingCount >= 3)
+      ? AnalysisConfidence.medium
+      : AnalysisConfidence.low;
 
-  static const _titlePatterns = [
-    'Einladung zum Termin',
-    'Aufforderung zur Mitwirkung',
-    'Weiterbewilligungsantrag',
-    'Veränderungsmitteilung',
-    'Hauptantrag Bürgergeld',
-    'Terminbestätigung',
-    'Einladung zur persönlichen Vorsprache',
-    'Aufforderung zur Vorlage von Unterlagen',
-    'Nachforderung von Unterlagen',
-    'Fiktionsbescheinigung',
-    'Bewilligungsbescheid',
-    'Ablehnungsbescheid',
-    'Elektronischer Aufenthaltstitel',
-    'Einkommensteuerbescheid',
-    'Steuerbescheid',
-    'Steuererstattung',
-    'Aufforderung zur Abgabe der Steuererklärung',
-    'Verspätungszuschlag',
-    'Kontoauszug',
-    'Überweisungsbestätigung',
-    'Rücklastschrift',
-    'Sicherheitswarnung',
-    'Letzte Mahnung',
-    'Mahnung',
-    'Zahlungserinnerung',
-    'Inkasso-Forderung',
-    'Vollstreckungsbescheid',
-    'Mahnbescheid',
-    'Rechnung',
-    'Kündigung Mietvertrag',
-    'Fristlose Kündigung',
-    'Mieterhöhung',
-    'Nebenkostenabrechnung',
-    'Mietvertrag',
-    'Kautionsabrechnung',
-    'Versicherungsschein',
-    'Schadenmeldung',
-    'Beitragsrechnung',
-    'Kündigungsbestätigung',
-    'Kündigung',
-    'Arbeitsvertrag',
-    'Versicherungsbescheinigung',
-    'Mitgliedsbescheinigung',
-    'Krankengeld',
-    'Kassenwechsel',
-  ];
+  // 7) Trust score: normalize bestScore to 0–100
+  // Max realistic score: 2 header (300) + 3 decisive (300) + 5 supporting (100) = 700
+  const _maxScore = 700;
+  final trustScore = (bestScore / _maxScore * 100).clamp(0, 100).round();
 
-  static String _extractTitle(String text) {
-    final header = text.length > 500 ? text.substring(0, 500) : text;
-    final headerLow = _normalise(header);
-    for (final pattern in _titlePatterns) {
-      if (headerLow.contains(_normalise(pattern))) return pattern;
-    }
-    final firstLine = text
-        .split('\n')
-        .map((l) => l.trim())
-        .firstWhere((l) => l.isNotEmpty, orElse: () => 'Unbekanntes Dokument');
-    return firstLine;
-  }
-
+  return (
+    category: bestCat,
+    confidence: confidence,
+    matchedKeywords: bestMatched,
+    trustScore: trustScore,
+  );
+}
   // ───────────────────────────────────────────────────────────────────────────
   // SUMMARY EXTRACTION
   // ───────────────────────────────────────────────────────────────────────────
 
   static String _extractSummaryKey(CategoryDefinition? category) {
     return category?.summaryKey ?? 'summary_unknown_document';
-  }
-
-  // ───────────────────────────────────────────────────────────────────────────
-  // SUMMARY EXTRACTION
-  // ───────────────────────────────────────────────────────────────────────────
-
-  static const _boilerplate = [
-    'sehr geehrte',
-    'sehr geehrter',
-    'mit freundlichen grüßen',
-    'hochachtungsvoll',
-  ];
-
-  static String _extractSummary(
-    String text,
-    String? deadlineRaw,
-    String? categoryId,
-  ) {
-    final sentences = text
-        .split(RegExp(r'[\n.!?]'))
-        .map((s) => s.trim())
-        .where((s) {
-          if (s.length < 20) return false;
-          final sl = s.toLowerCase();
-          return !_boilerplate.any((b) => sl.startsWith(b));
-        })
-        .take(3)
-        .join(' ')
-        .replaceAll(RegExp(r'\s+'), ' ')
-        .trim();
-
-    var summary = sentences.length > 300
-        ? '${sentences.substring(0, 297)}…'
-        : sentences;
-
-    if (deadlineRaw != null &&
-        deadlineRaw != 'RELATIVE' &&
-        !summary.contains(deadlineRaw)) {
-      summary += ' Frist/Datum: $deadlineRaw.';
-    }
-
-    if (summary.isEmpty) {
-      summary = text.substring(0, text.length.clamp(0, 200)).trim();
-    }
-
-    return summary;
   }
 }
