@@ -17,12 +17,17 @@ import 'package:brief_ai/screens/reminders_screen.dart';
 import 'package:brief_ai/localization/app_localizations.dart';
 import 'package:brief_ai/services/locale_service.dart';
 import 'package:brief_ai/services/notification_service.dart';
+import 'package:fuzzywuzzy/fuzzywuzzy.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await NotificationService().initialize();
   await DatabaseHelper().database; // Ensure database is initialized
   runApp(const BriefAIApp());
+  // String ocr =
+  //     '''jobcenter a anlage ki anlage für ein kind unter 15 jahren in der bedarfsgemeinschaft füllen sle dleses formular bltte für jedes klnd, das zu lhrer bedarfsgemeinschaft gehört und das 15. lebensjahr noch nicht erreicht hat, einzein aus. für alle kinder wird jeweils eine elgene anlage kind benötigt''';
+  // int score = partialRatio('Anlage KI', ocr);
+  // print('OCR Score: $score');
 }
 
 class BriefAIApp extends StatefulWidget {

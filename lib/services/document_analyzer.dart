@@ -15,6 +15,7 @@
 ///   - matchedKeywords       : keywords that triggered the match
 
 import 'package:brief_ai/data/brief_ai_categories.dart';
+import 'package:fuzzywuzzy/fuzzywuzzy.dart' show partialRatio;
 
 import '../models/category_definition.dart';
 import '../models/document_result.dart';
@@ -107,9 +108,8 @@ class DocumentAnalyzer {
       );
     }
 
-    final normText = _normalise(ocrText);
     // 1. Classify
-    final classResult = _classify(normText);
+    final classResult = _classify(ocrText);
 
     // 2. Extract deadline (structured)
     final deadlineResult = extractDeadlineInfo(ocrText);
@@ -613,138 +613,348 @@ class DocumentAnalyzer {
     return (count: matched.length, matched: matched);
   }
 
-  // ───────────────────────────────────────────────────────────────────────────
-  // CLASSIFICATION (unchanged)
-  // ───────────────────────────────────────────────────────────────────────────
+  // ─────────────────────────────────────────────────────────────────────────
+  // Fuzzy match threshold tuning
+  // ─────────────────────────────────────────────────────────────────────────
 
-static ({
-  CategoryDefinition? category,
-  AnalysisConfidence confidence,
-  List<String> matchedKeywords,
-  int trustScore,
-}) _classify(String ocrText) {
-  final normText = _normalise(ocrText);
+  /// Minimum score for a keyword to count as "matched".
+  /// 85 tolerates 1-2 OCR character errors in short words,
+  /// 3-4 errors in longer phrases.
+  static const int _kThresholdDecisive = 85;
+  static const int _kThresholdSupporting = 80;
+  static const int _kThresholdHeader = 88; // stricter – header is short zone
 
-  // Header zone = first ~800 chars or first 8 lines (whichever is smaller in effect)
-  final lines = ocrText.split('\n');
-  final headerLines = lines.take(8).join(' ');
-  final headerSlice = ocrText.length > 800 ? ocrText.substring(0, 800) : ocrText;
-  final normHeader = _normalise('$headerLines $headerSlice');
+  /// Strong negatives must still be fairly precise to avoid false suppression.
+  static const int _kThresholdNegative = 82;
 
-  int bestScore = -999999;
-  CategoryDefinition? bestCat;
-  List<String> bestMatched = [];
+  // ─────────────────────────────────────────────────────────────────────────
+  // Fuzzy _countMatches  (replaces the old contains() version)
+  // ─────────────────────────────────────────────────────────────────────────
 
-  int bestHeaderCount = 0;
-  int bestDecisiveCount = 0;
-  int bestSupportingCount = 0;
-  int bestWeakNegativeCount = 0;
+  /// Returns how many [keywords] fuzzy-match inside [normText],
+  /// along with the matched keyword strings and their best scores.
+  ///
+  /// Uses partialRatio so a keyword like "widerspruch" still matches even if
+  /// OCR produced "wlderspruch" or "w1derspruch".
+  static ({int count, List<String> matched, List<int> scores})
+  _fuzzyCountMatches(
+    String normText,
+    List<String> keywords, {
+    required int threshold,
+  }) {
+    final matched = <String>[];
+    final scores = <int>[];
 
-  for (final cat in BriefAiCategories.all) {
-    // 1) Strong negatives = immediate disqualify
-    final strongNeg = _countMatches(normText, cat.strongNegativeKeywords);
-    if (strongNeg.count > 0) {
-      continue;
+    for (final kw in keywords) {
+      final normKw = _normalise(kw);
+      // partialRatio slides the shorter string over the longer one and
+      // returns the best window score → ideal for keyword-in-document search.
+      final score = partialRatio(normKw, normText);
+      if (normKw == 'anlage ki') {
+        print(
+          '@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ DEBUG: partialRatio("$normKw", normText) = $score',
+        );
+      }
+      if (score >= threshold) {
+        matched.add(kw);
+        scores.add(score);
+      }
     }
 
-    // 2) Match all groups
-    final header = _countMatches(normHeader, cat.headerKeywords);
-    final decisive = _countMatches(normText, cat.decisiveKeywords);
-    final supporting = _countMatches(normText, cat.supportingKeywords);
-    final weakNeg = _countMatches(normText, cat.weakNegativeKeywords);
-
-    // 3) Optional minimum gate:
-    // Prevent weak accidental matches from winning.
-    final hasMinimumSignal =
-        header.count > 0 ||
-        decisive.count > 0 ||
-        supporting.count >= 2;
-
-    if (!hasMinimumSignal) {
-      continue;
-    }
-
-    // 4) Weighted scoring
-    final score =
-        (header.count * 150) +
-        (decisive.count * 100) +
-        (supporting.count * 20) -
-        (weakNeg.count * 35);
-
-    // 5) Tie-breakers:
-    // Prefer:
-    //   higher score
-    //   more header matches
-    //   more decisive matches
-    //   more supporting matches
-    //   fewer weak negatives
-    final isBetter =
-        score > bestScore ||
-        (score == bestScore && header.count > bestHeaderCount) ||
-        (score == bestScore &&
-            header.count == bestHeaderCount &&
-            decisive.count > bestDecisiveCount) ||
-        (score == bestScore &&
-            header.count == bestHeaderCount &&
-            decisive.count == bestDecisiveCount &&
-            supporting.count > bestSupportingCount) ||
-        (score == bestScore &&
-            header.count == bestHeaderCount &&
-            decisive.count == bestDecisiveCount &&
-            supporting.count == bestSupportingCount &&
-            weakNeg.count < bestWeakNegativeCount);
-
-    if (isBetter) {
-      bestScore = score;
-      bestCat = cat;
-      bestMatched = [
-        ...header.matched,
-        ...decisive.matched,
-        ...supporting.matched,
-      ];
-
-      bestHeaderCount = header.count;
-      bestDecisiveCount = decisive.count;
-      bestSupportingCount = supporting.count;
-      bestWeakNegativeCount = weakNeg.count;
-    }
+    return (count: matched.length, matched: matched, scores: scores);
   }
 
-  // No valid category
-  if (bestCat == null || bestScore <= 0) {
+  // ─────────────────────────────────────────────────────────────────────────
+  // _classify
+  // ─────────────────────────────────────────────────────────────────────────
+
+  static ({
+    CategoryDefinition? category,
+    AnalysisConfidence confidence,
+    List<String> matchedKeywords,
+    int trustScore,
+  })
+  _classify(String ocrText) {
+    // ── 1. Prepare text zones ────────────────────────────────────────────────
+    final normText = _normalise(ocrText);
+
+    final lines = ocrText.split('\n');
+    final headerLines = lines.take(8).join(' ');
+    final headerSlice = ocrText.length > 800
+        ? ocrText.substring(0, 800)
+        : ocrText;
+    final normHeader = _normalise('$headerLines $headerSlice');
+
+    print('╔══════════════════════════════════════════════════════════════╗');
+    print('║                  _classify() – START                        ║');
+    print('╠══════════════════════════════════════════════════════════════╣');
+    print('║ Total chars     : ${ocrText.length}');
+    print('║ Normalised chars: ${normText.length}');
+    print('║ Header chars    : ${normHeader.length}');
+    print('║ Total lines     : ${lines.length}');
+    print('╚══════════════════════════════════════════════════════════════╝');
+    print('');
+    print('── normText (first 300 chars) ──────────────────────────────────');
+    print(normText.substring(0, normText.length.clamp(0, 300)));
+    print('── normHeader (first 200 chars) ────────────────────────────────');
+    print(normHeader.substring(0, normHeader.length.clamp(0, 200)));
+    print('');
+
+    // ── 2. Per-category scoring ──────────────────────────────────────────────
+    int bestScore = -999999;
+    CategoryDefinition? bestCat;
+    List<String> bestMatched = [];
+
+    int bestHeaderCount = 0;
+    int bestDecisiveCount = 0;
+    int bestSupportingCount = 0;
+    int bestWeakNegativeCount = 0;
+    int bestCumulativeScore = 0;
+
+    print(
+      '── Per-category scan (${BriefAiCategories.all.length} categories) ──────────────────────',
+    );
+    print('');
+
+    for (final cat in BriefAiCategories.all) {
+      print('┌─ [${cat.id}] "${cat.labelKey}" ─────────────────────────────');
+
+      // ── 2a. Strong negatives veto ──────────────────────────────────────────
+      final strongNeg = _fuzzyCountMatches(
+        normText,
+        cat.strongNegativeKeywords,
+        threshold: _kThresholdNegative,
+      );
+      if (strongNeg.count > 0) {
+        print('│  ✗ VETOED by strong negative(s): ${strongNeg.matched}');
+        print('└─────────────────────────────────────────────────────────────');
+        print('');
+        continue;
+      }
+      if (cat.strongNegativeKeywords.isNotEmpty) {
+        print(
+          '│  strong negatives checked: ${cat.strongNegativeKeywords.length} → none matched (threshold: $_kThresholdNegative)',
+        );
+      }
+
+      // ── 2b. Fuzzy match every group ────────────────────────────────────────
+      final header = _fuzzyCountMatches(
+        normHeader,
+        cat.headerKeywords,
+        threshold: _kThresholdHeader,
+      );
+      final decisive = _fuzzyCountMatches(
+        normText,
+        cat.decisiveKeywords,
+        threshold: _kThresholdDecisive,
+      );
+      final supporting = _fuzzyCountMatches(
+        normText,
+        cat.supportingKeywords,
+        threshold: _kThresholdSupporting,
+      );
+      final weakNeg = _fuzzyCountMatches(
+        normText,
+        cat.weakNegativeKeywords,
+        threshold: _kThresholdNegative,
+      );
+
+      print(
+        '│  header      [thresh: $_kThresholdHeader] → ${header.count}/${cat.headerKeywords.length} matched',
+      );
+      if (header.matched.isNotEmpty) {
+        for (int i = 0; i < header.matched.length; i++) {
+          print('│    ✓ "${header.matched[i]}"  score: ${header.scores[i]}');
+        }
+      }
+
+      print(
+        '│  decisive    [thresh: $_kThresholdDecisive] → ${decisive.count}/${cat.decisiveKeywords.length} matched',
+      );
+      if (decisive.matched.isNotEmpty) {
+        for (int i = 0; i < decisive.matched.length; i++) {
+          print(
+            '│    ✓ "${decisive.matched[i]}"  score: ${decisive.scores[i]}',
+          );
+        }
+      }
+
+      print(
+        '│  supporting  [thresh: $_kThresholdSupporting] → ${supporting.count}/${cat.supportingKeywords.length} matched',
+      );
+      if (supporting.matched.isNotEmpty) {
+        for (int i = 0; i < supporting.matched.length; i++) {
+          print(
+            '│    ✓ "${supporting.matched[i]}"  score: ${supporting.scores[i]}',
+          );
+        }
+      }
+
+      print(
+        '│  weak neg    [thresh: $_kThresholdNegative] → ${weakNeg.count}/${cat.weakNegativeKeywords.length} matched',
+      );
+      if (weakNeg.matched.isNotEmpty) {
+        for (int i = 0; i < weakNeg.matched.length; i++) {
+          print('│    ⚠ "${weakNeg.matched[i]}"  score: ${weakNeg.scores[i]}');
+        }
+      }
+
+      // ── 2c. Minimum signal gate ────────────────────────────────────────────
+      final hasMinimumSignal =
+          header.count > 0 || decisive.count > 0 || supporting.count >= 2;
+
+      if (!hasMinimumSignal) {
+        print(
+          '│  ✗ SKIPPED – minimum signal not met '
+          '(header:${header.count}, decisive:${decisive.count}, supporting:${supporting.count})',
+        );
+        print('└─────────────────────────────────────────────────────────────');
+        print('');
+        continue;
+      }
+
+      // ── 2d. Weighted integer score ─────────────────────────────────────────
+      final score =
+          (header.count * 150) +
+          (decisive.count * 100) +
+          (supporting.count * 20) -
+          (weakNeg.count * 35);
+
+      final cumulativeScore = [
+        ...header.scores,
+        ...decisive.scores,
+        ...supporting.scores,
+      ].fold(0, (a, b) => a + b);
+
+      print(
+        '│  score = '
+        '(${header.count}×150) + (${decisive.count}×100) + '
+        '(${supporting.count}×20) - (${weakNeg.count}×35) = $score',
+      );
+      print('│  cumulative fuzzy score: $cumulativeScore');
+
+      // ── 2e. Best-candidate selection ───────────────────────────────────────
+      final isBetter =
+          score > bestScore ||
+          (score == bestScore && header.count > bestHeaderCount) ||
+          (score == bestScore &&
+              header.count == bestHeaderCount &&
+              decisive.count > bestDecisiveCount) ||
+          (score == bestScore &&
+              header.count == bestHeaderCount &&
+              decisive.count == bestDecisiveCount &&
+              supporting.count > bestSupportingCount) ||
+          (score == bestScore &&
+              header.count == bestHeaderCount &&
+              decisive.count == bestDecisiveCount &&
+              supporting.count == bestSupportingCount &&
+              weakNeg.count < bestWeakNegativeCount) ||
+          (score == bestScore &&
+              header.count == bestHeaderCount &&
+              decisive.count == bestDecisiveCount &&
+              supporting.count == bestSupportingCount &&
+              weakNeg.count == bestWeakNegativeCount &&
+              cumulativeScore > bestCumulativeScore);
+
+      if (isBetter) {
+        final prevLabel = bestCat?.labelKey ?? 'none';
+        print('│  ★ NEW BEST  (was: "$prevLabel" @ $bestScore → now: $score)');
+        bestScore = score;
+        bestCat = cat;
+        bestMatched = [
+          ...header.matched,
+          ...decisive.matched,
+          ...supporting.matched,
+        ];
+        bestHeaderCount = header.count;
+        bestDecisiveCount = decisive.count;
+        bestSupportingCount = supporting.count;
+        bestWeakNegativeCount = weakNeg.count;
+        bestCumulativeScore = cumulativeScore;
+      } else {
+        print(
+          '│  ✗ not better than current best "${bestCat?.labelKey}" @ $bestScore',
+        );
+      }
+
+      print('└─────────────────────────────────────────────────────────────');
+      print('');
+    }
+
+    // ── 3. Reject zero / no result ────────────────────────────────────────────
+    print('── Scan complete ────────────────────────────────────────────────');
+    if (bestCat == null || bestScore <= 0) {
+      print('✗ No valid category found (bestScore: $bestScore)');
+      print('  → returning AnalysisConfidence.unknown');
+      print(
+        '═════════════════════════════════════════════════════════════════',
+      );
+      return (
+        category: null,
+        confidence: AnalysisConfidence.unknown,
+        matchedKeywords: <String>[],
+        trustScore: 0,
+      );
+    }
+
+    // ── 4. Confidence ─────────────────────────────────────────────────────────
+    final confidence =
+        (bestHeaderCount >= 1 && bestDecisiveCount >= 1) ||
+            (bestHeaderCount >= 1 && bestSupportingCount >= 2) ||
+            (bestDecisiveCount >= 2) ||
+            (bestDecisiveCount >= 1 && bestSupportingCount >= 2)
+        ? AnalysisConfidence.high
+        : (bestHeaderCount >= 1) ||
+              (bestDecisiveCount >= 1) ||
+              (bestSupportingCount >= 3)
+        ? AnalysisConfidence.medium
+        : AnalysisConfidence.low;
+
+    final confidenceReason = () {
+      if (bestHeaderCount >= 1 && bestDecisiveCount >= 1)
+        return 'header≥1 + decisive≥1';
+      if (bestHeaderCount >= 1 && bestSupportingCount >= 2)
+        return 'header≥1 + supporting≥2';
+      if (bestDecisiveCount >= 2) return 'decisive≥2';
+      if (bestDecisiveCount >= 1 && bestSupportingCount >= 2)
+        return 'decisive≥1 + supporting≥2';
+      if (bestHeaderCount >= 1) return 'header≥1 only';
+      if (bestDecisiveCount >= 1) return 'decisive≥1 only';
+      if (bestSupportingCount >= 3) return 'supporting≥3 only';
+      return 'fallback low';
+    }();
+
+    // ── 5. Trust score ────────────────────────────────────────────────────────
+    const maxScore = 700;
+    final trustScore = (bestScore / maxScore * 100).clamp(0, 100).round();
+
+    // ── Final summary ─────────────────────────────────────────────────────────
+    print('');
+    print('╔══════════════════════════════════════════════════════════════╗');
+    print('║                  _classify() – RESULT                       ║');
+    print('╠══════════════════════════════════════════════════════════════╣');
+    print('║ category      : ${bestCat.id} / "${bestCat.labelKey}"');
+    print('║ score         : $bestScore  (max: $maxScore)');
+    print('║ trust score   : $trustScore / 100');
+    print('║ confidence    : $confidence  ← $confidenceReason');
+    print('║ header hits   : $bestHeaderCount');
+    print('║ decisive hits : $bestDecisiveCount');
+    print('║ supporting    : $bestSupportingCount');
+    print('║ weak neg hits : $bestWeakNegativeCount');
+    print('║ cumulative fz : $bestCumulativeScore');
+    print('║ matched kws   : ${bestMatched.length}');
+    for (final kw in bestMatched) {
+      print('║   • "$kw"');
+    }
+    print('╚══════════════════════════════════════════════════════════════╝');
+
     return (
-      category: null,
-      confidence: AnalysisConfidence.unknown,
-      matchedKeywords: <String>[],
-      trustScore: 0,
+      category: bestCat,
+      confidence: confidence,
+      matchedKeywords: bestMatched,
+      trustScore: trustScore,
     );
   }
-
-  // 6) Better confidence rules
-  final confidence =
-      (bestHeaderCount >= 1 && bestDecisiveCount >= 1) ||
-          (bestHeaderCount >= 1 && bestSupportingCount >= 2) ||
-          (bestDecisiveCount >= 2) ||
-          (bestDecisiveCount >= 1 && bestSupportingCount >= 2)
-      ? AnalysisConfidence.high
-      : (bestHeaderCount >= 1) ||
-            (bestDecisiveCount >= 1) ||
-            (bestSupportingCount >= 3)
-      ? AnalysisConfidence.medium
-      : AnalysisConfidence.low;
-
-  // 7) Trust score: normalize bestScore to 0–100
-  // Max realistic score: 2 header (300) + 3 decisive (300) + 5 supporting (100) = 700
-  const _maxScore = 700;
-  final trustScore = (bestScore / _maxScore * 100).clamp(0, 100).round();
-
-  return (
-    category: bestCat,
-    confidence: confidence,
-    matchedKeywords: bestMatched,
-    trustScore: trustScore,
-  );
-}
   // ───────────────────────────────────────────────────────────────────────────
   // SUMMARY EXTRACTION
   // ───────────────────────────────────────────────────────────────────────────
