@@ -459,6 +459,12 @@ class _DocumentInfoCardState extends State<_DocumentInfoCard> {
           selectedCategoryKey: widget.selectedCategoryKey,
           onChanged: widget.onCategoryChanged,
         ),
+        const SizedBox(height: 12),
+        _TrustScoreSlider(
+          isDark: widget.isDark,
+          primary: widget.primary,
+          score: widget.result.trustScore,
+        ),
         if (widget.editableTitle.isNotEmpty) ...[
           const SizedBox(height: 12),
           Text(
@@ -537,12 +543,6 @@ class _DocumentInfoCardState extends State<_DocumentInfoCard> {
               height: 1.5,
             ),
           ),
-        ),
-        const SizedBox(height: 16),
-        _TrustScoreSlider(
-          isDark: widget.isDark,
-          primary: widget.primary,
-          score: widget.result.trustScore,
         ),
         const SizedBox(height: 16),
         Text(
@@ -1333,56 +1333,105 @@ class _TrustScoreSlider extends StatelessWidget {
   final Color primary;
   final int score;
 
-  Color get _trackColor {
-    if (score >= 70) return Colors.green;
-    if (score >= 40) return Colors.orange;
-    return Colors.red;
+  Color get _color {
+    if (score >= 70) return const Color(0xFF22C55E);
+    if (score >= 40) return const Color(0xFFF59E0B);
+    return const Color(0xFFEF4444);
+  }
+
+  String get _label {
+    if (score >= 70) return 'High';
+    if (score >= 40) return 'Medium';
+    return 'Low';
+  }
+
+  IconData get _icon {
+    if (score >= 70) return Icons.verified_rounded;
+    if (score >= 40) return Icons.info_rounded;
+    return Icons.warning_amber_rounded;
   }
 
   @override
-  Widget build(BuildContext context) => Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  Widget build(BuildContext context) {
+    final filled = (score / 10).round().clamp(0, 10);
+    final bg = isDark ? AppTheme.darkBackground : AppTheme.lightBackground;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: _color.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: _color.withOpacity(0.25)),
+      ),
+      child: Row(
         children: [
-          Text(
-            AppLocalizations.tr(context, 'trustScore'),
-            style: TextStyle(
-              color: isDark
-                  ? AppTheme.darkTextSecondary
-                  : AppTheme.lightTextSecondary,
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 0.8,
-            ),
-          ),
-          Text(
-            '$score%',
-            style: TextStyle(
-              color: _trackColor,
-              fontSize: 13,
-              fontWeight: FontWeight.bold,
+          Icon(_icon, color: _color, size: 18),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      AppLocalizations.tr(context, 'trustScore'),
+                      style: TextStyle(
+                        color: isDark
+                            ? AppTheme.darkTextSecondary
+                            : AppTheme.lightTextSecondary,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.6,
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 7,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: _color.withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        '$_label · $score%',
+                        style: TextStyle(
+                          color: _color,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                Row(
+                  children: List.generate(10, (i) {
+                    final active = i < filled;
+                    return Expanded(
+                      child: Container(
+                        margin: const EdgeInsets.only(right: 3),
+                        height: 5,
+                        decoration: BoxDecoration(
+                          color: active ? _color : bg,
+                          borderRadius: BorderRadius.circular(3),
+                          border: active
+                              ? null
+                              : Border.all(
+                                  color: _color.withOpacity(0.2),
+                                  width: 1,
+                                ),
+                        ),
+                      ),
+                    );
+                  }),
+                ),
+              ],
             ),
           ),
         ],
       ),
-      SliderTheme(
-        data: SliderTheme.of(context).copyWith(
-          activeTrackColor: _trackColor,
-          inactiveTrackColor: _trackColor.withOpacity(0.2),
-          thumbColor: _trackColor,
-          overlayColor: Colors.transparent,
-          thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
-          trackHeight: 4,
-        ),
-        child: Slider(
-          value: score.toDouble(),
-          min: 0,
-          max: 100,
-          onChanged: null,
-        ),
-      ),
-    ],
-  );
+    );
+  }
 }

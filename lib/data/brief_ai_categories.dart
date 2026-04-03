@@ -93,34 +93,34 @@ class BriefAiCategories {
       summaryKey: 'cat_jobcenter_mitwirkung_summary',
       mainCategory: MainCategory.categoryJobcenter,
       headerKeywords: [
-        'Aufforderung zur Mitwirkung',
-        'Mitwirkungspflicht',
-        'fehlende Unterlagen',
-        'Nachweise fehlen',
+        'Mitwirkung',
+        'Leistungen',
+        'Lebensunterhalts',
+        'Unterlagen',
       ],
       decisiveKeywords: [
-        'bitte reichen Sie folgende Unterlagen ein',
-        'wir benötigen noch folgende Unterlagen',
-        'folgende Unterlagen werden noch benötigt',
-        'zur weiteren Bearbeitung benötigen wir folgende Unterlagen',
-        'fehlende Unterlagen sind nachzureichen',
-        'bitte legen Sie die folgenden Nachweise vor',
+        'beantragt',
+        'überprüfen',
+        'benötigt',
+        'eingereicht',
+        'versagt',
+        'nachholen',
       ],
       supportingKeywords: [
-        'Nachweise',
         'Unterlagen',
-        'Kontoauszüge',
-        'Einkommensnachweis',
-        'Lohnabrechnung',
-        'Mietvertrag',
-        'Mietbescheinigung',
-        'Bescheinigung',
+        'Angaben',
+        'Anlage EK',
+        'Anlage VM',
+        'Tatsachen',
+        'Änderungen',
+        'Verhältnissen',
+        'unverzüglich',
       ],
       weakNegativeKeywords: [
         'Einladung zum Termin',
+        'Ihre Termindaten',
         'persönliches Erscheinen',
-        'Termin mit Uhrzeit',
-        'Bitte erscheinen Sie',
+        'Einladung zum Telefontermin',
       ],
       strongNegativeKeywords: [
         'Bewilligungsbescheid',
@@ -139,113 +139,7 @@ class BriefAiCategories {
       riskLevel: RiskLevel.high,
     ),
 
-    // 2) Einkommensbescheinigung
-    CategoryDefinition(
-      id: 'jobcenter_einkommensbescheinigung',
-      labelKey: 'cat_jobcenter_einkommensbescheinigung_label',
-      summaryKey: 'cat_jobcenter_einkommensbescheinigung_summary',
-      mainCategory: MainCategory.categoryJobcenter,
-      headerKeywords: [
-        'Einkommensbescheinigung',
-        'vom Arbeitgeber auszufüllen',
-        'Bescheinigung des Arbeitgebers',
-        'Angaben zum Einkommen',
-      ],
-      decisiveKeywords: [
-        'vom Arbeitgeber auszufüllen',
-        'Bescheinigung des Arbeitgebers',
-        'Angaben zum Arbeitsentgelt',
-        'Bruttoarbeitsentgelt',
-        'Nettoarbeitsentgelt',
-        'Beschäftigung besteht seit',
-      ],
-      supportingKeywords: [
-        'Arbeitgeber',
-        'Arbeitsentgelt',
-        'Brutto',
-        'Netto',
-        'Lohn',
-        'Gehalt',
-        'Beschäftigungsverhältnis',
-        'Unterschrift des Arbeitgebers',
-      ],
-      weakNegativeKeywords: [
-        'Arbeitsbescheinigung',
-        'Anlage EK',
-        'Veränderungsmitteilung',
-        'Mitwirkung',
-      ],
-      strongNegativeKeywords: [
-        'Bewilligungsbescheid',
-        'Ablehnungsbescheid',
-        'Änderungsbescheid',
-        'Einladung',
-      ],
-      nextStepKeys: [
-        'cat_jobcenter_einkommensbescheinigung_step1',
-        'cat_jobcenter_einkommensbescheinigung_step2',
-        'cat_jobcenter_einkommensbescheinigung_step3',
-        'cat_jobcenter_einkommensbescheinigung_step4',
-        'cat_jobcenter_einkommensbescheinigung_step5',
-        'cat_jobcenter_einkommensbescheinigung_step6',
-      ],
-      riskLevel: RiskLevel.low,
-    ),
-
-    // 3) Arbeitsbescheinigung
-    CategoryDefinition(
-      id: 'jobcenter_arbeitsbescheinigung',
-      labelKey: 'cat_jobcenter_arbeitsbescheinigung_label',
-      summaryKey: 'cat_jobcenter_arbeitsbescheinigung_summary',
-      mainCategory: MainCategory.categoryJobcenter,
-      headerKeywords: [
-        'Arbeitsbescheinigung',
-        'vom Arbeitgeber auszufüllen',
-        'Angaben zum Beschäftigungsverhältnis',
-        'Beendigung des Beschäftigungsverhältnisses',
-      ],
-      decisiveKeywords: [
-        'Arbeitsbescheinigung',
-        'Ende des Beschäftigungsverhältnisses',
-        'Grund der Beendigung',
-        'letzter Arbeitstag',
-        'Kündigung durch Arbeitgeber',
-        'Kündigung durch Arbeitnehmer',
-      ],
-      supportingKeywords: [
-        'Arbeitgeber',
-        'Eintrittsdatum',
-        'Austrittsdatum',
-        'Kündigung',
-        'befristet',
-        'unbefristet',
-        'Arbeitszeit',
-        'Arbeitslohn',
-      ],
-      weakNegativeKeywords: [
-        'Einkommensbescheinigung',
-        'Anlage EK',
-        'Einladung',
-        'Mitwirkung',
-      ],
-      strongNegativeKeywords: [
-        'Bewilligungsbescheid',
-        'Ablehnungsbescheid',
-        'Änderungsbescheid',
-        'Weiterbewilligungsantrag',
-      ],
-      nextStepKeys: [
-        'cat_jobcenter_arbeitsbescheinigung_step1',
-        'cat_jobcenter_arbeitsbescheinigung_step2',
-        'cat_jobcenter_arbeitsbescheinigung_step3',
-        'cat_jobcenter_arbeitsbescheinigung_step4',
-        'cat_jobcenter_arbeitsbescheinigung_step5',
-        'cat_jobcenter_arbeitsbescheinigung_step6',
-      ],
-      riskLevel: RiskLevel.low,
-    ),
-
-    // 4) Einladung
+    // 2) Einladung
     CategoryDefinition(
       id: 'jobcenter_einladung',
       labelKey: 'cat_jobcenter_einladung_label',
@@ -253,39 +147,39 @@ class BriefAiCategories {
       mainCategory: MainCategory.categoryJobcenter,
       headerKeywords: [
         'Einladung',
-        'Meldeaufforderung',
-        'Ihr Termin',
-        'persönliche Vorsprache',
+        'Termin',
+        'Uhrzeit',
+        'Raum',
       ],
       decisiveKeywords: [
-        'bitte erscheinen Sie am',
-        'Sie sind eingeladen',
-        'Termin am',
-        'persönliches Erscheinen erforderlich',
-        'Meldezweck',
-        'Uhrzeit',
+        'kommen',
+        'angegebenen',
+        'Termindaten',
+        'leisten',
+        'gemindert',
+        'berufliche',
       ],
       supportingKeywords: [
-        'Vorsprache',
-        'Gespräch',
-        'Raum',
+        'Datum',
         'Uhrzeit',
-        'Termin',
-        'wahrnehmen',
-        'erscheinen',
-        'Standort',
+        'Raum',
+        'Situation',
+        'Einladung',
+        'Folge',
+        'Jobcenter',
+        'gesprochen',
       ],
       weakNegativeKeywords: [
         'Mitwirkung',
-        'Unterlagen einreichen',
-        'WBA',
+        'Anlage EK',
         'Veränderungsmitteilung',
+        'Weiterbewilligungsantrag',
       ],
       strongNegativeKeywords: [
-        'Hauptantrag',
-        'Anlage EK',
         'Bewilligungsbescheid',
+        'Ablehnungsbescheid',
         'Arbeitsbescheinigung',
+        'Hauptantrag Bürgergeld',
       ],
       nextStepKeys: [
         'cat_jobcenter_einladung_step1',
@@ -298,113 +192,166 @@ class BriefAiCategories {
       riskLevel: RiskLevel.high,
     ),
 
-    // 5) WBA – Weiterbewilligungsantrag
+    // 3) Einladung zum Telefontermin
     CategoryDefinition(
-      id: 'jobcenter_wba',
-      labelKey: 'cat_jobcenter_wba_label',
-      summaryKey: 'cat_jobcenter_wba_summary',
+      id: 'jobcenter_einladung_telefontermin',
+      labelKey: 'cat_jobcenter_einladung_telefontermin_label',
+      summaryKey: 'cat_jobcenter_einladung_telefontermin_summary',
       mainCategory: MainCategory.categoryJobcenter,
       headerKeywords: [
-        'Antrag auf Weiterbewilligung',
-        'Weiterbewilligungsantrag',
-        'Leistungen weiterbewilligen',
-        'Bürgergeld WBA',
+        'Telefontermin',
+        'Termin',
+        'Telefonat',
+        'Telefonnummer',
       ],
       decisiveKeywords: [
-        'Antrag auf Weiterbewilligung der Leistungen',
-        'Weiterbewilligungsantrag',
-        'Bewilligungszeitraum endet',
-        'damit die Leistungen weitergezahlt werden können',
-        'Antrag rechtzeitig stellen',
-        'Weiterbewilligung beantragen',
+        'kontaktieren',
+        'Nachfragen',
+        'übermitteln',
+        'dauern',
+        'vorbereiten',
+        'Vorgehen',
       ],
       supportingKeywords: [
-        'Weiterbewilligung',
-        'Bewilligungszeitraum',
-        'Leistungen',
-        'Antrag',
-        'Fortzahlung',
-        'Bürgergeld',
-        'Antragsteller',
-        'Weiterzahlung',
+        'Telefonnummer',
+        'Unterlagen',
+        'Nachfragen',
+        'Kontakt',
+        'Gespräch',
+        'Minuten',
+        'Einladung',
+        'Vorgehen',
       ],
       weakNegativeKeywords: [
-        'Hauptantrag',
-        'Veränderungsmitteilung',
-        'Anlage EK',
-        'Mitwirkung',
+        'persönliches Erscheinen',
+        'Raum',
+        'Meldeaufforderung',
+        'Ihre Termindaten',
       ],
       strongNegativeKeywords: [
         'Bewilligungsbescheid',
+        'Ablehnungsbescheid',
         'Änderungsbescheid',
-        'Aufhebungsbescheid',
-        'Einladung',
+        'Aufforderung zur Mitwirkung',
       ],
       nextStepKeys: [
-        'cat_jobcenter_wba_step1',
-        'cat_jobcenter_wba_step2',
-        'cat_jobcenter_wba_step3',
-        'cat_jobcenter_wba_step4',
-        'cat_jobcenter_wba_step5',
-        'cat_jobcenter_wba_step6',
+        'cat_jobcenter_einladung_telefontermin_step1',
+        'cat_jobcenter_einladung_telefontermin_step2',
+        'cat_jobcenter_einladung_telefontermin_step3',
+        'cat_jobcenter_einladung_telefontermin_step4',
+        'cat_jobcenter_einladung_telefontermin_step5',
+        'cat_jobcenter_einladung_telefontermin_step6',
       ],
       riskLevel: RiskLevel.high,
     ),
 
-    // 6) VÄM – Veränderungsmitteilung
+    // 4) Einkommensbescheinigung
     CategoryDefinition(
-      id: 'jobcenter_vaem',
-      labelKey: 'cat_jobcenter_vaem_label',
-      summaryKey: 'cat_jobcenter_vaem_summary',
+      id: 'jobcenter_einkommensbescheinigung',
+      labelKey: 'cat_jobcenter_einkommensbescheinigung_label',
+      summaryKey: 'cat_jobcenter_einkommensbescheinigung_summary',
       mainCategory: MainCategory.categoryJobcenter,
       headerKeywords: [
-        'Veränderungsmitteilung',
-        'Änderungen in Ihren Verhältnissen',
-        'Mitteilung über Änderungen',
-        'Angaben zur Änderung',
+        'Einkommensbescheinigung',
+        'Arbeitsentgelt',
+        'Arbeitgeber',
+        'Arbeitnehmer',
       ],
       decisiveKeywords: [
-        'ich teile folgende Änderung mit',
-        'Änderung der persönlichen Verhältnisse',
-        'Änderung des Einkommens',
-        'Änderung der Miete',
-        'Änderung der Bankverbindung',
-        'Änderung der Haushaltsverhältnisse',
+        'auszufüllen',
+        'Arbeitsentgelt',
+        'Beschäftigungsverhältnis',
+        'Beginn',
+        'Ende',
+        'unvollständig',
       ],
       supportingKeywords: [
-        'Änderung',
-        'neue Anschrift',
-        'neues Einkommen',
-        'Einzug',
-        'Auszug',
-        'Miete',
+        'Arbeitgeberin',
         'Arbeitgeber',
-        'Konto',
+        'Arbeitnehmerin',
+        'Arbeitnehmer',
+        'Rückfragen',
+        'Rückgabe',
+        'Ergänzung',
+        'Arbeitsentgelt',
       ],
       weakNegativeKeywords: [
-        'Hauptantrag',
-        'WBA',
+        'Arbeitsbescheinigung',
         'Anlage EK',
+        'Mitwirkung',
+        'Veränderungsmitteilung',
+      ],
+      strongNegativeKeywords: [
+        'Bewilligungsbescheid',
+        'Einladung',
+        'Hauptantrag Bürgergeld',
+        'Weiterbewilligungsantrag',
+      ],
+      nextStepKeys: [
+        'cat_jobcenter_einkommensbescheinigung_step1',
+        'cat_jobcenter_einkommensbescheinigung_step2',
+        'cat_jobcenter_einkommensbescheinigung_step3',
+        'cat_jobcenter_einkommensbescheinigung_step4',
+        'cat_jobcenter_einkommensbescheinigung_step5',
+        'cat_jobcenter_einkommensbescheinigung_step6',
+      ],
+      riskLevel: RiskLevel.low,
+    ),
+
+    // 5) Arbeitsbescheinigung
+    CategoryDefinition(
+      id: 'jobcenter_arbeitsbescheinigung',
+      labelKey: 'cat_jobcenter_arbeitsbescheinigung_label',
+      summaryKey: 'cat_jobcenter_arbeitsbescheinigung_summary',
+      mainCategory: MainCategory.categoryJobcenter,
+      headerKeywords: [
+        'Arbeitsbescheinigung',
+        'Arbeitgeber',
+        'Arbeitnehmer',
+        'Beschäftigungsverhältnis',
+      ],
+      decisiveKeywords: [
+        'auszufüllen',
+        'Beschäftigung',
+        'Zeitraum',
+        'geendet',
+        'Beschäftigungsort',
+        'unvollständig',
+      ],
+      supportingKeywords: [
+        'Arbeitgeberin',
+        'Arbeitgeber',
+        'Arbeitnehmerin',
+        'Arbeitnehmer',
+        'Beschäftigungsort',
+        'Rückfragen',
+        'Rückgabe',
+        'Ergänzung',
+      ],
+      weakNegativeKeywords: [
+        'Einkommensbescheinigung',
+        'Anlage EK',
+        'Mitwirkung',
         'Einladung',
       ],
       strongNegativeKeywords: [
-        'Änderungsbescheid',
         'Bewilligungsbescheid',
-        'Aufhebungsbescheid',
-        'Aufforderung zur Mitwirkung',
+        'Weiterbewilligungsantrag',
+        'Hauptantrag Bürgergeld',
+        'Veränderungsmitteilung',
       ],
       nextStepKeys: [
-        'cat_jobcenter_vaem_step1',
-        'cat_jobcenter_vaem_step2',
-        'cat_jobcenter_vaem_step3',
-        'cat_jobcenter_vaem_step4',
-        'cat_jobcenter_vaem_step5',
-        'cat_jobcenter_vaem_step6',
+        'cat_jobcenter_arbeitsbescheinigung_step1',
+        'cat_jobcenter_arbeitsbescheinigung_step2',
+        'cat_jobcenter_arbeitsbescheinigung_step3',
+        'cat_jobcenter_arbeitsbescheinigung_step4',
+        'cat_jobcenter_arbeitsbescheinigung_step5',
+        'cat_jobcenter_arbeitsbescheinigung_step6',
       ],
-      riskLevel: RiskLevel.medium,
+      riskLevel: RiskLevel.low,
     ),
 
-    // 7) HA – Hauptantrag
+    // 6) HA – Hauptantrag
     CategoryDefinition(
       id: 'jobcenter_hauptantrag',
       labelKey: 'cat_jobcenter_hauptantrag_label',
@@ -412,27 +359,27 @@ class BriefAiCategories {
       mainCategory: MainCategory.categoryJobcenter,
       headerKeywords: [
         'Hauptantrag',
-        'Antrag auf Bürgergeld',
-        'Leistungen nach dem SGB II',
-        'Hauptantrag Bürgergeld',
+        'Bürgergeld',
+        'Antrag',
+        'SGB II',
       ],
       decisiveKeywords: [
-        'Antrag auf Bürgergeld',
-        'Hauptantrag',
-        'Angaben zur antragstellenden Person',
-        'ich beantrage Leistungen',
-        'Bedarfsgemeinschaft',
-        'persönliche Verhältnisse',
+        'beantragen',
+        'antragstellenden',
+        'Wohnsitz',
+        'Staatsangehörigkeit',
+        'Geburtsname',
+        'Anlagen',
       ],
       supportingKeywords: [
-        'Antragsteller',
-        'Unterkunft',
-        'Einkommen',
-        'Vermögen',
-        'Bankverbindung',
-        'Bedarfsgemeinschaft',
-        'Unterschrift',
-        'Leistungen',
+        'antragstellenden',
+        'Person',
+        'Staatsangehörigkeit',
+        'Geburtsname',
+        'Name',
+        'Anlagen',
+        'Persönliche Daten',
+        'SGB II',
       ],
       weakNegativeKeywords: [
         'Weiterbewilligungsantrag',
@@ -442,9 +389,9 @@ class BriefAiCategories {
       ],
       strongNegativeKeywords: [
         'Bewilligungsbescheid',
-        'Einladung',
-        'Aufforderung zur Mitwirkung',
         'Ablehnungsbescheid',
+        'Einladung',
+        'Arbeitsbescheinigung',
       ],
       nextStepKeys: [
         'cat_jobcenter_hauptantrag_step1',
@@ -457,7 +404,113 @@ class BriefAiCategories {
       riskLevel: RiskLevel.medium,
     ),
 
-    // 8) Anlage EK
+    // 7) WBA – Weiterbewilligungsantrag
+    CategoryDefinition(
+      id: 'jobcenter_wba',
+      labelKey: 'cat_jobcenter_wba_label',
+      summaryKey: 'cat_jobcenter_wba_summary',
+      mainCategory: MainCategory.categoryJobcenter,
+      headerKeywords: [
+        'Weiterbewilligungsantrag',
+        'Bürgergeld',
+        'Bewilligungszeitraumes',
+        'Wohnsituation',
+      ],
+      decisiveKeywords: [
+        'weitere',
+        'Bewilligung',
+        'laufenden',
+        'allein',
+        'Anlagen',
+        'Online',
+      ],
+      supportingKeywords: [
+        'antragstellenden',
+        'Person',
+        'Wohnsituation',
+        'Bürgergeld',
+        'Anlagen',
+        'Weiterbewilligung',
+        'Online',
+        'Bewilligungszeitraumes',
+      ],
+      weakNegativeKeywords: [
+        'Hauptantrag Bürgergeld',
+        'Veränderungsmitteilung',
+        'Anlage EK',
+        'Mitwirkung',
+      ],
+      strongNegativeKeywords: [
+        'Bewilligungsbescheid',
+        'Ablehnungsbescheid',
+        'Einladung',
+        'Arbeitsbescheinigung',
+      ],
+      nextStepKeys: [
+        'cat_jobcenter_wba_step1',
+        'cat_jobcenter_wba_step2',
+        'cat_jobcenter_wba_step3',
+        'cat_jobcenter_wba_step4',
+        'cat_jobcenter_wba_step5',
+        'cat_jobcenter_wba_step6',
+      ],
+      riskLevel: RiskLevel.high,
+    ),
+
+    // 8) VÄM – Veränderungsmitteilung
+    CategoryDefinition(
+      id: 'jobcenter_vaem',
+      labelKey: 'cat_jobcenter_vaem_label',
+      summaryKey: 'cat_jobcenter_vaem_summary',
+      mainCategory: MainCategory.categoryJobcenter,
+      headerKeywords: [
+        'Veränderungsmitteilung',
+        'Bürgergeld',
+        'Bankverbindung',
+        'Wohnsituation',
+      ],
+      decisiveKeywords: [
+        'Änderungen',
+        'Bewilligungszeitraumes',
+        'Kontoinhaberin',
+        'IBAN',
+        'Umzug',
+        'Anlage KDU',
+      ],
+      supportingKeywords: [
+        'Bankverbindung',
+        'Wohnsituation',
+        'Kontoinhaberin',
+        'Kontoinhaber',
+        'IBAN',
+        'Umzug',
+        'Bedarfsgemeinschaft',
+        'Unterkunft',
+      ],
+      weakNegativeKeywords: [
+        'Hauptantrag Bürgergeld',
+        'Weiterbewilligungsantrag',
+        'Anlage EK',
+        'Mitwirkung',
+      ],
+      strongNegativeKeywords: [
+        'Bewilligungsbescheid',
+        'Einladung',
+        'Arbeitsbescheinigung',
+        'Ablehnungsbescheid',
+      ],
+      nextStepKeys: [
+        'cat_jobcenter_vaem_step1',
+        'cat_jobcenter_vaem_step2',
+        'cat_jobcenter_vaem_step3',
+        'cat_jobcenter_vaem_step4',
+        'cat_jobcenter_vaem_step5',
+        'cat_jobcenter_vaem_step6',
+      ],
+      riskLevel: RiskLevel.medium,
+    ),
+
+    // 9) Anlage EK
     CategoryDefinition(
       id: 'jobcenter_anlage_ek',
       labelKey: 'cat_jobcenter_anlage_ek_label',
@@ -465,38 +518,38 @@ class BriefAiCategories {
       mainCategory: MainCategory.categoryJobcenter,
       headerKeywords: [
         'Anlage EK',
-        'Angaben zum Einkommen',
-        'Einkommen der Person',
-        'Anlage Einkommen',
+        'Einkommen',
+        'Bedarfsgemeinschaft',
+        'Erwerbstätigkeit',
       ],
       decisiveKeywords: [
-        'Anlage EK',
-        'Angaben zum Einkommen',
-        'Einkommen aus nichtselbständiger Arbeit',
-        'sonstiges Einkommen',
-        'monatliches Einkommen',
-        'Einnahmen',
+        'ausgefüllt',
+        'Einkünfte',
+        'hauptberuflichen',
+        'nebenberuflichen',
+        'Arbeitgeberin',
+        'Arbeitgeber',
       ],
       supportingKeywords: [
-        'Lohn',
-        'Gehalt',
-        'Rente',
-        'Unterhalt',
-        'Einnahmen',
+        'Person',
         'Einkommen',
-        'brutto',
-        'netto',
+        'Erwerbstätigkeit',
+        'Einkünfte',
+        'Arbeitgeberin',
+        'Arbeitgeber',
+        'Bedarfsgemeinschaft',
+        'ausgefüllt',
       ],
       weakNegativeKeywords: [
         'Einkommensbescheinigung',
-        'Anlage EKS',
         'Arbeitsbescheinigung',
+        'Anlage EKS',
         'Veränderungsmitteilung',
       ],
       strongNegativeKeywords: [
         'Bewilligungsbescheid',
         'Einladung',
-        'Hauptantrag',
+        'Hauptantrag Bürgergeld',
         'Aufforderung zur Mitwirkung',
       ],
       nextStepKeys: [
@@ -510,7 +563,7 @@ class BriefAiCategories {
       riskLevel: RiskLevel.low,
     ),
 
-    // 9) Anlage KDU
+    // 10) Anlage KDU
     CategoryDefinition(
       id: 'jobcenter_anlage_kdu',
       labelKey: 'cat_jobcenter_anlage_kdu_label',
@@ -518,38 +571,38 @@ class BriefAiCategories {
       mainCategory: MainCategory.categoryJobcenter,
       headerKeywords: [
         'Anlage KDU',
-        'Kosten der Unterkunft und Heizung',
-        'Angaben zur Unterkunft',
-        'Unterkunftskosten',
+        'Unterkunft',
+        'Heizung',
+        'Bedarfen',
       ],
       decisiveKeywords: [
-        'Kosten der Unterkunft und Heizung',
-        'Gesamtmiete',
-        'Heizkosten',
-        'Nebenkosten',
-        'Angaben zur Unterkunft',
-        'Mietkosten',
+        'wohnen',
+        'Baujahr',
+        'Räume',
+        'Küchen',
+        'Bäder',
+        'Gesamtfläche',
       ],
       supportingKeywords: [
-        'Mietvertrag',
-        'Kaltmiete',
-        'Warmmiete',
-        'Heizkosten',
-        'Nebenkosten',
-        'Betriebskosten',
-        'Wohnfläche',
-        'Vermieter',
+        'Unterkunft',
+        'Heizung',
+        'Baujahr',
+        'Räume',
+        'Küchen',
+        'Bäder',
+        'Gesamtfläche',
+        'Quadratmetern',
       ],
       weakNegativeKeywords: [
         'Anlage VM',
         'Anlage EK',
-        'Hauptantrag',
+        'Hauptantrag Bürgergeld',
         'Mitwirkung',
       ],
       strongNegativeKeywords: [
         'Bewilligungsbescheid',
         'Einladung',
-        'WBA',
+        'Weiterbewilligungsantrag',
         'Veränderungsmitteilung',
       ],
       nextStepKeys: [
@@ -563,7 +616,7 @@ class BriefAiCategories {
       riskLevel: RiskLevel.low,
     ),
 
-    // 10) Anlage VM
+    // 11) Anlage VM
     CategoryDefinition(
       id: 'jobcenter_anlage_vm',
       labelKey: 'cat_jobcenter_anlage_vm_label',
@@ -571,27 +624,27 @@ class BriefAiCategories {
       mainCategory: MainCategory.categoryJobcenter,
       headerKeywords: [
         'Anlage VM',
-        'Angaben zum Vermögen',
+        'Vermögen',
         'Vermögenswerte',
-        'Anlage Vermögen',
+        'Bedarfsgemeinschaft',
       ],
       decisiveKeywords: [
-        'Konto- und Sparguthaben',
-        'Bargeld',
-        'Wertpapiere',
-        'Kraftfahrzeug',
-        'Vermögen im In- und Ausland',
-        'Immobilienbesitz',
+        'Selbstauskunft',
+        'Ausland',
+        'Immobilien',
+        'Verkehrswert',
+        'Mieteinnahmen',
+        'Pachteinnahmen',
       ],
       supportingKeywords: [
-        'Sparbuch',
-        'Girokonto',
-        'Bausparvertrag',
-        'Fahrzeug',
-        'Haus',
-        'Grundstück',
-        'Rückkaufswert',
         'Vermögen',
+        'Vermögenswerte',
+        'Grundstücke',
+        'Immobilien',
+        'Hausgrundstück',
+        'Eigentumswohnung',
+        'Verkehrswert',
+        'Mieteinnahmen',
       ],
       weakNegativeKeywords: [
         'Anlage EK',
@@ -616,7 +669,7 @@ class BriefAiCategories {
       riskLevel: RiskLevel.low,
     ),
 
-    // 11) Anlage EKS
+    // 12) Anlage EKS
     CategoryDefinition(
       id: 'jobcenter_anlage_eks',
       labelKey: 'cat_jobcenter_anlage_eks_label',
@@ -624,27 +677,27 @@ class BriefAiCategories {
       mainCategory: MainCategory.categoryJobcenter,
       headerKeywords: [
         'Anlage EKS',
-        'Angaben zum Einkommen aus selbständiger Tätigkeit',
-        'vorläufige EKS',
-        'abschließende EKS',
+        'Einkommen',
+        'selbständiger',
+        'Bewilligungszeitraum',
       ],
       decisiveKeywords: [
-        'selbständige Tätigkeit',
-        'Betriebseinnahmen',
-        'Betriebsausgaben',
-        'Gewinn',
-        'voraussichtliches Einkommen',
-        'abschließende Angaben zum Einkommen',
+        'vorläufige',
+        'abschließende',
+        'Erklärung',
+        'Art',
+        'freiberuflich',
+        'tätigen',
       ],
       supportingKeywords: [
-        'Gewerbe',
-        'Umsatz',
-        'Ausgaben',
-        'Einnahmen',
-        'Gewinn',
-        'Verlust',
-        'selbständig',
-        'freiberuflich',
+        'selbständiger',
+        'freiberuflicher',
+        'Tätigkeit',
+        'Bewilligungszeitraum',
+        'Erklärung',
+        'antragstellenden',
+        'Person',
+        'tätigen',
       ],
       weakNegativeKeywords: [
         'Anlage EK',
@@ -655,7 +708,7 @@ class BriefAiCategories {
       strongNegativeKeywords: [
         'Bewilligungsbescheid',
         'Einladung',
-        'Hauptantrag',
+        'Hauptantrag Bürgergeld',
         'Mitwirkung',
       ],
       nextStepKeys: [
@@ -669,7 +722,7 @@ class BriefAiCategories {
       riskLevel: RiskLevel.low,
     ),
 
-    // 12) Anlage WEP
+    // 13) Anlage WEP
     CategoryDefinition(
       id: 'jobcenter_anlage_wep',
       labelKey: 'cat_jobcenter_anlage_wep_label',
@@ -677,33 +730,33 @@ class BriefAiCategories {
       mainCategory: MainCategory.categoryJobcenter,
       headerKeywords: [
         'Anlage WEP',
-        'Weitere Person in der Bedarfsgemeinschaft',
-        'Angaben zur weiteren Person',
         'weitere Person',
+        'Bedarfsgemeinschaft',
+        'Staatsangehörigkeit',
       ],
       decisiveKeywords: [
-        'weitere Person in der Bedarfsgemeinschaft',
-        'Angaben zur Person',
-        'Person gehört zur Bedarfsgemeinschaft',
-        'Familienstand',
-        'Staatsangehörigkeit',
-        'persönliche Daten der weiteren Person',
+        'Geburtsort',
+        'Geburtsland',
+        'Rentenversicherungsnummer',
+        'Sozialversicherungsnummer',
+        'Betreuer',
+        'Vormund',
       ],
       supportingKeywords: [
-        'Partner',
-        'Personendaten',
-        'Aufenthalt',
-        'Familienstand',
+        'Person',
         'Bedarfsgemeinschaft',
-        'Name',
-        'Vorname',
-        'weitere Person',
+        'Geburtsname',
+        'Geburtsort',
+        'Geburtsland',
+        'Staatsangehörigkeit',
+        'Rentenversicherungsnummer',
+        'Vormund',
       ],
       weakNegativeKeywords: [
+        'Anlage KI',
         'Anlage HG',
         'Anlage VE',
-        'Anlage KI',
-        'Hauptantrag',
+        'Hauptantrag Bürgergeld',
       ],
       strongNegativeKeywords: [
         'Bewilligungsbescheid',
@@ -722,7 +775,7 @@ class BriefAiCategories {
       riskLevel: RiskLevel.low,
     ),
 
-    // 13) Anlage KI
+    // 14) Anlage KI
     CategoryDefinition(
       id: 'jobcenter_anlage_ki',
       labelKey: 'cat_jobcenter_anlage_ki_label',
@@ -730,33 +783,33 @@ class BriefAiCategories {
       mainCategory: MainCategory.categoryJobcenter,
       headerKeywords: [
         'Anlage KI',
-        'Kinder unter 15 Jahren',
-        'Angaben zu den Kindern',
-        'Kind in der Bedarfsgemeinschaft',
+        'Kind',
+        'Bedarfsgemeinschaft',
+        'Vormund',
       ],
       decisiveKeywords: [
-        'Kinder unter 15 Jahren',
-        'Angaben zum Kind',
-        'Kind lebt im Haushalt',
-        'Kindergeld',
-        'Schule oder Kita',
-        'minderjähriges Kind',
+        'Kinder',
+        'unter',
+        'Persönliche',
+        'Rentenversicherungsnummer',
+        'Sozialversicherungsnummer',
+        'Aufenthaltserlaubnis',
       ],
       supportingKeywords: [
         'Kind',
         'Kinder',
-        'Sorgerecht',
-        'Kindergeld',
-        'Schule',
-        'Betreuung',
-        'Geburtsurkunde',
-        'minderjährig',
+        'Daten',
+        'Vormund',
+        'Rentenversicherungsnummer',
+        'Sozialversicherungsnummer',
+        'Aufenthaltserlaubnis',
+        'Kind',
       ],
       weakNegativeKeywords: [
         'Anlage WEP',
         'Anlage HG',
         'Anlage VE',
-        'Hauptantrag',
+        'Hauptantrag Bürgergeld',
       ],
       strongNegativeKeywords: [
         'Bewilligungsbescheid',
@@ -775,7 +828,7 @@ class BriefAiCategories {
       riskLevel: RiskLevel.low,
     ),
 
-    // 14) Anlage HG
+    // 15) Anlage HG
     CategoryDefinition(
       id: 'jobcenter_anlage_hg',
       labelKey: 'cat_jobcenter_anlage_hg_label',
@@ -784,26 +837,26 @@ class BriefAiCategories {
       headerKeywords: [
         'Anlage HG',
         'Haushaltsgemeinschaft',
-        'Angaben zu den Haushaltsangehörigen',
-        'Personen im Haushalt',
+        'Haushalt',
+        'Unterstützung',
       ],
       decisiveKeywords: [
-        'Haushaltsgemeinschaft',
-        'Personen leben zusammen',
-        'gemeinsame Wohnung',
-        'Haushaltsangehörige',
-        'Unterstützung im Haushalt',
-        'Verwandte im Haushalt',
+        'verwandten',
+        'verschwägerten',
+        'gemeinsam',
+        'lebt',
+        'finanzielle',
+        'Verwandtschaftsverhältnis',
       ],
       supportingKeywords: [
-        'Mitbewohner',
-        'Eltern',
-        'Verwandte',
+        'Haushaltsgemeinschaft',
         'Haushalt',
-        'gemeinsame Wohnung',
-        'zusammen wohnen',
-        'Haushaltsangehörige',
-        'Wohnsituation',
+        'Person',
+        'verwandten',
+        'verschwägerten',
+        'Verwandtschaftsverhältnis',
+        'Schwägerschaft',
+        'Unterstützung',
       ],
       weakNegativeKeywords: [
         'Anlage WEP',
@@ -815,7 +868,7 @@ class BriefAiCategories {
         'Bewilligungsbescheid',
         'Einladung',
         'Mitwirkung',
-        'Hauptantrag',
+        'Hauptantrag Bürgergeld',
       ],
       nextStepKeys: [
         'cat_jobcenter_anlage_hg_step1',
@@ -828,7 +881,7 @@ class BriefAiCategories {
       riskLevel: RiskLevel.low,
     ),
 
-    // 15) Anlage VE
+    // 16) Anlage VE
     CategoryDefinition(
       id: 'jobcenter_anlage_ve',
       labelKey: 'cat_jobcenter_anlage_ve_label',
@@ -836,33 +889,33 @@ class BriefAiCategories {
       mainCategory: MainCategory.categoryJobcenter,
       headerKeywords: [
         'Anlage VE',
-        'Verantwortungs- und Einstehensgemeinschaft',
-        'leben Sie in einer Partnerschaft',
-        'Partner im Haushalt',
+        'Gemeinschaft',
+        'Haushalt',
+        'Partner',
       ],
       decisiveKeywords: [
-        'Verantwortungs- und Einstehensgemeinschaft',
-        'Partner',
-        'gemeinsames Wirtschaften',
-        'länger als ein Jahr zusammen',
-        'gemeinsame Kinder',
-        'gegenseitige Verantwortung',
+        'zusammenleben',
+        'verwandt',
+        'gemeinsamen',
+        'Einkommen',
+        'Vermögen',
+        'Jahr',
       ],
       supportingKeywords: [
-        'Partnerschaft',
-        'zusammen wohnen',
-        'gemeinsame Haushaltsführung',
+        'Verantwortungs',
+        'Einstehensgemeinschaft',
+        'Partnerin',
         'Partner',
-        'eheähnlich',
-        'Verantwortung',
-        'Einstehen',
-        'gemeinsames Konto',
+        'Haushalt',
+        'Einkommen',
+        'Vermögen',
+        'verwandt',
       ],
       weakNegativeKeywords: [
         'Anlage WEP',
         'Anlage HG',
         'Anlage KI',
-        'Hauptantrag',
+        'Hauptantrag Bürgergeld',
       ],
       strongNegativeKeywords: [
         'Bewilligungsbescheid',
@@ -881,7 +934,7 @@ class BriefAiCategories {
       riskLevel: RiskLevel.low,
     ),
 
-    // 16) Anlage SV
+    // 17) Anlage SV
     CategoryDefinition(
       id: 'jobcenter_anlage_sv',
       labelKey: 'cat_jobcenter_anlage_sv_label',
@@ -889,27 +942,27 @@ class BriefAiCategories {
       mainCategory: MainCategory.categoryJobcenter,
       headerKeywords: [
         'Anlage SV',
-        'Angaben zur Sozialversicherung',
-        'Kranken- und Pflegeversicherung',
-        'Versicherungsschutz',
+        'Sozialversicherung',
+        'Krankenversicherung',
+        'Pflegeversicherung',
       ],
       decisiveKeywords: [
-        'gesetzliche Krankenversicherung',
-        'private Krankenversicherung',
-        'Rentenversicherung',
-        'Versicherungsnummer',
+        'gesetzliche',
+        'private',
+        'Mitgliedschaft',
         'Krankenkasse',
-        'Mitgliedschaft bei einer Krankenkasse',
+        'versichert',
+        'privat',
       ],
       supportingKeywords: [
-        'Krankenkasse',
-        'Versicherung',
         'Sozialversicherung',
-        'Rentenversicherungsnummer',
-        'Mitgliedschaft',
+        'Krankenversicherung',
         'Pflegeversicherung',
-        'Versicherungsstatus',
+        'Mitgliedschaft',
+        'Krankenkasse',
+        'privat',
         'versichert',
+        'Bürgergeldberechtigten',
       ],
       weakNegativeKeywords: [
         'Anlage KI',
@@ -934,41 +987,41 @@ class BriefAiCategories {
       riskLevel: RiskLevel.low,
     ),
 
-    // 17) Anlage UH1 / UH2 / UH3
+    // 18) Anlage UH1
     CategoryDefinition(
-      id: 'jobcenter_anlage_uh',
-      labelKey: 'cat_jobcenter_anlage_uh_label',
-      summaryKey: 'cat_jobcenter_anlage_uh_summary',
+      id: 'jobcenter_anlage_uh1',
+      labelKey: 'cat_jobcenter_anlage_uh1_label',
+      summaryKey: 'cat_jobcenter_anlage_uh1_summary',
       mainCategory: MainCategory.categoryJobcenter,
       headerKeywords: [
-        'Unterhaltsansprüche',
+        'Anlage UH1',
+        'Trennungsunterhalt',
         'Unterhalt',
-        'Unterhaltspflicht',
-        'Anlage UH',
+        'Lebenspartnerschaft',
       ],
       decisiveKeywords: [
-        'Unterhaltsanspruch',
-        'Unterhaltszahlungen',
-        'unterhaltspflichtige Person',
-        'Kindesunterhalt',
-        'Ehegattenunterhalt',
-        'getrennt lebend',
+        'Trennung',
+        'Scheidung',
+        'getrennt',
+        'Aufhebung',
+        'Familiäre',
+        'Antrag',
       ],
       supportingKeywords: [
+        'Trennungsunterhalt',
+        'nachehelichem',
+        'nachpartnerschaftlichem',
         'Unterhalt',
-        'Jugendamt',
-        'Unterhaltsvorschuss',
+        'getrennt',
         'Scheidung',
-        'Vater des Kindes',
-        'Unterhaltspflicht',
-        'Trennung',
-        'Zahlungen',
+        'Aufhebung',
+        'Lebenspartnerschaft',
       ],
       weakNegativeKeywords: [
+        'Anlage UH2',
+        'Anlage UH3',
         'Anlage KI',
-        'Anlage VE',
-        'Anlage HG',
-        'Hauptantrag',
+        'Hauptantrag Bürgergeld',
       ],
       strongNegativeKeywords: [
         'Bewilligungsbescheid',
@@ -977,17 +1030,123 @@ class BriefAiCategories {
         'Arbeitsbescheinigung',
       ],
       nextStepKeys: [
-        'cat_jobcenter_anlage_uh_step1',
-        'cat_jobcenter_anlage_uh_step2',
-        'cat_jobcenter_anlage_uh_step3',
-        'cat_jobcenter_anlage_uh_step4',
-        'cat_jobcenter_anlage_uh_step5',
-        'cat_jobcenter_anlage_uh_step6',
+        'cat_jobcenter_anlage_uh1_step1',
+        'cat_jobcenter_anlage_uh1_step2',
+        'cat_jobcenter_anlage_uh1_step3',
+        'cat_jobcenter_anlage_uh1_step4',
+        'cat_jobcenter_anlage_uh1_step5',
+        'cat_jobcenter_anlage_uh1_step6',
       ],
       riskLevel: RiskLevel.medium,
     ),
 
-    // 18) Anlage BB
+    // 19) Anlage UH2
+    CategoryDefinition(
+      id: 'jobcenter_anlage_uh2',
+      labelKey: 'cat_jobcenter_anlage_uh2_label',
+      summaryKey: 'cat_jobcenter_anlage_uh2_summary',
+      mainCategory: MainCategory.categoryJobcenter,
+      headerKeywords: [
+        'Anlage UH2',
+        'Schwangerschaft',
+        'Unterhaltsansprüchen',
+        'Kindsvater',
+      ],
+      decisiveKeywords: [
+        'schwanger',
+        'Entbindungstermin',
+        'Kindsvater',
+        'bekannt',
+        'unbekannt',
+        'verstorben',
+      ],
+      supportingKeywords: [
+        'Schwangerschaft',
+        'Unterhaltsanspruch',
+        'schwanger',
+        'Entbindungstermin',
+        'Kindsvater',
+        'bekannt',
+        'unbekannt',
+        'verstorben',
+      ],
+      weakNegativeKeywords: [
+        'Anlage UH1',
+        'Anlage UH3',
+        'Anlage KI',
+        'Hauptantrag Bürgergeld',
+      ],
+      strongNegativeKeywords: [
+        'Bewilligungsbescheid',
+        'Einladung',
+        'Mitwirkung',
+        'Arbeitsbescheinigung',
+      ],
+      nextStepKeys: [
+        'cat_jobcenter_anlage_uh2_step1',
+        'cat_jobcenter_anlage_uh2_step2',
+        'cat_jobcenter_anlage_uh2_step3',
+        'cat_jobcenter_anlage_uh2_step4',
+        'cat_jobcenter_anlage_uh2_step5',
+        'cat_jobcenter_anlage_uh2_step6',
+      ],
+      riskLevel: RiskLevel.medium,
+    ),
+
+    // 20) Anlage UH3
+    CategoryDefinition(
+      id: 'jobcenter_anlage_uh3',
+      labelKey: 'cat_jobcenter_anlage_uh3_label',
+      summaryKey: 'cat_jobcenter_anlage_uh3_summary',
+      mainCategory: MainCategory.categoryJobcenter,
+      headerKeywords: [
+        'Anlage UH3',
+        'Kindesunterhalt',
+        'Elternteil',
+        'Unterhaltsanspruch',
+      ],
+      decisiveKeywords: [
+        'unterhaltsberechtigten',
+        'Elternteil',
+        'bekannt',
+        'unbekannt',
+        'verstorben',
+        'außerhalb',
+      ],
+      supportingKeywords: [
+        'Kindesunterhalt',
+        'unterhaltsberechtigten',
+        'Person',
+        'Elternteile',
+        'Elternteil',
+        'bekannt',
+        'unbekannt',
+        'verstorben',
+      ],
+      weakNegativeKeywords: [
+        'Anlage UH1',
+        'Anlage UH2',
+        'Anlage KI',
+        'Hauptantrag Bürgergeld',
+      ],
+      strongNegativeKeywords: [
+        'Bewilligungsbescheid',
+        'Einladung',
+        'Mitwirkung',
+        'Arbeitsbescheinigung',
+      ],
+      nextStepKeys: [
+        'cat_jobcenter_anlage_uh3_step1',
+        'cat_jobcenter_anlage_uh3_step2',
+        'cat_jobcenter_anlage_uh3_step3',
+        'cat_jobcenter_anlage_uh3_step4',
+        'cat_jobcenter_anlage_uh3_step5',
+        'cat_jobcenter_anlage_uh3_step6',
+      ],
+      riskLevel: RiskLevel.medium,
+    ),
+
+    // 21) Anlage BB
     CategoryDefinition(
       id: 'jobcenter_anlage_bb',
       labelKey: 'cat_jobcenter_anlage_bb_label',
@@ -995,27 +1154,27 @@ class BriefAiCategories {
       mainCategory: MainCategory.categoryJobcenter,
       headerKeywords: [
         'Anlage BB',
-        'besonderer Bedarf',
-        'laufender besonderer Bedarf',
-        'Angaben zum besonderen Bedarf',
+        'Bedarf',
+        'unabweisbaren',
+        'beantragen',
       ],
       decisiveKeywords: [
-        'besonderer Bedarf',
-        'unabweisbarer Bedarf',
-        'laufender besonderer Bedarf',
-        'zusätzliche Kosten',
-        'besondere Lebenssituation',
-        'außergewöhnlicher Bedarf',
+        'besonderer',
+        'entsteht',
+        'beantragen',
+        'unabweisbar',
+        'Bedarf',
+        'Angaben',
       ],
       supportingKeywords: [
+        'unabweisbar',
+        'besonderer',
         'Bedarf',
-        'Nachweis',
-        'zusätzliche Kosten',
-        'besondere Situation',
-        'Härtefall',
-        'Begründung',
-        'Ausgaben',
-        'Antrag',
+        'Angaben',
+        'beantragen',
+        'entsteht',
+        'Welchen',
+        'Bedarf',
       ],
       weakNegativeKeywords: [
         'Anlage MEB',
@@ -1026,7 +1185,7 @@ class BriefAiCategories {
       strongNegativeKeywords: [
         'Bewilligungsbescheid',
         'Einladung',
-        'Hauptantrag',
+        'Hauptantrag Bürgergeld',
         'Änderungsbescheid',
       ],
       nextStepKeys: [
@@ -1040,7 +1199,7 @@ class BriefAiCategories {
       riskLevel: RiskLevel.low,
     ),
 
-    // 19) Anlage MEB
+    // 22) Anlage MEB
     CategoryDefinition(
       id: 'jobcenter_anlage_meb',
       labelKey: 'cat_jobcenter_anlage_meb_label',
@@ -1048,27 +1207,27 @@ class BriefAiCategories {
       mainCategory: MainCategory.categoryJobcenter,
       headerKeywords: [
         'Anlage MEB',
-        'medizinischer Mehrbedarf',
-        'gesundheitsbedingter Mehrbedarf',
-        'besondere Ernährung',
+        'Mehrbedarf',
+        'Ernährung',
+        'ärztliche',
       ],
       decisiveKeywords: [
-        'aus medizinischen Gründen',
-        'kostenaufwändige Ernährung',
-        'ärztliche Bescheinigung',
-        'gesundheitlicher Mehrbedarf',
-        'medizinisch begründeter Bedarf',
-        'Mehrbedarf wird beantragt',
+        'kostenaufwändige',
+        'Bescheinigung',
+        'Attest',
+        'erstmalig',
+        'erneut',
+        'Ernährung',
       ],
       supportingKeywords: [
-        'Arzt',
-        'Attest',
-        'Krankheit',
-        'Diagnose',
-        'Ernährung',
         'Mehrbedarf',
-        'gesundheitlich',
-        'Behandlung',
+        'Ernährung',
+        'kostenaufwändige',
+        'ärztliche',
+        'Bescheinigung',
+        'Attest',
+        'erstmalig',
+        'erneut',
       ],
       weakNegativeKeywords: [
         'Anlage BB',
@@ -1079,7 +1238,7 @@ class BriefAiCategories {
       strongNegativeKeywords: [
         'Bewilligungsbescheid',
         'Einladung',
-        'Hauptantrag',
+        'Hauptantrag Bürgergeld',
         'Änderungsbescheid',
       ],
       nextStepKeys: [
@@ -1093,7 +1252,7 @@ class BriefAiCategories {
       riskLevel: RiskLevel.low,
     ),
 
-    // 20) Anlage UF
+    // 23) Anlage UF
     CategoryDefinition(
       id: 'jobcenter_anlage_uf',
       labelKey: 'cat_jobcenter_anlage_uf_label',
@@ -1102,26 +1261,26 @@ class BriefAiCategories {
       headerKeywords: [
         'Anlage UF',
         'Unfall',
-        'Schadensersatz',
-        'Ersatzanspruch',
+        'Schaden',
+        'Schadensersatzanspruch',
       ],
       decisiveKeywords: [
-        'aufgrund eines Unfalls',
-        'Schadensersatzanspruch',
-        'Schmerzensgeld',
-        'Entschädigungszahlung',
-        'Anspruch gegen Dritte',
-        'Versicherung zahlt',
+        'Dritten',
+        'geschädigten',
+        'Unfalls',
+        'Schadensereignisses',
+        'Schädigerin',
+        'Schädiger',
       ],
       supportingKeywords: [
-        'Unfallversicherung',
-        'Haftpflicht',
-        'Ersatz',
-        'Zahlung',
-        'Schaden',
-        'Anspruch',
-        'Entschädigung',
         'Unfall',
+        'Schaden',
+        'Dritten',
+        'Schadensersatzanspruch',
+        'geschädigten',
+        'Unfalls',
+        'Schadensereignisses',
+        'Schädiger',
       ],
       weakNegativeKeywords: [
         'Anlage VM',
@@ -1132,7 +1291,7 @@ class BriefAiCategories {
       strongNegativeKeywords: [
         'Bewilligungsbescheid',
         'Einladung',
-        'Hauptantrag',
+        'Hauptantrag Bürgergeld',
         'Änderungsbescheid',
       ],
       nextStepKeys: [
@@ -1146,38 +1305,38 @@ class BriefAiCategories {
       riskLevel: RiskLevel.medium,
     ),
 
-    // 21) AH – Hinweise
+    // 24) AH – Ausfüllhinweise
     CategoryDefinition(
       id: 'jobcenter_hinweise',
       labelKey: 'cat_jobcenter_hinweise_label',
       summaryKey: 'cat_jobcenter_hinweise_summary',
       mainCategory: MainCategory.categoryJobcenter,
       headerKeywords: [
-        'Hinweise',
         'Ausfüllhinweise',
-        'wichtige Hinweise',
-        'Erläuterungen',
+        'Bürgergeld',
+        'Datenschutz',
+        'Merkblatt',
       ],
       decisiveKeywords: [
-        'bitte beachten Sie',
-        'Ausfüllhinweise',
-        'Erläuterungen',
-        'wichtige Informationen',
-        'Hinweise zum Antrag',
-        'allgemeine Informationen',
+        'Antragsformularen',
+        'Rentenversicherungsnummer',
+        'Sozialversicherungsnummer',
+        'Verpflichtungserklärung',
+        'Erwerbsfähigkeit',
+        'Erklärvideos',
       ],
       supportingKeywords: [
-        'Hinweis',
-        'Information',
-        'Erklärung',
-        'Erläuterung',
+        'Ausfüllhinweise',
+        'Beantragung',
+        'Antragsformularen',
+        'Datenschutz',
         'Merkblatt',
-        'beachten',
-        'Ausfüllhilfe',
-        'Informationen',
+        'Verpflichtungserklärung',
+        'Erwerbsfähigkeit',
+        'Schule/Studium/Ausbildung',
       ],
       weakNegativeKeywords: [
-        'Hauptantrag',
+        'Hauptantrag Bürgergeld',
         'WBA',
         'Anlage EK',
         'Mitwirkung',
@@ -1198,5 +1357,2158 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.low,
     ),
+
+    // ─────────────────────────────────────────────────────────────────────
+    // AUSLÄNDERBEHÖRDE  (35 categories)
+    // ─────────────────────────────────────────────────────────────────────
+
+    // 1) Terminbestaetigung
+    CategoryDefinition(
+      id: 'auslaender_terminbestaetigung',
+      labelKey: 'cat_auslaender_terminbestaetigung_label',
+      summaryKey: 'cat_auslaender_terminbestaetigung_summary',
+      mainCategory: MainCategory.categoryAuslaenderbehoerde,
+      headerKeywords:
+        [
+          'Terminbestätigung',
+          'Einladung zum Termin',
+          'persönliche Vorsprache',
+          'Ausländerbehörde',
+        ]
+      ,
+      decisiveKeywords:
+        [
+          'Sie haben einen Termin am',
+          'bitte erscheinen Sie am',
+          'Ihr Termin findet am',
+          'persönliche Vorsprache am',
+          'vereinbarter Termin',
+          'Uhrzeit des Termins',
+        ]
+      ,
+      supportingKeywords:
+        [
+          'Termin',
+          'Uhrzeit',
+          'Vorsprache',
+          'Schalter',
+          'Zimmer',
+          'Reisepass',
+          'Unterlagen',
+          'persönlich',
+        ]
+      ,
+      weakNegativeKeywords:
+        [
+          'Unterlagen nachreichen',
+          'fehlende Unterlagen',
+          'Online-Antrag gestellt',
+          'Gebühren entrichten',
+        ]
+      ,
+      strongNegativeKeywords:
+        [
+          'Ablehnungsbescheid',
+          'Bewilligungsbescheid',
+          'Fiktionsbescheinigung',
+          'Gebührenhinweis',
+        ]
+      ,
+      nextStepKeys: [
+        'cat_auslaender_terminbestaetigung_step1',
+        'cat_auslaender_terminbestaetigung_step2',
+        'cat_auslaender_terminbestaetigung_step3',
+        'cat_auslaender_terminbestaetigung_step4',
+        'cat_auslaender_terminbestaetigung_step5',
+      ],
+      riskLevel: RiskLevel.high,
+    ),
+
+    // 2) Termineinladung Online
+    CategoryDefinition(
+      id: 'auslaender_termineinladung_online',
+      labelKey: 'cat_auslaender_termineinladung_online_label',
+      summaryKey: 'cat_auslaender_termineinladung_online_summary',
+      mainCategory: MainCategory.categoryAuslaenderbehoerde,
+      headerKeywords:
+        [
+          'schriftliche Termineinladung',
+          'Online-Antrag',
+          'persönliche Vorsprache',
+          'Antragsformular',
+        ]
+      ,
+      decisiveKeywords:
+        [
+          'nach Prüfung Ihres Online-Antrags erhalten Sie einen Termin',
+          'bei diesem Termin unterschreiben Sie das Antragsformular',
+          'bringen Sie die Originale zum Termin mit',
+          'schriftliche Termineinladung',
+          'persönliche Vorsprache ist erforderlich',
+          'Termin zur abschließenden Bearbeitung',
+        ]
+      ,
+      supportingKeywords:
+        [
+          'Online-Antrag',
+          'Originale',
+          'Unterschrift',
+          'Antragsformular',
+          'Reisepass',
+          'Termin',
+          'Vorsprache',
+          'Bearbeitung',
+        ]
+      ,
+      weakNegativeKeywords:
+        [
+          'nur Unterlagen hochladen',
+          'ohne Termin abholen',
+          'Gebühr zahlen',
+          'eAT bereit',
+        ]
+      ,
+      strongNegativeKeywords:
+        [
+          'Terminänderung',
+          'Ablehnungsbescheid',
+          'Fiktionsbescheinigung',
+          'Bewilligungsbescheid',
+        ]
+      ,
+      nextStepKeys: [
+        'cat_auslaender_termineinladung_online_step1',
+        'cat_auslaender_termineinladung_online_step2',
+        'cat_auslaender_termineinladung_online_step3',
+        'cat_auslaender_termineinladung_online_step4',
+        'cat_auslaender_termineinladung_online_step5',
+      ],
+      riskLevel: RiskLevel.high,
+    ),
+
+    // 3) Terminverlegung
+    CategoryDefinition(
+      id: 'auslaender_terminverlegung',
+      labelKey: 'cat_auslaender_terminverlegung_label',
+      summaryKey: 'cat_auslaender_terminverlegung_summary',
+      mainCategory: MainCategory.categoryAuslaenderbehoerde,
+      headerKeywords:
+        [
+          'Terminänderung',
+          'Terminverlegung',
+          'neuer Termin',
+          'bisheriger Termin',
+        ]
+      ,
+      decisiveKeywords:
+        [
+          'Ihr Termin wurde verlegt',
+          'der Termin am entfällt',
+          'stattdessen findet Ihr Termin am',
+          'neuer Termin',
+          'bitte beachten Sie den geänderten Termin',
+          'der bisherige Termin ist aufgehoben',
+        ]
+      ,
+      supportingKeywords:
+        [
+          'neuer Termin',
+          'alter Termin',
+          'entfällt',
+          'geänderte Uhrzeit',
+          'geänderter Tag',
+          'Vorsprache',
+        ]
+      ,
+      weakNegativeKeywords:
+        [
+          'Unterlagen nachreichen',
+          'Antrag einreichen',
+          'Gebühr zahlen',
+          'eAT bereit',
+        ]
+      ,
+      strongNegativeKeywords:
+        [
+          'Ablehnungsbescheid',
+          'Bewilligungsbescheid',
+          'Fiktionsbescheinigung',
+          'Gebührenhinweis',
+        ]
+      ,
+      nextStepKeys: [
+        'cat_auslaender_terminverlegung_step1',
+        'cat_auslaender_terminverlegung_step2',
+        'cat_auslaender_terminverlegung_step3',
+        'cat_auslaender_terminverlegung_step4',
+        'cat_auslaender_terminverlegung_step5',
+      ],
+      riskLevel: RiskLevel.high,
+    ),
+
+    // 4) Unterlagen Anfordering
+    CategoryDefinition(
+      id: 'auslaender_unterlagen_anfordering',
+      labelKey: 'cat_auslaender_unterlagen_anfordering_label',
+      summaryKey: 'cat_auslaender_unterlagen_anfordering_summary',
+      mainCategory: MainCategory.categoryAuslaenderbehoerde,
+      headerKeywords:
+        [
+          'Vorlage von Unterlagen',
+          'fehlende Unterlagen',
+          'Nachweise vorlegen',
+          'Unterlagen benötigt',
+        ]
+      ,
+      decisiveKeywords:
+        [
+          'bitte reichen Sie folgende Unterlagen ein',
+          'folgende Unterlagen sind vorzulegen',
+          'wir benötigen noch folgende Unterlagen',
+          'reichen Sie die Nachweise bis',
+          'zur Bearbeitung fehlen noch Unterlagen',
+          'bitte legen Sie die Unterlagen vor',
+        ]
+      ,
+      supportingKeywords:
+        [
+          'Nachweise',
+          'Unterlagen',
+          'Passkopie',
+          'Mietvertrag',
+          'Krankenversicherung',
+          'Einkommensnachweis',
+          'Arbeitsvertrag',
+          'Immatrikulationsbescheinigung',
+        ]
+      ,
+      weakNegativeKeywords:
+        [
+          'Termin mit Uhrzeit',
+          'bitte erscheinen Sie',
+          'ohne Termin abholen',
+          'stattgegeben',
+        ]
+      ,
+      strongNegativeKeywords:
+        [
+          'Terminbestätigung',
+          'Ablehnungsbescheid',
+          'Fiktionsbescheinigung',
+          'Gebührenhinweis',
+        ]
+      ,
+      nextStepKeys: [
+        'cat_auslaender_unterlagen_anfordering_step1',
+        'cat_auslaender_unterlagen_anfordering_step2',
+        'cat_auslaender_unterlagen_anfordering_step3',
+        'cat_auslaender_unterlagen_anfordering_step4',
+        'cat_auslaender_unterlagen_anfordering_step5',
+      ],
+      riskLevel: RiskLevel.high,
+    ),
+
+    // 5) Nachforderung
+    CategoryDefinition(
+      id: 'auslaender_nachforderung',
+      labelKey: 'cat_auslaender_nachforderung_label',
+      summaryKey: 'cat_auslaender_nachforderung_summary',
+      mainCategory: MainCategory.categoryAuslaenderbehoerde,
+      headerKeywords:
+        [
+          'unvollständiger Antrag',
+          'Nachforderung',
+          'fehlende Angaben',
+          'Antrag unvollständig',
+        ]
+      ,
+      decisiveKeywords:
+        [
+          'Ihr Antrag ist unvollständig',
+          'es fehlen noch Angaben',
+          'der Antrag kann erst bearbeitet werden wenn',
+          'bitte reichen Sie die fehlenden Unterlagen nach',
+          'ohne diese Unterlagen kann der Antrag nicht weiter bearbeitet werden',
+          'fehlende Angaben nachreichen',
+        ]
+      ,
+      supportingKeywords:
+        [
+          'Antrag',
+          'unvollständig',
+          'Nachforderung',
+          'fehlende Angaben',
+          'Nachweise',
+          'Unterlagen',
+          'Nachreichung',
+        ]
+      ,
+      weakNegativeKeywords:
+        [
+          'Terminvereinbarung',
+          'Vorsprache am',
+          'Abholung eAT',
+          'Gebührenhinweis',
+        ]
+      ,
+      strongNegativeKeywords:
+        [
+          'Ablehnungsbescheid',
+          'Bewilligungsbescheid',
+          'Terminbestätigung',
+          'Fiktionsbescheinigung',
+        ]
+      ,
+      nextStepKeys: [
+        'cat_auslaender_nachforderung_step1',
+        'cat_auslaender_nachforderung_step2',
+        'cat_auslaender_nachforderung_step3',
+        'cat_auslaender_nachforderung_step4',
+        'cat_auslaender_nachforderung_step5',
+      ],
+      riskLevel: RiskLevel.high,
+    ),
+
+    // 6) Verlaengerung Hinweis
+    CategoryDefinition(
+      id: 'auslaender_verlaengerung_hinweis',
+      labelKey: 'cat_auslaender_verlaengerung_hinweis_label',
+      summaryKey: 'cat_auslaender_verlaengerung_hinweis_summary',
+      mainCategory: MainCategory.categoryAuslaenderbehoerde,
+      headerKeywords:
+        [
+          'Verlängerung des Aufenthaltstitels',
+          'Aufenthaltstitel läuft ab',
+          'vor Ablauf',
+          'Hinweis',
+        ]
+      ,
+      decisiveKeywords:
+        [
+          'Ihr Aufenthaltstitel läuft ab',
+          'beantragen Sie rechtzeitig die Verlängerung',
+          'vor Ablauf ist ein Antrag zu stellen',
+          'bitte verlängern Sie den Aufenthaltstitel rechtzeitig',
+          'rechtzeitig einen Antrag stellen',
+          'Ablauf des Aufenthaltstitels',
+        ]
+      ,
+      supportingKeywords:
+        [
+          'Verlängerung',
+          'Ablaufdatum',
+          'Aufenthaltstitel',
+          'vor Ablauf',
+          'gültig bis',
+          'Antrag',
+          'rechtzeitig',
+        ]
+      ,
+      weakNegativeKeywords:
+        [
+          'neuer Termin',
+          'Unterlagen nachreichen',
+          'Gebührenbescheid',
+          'Ablehnung',
+        ]
+      ,
+      strongNegativeKeywords:
+        [
+          'Fiktionsbescheinigung',
+          'Bewilligungsbescheid',
+          'Terminbestätigung',
+          'Ablehnungsbescheid',
+        ]
+      ,
+      nextStepKeys: [
+        'cat_auslaender_verlaengerung_hinweis_step1',
+        'cat_auslaender_verlaengerung_hinweis_step2',
+        'cat_auslaender_verlaengerung_hinweis_step3',
+        'cat_auslaender_verlaengerung_hinweis_step4',
+        'cat_auslaender_verlaengerung_hinweis_step5',
+      ],
+      riskLevel: RiskLevel.high,
+    ),
+
+    // 7) Verlaengerungsantrag
+    CategoryDefinition(
+      id: 'auslaender_verlaengerungsantrag',
+      labelKey: 'cat_auslaender_verlaengerungsantrag_label',
+      summaryKey: 'cat_auslaender_verlaengerungsantrag_summary',
+      mainCategory: MainCategory.categoryAuslaenderbehoerde,
+      headerKeywords:
+        [
+          'Antrag auf Verlängerung des Aufenthaltstitels',
+          'Verlängerungsantrag',
+          'Aufenthaltstitel verlängern',
+          'Antrag',
+        ]
+      ,
+      decisiveKeywords:
+        [
+          'Antrag auf Verlängerung des Aufenthaltstitels',
+          'stellen Sie den Online-Antrag',
+          'laden Sie die Unterlagen innerhalb des Formulars hoch',
+          'anschließend erhalten Sie eine schriftliche Termineinladung',
+          'der Antrag ist online einzureichen',
+          'zum Antrag benötigen wir einige Nachweise und Unterlagen',
+        ]
+      ,
+      supportingKeywords:
+        [
+          'Verlängerung',
+          'Online-Antrag',
+          'Formular',
+          'hochladen',
+          'PDF',
+          'JPEG',
+          'Reisepass',
+          'Nachweise',
+        ]
+      ,
+      weakNegativeKeywords:
+        [
+          'Terminänderung',
+          'Abholung ohne Termin',
+          'Gebührenhinweis',
+          'Ablehnung',
+        ]
+      ,
+      strongNegativeKeywords:
+        [
+          'Terminbestätigung',
+          'Fiktionsbescheinigung',
+          'Bewilligungsbescheid',
+          'Gebührenbescheid',
+        ]
+      ,
+      nextStepKeys: [
+        'cat_auslaender_verlaengerungsantrag_step1',
+        'cat_auslaender_verlaengerungsantrag_step2',
+        'cat_auslaender_verlaengerungsantrag_step3',
+        'cat_auslaender_verlaengerungsantrag_step4',
+        'cat_auslaender_verlaengerungsantrag_step5',
+      ],
+      riskLevel: RiskLevel.medium,
+    ),
+
+    // 8) Verlaengerung Vorsprache
+    CategoryDefinition(
+      id: 'auslaender_verlaengerung_vorsprache',
+      labelKey: 'cat_auslaender_verlaengerung_vorsprache_label',
+      summaryKey: 'cat_auslaender_verlaengerung_vorsprache_summary',
+      mainCategory: MainCategory.categoryAuslaenderbehoerde,
+      headerKeywords:
+        [
+          'schriftliche Vorsprache',
+          'Verlängerung',
+          'persönliches Erscheinen',
+          'nach Prüfung',
+        ]
+      ,
+      decisiveKeywords:
+        [
+          'zunächst den Online-Antrag stellen',
+          'nach Prüfung erhalten Sie eine schriftliche Einladung',
+          'persönliche Vorsprache erfolgt später',
+          'ein Termin wird nachgereicht',
+          'nach Bearbeitung werden Sie eingeladen',
+          'Vorsprache nach gesonderter Mitteilung',
+        ]
+      ,
+      supportingKeywords:
+        [
+          'Verlängerung',
+          'Vorsprache',
+          'Online-Antrag',
+          'Einladung',
+          'Termin später',
+          'Unterlagen hochladen',
+          'Antrag stellen',
+        ]
+      ,
+      weakNegativeKeywords:
+        [
+          'Termin am',
+          'Uhrzeit genannt',
+          'ohne Termin abholen',
+          'Gebührenhinweis',
+        ]
+      ,
+      strongNegativeKeywords:
+        [
+          'Terminbestätigung',
+          'Ablehnungsbescheid',
+          'Fiktionsbescheinigung',
+          'Bewilligungsbescheid',
+        ]
+      ,
+      nextStepKeys: [
+        'cat_auslaender_verlaengerung_vorsprache_step1',
+        'cat_auslaender_verlaengerung_vorsprache_step2',
+        'cat_auslaender_verlaengerung_vorsprache_step3',
+        'cat_auslaender_verlaengerung_vorsprache_step4',
+        'cat_auslaender_verlaengerung_vorsprache_step5',
+      ],
+      riskLevel: RiskLevel.medium,
+    ),
+
+    // 9) Upload Hinweis
+    CategoryDefinition(
+      id: 'auslaender_upload_hinweis',
+      labelKey: 'cat_auslaender_upload_hinweis_label',
+      summaryKey: 'cat_auslaender_upload_hinweis_summary',
+      mainCategory: MainCategory.categoryAuslaenderbehoerde,
+      headerKeywords:
+        [
+          'Online-Formular',
+          'Upload',
+          'Dateiformat',
+          'Dateien hochladen',
+        ]
+      ,
+      decisiveKeywords:
+        [
+          'laden Sie die Unterlagen innerhalb des Formulars hoch',
+          'zugelassene Dateiformate sind PDF, JPG, JPEG und PNG',
+          'eine einzelne Datei darf maximal',
+          'die Gesamtgröße Ihrer Dateien darf',
+          'Dokumente im PDF-Format bereithalten',
+          'Dateien im Formular hochladen',
+        ]
+      ,
+      supportingKeywords:
+        [
+          'Upload',
+          'PDF',
+          'JPG',
+          'JPEG',
+          'PNG',
+          'Datei',
+          'hochladen',
+          'Format',
+        ]
+      ,
+      weakNegativeKeywords:
+        [
+          'Vorsprache am',
+          'Termin mit Uhrzeit',
+          'eAT bereit',
+          'Gebührenbescheid',
+        ]
+      ,
+      strongNegativeKeywords:
+        [
+          'Terminbestätigung',
+          'Ablehnungsbescheid',
+          'Fiktionsbescheinigung',
+          'Bewilligungsbescheid',
+        ]
+      ,
+      nextStepKeys: [
+        'cat_auslaender_upload_hinweis_step1',
+        'cat_auslaender_upload_hinweis_step2',
+        'cat_auslaender_upload_hinweis_step3',
+        'cat_auslaender_upload_hinweis_step4',
+        'cat_auslaender_upload_hinweis_step5',
+      ],
+      riskLevel: RiskLevel.low,
+    ),
+
+    // 10) Erteilung Antrag
+    CategoryDefinition(
+      id: 'auslaender_erteilung_antrag',
+      labelKey: 'cat_auslaender_erteilung_antrag_label',
+      summaryKey: 'cat_auslaender_erteilung_antrag_summary',
+      mainCategory: MainCategory.categoryAuslaenderbehoerde,
+      headerKeywords:
+        [
+          'Antrag auf Erteilung eines Aufenthaltstitels',
+          'Aufenthaltstitel beantragen',
+          'Erteilung',
+          'Antrag',
+        ]
+      ,
+      decisiveKeywords:
+        [
+          'Antrag auf Erteilung eines Aufenthaltstitels',
+          'Aufenthaltstitel beantragen',
+          'reichen Sie den Antrag ein',
+          'füllen Sie das Antragsformular aus',
+          'erforderliche Unterlagen beifügen',
+          'Antrag vollständig einreichen',
+        ]
+      ,
+      supportingKeywords:
+        [
+          'Antrag',
+          'Formular',
+          'Reisepass',
+          'Lichtbild',
+          'Krankenversicherung',
+          'Wohnraum',
+          'Zweck des Aufenthalts',
+        ]
+      ,
+      weakNegativeKeywords:
+        [
+          'Verlängerung bestehender Titel',
+          'Terminänderung',
+          'eAT Abholung',
+          'Gebührenhinweis',
+        ]
+      ,
+      strongNegativeKeywords:
+        [
+          'Fiktionsbescheinigung',
+          'Terminbestätigung',
+          'Ablehnungsbescheid',
+          'Bewilligungsbescheid',
+        ]
+      ,
+      nextStepKeys: [
+        'cat_auslaender_erteilung_antrag_step1',
+        'cat_auslaender_erteilung_antrag_step2',
+        'cat_auslaender_erteilung_antrag_step3',
+        'cat_auslaender_erteilung_antrag_step4',
+        'cat_auslaender_erteilung_antrag_step5',
+      ],
+      riskLevel: RiskLevel.medium,
+    ),
+
+    // 11) Erstantrag
+    CategoryDefinition(
+      id: 'auslaender_erstantrag',
+      labelKey: 'cat_auslaender_erstantrag_label',
+      summaryKey: 'cat_auslaender_erstantrag_summary',
+      mainCategory: MainCategory.categoryAuslaenderbehoerde,
+      headerKeywords:
+        [
+          'Erstantrag',
+          'erstmalige Erteilung',
+          'erster Antrag',
+          'Antragstellung',
+        ]
+      ,
+      decisiveKeywords:
+        [
+          'Erstantrag',
+          'erstmalige Erteilung',
+          'zum ersten Mal beantragen',
+          'erster Aufenthaltstitel',
+          'Antrag erstmalig stellen',
+        ]
+      ,
+      supportingKeywords:
+        [
+          'Erstantrag',
+          'Reisepass',
+          'biometrisches Foto',
+          'Visum',
+          'Nachweise',
+          'Formular',
+          'Zweck des Aufenthalts',
+        ]
+      ,
+      weakNegativeKeywords:
+        [
+          'Verlängerung bestehender Titel',
+          'Terminänderung',
+          'Abholung eAT',
+          'Gebührenhinweis',
+        ]
+      ,
+      strongNegativeKeywords:
+        [
+          'Verlängerung',
+          'Fiktionsbescheinigung',
+          'Bewilligungsbescheid',
+          'Terminbestätigung',
+        ]
+      ,
+      nextStepKeys: [
+        'cat_auslaender_erstantrag_step1',
+        'cat_auslaender_erstantrag_step2',
+        'cat_auslaender_erstantrag_step3',
+        'cat_auslaender_erstantrag_step4',
+        'cat_auslaender_erstantrag_step5',
+      ],
+      riskLevel: RiskLevel.medium,
+    ),
+
+    // 12) Formularhinweis
+    CategoryDefinition(
+      id: 'auslaender_formularhinweis',
+      labelKey: 'cat_auslaender_formularhinweis_label',
+      summaryKey: 'cat_auslaender_formularhinweis_summary',
+      mainCategory: MainCategory.categoryAuslaenderbehoerde,
+      headerKeywords:
+        [
+          'Antragsformular',
+          'Hinweise zum Antrag',
+          'Formularhinweis',
+          'Formular vollständig',
+        ]
+      ,
+      decisiveKeywords:
+        [
+          'verwenden Sie das vorgesehene Formular',
+          'das Formular ist vollständig auszufüllen',
+          'nur das offizielle Antragsformular',
+          'Antragsformular beifügen',
+          'Formular unterschreiben',
+          'Pflichtfelder vollständig ausfüllen',
+        ]
+      ,
+      supportingKeywords:
+        [
+          'Formular',
+          'Unterschrift',
+          'Anlage',
+          'Pflichtfelder',
+          'vollständig',
+          'beifügen',
+          'Antragsunterlagen',
+        ]
+      ,
+      weakNegativeKeywords:
+        [
+          'Termin mit Uhrzeit',
+          'eAT Abholung',
+          'Gebührenhinweis',
+          'Ablehnung',
+        ]
+      ,
+      strongNegativeKeywords:
+        [
+          'Terminbestätigung',
+          'Fiktionsbescheinigung',
+          'Bewilligungsbescheid',
+          'Ablehnungsbescheid',
+        ]
+      ,
+      nextStepKeys: [
+        'cat_auslaender_formularhinweis_step1',
+        'cat_auslaender_formularhinweis_step2',
+        'cat_auslaender_formularhinweis_step3',
+        'cat_auslaender_formularhinweis_step4',
+        'cat_auslaender_formularhinweis_step5',
+      ],
+      riskLevel: RiskLevel.low,
+    ),
+
+    // 13) Zustimmung
+    CategoryDefinition(
+      id: 'auslaender_zustimmung',
+      labelKey: 'cat_auslaender_zustimmung_label',
+      summaryKey: 'cat_auslaender_zustimmung_summary',
+      mainCategory: MainCategory.categoryAuslaenderbehoerde,
+      headerKeywords:
+        [
+          'Zustimmung',
+          'Stattgabe',
+          'Ihrem Antrag wird entsprochen',
+          'Genehmigung',
+        ]
+      ,
+      decisiveKeywords:
+        [
+          'Ihrem Antrag wird stattgegeben',
+          'wir stimmen zu',
+          'Zustimmung wurde erteilt',
+          'Ihrem Antrag wurde zugestimmt',
+          'stattgebender Bescheid',
+          'der Antrag ist genehmigt',
+        ]
+      ,
+      supportingKeywords:
+        [
+          'Zustimmung',
+          'stattgegeben',
+          'genehmigt',
+          'Aufenthaltstitel',
+          'erteilt',
+          'gültig bis',
+          'Schritt danach',
+        ]
+      ,
+      weakNegativeKeywords:
+        [
+          'fehlende Unterlagen',
+          'Termin mit Uhrzeit',
+          'Gebührenhinweis',
+          'Nachforderung',
+        ]
+      ,
+      strongNegativeKeywords:
+        [
+          'Ablehnungsbescheid',
+          'Terminbestätigung',
+          'Fiktionsbescheinigung',
+          'Gebührenbescheid',
+        ]
+      ,
+      nextStepKeys: [
+        'cat_auslaender_zustimmung_step1',
+        'cat_auslaender_zustimmung_step2',
+        'cat_auslaender_zustimmung_step3',
+        'cat_auslaender_zustimmung_step4',
+        'cat_auslaender_zustimmung_step5',
+      ],
+      riskLevel: RiskLevel.low,
+    ),
+
+    // 14) Bewilligungsbescheid
+    CategoryDefinition(
+      id: 'auslaender_bewilligungsbescheid',
+      labelKey: 'cat_auslaender_bewilligungsbescheid_label',
+      summaryKey: 'cat_auslaender_bewilligungsbescheid_summary',
+      mainCategory: MainCategory.categoryAuslaenderbehoerde,
+      headerKeywords:
+        [
+          'Bewilligungsbescheid',
+          'Nebenbestimmungen',
+          'Auflagen',
+          'Hinweise',
+        ]
+      ,
+      decisiveKeywords:
+        [
+          'der Aufenthaltstitel wird erteilt unter folgenden Nebenbestimmungen',
+          'es gelten folgende Auflagen',
+          'Nebenbestimmungen',
+          'mit folgenden Bedingungen',
+          'Beschäftigung ist nur erlaubt wenn',
+          'Wohnsitzauflage gilt',
+        ]
+      ,
+      supportingKeywords:
+        [
+          'Auflagen',
+          'Nebenbestimmungen',
+          'Beschränkung',
+          'Erwerbstätigkeit',
+          'Wohnsitzauflage',
+          'gültig bis',
+          'Bedingungen',
+        ]
+      ,
+      weakNegativeKeywords:
+        [
+          'Termin mit Uhrzeit',
+          'Unterlagen nachreichen',
+          'Gebührenhinweis',
+          'Abholung ohne Termin',
+        ]
+      ,
+      strongNegativeKeywords:
+        [
+          'Ablehnungsbescheid',
+          'Terminbestätigung',
+          'Fiktionsbescheinigung',
+          'Nachforderung',
+        ]
+      ,
+      nextStepKeys: [
+        'cat_auslaender_bewilligungsbescheid_step1',
+        'cat_auslaender_bewilligungsbescheid_step2',
+        'cat_auslaender_bewilligungsbescheid_step3',
+        'cat_auslaender_bewilligungsbescheid_step4',
+        'cat_auslaender_bewilligungsbescheid_step5',
+      ],
+      riskLevel: RiskLevel.low,
+    ),
+
+    // 15) Eat Abholung
+    CategoryDefinition(
+      id: 'auslaender_eat_abholung',
+      labelKey: 'cat_auslaender_eat_abholung_label',
+      summaryKey: 'cat_auslaender_eat_abholung_summary',
+      mainCategory: MainCategory.categoryAuslaenderbehoerde,
+      headerKeywords:
+        [
+          'elektronischer Aufenthaltstitel',
+          'bereit zur Abholung',
+          'eAT',
+          'Abholung',
+        ]
+      ,
+      decisiveKeywords:
+        [
+          'Ihr elektronischer Aufenthaltstitel ist abholbereit',
+          'der eAT liegt zur Abholung bereit',
+          'bitte holen Sie den eAT ab',
+          'Dokument kann abgeholt werden',
+          'Abholung des elektronischen Aufenthaltstitels',
+        ]
+      ,
+      supportingKeywords:
+        [
+          'eAT',
+          'Abholung',
+          'Reisepass',
+          'Dokument',
+          'Ausweis',
+          'persönlich',
+          'Abholschein',
+        ]
+      ,
+      weakNegativeKeywords:
+        [
+          'Unterlagen nachreichen',
+          'Terminänderung',
+          'Gebührenhinweis',
+          'Ablehnung',
+        ]
+      ,
+      strongNegativeKeywords:
+        [
+          'Terminbestätigung',
+          'Fiktionsbescheinigung',
+          'Bewilligungsbescheid',
+          'Nachforderung',
+        ]
+      ,
+      nextStepKeys: [
+        'cat_auslaender_eat_abholung_step1',
+        'cat_auslaender_eat_abholung_step2',
+        'cat_auslaender_eat_abholung_step3',
+        'cat_auslaender_eat_abholung_step4',
+        'cat_auslaender_eat_abholung_step5',
+      ],
+      riskLevel: RiskLevel.low,
+    ),
+
+    // 16) Dokumentenausgabebox
+    CategoryDefinition(
+      id: 'auslaender_dokumentenausgabebox',
+      labelKey: 'cat_auslaender_dokumentenausgabebox_label',
+      summaryKey: 'cat_auslaender_dokumentenausgabebox_summary',
+      mainCategory: MainCategory.categoryAuslaenderbehoerde,
+      headerKeywords:
+        [
+          'Dokumentenausgabebox',
+          'ohne Termin',
+          'Abholung ohne Termin',
+          'eAT-Abholung',
+        ]
+      ,
+      decisiveKeywords:
+        [
+          'Für die Abholung ist keine Terminvereinbarung notwendig',
+          'ohne Termin abholen',
+          'Dokumentenausgabebox',
+          'direkte Abholung ohne Termin',
+          'persönlich abholen oder bevollmächtigte Person',
+        ]
+      ,
+      supportingKeywords:
+        [
+          'ohne Termin',
+          'Abholung',
+          'Dokumentenausgabebox',
+          'Vollmacht',
+          'Reisepass',
+          'eAT',
+          'Öffnungszeiten',
+        ]
+      ,
+      weakNegativeKeywords:
+        [
+          'Termin am',
+          'Uhrzeit genannt',
+          'Unterlagen nachreichen',
+          'Gebührenbescheid',
+        ]
+      ,
+      strongNegativeKeywords:
+        [
+          'Terminbestätigung',
+          'Ablehnungsbescheid',
+          'Fiktionsbescheinigung',
+          'Nachforderung',
+        ]
+      ,
+      nextStepKeys: [
+        'cat_auslaender_dokumentenausgabebox_step1',
+        'cat_auslaender_dokumentenausgabebox_step2',
+        'cat_auslaender_dokumentenausgabebox_step3',
+        'cat_auslaender_dokumentenausgabebox_step4',
+        'cat_auslaender_dokumentenausgabebox_step5',
+      ],
+      riskLevel: RiskLevel.low,
+    ),
+
+    // 17) Beschaeftigung
+    CategoryDefinition(
+      id: 'auslaender_beschaeftigung',
+      labelKey: 'cat_auslaender_beschaeftigung_label',
+      summaryKey: 'cat_auslaender_beschaeftigung_summary',
+      mainCategory: MainCategory.categoryAuslaenderbehoerde,
+      headerKeywords:
+        [
+          'Aufenthaltserlaubnis zur Beschäftigung',
+          'Beschäftigung',
+          'Erwerbstätigkeit',
+          'Arbeitsvertrag',
+        ]
+      ,
+      decisiveKeywords:
+        [
+          'Aufenthaltserlaubnis zur Beschäftigung',
+          'Arbeitsvertrag beifügen',
+          'Erklärung zum Beschäftigungsverhältnis',
+          'Beschäftigung aufnehmen',
+          'Beschäftigung ausüben',
+          'Unterlagen zur Beschäftigung einreichen',
+        ]
+      ,
+      supportingKeywords:
+        [
+          'Arbeitsvertrag',
+          'Beschäftigung',
+          'Arbeitgeber',
+          'Gehalt',
+          'Erklärung zum Beschäftigungsverhältnis',
+          'Reisepass',
+          'Krankenversicherung',
+          'Wohnraum',
+        ]
+      ,
+      weakNegativeKeywords:
+        [
+          'Studium Immatrikulation',
+          'Familiennachzug',
+          'eAT Abholung',
+          'Gebührenhinweis',
+        ]
+      ,
+      strongNegativeKeywords:
+        [
+          'Blaue Karte EU',
+          'Fiktionsbescheinigung',
+          'Ablehnungsbescheid',
+          'Terminbestätigung',
+        ]
+      ,
+      nextStepKeys: [
+        'cat_auslaender_beschaeftigung_step1',
+        'cat_auslaender_beschaeftigung_step2',
+        'cat_auslaender_beschaeftigung_step3',
+        'cat_auslaender_beschaeftigung_step4',
+        'cat_auslaender_beschaeftigung_step5',
+      ],
+      riskLevel: RiskLevel.medium,
+    ),
+
+    // 18) Erklaerung Beschaeftigungsverhaeltnis
+    CategoryDefinition(
+      id: 'auslaender_erklaerung_beschaeftigungsverhaeltnis',
+      labelKey: 'cat_auslaender_erklaerung_beschaeftigungsverhaeltnis_label',
+      summaryKey: 'cat_auslaender_erklaerung_beschaeftigungsverhaeltnis_summary',
+      mainCategory: MainCategory.categoryAuslaenderbehoerde,
+      headerKeywords:
+        [
+          'Erklärung zum Beschäftigungsverhältnis',
+          'Beschäftigungsverhältnis',
+          'Arbeitgeber',
+          'Formular',
+        ]
+      ,
+      decisiveKeywords:
+        [
+          'Erklärung zum Beschäftigungsverhältnis',
+          'vom Arbeitgeber auszufüllen',
+          'ausgefüllt und unterschrieben von Ihrem Arbeitgeber',
+          'zur Vorlage bei der Ausländerbehörde',
+          'Angaben zur Beschäftigung',
+          'Formular des Arbeitgebers',
+        ]
+      ,
+      supportingKeywords:
+        [
+          'Arbeitgeber',
+          'Formular',
+          'Tätigkeit',
+          'Arbeitszeit',
+          'Gehalt',
+          'Beginn',
+          'Unterschrift',
+          'Beschäftigungsverhältnis',
+        ]
+      ,
+      weakNegativeKeywords:
+        [
+          'Arbeitsvertrag alleine',
+          'Studienbescheinigung',
+          'Familiennachzug',
+          'Gebührenhinweis',
+        ]
+      ,
+      strongNegativeKeywords:
+        [
+          'Blaue Karte EU',
+          'Fiktionsbescheinigung',
+          'Ablehnungsbescheid',
+          'Terminbestätigung',
+        ]
+      ,
+      nextStepKeys: [
+        'cat_auslaender_erklaerung_beschaeftigungsverhaeltnis_step1',
+        'cat_auslaender_erklaerung_beschaeftigungsverhaeltnis_step2',
+        'cat_auslaender_erklaerung_beschaeftigungsverhaeltnis_step3',
+        'cat_auslaender_erklaerung_beschaeftigungsverhaeltnis_step4',
+        'cat_auslaender_erklaerung_beschaeftigungsverhaeltnis_step5',
+      ],
+      riskLevel: RiskLevel.low,
+    ),
+
+    // 19) Arbeitsplatzangebot
+    CategoryDefinition(
+      id: 'auslaender_arbeitsplatzangebot',
+      labelKey: 'cat_auslaender_arbeitsplatzangebot_label',
+      summaryKey: 'cat_auslaender_arbeitsplatzangebot_summary',
+      mainCategory: MainCategory.categoryAuslaenderbehoerde,
+      headerKeywords:
+        [
+          'Arbeitsplatzangebot',
+          'statt Vertrag',
+          'verbindliches Angebot',
+          'Arbeitsangebot',
+        ]
+      ,
+      decisiveKeywords:
+        [
+          'verbindliches Arbeitsplatzangebot',
+          'Arbeitsvertrag ist noch nicht erforderlich',
+          'Angebot statt Vertrag',
+          'unterschriebenes Arbeitsplatzangebot',
+          'verbindliches Stellenangebot',
+          'Arbeitsplatzangebot einreichen',
+        ]
+      ,
+      supportingKeywords:
+        [
+          'Arbeitsplatzangebot',
+          'Arbeitgeber',
+          'Stelle',
+          'Gehalt',
+          'Tätigkeit',
+          'Beginn',
+          'Angebot',
+          'unterschrieben',
+        ]
+      ,
+      weakNegativeKeywords:
+        [
+          'Vertrag bereits abgeschlossen',
+          'Studium',
+          'Familiennachzug',
+          'Gebührenhinweis',
+        ]
+      ,
+      strongNegativeKeywords:
+        [
+          'Erklärung Beschäftigung',
+          'Blaue Karte EU',
+          'Ablehnungsbescheid',
+          'Terminbestätigung',
+        ]
+      ,
+      nextStepKeys: [
+        'cat_auslaender_arbeitsplatzangebot_step1',
+        'cat_auslaender_arbeitsplatzangebot_step2',
+        'cat_auslaender_arbeitsplatzangebot_step3',
+        'cat_auslaender_arbeitsplatzangebot_step4',
+        'cat_auslaender_arbeitsplatzangebot_step5',
+      ],
+      riskLevel: RiskLevel.low,
+    ),
+
+    // 20) Blaue Karte
+    CategoryDefinition(
+      id: 'auslaender_blaue_karte',
+      labelKey: 'cat_auslaender_blaue_karte_label',
+      summaryKey: 'cat_auslaender_blaue_karte_summary',
+      mainCategory: MainCategory.categoryAuslaenderbehoerde,
+      headerKeywords:
+        [
+          'Blaue Karte EU',
+          'Blue Card EU',
+          'hochqualifizierte Beschäftigung',
+          'Beschäftigung',
+        ]
+      ,
+      decisiveKeywords:
+        [
+          'Blaue Karte EU beantragen',
+          'Voraussetzungen für die Blaue Karte EU',
+          'Hochschulabschluss',
+          'Mindestgehalt',
+          'Arbeitsvertrag oder verbindliches Angebot',
+          'Zustimmung der Bundesagentur für Arbeit',
+        ]
+      ,
+      supportingKeywords:
+        [
+          'Blaue Karte EU',
+          'Arbeitsvertrag',
+          'Hochschulabschluss',
+          'Gehalt',
+          'Arbeitgeber',
+          'Beschäftigung',
+          'Reisepass',
+          'biometrisches Foto',
+        ]
+      ,
+      weakNegativeKeywords:
+        [
+          'normale Beschäftigung',
+          'Familiennachzug',
+          'eAT Abholung',
+          'Gebührenhinweis',
+        ]
+      ,
+      strongNegativeKeywords:
+        [
+          'Niederlassungserlaubnis',
+          'Fiktionsbescheinigung',
+          'Ablehnungsbescheid',
+          'Terminbestätigung',
+        ]
+      ,
+      nextStepKeys: [
+        'cat_auslaender_blaue_karte_step1',
+        'cat_auslaender_blaue_karte_step2',
+        'cat_auslaender_blaue_karte_step3',
+        'cat_auslaender_blaue_karte_step4',
+        'cat_auslaender_blaue_karte_step5',
+      ],
+      riskLevel: RiskLevel.medium,
+    ),
+
+    // 21) Niederlassungserlaubnis Blaue Karte
+    CategoryDefinition(
+      id: 'auslaender_niederlassungserlaubnis_blaue_karte',
+      labelKey: 'cat_auslaender_niederlassungserlaubnis_blaue_karte_label',
+      summaryKey: 'cat_auslaender_niederlassungserlaubnis_blaue_karte_summary',
+      mainCategory: MainCategory.categoryAuslaenderbehoerde,
+      headerKeywords:
+        [
+          'Niederlassungserlaubnis',
+          'Inhaber einer Blauen Karte EU',
+          'unbefristet',
+          'Blaue Karte EU',
+        ]
+      ,
+      decisiveKeywords:
+        [
+          'Niederlassungserlaubnis für Inhaber einer Blauen Karte EU',
+          'seit 21 Monaten',
+          'seit 27 Monaten',
+          'Deutschkenntnisse B1',
+          'unbefristeter Aufenthaltstitel',
+          'Blaue Karte EU Voraussetzung',
+        ]
+      ,
+      supportingKeywords:
+        [
+          'Niederlassungserlaubnis',
+          'Blaue Karte EU',
+          '21 Monate',
+          '27 Monate',
+          'Beschäftigung',
+          'Deutschkenntnisse',
+          'Rentenversicherung',
+          'unbefristet',
+        ]
+      ,
+      weakNegativeKeywords:
+        [
+          'Verlängerung Blaue Karte',
+          'Fiktionsbescheinigung',
+          'Terminänderung',
+          'Gebührenhinweis',
+        ]
+      ,
+      strongNegativeKeywords:
+        [
+          'Ablehnungsbescheid',
+          'Terminbestätigung',
+          'Bewilligungsbescheid',
+          'Studium',
+        ]
+      ,
+      nextStepKeys: [
+        'cat_auslaender_niederlassungserlaubnis_blaue_karte_step1',
+        'cat_auslaender_niederlassungserlaubnis_blaue_karte_step2',
+        'cat_auslaender_niederlassungserlaubnis_blaue_karte_step3',
+        'cat_auslaender_niederlassungserlaubnis_blaue_karte_step4',
+        'cat_auslaender_niederlassungserlaubnis_blaue_karte_step5',
+      ],
+      riskLevel: RiskLevel.medium,
+    ),
+
+    // 22) Studium
+    CategoryDefinition(
+      id: 'auslaender_studium',
+      labelKey: 'cat_auslaender_studium_label',
+      summaryKey: 'cat_auslaender_studium_summary',
+      mainCategory: MainCategory.categoryAuslaenderbehoerde,
+      headerKeywords:
+        [
+          'Aufenthaltserlaubnis zum Studium',
+          'Studium',
+          'Hochschule',
+          'Immatrikulation',
+        ]
+      ,
+      decisiveKeywords:
+        [
+          'Immatrikulationsbescheinigung vorlegen',
+          'Aufenthaltserlaubnis zum Studium',
+          'Nachweis der Sicherung des Lebensunterhalts',
+          'Studienzweck',
+          'Hochschulzulassung',
+          'Studiennachweise einreichen',
+        ]
+      ,
+      supportingKeywords:
+        [
+          'Studium',
+          'Hochschule',
+          'Immatrikulationsbescheinigung',
+          'Krankenversicherung',
+          'Sperrkonto',
+          'Lebensunterhalt',
+          'Reisepass',
+          'Wohnraum',
+        ]
+      ,
+      weakNegativeKeywords:
+        [
+          'Beschäftigung Arbeitgeber',
+          'Familiennachzug',
+          'eAT Abholung',
+          'Gebührenhinweis',
+        ]
+      ,
+      strongNegativeKeywords:
+        [
+          'Ausbildung',
+          'Blaue Karte EU',
+          'Ablehnungsbescheid',
+          'Terminbestätigung',
+        ]
+      ,
+      nextStepKeys: [
+        'cat_auslaender_studium_step1',
+        'cat_auslaender_studium_step2',
+        'cat_auslaender_studium_step3',
+        'cat_auslaender_studium_step4',
+        'cat_auslaender_studium_step5',
+      ],
+      riskLevel: RiskLevel.medium,
+    ),
+
+    // 23) Ausbildung
+    CategoryDefinition(
+      id: 'auslaender_ausbildung',
+      labelKey: 'cat_auslaender_ausbildung_label',
+      summaryKey: 'cat_auslaender_ausbildung_summary',
+      mainCategory: MainCategory.categoryAuslaenderbehoerde,
+      headerKeywords:
+        [
+          'Aufenthaltserlaubnis zur Ausbildung',
+          'Weiterbildung',
+          'Ausbildungsvertrag',
+          'Berufsausbildung',
+        ]
+      ,
+      decisiveKeywords:
+        [
+          'Ausbildungsvertrag vorlegen',
+          'Aufenthaltserlaubnis zur Ausbildung',
+          'Weiterbildung',
+          'betriebliche Ausbildung',
+          'schulische Ausbildung',
+          'Unterlagen zur Ausbildung einreichen',
+        ]
+      ,
+      supportingKeywords:
+        [
+          'Ausbildung',
+          'Weiterbildungsmaßnahme',
+          'Ausbildungsvertrag',
+          'Betrieb',
+          'Berufsschule',
+          'Krankenversicherung',
+          'Reisepass',
+          'Wohnraum',
+        ]
+      ,
+      weakNegativeKeywords:
+        [
+          'Studium Immatrikulation',
+          'Familiennachzug',
+          'eAT Abholung',
+          'Gebührenhinweis',
+        ]
+      ,
+      strongNegativeKeywords:
+        [
+          'Blaue Karte EU',
+          'Ablehnungsbescheid',
+          'Terminbestätigung',
+          'Fiktionsbescheinigung',
+        ]
+      ,
+      nextStepKeys: [
+        'cat_auslaender_ausbildung_step1',
+        'cat_auslaender_ausbildung_step2',
+        'cat_auslaender_ausbildung_step3',
+        'cat_auslaender_ausbildung_step4',
+        'cat_auslaender_ausbildung_step5',
+      ],
+      riskLevel: RiskLevel.medium,
+    ),
+
+    // 24) Nachweisblatt Studium
+    CategoryDefinition(
+      id: 'auslaender_nachweisblatt_studium',
+      labelKey: 'cat_auslaender_nachweisblatt_studium_label',
+      summaryKey: 'cat_auslaender_nachweisblatt_studium_summary',
+      mainCategory: MainCategory.categoryAuslaenderbehoerde,
+      headerKeywords:
+        [
+          'Nachweisblatt Studium',
+          'Studium',
+          'Studiennachweis',
+          'Leistungsnachweis',
+        ]
+      ,
+      decisiveKeywords:
+        [
+          'Nachweisblatt Studium',
+          'aktueller Studiennachweis',
+          'Studienbescheinigung nachreichen',
+          'Nachweise zum Studienfortschritt',
+          'Studienunterlagen vorlegen',
+          'Leistungsnachweis einreichen',
+        ]
+      ,
+      supportingKeywords:
+        [
+          'Studium',
+          'Nachweisblatt',
+          'Immatrikulation',
+          'Leistungsübersicht',
+          'Studienbescheinigung',
+          'Semester',
+          'Hochschule',
+        ]
+      ,
+      weakNegativeKeywords:
+        [
+          'Arbeitsvertrag',
+          'Familiennachzug',
+          'eAT Abholung',
+          'Gebührenhinweis',
+        ]
+      ,
+      strongNegativeKeywords:
+        [
+          'Ausbildung',
+          'Blaue Karte EU',
+          'Ablehnungsbescheid',
+          'Terminbestätigung',
+        ]
+      ,
+      nextStepKeys: [
+        'cat_auslaender_nachweisblatt_studium_step1',
+        'cat_auslaender_nachweisblatt_studium_step2',
+        'cat_auslaender_nachweisblatt_studium_step3',
+        'cat_auslaender_nachweisblatt_studium_step4',
+        'cat_auslaender_nachweisblatt_studium_step5',
+      ],
+      riskLevel: RiskLevel.low,
+    ),
+
+    // 25) Familiennachzug
+    CategoryDefinition(
+      id: 'auslaender_familiennachzug',
+      labelKey: 'cat_auslaender_familiennachzug_label',
+      summaryKey: 'cat_auslaender_familiennachzug_summary',
+      mainCategory: MainCategory.categoryAuslaenderbehoerde,
+      headerKeywords:
+        [
+          'Familiennachzug',
+          'Ehepartner',
+          'Kind',
+          'familiäre Gründe',
+        ]
+      ,
+      decisiveKeywords:
+        [
+          'Aufenthaltserlaubnis zum Familiennachzug',
+          'Ehepartner',
+          'Kind',
+          'Nachweis der familiären Beziehung',
+          'Familiennachzug beantragen',
+          'Unterlagen zum Familiennachzug',
+        ]
+      ,
+      supportingKeywords:
+        [
+          'Familiennachzug',
+          'Heiratsurkunde',
+          'Geburtsurkunde',
+          'Wohnraum',
+          'Krankenversicherung',
+          'Reisepass',
+          'biometrisches Foto',
+          'Beziehung',
+        ]
+      ,
+      weakNegativeKeywords:
+        [
+          'Beschäftigung Arbeitgeber',
+          'Studium',
+          'Gebührenhinweis',
+          'eAT Abholung',
+        ]
+      ,
+      strongNegativeKeywords:
+        [
+          'Blaue Karte EU',
+          'Terminbestätigung',
+          'Ablehnungsbescheid',
+          'Fiktionsbescheinigung',
+        ]
+      ,
+      nextStepKeys: [
+        'cat_auslaender_familiennachzug_step1',
+        'cat_auslaender_familiennachzug_step2',
+        'cat_auslaender_familiennachzug_step3',
+        'cat_auslaender_familiennachzug_step4',
+        'cat_auslaender_familiennachzug_step5',
+      ],
+      riskLevel: RiskLevel.medium,
+    ),
+
+    // 26) Nachzug Deutsche
+    CategoryDefinition(
+      id: 'auslaender_nachzug_deutsche',
+      labelKey: 'cat_auslaender_nachzug_deutsche_label',
+      summaryKey: 'cat_auslaender_nachzug_deutsche_summary',
+      mainCategory: MainCategory.categoryAuslaenderbehoerde,
+      headerKeywords:
+        [
+          'deutschen Familienangehörigen',
+          'Nachzug zu Deutschen',
+          'Familienangehörige',
+          'Antrag',
+        ]
+      ,
+      decisiveKeywords:
+        [
+          'Nachzug zu deutschen Familienangehörigen',
+          'deutscher Ehegatte',
+          'deutsches Kind',
+          'Antrag auf Aufenthaltstitel aus familiären Gründen',
+          'Familienangehöriger deutscher Staatsangehörigkeit',
+          'Unterlagen zum Nachzug einreichen',
+        ]
+      ,
+      supportingKeywords:
+        [
+          'deutscher Familienangehöriger',
+          'Ehepartner',
+          'Kind',
+          'Nachweis der Beziehung',
+          'Reisepass',
+          'Wohnraum',
+          'Formular',
+          'biometrisches Foto',
+        ]
+      ,
+      weakNegativeKeywords:
+        [
+          'allgemeiner Familiennachzug',
+          'Beschäftigung',
+          'Gebührenhinweis',
+          'eAT Abholung',
+        ]
+      ,
+      strongNegativeKeywords:
+        [
+          'EU-Familienangehörige',
+          'Blaue Karte EU',
+          'Ablehnungsbescheid',
+          'Terminbestätigung',
+        ]
+      ,
+      nextStepKeys: [
+        'cat_auslaender_nachzug_deutsche_step1',
+        'cat_auslaender_nachzug_deutsche_step2',
+        'cat_auslaender_nachzug_deutsche_step3',
+        'cat_auslaender_nachzug_deutsche_step4',
+        'cat_auslaender_nachzug_deutsche_step5',
+      ],
+      riskLevel: RiskLevel.medium,
+    ),
+
+    // 27) Aufenthaltskarte Eu
+    CategoryDefinition(
+      id: 'auslaender_aufenthaltskarte_eu',
+      labelKey: 'cat_auslaender_aufenthaltskarte_eu_label',
+      summaryKey: 'cat_auslaender_aufenthaltskarte_eu_summary',
+      mainCategory: MainCategory.categoryAuslaenderbehoerde,
+      headerKeywords:
+        [
+          'Aufenthaltskarte',
+          'Familienangehörige von EU-Bürgern',
+          'Freizügigkeit',
+          'EU-Bürger',
+        ]
+      ,
+      decisiveKeywords:
+        [
+          'Aufenthaltskarte für Familienangehörige von EU-Bürgern',
+          'Freizügigkeitsberechtigter Unionsbürger',
+          'Nachweis der familiären Beziehung',
+          'Aufenthaltskarte beantragen',
+          'EU-Bürger',
+          'Unterlagen für die Aufenthaltskarte',
+        ]
+      ,
+      supportingKeywords:
+        [
+          'Aufenthaltskarte',
+          'EU-Bürger',
+          'Familienangehörige',
+          'Freizügigkeit',
+          'Reisepass',
+          'biometrisches Foto',
+          'Beziehung',
+          'Formular',
+        ]
+      ,
+      weakNegativeKeywords:
+        [
+          'deutscher Familienangehöriger',
+          'Beschäftigung',
+          'Gebührenhinweis',
+          'eAT Abholung',
+        ]
+      ,
+      strongNegativeKeywords:
+        [
+          'Familiennachzug',
+          'Blaue Karte EU',
+          'Ablehnungsbescheid',
+          'Terminbestätigung',
+        ]
+      ,
+      nextStepKeys: [
+        'cat_auslaender_aufenthaltskarte_eu_step1',
+        'cat_auslaender_aufenthaltskarte_eu_step2',
+        'cat_auslaender_aufenthaltskarte_eu_step3',
+        'cat_auslaender_aufenthaltskarte_eu_step4',
+        'cat_auslaender_aufenthaltskarte_eu_step5',
+      ],
+      riskLevel: RiskLevel.medium,
+    ),
+
+    // 28) Eingangsbestaetigung
+    CategoryDefinition(
+      id: 'auslaender_eingangsbestaetigung',
+      labelKey: 'cat_auslaender_eingangsbestaetigung_label',
+      summaryKey: 'cat_auslaender_eingangsbestaetigung_summary',
+      mainCategory: MainCategory.categoryAuslaenderbehoerde,
+      headerKeywords:
+        [
+          'Bestätigung Ihres Online-Antrags',
+          'Fiktionswirkung',
+          'Online-Antrag',
+          'Eingangsbestätigung',
+        ]
+      ,
+      decisiveKeywords:
+        [
+          'Ihr Online-Antrag ist eingegangen',
+          'Fiktionswirkung',
+          'gilt bis zur Entscheidung fort',
+          'Ihr bisheriger Aufenthaltstitel gilt fort',
+          'Eingangsbestätigung',
+          'Fortgeltung des bisherigen Titels',
+        ]
+      ,
+      supportingKeywords:
+        [
+          'Bestätigung',
+          'Online-Antrag',
+          'Fortgeltung',
+          'Fiktionswirkung',
+          'Antrag eingegangen',
+          'PDF speichern',
+          'Nachweis',
+        ]
+      ,
+      weakNegativeKeywords:
+        [
+          'Termin mit Uhrzeit',
+          'Unterlagen nachreichen',
+          'Gebührenhinweis',
+          'eAT Abholung',
+        ]
+      ,
+      strongNegativeKeywords:
+        [
+          'Fiktionsbescheinigung',
+          'Terminbestätigung',
+          'Ablehnungsbescheid',
+          'Bewilligungsbescheid',
+        ]
+      ,
+      nextStepKeys: [
+        'cat_auslaender_eingangsbestaetigung_step1',
+        'cat_auslaender_eingangsbestaetigung_step2',
+        'cat_auslaender_eingangsbestaetigung_step3',
+        'cat_auslaender_eingangsbestaetigung_step4',
+        'cat_auslaender_eingangsbestaetigung_step5',
+      ],
+      riskLevel: RiskLevel.low,
+    ),
+
+    // 29) Fiktionsbescheinigung
+    CategoryDefinition(
+      id: 'auslaender_fiktionsbescheinigung',
+      labelKey: 'cat_auslaender_fiktionsbescheinigung_label',
+      summaryKey: 'cat_auslaender_fiktionsbescheinigung_summary',
+      mainCategory: MainCategory.categoryAuslaenderbehoerde,
+      headerKeywords:
+        [
+          'Fiktionsbescheinigung',
+          '§ 81',
+          'Fortgeltung',
+          'Bescheinigung',
+        ]
+      ,
+      decisiveKeywords:
+        [
+          'Fiktionsbescheinigung nach § 81 Abs. 3',
+          'Fiktionsbescheinigung nach § 81 Abs. 4',
+          'gilt für den Zeitraum',
+          'Bescheinigung über die Fortgeltung',
+          'rechtmäßiger Aufenthalt',
+          'vorläufige Bescheinigung',
+        ]
+      ,
+      supportingKeywords:
+        [
+          'Fiktionsbescheinigung',
+          '§ 81',
+          'Fortgeltung',
+          'Bescheinigung',
+          'Aufenthaltstitel',
+          'Antrag',
+          'Übergangszeit',
+          'Reisepass',
+        ]
+      ,
+      weakNegativeKeywords:
+        [
+          'Zustimmung stattgegeben',
+          'Termin am',
+          'Gebührenhinweis',
+          'eAT Abholung',
+        ]
+      ,
+      strongNegativeKeywords:
+        [
+          'Terminbestätigung',
+          'Ablehnungsbescheid',
+          'Bewilligungsbescheid',
+          'Nachforderung',
+        ]
+      ,
+      nextStepKeys: [
+        'cat_auslaender_fiktionsbescheinigung_step1',
+        'cat_auslaender_fiktionsbescheinigung_step2',
+        'cat_auslaender_fiktionsbescheinigung_step3',
+        'cat_auslaender_fiktionsbescheinigung_step4',
+        'cat_auslaender_fiktionsbescheinigung_step5',
+      ],
+      riskLevel: RiskLevel.medium,
+    ),
+
+    // 30) Fortgeltung
+    CategoryDefinition(
+      id: 'auslaender_fortgeltung',
+      labelKey: 'cat_auslaender_fortgeltung_label',
+      summaryKey: 'cat_auslaender_fortgeltung_summary',
+      mainCategory: MainCategory.categoryAuslaenderbehoerde,
+      headerKeywords:
+        [
+          'Fortgeltung',
+          'bis zur Entscheidung',
+          'Aufenthaltstitel gilt fort',
+          'Entscheidung',
+        ]
+      ,
+      decisiveKeywords:
+        [
+          'gilt bis zur Entscheidung fort',
+          'Ihr Aufenthaltstitel gilt fort',
+          'Fortgeltung bis zur Entscheidung',
+          'bis über den Antrag entschieden wurde',
+          'bisheriger Titel bleibt wirksam',
+          'Fortbestehen des bisherigen Titels',
+        ]
+      ,
+      supportingKeywords:
+        [
+          'Fortgeltung',
+          'Entscheidung',
+          'bisheriger Aufenthaltstitel',
+          'Antrag',
+          'vor Ablauf',
+          'Nachweis',
+          'vorläufig',
+        ]
+      ,
+      weakNegativeKeywords:
+        [
+          'eAT bereit',
+          'Termin mit Uhrzeit',
+          'Gebührenhinweis',
+          'Unterlagen nachreichen',
+        ]
+      ,
+      strongNegativeKeywords:
+        [
+          'Terminbestätigung',
+          'Ablehnungsbescheid',
+          'Bewilligungsbescheid',
+          'Fiktionsbescheinigung',
+        ]
+      ,
+      nextStepKeys: [
+        'cat_auslaender_fortgeltung_step1',
+        'cat_auslaender_fortgeltung_step2',
+        'cat_auslaender_fortgeltung_step3',
+        'cat_auslaender_fortgeltung_step4',
+        'cat_auslaender_fortgeltung_step5',
+      ],
+      riskLevel: RiskLevel.low,
+    ),
+
+    // 31) Ablehnung Problemfall
+    CategoryDefinition(
+      id: 'auslaender_ablehnung_problemfall',
+      labelKey: 'cat_auslaender_ablehnung_problemfall_label',
+      summaryKey: 'cat_auslaender_ablehnung_problemfall_summary',
+      mainCategory: MainCategory.categoryAuslaenderbehoerde,
+      headerKeywords:
+        [
+          'Ablehnung',
+          'Problemfall',
+          'Antrag kann nicht bearbeitet werden',
+          'Schwierigkeiten',
+        ]
+      ,
+      decisiveKeywords:
+        [
+          'Ihr Antrag wird abgelehnt',
+          'der Antrag kann nicht positiv beschieden werden',
+          'es bestehen Zweifel',
+          'Problemfall',
+          'die Voraussetzungen liegen nicht vor',
+          'Antrag kann derzeit nicht bearbeitet werden',
+        ]
+      ,
+      supportingKeywords:
+        [
+          'Ablehnung',
+          'Problem',
+          'fehlende Voraussetzungen',
+          'Begründung',
+          'Unterlagen fehlen',
+          'Entscheidung',
+          'Stellungnahme',
+        ]
+      ,
+      weakNegativeKeywords:
+        [
+          'Gebührenhinweis',
+          'Terminänderung',
+          'eAT Abholung',
+          'Eingangsbestätigung',
+        ]
+      ,
+      strongNegativeKeywords:
+        [
+          'Terminbestätigung',
+          'Bewilligungsbescheid',
+          'Fiktionsbescheinigung',
+          'Zustimmung',
+        ]
+      ,
+      nextStepKeys: [
+        'cat_auslaender_ablehnung_problemfall_step1',
+        'cat_auslaender_ablehnung_problemfall_step2',
+        'cat_auslaender_ablehnung_problemfall_step3',
+        'cat_auslaender_ablehnung_problemfall_step4',
+        'cat_auslaender_ablehnung_problemfall_step5',
+      ],
+      riskLevel: RiskLevel.high,
+    ),
+
+    // 32) Ablehnungsbescheid
+    CategoryDefinition(
+      id: 'auslaender_ablehnungsbescheid',
+      labelKey: 'cat_auslaender_ablehnungsbescheid_label',
+      summaryKey: 'cat_auslaender_ablehnungsbescheid_summary',
+      mainCategory: MainCategory.categoryAuslaenderbehoerde,
+      headerKeywords:
+        [
+          'Ablehnungsbescheid',
+          'fehlende Voraussetzungen',
+          'Voraussetzungen nicht erfüllt',
+          'Bescheid',
+        ]
+      ,
+      decisiveKeywords:
+        [
+          'die Voraussetzungen liegen nicht vor',
+          'Ihr Antrag wird abgelehnt',
+          'mangels Erfüllung der Voraussetzungen',
+          'kein Anspruch',
+          'ablehnender Bescheid',
+          'Voraussetzungen nicht erfüllt',
+        ]
+      ,
+      supportingKeywords:
+        [
+          'Ablehnungsbescheid',
+          'Voraussetzungen',
+          'Begründung',
+          'Entscheidung',
+          'Nachweise',
+          'fehlend',
+          'Voraussetzungen',
+        ]
+      ,
+      weakNegativeKeywords:
+        [
+          'Unterlagen nachreichen',
+          'Termin am',
+          'Gebührenhinweis',
+          'eAT Abholung',
+        ]
+      ,
+      strongNegativeKeywords:
+        [
+          'Bewilligungsbescheid',
+          'Terminbestätigung',
+          'Fiktionsbescheinigung',
+          'Zustimmung',
+        ]
+      ,
+      nextStepKeys: [
+        'cat_auslaender_ablehnungsbescheid_step1',
+        'cat_auslaender_ablehnungsbescheid_step2',
+        'cat_auslaender_ablehnungsbescheid_step3',
+        'cat_auslaender_ablehnungsbescheid_step4',
+        'cat_auslaender_ablehnungsbescheid_step5',
+      ],
+      riskLevel: RiskLevel.high,
+    ),
+
+    // 33) Uebertragung
+    CategoryDefinition(
+      id: 'auslaender_uebertragung',
+      labelKey: 'cat_auslaender_uebertragung_label',
+      summaryKey: 'cat_auslaender_uebertragung_summary',
+      mainCategory: MainCategory.categoryAuslaenderbehoerde,
+      headerKeywords:
+        [
+          'Übertragung eines Aufenthaltstitels',
+          'Übertrag',
+          'alter Pass',
+          'neuer Pass',
+        ]
+      ,
+      decisiveKeywords:
+        [
+          'Übertragung des Aufenthaltstitels',
+          'alter Pass',
+          'neuer Pass',
+          'elektronischer Aufenthaltstitel',
+          'Passübertrag',
+          'Übertrag des Titels',
+        ]
+      ,
+      supportingKeywords:
+        [
+          'alter Pass',
+          'neuer Pass',
+          'eAT',
+          'biometrisches Lichtbild',
+          'Gebühr',
+          'Übertrag',
+          'Reisedokument',
+        ]
+      ,
+      weakNegativeKeywords:
+        [
+          'Verlängerung des Titels',
+          'Terminänderung',
+          'Gebührenhinweis',
+          'Unterlagen nachreichen',
+        ]
+      ,
+      strongNegativeKeywords:
+        [
+          'Fiktionsbescheinigung',
+          'Terminbestätigung',
+          'Ablehnungsbescheid',
+          'Bewilligungsbescheid',
+        ]
+      ,
+      nextStepKeys: [
+        'cat_auslaender_uebertragung_step1',
+        'cat_auslaender_uebertragung_step2',
+        'cat_auslaender_uebertragung_step3',
+        'cat_auslaender_uebertragung_step4',
+        'cat_auslaender_uebertragung_step5',
+      ],
+      riskLevel: RiskLevel.low,
+    ),
+
+    // 34) Gebuehrenhinweis
+    CategoryDefinition(
+      id: 'auslaender_gebuehrenhinweis',
+      labelKey: 'cat_auslaender_gebuehrenhinweis_label',
+      summaryKey: 'cat_auslaender_gebuehrenhinweis_summary',
+      mainCategory: MainCategory.categoryAuslaenderbehoerde,
+      headerKeywords:
+        [
+          'Gebührenhinweis',
+          'Gebühr',
+          'Kosten',
+          'Zahlungsaufforderung',
+        ]
+      ,
+      decisiveKeywords:
+        [
+          'es fällt eine Gebühr an',
+          'Gebührenhinweis',
+          'zu entrichtende Gebühr',
+          'Bearbeitungsgebühr',
+          'bitte zahlen Sie die Gebühr',
+          'Kosten der Dienstleistung',
+        ]
+      ,
+      supportingKeywords:
+        [
+          'Gebühr',
+          'Kosten',
+          'Zahlung',
+          'Kasse',
+          'EC-Karte',
+          'Betrag',
+          'Bearbeitung',
+          'Zahlungshinweis',
+        ]
+      ,
+      weakNegativeKeywords:
+        [
+          'Termin mit Uhrzeit',
+          'Unterlagen nachreichen',
+          'eAT Abholung',
+          'Fiktionswirkung',
+        ]
+      ,
+      strongNegativeKeywords:
+        [
+          'Terminbestätigung',
+          'Ablehnungsbescheid',
+          'Bewilligungsbescheid',
+          'Fiktionsbescheinigung',
+        ]
+      ,
+      nextStepKeys: [
+        'cat_auslaender_gebuehrenhinweis_step1',
+        'cat_auslaender_gebuehrenhinweis_step2',
+        'cat_auslaender_gebuehrenhinweis_step3',
+        'cat_auslaender_gebuehrenhinweis_step4',
+        'cat_auslaender_gebuehrenhinweis_step5',
+      ],
+      riskLevel: RiskLevel.low,
+    ),
+
+    // 35) Akteneinsicht
+    CategoryDefinition(
+      id: 'auslaender_akteneinsicht',
+      labelKey: 'cat_auslaender_akteneinsicht_label',
+      summaryKey: 'cat_auslaender_akteneinsicht_summary',
+      mainCategory: MainCategory.categoryAuslaenderbehoerde,
+      headerKeywords:
+        [
+          'Akteneinsicht',
+          'Bevollmächtigte',
+          'Rechtsanwälte',
+          'Vollmacht',
+        ]
+      ,
+      decisiveKeywords:
+        [
+          'Einsichtnahme in die Akte',
+          'Bevollmächtigte Anwälte',
+          'Akteneinsicht beantragen',
+          'Vollmacht beifügen',
+          'Akteneinsicht für Rechtsanwälte',
+          'Antrag auf Akteneinsicht',
+        ]
+      ,
+      supportingKeywords:
+        [
+          'Akteneinsicht',
+          'Vollmacht',
+          'Rechtsanwalt',
+          'Mandant',
+          'Akte',
+          'Antrag',
+          'Bevollmächtigte',
+        ]
+      ,
+      weakNegativeKeywords:
+        [
+          'Aufenthaltstitel verlängern',
+          'Termin mit Uhrzeit',
+          'Gebührenhinweis',
+          'eAT Abholung',
+        ]
+      ,
+      strongNegativeKeywords:
+        [
+          'Terminbestätigung',
+          'Fiktionsbescheinigung',
+          'Bewilligungsbescheid',
+          'Ablehnungsbescheid',
+        ]
+      ,
+      nextStepKeys: [
+        'cat_auslaender_akteneinsicht_step1',
+        'cat_auslaender_akteneinsicht_step2',
+        'cat_auslaender_akteneinsicht_step3',
+        'cat_auslaender_akteneinsicht_step4',
+        'cat_auslaender_akteneinsicht_step5',
+      ],
+      riskLevel: RiskLevel.low,
+    ),
+
   ];
 }

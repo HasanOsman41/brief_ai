@@ -17,7 +17,6 @@ import 'package:brief_ai/screens/reminders_screen.dart';
 import 'package:brief_ai/localization/app_localizations.dart';
 import 'package:brief_ai/services/locale_service.dart';
 import 'package:brief_ai/services/notification_service.dart';
-import 'package:fuzzywuzzy/fuzzywuzzy.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

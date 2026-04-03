@@ -649,12 +649,7 @@ class DocumentAnalyzer {
       final normKw = _normalise(kw);
       // partialRatio slides the shorter string over the longer one and
       // returns the best window score → ideal for keyword-in-document search.
-      final score = partialRatio(normKw, normText);
-      if (normKw == 'anlage ki') {
-        print(
-          '@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ DEBUG: partialRatio("$normKw", normText) = $score',
-        );
-      }
+      final score = normText.contains(normKw)?100:0;//partialRatio(normKw, normText);
       if (score >= threshold) {
         matched.add(kw);
         scores.add(score);
@@ -679,11 +674,11 @@ class DocumentAnalyzer {
     final normText = _normalise(ocrText);
 
     final lines = ocrText.split('\n');
-    final headerLines = lines.take(8).join(' ');
-    final headerSlice = ocrText.length > 800
-        ? ocrText.substring(0, 800)
-        : ocrText;
-    final normHeader = _normalise('$headerLines $headerSlice');
+    final headerLines = lines.take(10).join(' ');
+    // final headerSlice = ocrText.length > 800
+    //     ? ocrText.substring(0, 800)
+    //     : ocrText;`
+    final normHeader = _normalise('$headerLines $headerLines');
 
     print('╔══════════════════════════════════════════════════════════════╗');
     print('║                  _classify() – START                        ║');
@@ -930,6 +925,7 @@ class DocumentAnalyzer {
 
     // ── Final summary ─────────────────────────────────────────────────────────
     print('');
+    print('ocr lines: ${lines.asMap().entries.map((e) => '[${e.key}] ${e.value}').join('\n')}');
     print('╔══════════════════════════════════════════════════════════════╗');
     print('║                  _classify() – RESULT                       ║');
     print('╠══════════════════════════════════════════════════════════════╣');
