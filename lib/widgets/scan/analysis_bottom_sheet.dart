@@ -83,28 +83,32 @@ class _AnalysisBottomSheetState extends State<AnalysisBottomSheet> {
     // The document title is stored as a localization key (labelKey).
     // We'll translate it for display once we have a valid BuildContext.
     _titleKey = widget.result.title;
-    _editableTitle = '';
+    // If category is null the title key is 'categoryOther' — treat as empty
+    // so the user sees a blank editable field rather than a translated fallback.
+    _editableTitle = widget.result.category == null ? '' : '';
 
-    // Resolve the detected sub-category from the result, fallback to first.
+    // Resolve the detected sub-category from the result.
+    // If category is null (undetected), leave keys empty — UI shows a banner.
     final detectedId = widget.result.category?.id;
-    final matched = detectedId != null
-        ? BriefAiCategories.all.firstWhere(
-            (c) => c.id == detectedId,
-            orElse: () => BriefAiCategories.all.first,
-          )
-        : BriefAiCategories.all.first;
-    _subCategoryKey = matched.id;
-    _mainCategoryKey = matched.mainCategory.key;
+    if (detectedId != null) {
+      final matched = BriefAiCategories.all.firstWhere(
+        (c) => c.id == detectedId,
+        orElse: () => BriefAiCategories.all.first,
+      );
+      _subCategoryKey = matched.id;
+      _mainCategoryKey = matched.mainCategory.key;
+    } else {
+      _subCategoryKey = '';
+      _mainCategoryKey = '';
+    }
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (_editableTitle.isEmpty) {
+    if (_editableTitle.isEmpty && widget.result.category != null) {
       final translated = AppLocalizations.tr(context, _titleKey);
-      setState(() {
-        _editableTitle = translated;
-      });
+      setState(() => _editableTitle = translated);
     }
   }
 
@@ -145,6 +149,7 @@ class _AnalysisBottomSheetState extends State<AnalysisBottomSheet> {
                       primary: primary,
                       selectedCategoryId: _subCategoryKey,
                       selectedCategoryKey: _mainCategoryKey,
+                      categoryDetected: widget.result.category != null,
                       onCategoryChanged: (subKey, mainKey) => setState(() {
                         _subCategoryKey = subKey;
                         _mainCategoryKey = mainKey;
@@ -209,11 +214,17 @@ class _AnalysisBottomSheetState extends State<AnalysisBottomSheet> {
           ? _customTime
           : null;
 
+      // Block save if category was not detected and user hasn't picked one.
+      if (_subCategoryKey.isEmpty) {
+        _snack(AppLocalizations.tr(context, 'noCategoryDetected'), success: false);
+        return;
+      }
+
       // If the user didn't change the title, store the key (language independent).
       final translatedDefault = AppLocalizations.tr(context, _titleKey);
-      final titleToStore = _editableTitle == translatedDefault
-          ? _titleKey
-          : _editableTitle;
+      final titleToStore = _editableTitle.isEmpty
+          ? _subCategoryKey
+          : (_editableTitle == translatedDefault ? _titleKey : _editableTitle);
 
       if (widget.documentId != null) {
         await DocumentService().updateDocumentWithImagesAndReminders(
@@ -403,6 +414,7 @@ class _DocumentInfoCard extends StatefulWidget {
     required this.primary,
     required this.selectedCategoryId,
     required this.selectedCategoryKey,
+    required this.categoryDetected,
     required this.onCategoryChanged,
     required this.editableTitle,
     required this.onTitleChanged,
@@ -413,6 +425,7 @@ class _DocumentInfoCard extends StatefulWidget {
   final Color primary;
   final String selectedCategoryId;
   final String selectedCategoryKey;
+  final bool categoryDetected;
   final void Function(String subCategoryKey, String mainCategoryKey)
   onCategoryChanged;
   final String editableTitle;
@@ -451,12 +464,17 @@ class _DocumentInfoCardState extends State<_DocumentInfoCard> {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // Undetected category banner
+        if (!widget.categoryDetected)
+          _NoCategoryBanner(isDark: widget.isDark),
+        if (!widget.categoryDetected) const SizedBox(height: 12),
         // Editable category selector
         _CategorySelector(
           isDark: widget.isDark,
           primary: widget.primary,
           selectedCategoryId: widget.selectedCategoryId,
           selectedCategoryKey: widget.selectedCategoryKey,
+          categoryDetected: widget.categoryDetected,
           onChanged: widget.onCategoryChanged,
         ),
         const SizedBox(height: 12),
@@ -464,8 +482,9 @@ class _DocumentInfoCardState extends State<_DocumentInfoCard> {
           isDark: widget.isDark,
           primary: widget.primary,
           score: widget.result.trustScore,
+          categoryDetected: widget.categoryDetected,
         ),
-        if (widget.editableTitle.isNotEmpty) ...[
+        if (widget.editableTitle.isNotEmpty || !widget.categoryDetected) ...[
           const SizedBox(height: 12),
           Text(
             AppLocalizations.tr(context, 'title'),
@@ -482,6 +501,7 @@ class _DocumentInfoCardState extends State<_DocumentInfoCard> {
           TextField(
             controller: _titleController,
             onChanged: widget.onTitleChanged,
+            autofocus: !widget.categoryDetected,
             style: TextStyle(
               color: widget.isDark
                   ? AppTheme.darkTextPrimary
@@ -512,59 +532,61 @@ class _DocumentInfoCardState extends State<_DocumentInfoCard> {
             ),
           ),
         ],
-        const SizedBox(height: 16),
-        Text(
-          AppLocalizations.tr(context, 'aiSummary'),
-          style: TextStyle(
-            color: widget.isDark
-                ? AppTheme.darkTextSecondary
-                : AppTheme.lightTextSecondary,
-            fontSize: 11,
-            fontWeight: FontWeight.w600,
-            letterSpacing: 0.8,
-          ),
-        ),
-        const SizedBox(height: 6),
-        Container(
-          decoration: BoxDecoration(
-            border: Border.all(
-              color: widget.isDark ? AppTheme.darkBorder : AppTheme.lightBorder,
-            ),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-          child: Text(
-            AppLocalizations.tr(context, widget.result.summaryKey),
+        if (widget.categoryDetected) ...[
+          const SizedBox(height: 16),
+          Text(
+            AppLocalizations.tr(context, 'aiSummary'),
             style: TextStyle(
               color: widget.isDark
-                  ? AppTheme.darkTextPrimary
-                  : AppTheme.lightTextPrimary,
-              fontSize: 14,
-              height: 1.5,
+                  ? AppTheme.darkTextSecondary
+                  : AppTheme.lightTextSecondary,
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.8,
             ),
           ),
-        ),
-        const SizedBox(height: 16),
-        Text(
-          AppLocalizations.tr(context, 'whatYouShould'),
-          style: TextStyle(
-            color: widget.isDark
-                ? AppTheme.darkTextSecondary
-                : AppTheme.lightTextSecondary,
-            fontSize: 11,
-            fontWeight: FontWeight.w600,
-            letterSpacing: 0.8,
+          const SizedBox(height: 6),
+          Container(
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: widget.isDark ? AppTheme.darkBorder : AppTheme.lightBorder,
+              ),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            child: Text(
+              AppLocalizations.tr(context, widget.result.summaryKey),
+              style: TextStyle(
+                color: widget.isDark
+                    ? AppTheme.darkTextPrimary
+                    : AppTheme.lightTextPrimary,
+                fontSize: 14,
+                height: 1.5,
+              ),
+            ),
           ),
-        ),
-        const SizedBox(height: 6),
-        WhatYouShouldCard(
-          nextStepTitleKeys: BriefAiCategories.getStepsById(
-            widget.selectedCategoryId,
+          const SizedBox(height: 16),
+          Text(
+            AppLocalizations.tr(context, 'whatYouShould'),
+            style: TextStyle(
+              color: widget.isDark
+                  ? AppTheme.darkTextSecondary
+                  : AppTheme.lightTextSecondary,
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.8,
+            ),
           ),
-          isDark: widget.isDark,
-          primary: widget.primary,
-          enablePulseAnimation: true,
-        ),
+          const SizedBox(height: 6),
+          WhatYouShouldCard(
+            nextStepTitleKeys: BriefAiCategories.getStepsById(
+              widget.selectedCategoryId,
+            ),
+            isDark: widget.isDark,
+            primary: widget.primary,
+            enablePulseAnimation: true,
+          ),
+        ],
       ],
     ),
   );
@@ -578,6 +600,7 @@ class _CategorySelector extends StatelessWidget {
     required this.primary,
     required this.selectedCategoryId,
     required this.selectedCategoryKey,
+    required this.categoryDetected,
     required this.onChanged,
   });
 
@@ -585,10 +608,62 @@ class _CategorySelector extends StatelessWidget {
   final Color primary;
   final String selectedCategoryId;
   final String selectedCategoryKey;
+  final bool categoryDetected;
   final void Function(String subCategoryKey, String mainCategoryKey) onChanged;
 
   @override
   Widget build(BuildContext context) {
+    final warningColor = const Color(0xFFF59E0B);
+
+    // If no category was detected, show a tap-to-select placeholder
+    if (!categoryDetected && selectedCategoryId.isEmpty) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            AppLocalizations.tr(context, 'category'),
+            style: TextStyle(
+              color: isDark
+                  ? AppTheme.darkTextSecondary
+                  : AppTheme.lightTextSecondary,
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.8,
+            ),
+          ),
+          const SizedBox(height: 8),
+          GestureDetector(
+            onTap: () => _openPicker(context),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+              decoration: BoxDecoration(
+                color: warningColor.withOpacity(0.08),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: warningColor.withOpacity(0.5)),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.help_outline_rounded, size: 18, color: warningColor),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      AppLocalizations.tr(context, 'noCategoryDetected'),
+                      style: TextStyle(
+                        color: warningColor,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                  Icon(Icons.expand_more, color: warningColor, size: 20),
+                ],
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+
     final cat = BriefAiCategories.all.firstWhere(
       (c) => c.id == selectedCategoryId,
       orElse: () => BriefAiCategories.all.first,
@@ -703,11 +778,14 @@ class _CategoryPickerSheetState extends State<_CategoryPickerSheet> {
   @override
   void initState() {
     super.initState();
-    final current = BriefAiCategories.all.firstWhere(
-      (c) => c.id == widget.currentCategoryId,
-      orElse: () => BriefAiCategories.all.first,
-    );
-    _selectedMain = current.mainCategory;
+    if (widget.currentCategoryId.isNotEmpty) {
+      final current = BriefAiCategories.all.firstWhere(
+        (c) => c.id == widget.currentCategoryId,
+        orElse: () => BriefAiCategories.all.first,
+      );
+      _selectedMain = current.mainCategory;
+    }
+    // else: _selectedMain stays null — shows all categories
     _search.addListener(
       () => setState(() => _query = _search.text.trim().toLowerCase()),
     );
@@ -815,7 +893,30 @@ class _CategoryPickerSheetState extends State<_CategoryPickerSheet> {
             const SizedBox(height: 8),
             // Sub-category list
             Expanded(
-              child: ListView.builder(
+              child: _filtered.isEmpty
+                  ? Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.search_off_rounded,
+                            size: 48,
+                            color: widget.isDark ? Colors.white24 : Colors.black26,
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            AppLocalizations.tr(context, 'noCategoryDetected'),
+                            style: TextStyle(
+                              color: widget.isDark
+                                  ? Colors.white38
+                                  : Colors.black38,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  : ListView.builder(
                 controller: scrollController,
                 padding: const EdgeInsets.symmetric(
                   horizontal: 16,
@@ -1320,6 +1421,43 @@ class _CustomDateTimePicker extends StatelessWidget {
   );
 }
 
+// ── No-Category Banner ─────────────────────────────────────────────────────────────────
+
+class _NoCategoryBanner extends StatelessWidget {
+  const _NoCategoryBanner({required this.isDark});
+  final bool isDark;
+
+  @override
+  Widget build(BuildContext context) {
+    const color = Color(0xFFF59E0B);
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: color.withOpacity(0.4)),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.search_off_rounded, color: color, size: 18),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              AppLocalizations.tr(context, 'noCategoryDetectedHint'),
+              style: const TextStyle(
+                color: color,
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                height: 1.4,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 // ── Trust Score Slider ────────────────────────────────────────────────────────
 
 class _TrustScoreSlider extends StatelessWidget {
@@ -1327,25 +1465,30 @@ class _TrustScoreSlider extends StatelessWidget {
     required this.isDark,
     required this.primary,
     required this.score,
+    required this.categoryDetected,
   });
 
   final bool isDark;
   final Color primary;
   final int score;
+  final bool categoryDetected;
 
   Color get _color {
+    if (!categoryDetected) return const Color(0xFF94A3B8);
     if (score >= 70) return const Color(0xFF22C55E);
     if (score >= 40) return const Color(0xFFF59E0B);
     return const Color(0xFFEF4444);
   }
 
-  String get _label {
-    if (score >= 70) return 'High';
-    if (score >= 40) return 'Medium';
-    return 'Low';
+  String _label(BuildContext context) {
+    if (!categoryDetected) return AppLocalizations.tr(context, 'noCategoryDetected');
+    if (score >= 70) return AppLocalizations.tr(context, 'high');
+    if (score >= 40) return AppLocalizations.tr(context, 'medium');
+    return AppLocalizations.tr(context, 'low');
   }
 
   IconData get _icon {
+    if (!categoryDetected) return Icons.help_outline_rounded;
     if (score >= 70) return Icons.verified_rounded;
     if (score >= 40) return Icons.info_rounded;
     return Icons.warning_amber_rounded;
@@ -1353,8 +1496,9 @@ class _TrustScoreSlider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final filled = (score / 10).round().clamp(0, 10);
+    final filled = categoryDetected ? (score / 10).round().clamp(0, 10) : 0;
     final bg = isDark ? AppTheme.darkBackground : AppTheme.lightBackground;
+    final displayScore = categoryDetected ? '$score%' : '--';
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
@@ -1395,7 +1539,7 @@ class _TrustScoreSlider extends StatelessWidget {
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
-                        '$_label · $score%',
+                        '${_label(context)} · $displayScore',
                         style: TextStyle(
                           color: _color,
                           fontSize: 10,

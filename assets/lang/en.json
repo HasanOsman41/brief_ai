@@ -757,5 +757,8 @@
   "cat_krankenkasse_datenaenderung_step2": "Enter your new details accurately in the (Neue Daten) section.",
   "cat_krankenkasse_datenaenderung_step3": "Specify the date from which the change takes effect.",
   "cat_krankenkasse_datenaenderung_step4": "Attach a copy of the supporting document proving the change (e.g. marriage certificate for name change, new rental agreement for address change).",
-  "cat_krankenkasse_datenaenderung_step5": "Sign the form and send it to the health insurance company."
+  "cat_krankenkasse_datenaenderung_step5": "Sign the form and send it to the health insurance company.",
+  "trustScore": "Trust Score",
+  "noCategoryDetected": "No category detected",
+  "noCategoryDetectedHint": "The AI could not identify this document. Please select a category manually."
 }
