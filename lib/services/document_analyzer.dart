@@ -810,7 +810,7 @@ class DocumentAnalyzer {
 
       // ── 2d. Weighted integer score ─────────────────────────────────────────
       final score =
-          (header.count * 150) +
+          (header.count * 200) +
           (decisive.count * 100) +
           (supporting.count * 20) -
           (weakNeg.count * 35);
