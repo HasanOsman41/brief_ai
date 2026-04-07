@@ -145,12 +145,7 @@ class BriefAiCategories {
       labelKey: 'cat_jobcenter_einladung_label',
       summaryKey: 'cat_jobcenter_einladung_summary',
       mainCategory: MainCategory.categoryJobcenter,
-      headerKeywords: [
-        'Einladung',
-        'Termin',
-        'Uhrzeit',
-        'Raum',
-      ],
+      headerKeywords: ['Einladung', 'Termin', 'Uhrzeit', 'Raum'],
       decisiveKeywords: [
         'kommen',
         'angegebenen',
@@ -198,12 +193,7 @@ class BriefAiCategories {
       labelKey: 'cat_jobcenter_einladung_telefontermin_label',
       summaryKey: 'cat_jobcenter_einladung_telefontermin_summary',
       mainCategory: MainCategory.categoryJobcenter,
-      headerKeywords: [
-        'Telefontermin',
-        'Termin',
-        'Telefonat',
-        'Telefonnummer',
-      ],
+      headerKeywords: ['Telefontermin', 'Termin', 'Telefonat', 'Telefonnummer'],
       decisiveKeywords: [
         'kontaktieren',
         'Nachfragen',
@@ -357,12 +347,7 @@ class BriefAiCategories {
       labelKey: 'cat_jobcenter_hauptantrag_label',
       summaryKey: 'cat_jobcenter_hauptantrag_summary',
       mainCategory: MainCategory.categoryJobcenter,
-      headerKeywords: [
-        'Hauptantrag',
-        'Bürgergeld',
-        'Antrag',
-        'SGB II',
-      ],
+      headerKeywords: ['Hauptantrag', 'Bürgergeld', 'Antrag', 'SGB II'],
       decisiveKeywords: [
         'beantragen',
         'antragstellenden',
@@ -569,12 +554,7 @@ class BriefAiCategories {
       labelKey: 'cat_jobcenter_anlage_kdu_label',
       summaryKey: 'cat_jobcenter_anlage_kdu_summary',
       mainCategory: MainCategory.categoryJobcenter,
-      headerKeywords: [
-        'Anlage KDU',
-        'Unterkunft',
-        'Heizung',
-        'Bedarfen',
-      ],
+      headerKeywords: ['Anlage KDU', 'Unterkunft', 'Heizung', 'Bedarfen'],
       decisiveKeywords: [
         'wohnen',
         'Baujahr',
@@ -781,12 +761,7 @@ class BriefAiCategories {
       labelKey: 'cat_jobcenter_anlage_ki_label',
       summaryKey: 'cat_jobcenter_anlage_ki_summary',
       mainCategory: MainCategory.categoryJobcenter,
-      headerKeywords: [
-        'Anlage KI',
-        'Kind',
-        'Bedarfsgemeinschaft',
-        'Vormund',
-      ],
+      headerKeywords: ['Anlage KI', 'Kind', 'Bedarfsgemeinschaft', 'Vormund'],
       decisiveKeywords: [
         'Kinder',
         'unter',
@@ -887,12 +862,7 @@ class BriefAiCategories {
       labelKey: 'cat_jobcenter_anlage_ve_label',
       summaryKey: 'cat_jobcenter_anlage_ve_summary',
       mainCategory: MainCategory.categoryJobcenter,
-      headerKeywords: [
-        'Anlage VE',
-        'Gemeinschaft',
-        'Haushalt',
-        'Partner',
-      ],
+      headerKeywords: ['Anlage VE', 'Gemeinschaft', 'Haushalt', 'Partner'],
       decisiveKeywords: [
         'zusammenleben',
         'verwandt',
@@ -1152,12 +1122,7 @@ class BriefAiCategories {
       labelKey: 'cat_jobcenter_anlage_bb_label',
       summaryKey: 'cat_jobcenter_anlage_bb_summary',
       mainCategory: MainCategory.categoryJobcenter,
-      headerKeywords: [
-        'Anlage BB',
-        'Bedarf',
-        'unabweisbaren',
-        'beantragen',
-      ],
+      headerKeywords: ['Anlage BB', 'Bedarf', 'unabweisbaren', 'beantragen'],
       decisiveKeywords: [
         'besonderer',
         'entsteht',
@@ -1176,12 +1141,7 @@ class BriefAiCategories {
         'Welchen',
         'Bedarf',
       ],
-      weakNegativeKeywords: [
-        'Anlage MEB',
-        'Anlage UF',
-        'Mitwirkung',
-        'WBA',
-      ],
+      weakNegativeKeywords: ['Anlage MEB', 'Anlage UF', 'Mitwirkung', 'WBA'],
       strongNegativeKeywords: [
         'Bewilligungsbescheid',
         'Einladung',
@@ -1205,12 +1165,7 @@ class BriefAiCategories {
       labelKey: 'cat_jobcenter_anlage_meb_label',
       summaryKey: 'cat_jobcenter_anlage_meb_summary',
       mainCategory: MainCategory.categoryJobcenter,
-      headerKeywords: [
-        'Anlage MEB',
-        'Mehrbedarf',
-        'Ernährung',
-        'ärztliche',
-      ],
+      headerKeywords: ['Anlage MEB', 'Mehrbedarf', 'Ernährung', 'ärztliche'],
       decisiveKeywords: [
         'kostenaufwändige',
         'Bescheinigung',
@@ -1368,52 +1323,42 @@ class BriefAiCategories {
       labelKey: 'cat_auslaender_terminbestaetigung_label',
       summaryKey: 'cat_auslaender_terminbestaetigung_summary',
       mainCategory: MainCategory.categoryAuslaenderbehoerde,
-      headerKeywords:
-        [
-          'Terminbestätigung',
-          'Einladung zum Termin',
-          'persönliche Vorsprache',
-          'Ausländerbehörde',
-        ]
-      ,
-      decisiveKeywords:
-        [
-          'Sie haben einen Termin am',
-          'bitte erscheinen Sie am',
-          'Ihr Termin findet am',
-          'persönliche Vorsprache am',
-          'vereinbarter Termin',
-          'Uhrzeit des Termins',
-        ]
-      ,
-      supportingKeywords:
-        [
-          'Termin',
-          'Uhrzeit',
-          'Vorsprache',
-          'Schalter',
-          'Zimmer',
-          'Reisepass',
-          'Unterlagen',
-          'persönlich',
-        ]
-      ,
-      weakNegativeKeywords:
-        [
-          'Unterlagen nachreichen',
-          'fehlende Unterlagen',
-          'Online-Antrag gestellt',
-          'Gebühren entrichten',
-        ]
-      ,
-      strongNegativeKeywords:
-        [
-          'Ablehnungsbescheid',
-          'Bewilligungsbescheid',
-          'Fiktionsbescheinigung',
-          'Gebührenhinweis',
-        ]
-      ,
+      headerKeywords: [
+        'Terminbestätigung',
+        'Einladung zum Termin',
+        'persönliche Vorsprache',
+        'Ausländerbehörde',
+      ],
+      decisiveKeywords: [
+        'Sie haben einen Termin am',
+        'bitte erscheinen Sie am',
+        'Ihr Termin findet am',
+        'persönliche Vorsprache am',
+        'vereinbarter Termin',
+        'Uhrzeit des Termins',
+      ],
+      supportingKeywords: [
+        'Termin',
+        'Uhrzeit',
+        'Vorsprache',
+        'Schalter',
+        'Zimmer',
+        'Reisepass',
+        'Unterlagen',
+        'persönlich',
+      ],
+      weakNegativeKeywords: [
+        'Unterlagen nachreichen',
+        'fehlende Unterlagen',
+        'Online-Antrag gestellt',
+        'Gebühren entrichten',
+      ],
+      strongNegativeKeywords: [
+        'Ablehnungsbescheid',
+        'Bewilligungsbescheid',
+        'Fiktionsbescheinigung',
+        'Gebührenhinweis',
+      ],
       nextStepKeys: [
         'cat_auslaender_terminbestaetigung_step1',
         'cat_auslaender_terminbestaetigung_step2',
@@ -1430,52 +1375,42 @@ class BriefAiCategories {
       labelKey: 'cat_auslaender_termineinladung_online_label',
       summaryKey: 'cat_auslaender_termineinladung_online_summary',
       mainCategory: MainCategory.categoryAuslaenderbehoerde,
-      headerKeywords:
-        [
-          'schriftliche Termineinladung',
-          'Online-Antrag',
-          'persönliche Vorsprache',
-          'Antragsformular',
-        ]
-      ,
-      decisiveKeywords:
-        [
-          'nach Prüfung Ihres Online-Antrags erhalten Sie einen Termin',
-          'bei diesem Termin unterschreiben Sie das Antragsformular',
-          'bringen Sie die Originale zum Termin mit',
-          'schriftliche Termineinladung',
-          'persönliche Vorsprache ist erforderlich',
-          'Termin zur abschließenden Bearbeitung',
-        ]
-      ,
-      supportingKeywords:
-        [
-          'Online-Antrag',
-          'Originale',
-          'Unterschrift',
-          'Antragsformular',
-          'Reisepass',
-          'Termin',
-          'Vorsprache',
-          'Bearbeitung',
-        ]
-      ,
-      weakNegativeKeywords:
-        [
-          'nur Unterlagen hochladen',
-          'ohne Termin abholen',
-          'Gebühr zahlen',
-          'eAT bereit',
-        ]
-      ,
-      strongNegativeKeywords:
-        [
-          'Terminänderung',
-          'Ablehnungsbescheid',
-          'Fiktionsbescheinigung',
-          'Bewilligungsbescheid',
-        ]
-      ,
+      headerKeywords: [
+        'schriftliche Termineinladung',
+        'Online-Antrag',
+        'persönliche Vorsprache',
+        'Antragsformular',
+      ],
+      decisiveKeywords: [
+        'nach Prüfung Ihres Online-Antrags erhalten Sie einen Termin',
+        'bei diesem Termin unterschreiben Sie das Antragsformular',
+        'bringen Sie die Originale zum Termin mit',
+        'schriftliche Termineinladung',
+        'persönliche Vorsprache ist erforderlich',
+        'Termin zur abschließenden Bearbeitung',
+      ],
+      supportingKeywords: [
+        'Online-Antrag',
+        'Originale',
+        'Unterschrift',
+        'Antragsformular',
+        'Reisepass',
+        'Termin',
+        'Vorsprache',
+        'Bearbeitung',
+      ],
+      weakNegativeKeywords: [
+        'nur Unterlagen hochladen',
+        'ohne Termin abholen',
+        'Gebühr zahlen',
+        'eAT bereit',
+      ],
+      strongNegativeKeywords: [
+        'Terminänderung',
+        'Ablehnungsbescheid',
+        'Fiktionsbescheinigung',
+        'Bewilligungsbescheid',
+      ],
       nextStepKeys: [
         'cat_auslaender_termineinladung_online_step1',
         'cat_auslaender_termineinladung_online_step2',
@@ -1492,50 +1427,40 @@ class BriefAiCategories {
       labelKey: 'cat_auslaender_terminverlegung_label',
       summaryKey: 'cat_auslaender_terminverlegung_summary',
       mainCategory: MainCategory.categoryAuslaenderbehoerde,
-      headerKeywords:
-        [
-          'Terminänderung',
-          'Terminverlegung',
-          'neuer Termin',
-          'bisheriger Termin',
-        ]
-      ,
-      decisiveKeywords:
-        [
-          'Ihr Termin wurde verlegt',
-          'der Termin am entfällt',
-          'stattdessen findet Ihr Termin am',
-          'neuer Termin',
-          'bitte beachten Sie den geänderten Termin',
-          'der bisherige Termin ist aufgehoben',
-        ]
-      ,
-      supportingKeywords:
-        [
-          'neuer Termin',
-          'alter Termin',
-          'entfällt',
-          'geänderte Uhrzeit',
-          'geänderter Tag',
-          'Vorsprache',
-        ]
-      ,
-      weakNegativeKeywords:
-        [
-          'Unterlagen nachreichen',
-          'Antrag einreichen',
-          'Gebühr zahlen',
-          'eAT bereit',
-        ]
-      ,
-      strongNegativeKeywords:
-        [
-          'Ablehnungsbescheid',
-          'Bewilligungsbescheid',
-          'Fiktionsbescheinigung',
-          'Gebührenhinweis',
-        ]
-      ,
+      headerKeywords: [
+        'Terminänderung',
+        'Terminverlegung',
+        'neuer Termin',
+        'bisheriger Termin',
+      ],
+      decisiveKeywords: [
+        'Ihr Termin wurde verlegt',
+        'der Termin am entfällt',
+        'stattdessen findet Ihr Termin am',
+        'neuer Termin',
+        'bitte beachten Sie den geänderten Termin',
+        'der bisherige Termin ist aufgehoben',
+      ],
+      supportingKeywords: [
+        'neuer Termin',
+        'alter Termin',
+        'entfällt',
+        'geänderte Uhrzeit',
+        'geänderter Tag',
+        'Vorsprache',
+      ],
+      weakNegativeKeywords: [
+        'Unterlagen nachreichen',
+        'Antrag einreichen',
+        'Gebühr zahlen',
+        'eAT bereit',
+      ],
+      strongNegativeKeywords: [
+        'Ablehnungsbescheid',
+        'Bewilligungsbescheid',
+        'Fiktionsbescheinigung',
+        'Gebührenhinweis',
+      ],
       nextStepKeys: [
         'cat_auslaender_terminverlegung_step1',
         'cat_auslaender_terminverlegung_step2',
@@ -1552,52 +1477,42 @@ class BriefAiCategories {
       labelKey: 'cat_auslaender_unterlagen_anfordering_label',
       summaryKey: 'cat_auslaender_unterlagen_anfordering_summary',
       mainCategory: MainCategory.categoryAuslaenderbehoerde,
-      headerKeywords:
-        [
-          'Vorlage von Unterlagen',
-          'fehlende Unterlagen',
-          'Nachweise vorlegen',
-          'Unterlagen benötigt',
-        ]
-      ,
-      decisiveKeywords:
-        [
-          'bitte reichen Sie folgende Unterlagen ein',
-          'folgende Unterlagen sind vorzulegen',
-          'wir benötigen noch folgende Unterlagen',
-          'reichen Sie die Nachweise bis',
-          'zur Bearbeitung fehlen noch Unterlagen',
-          'bitte legen Sie die Unterlagen vor',
-        ]
-      ,
-      supportingKeywords:
-        [
-          'Nachweise',
-          'Unterlagen',
-          'Passkopie',
-          'Mietvertrag',
-          'Krankenversicherung',
-          'Einkommensnachweis',
-          'Arbeitsvertrag',
-          'Immatrikulationsbescheinigung',
-        ]
-      ,
-      weakNegativeKeywords:
-        [
-          'Termin mit Uhrzeit',
-          'bitte erscheinen Sie',
-          'ohne Termin abholen',
-          'stattgegeben',
-        ]
-      ,
-      strongNegativeKeywords:
-        [
-          'Terminbestätigung',
-          'Ablehnungsbescheid',
-          'Fiktionsbescheinigung',
-          'Gebührenhinweis',
-        ]
-      ,
+      headerKeywords: [
+        'Vorlage von Unterlagen',
+        'fehlende Unterlagen',
+        'Nachweise vorlegen',
+        'Unterlagen benötigt',
+      ],
+      decisiveKeywords: [
+        'bitte reichen Sie folgende Unterlagen ein',
+        'folgende Unterlagen sind vorzulegen',
+        'wir benötigen noch folgende Unterlagen',
+        'reichen Sie die Nachweise bis',
+        'zur Bearbeitung fehlen noch Unterlagen',
+        'bitte legen Sie die Unterlagen vor',
+      ],
+      supportingKeywords: [
+        'Nachweise',
+        'Unterlagen',
+        'Passkopie',
+        'Mietvertrag',
+        'Krankenversicherung',
+        'Einkommensnachweis',
+        'Arbeitsvertrag',
+        'Immatrikulationsbescheinigung',
+      ],
+      weakNegativeKeywords: [
+        'Termin mit Uhrzeit',
+        'bitte erscheinen Sie',
+        'ohne Termin abholen',
+        'stattgegeben',
+      ],
+      strongNegativeKeywords: [
+        'Terminbestätigung',
+        'Ablehnungsbescheid',
+        'Fiktionsbescheinigung',
+        'Gebührenhinweis',
+      ],
       nextStepKeys: [
         'cat_auslaender_unterlagen_anfordering_step1',
         'cat_auslaender_unterlagen_anfordering_step2',
@@ -1614,51 +1529,41 @@ class BriefAiCategories {
       labelKey: 'cat_auslaender_nachforderung_label',
       summaryKey: 'cat_auslaender_nachforderung_summary',
       mainCategory: MainCategory.categoryAuslaenderbehoerde,
-      headerKeywords:
-        [
-          'unvollständiger Antrag',
-          'Nachforderung',
-          'fehlende Angaben',
-          'Antrag unvollständig',
-        ]
-      ,
-      decisiveKeywords:
-        [
-          'Ihr Antrag ist unvollständig',
-          'es fehlen noch Angaben',
-          'der Antrag kann erst bearbeitet werden wenn',
-          'bitte reichen Sie die fehlenden Unterlagen nach',
-          'ohne diese Unterlagen kann der Antrag nicht weiter bearbeitet werden',
-          'fehlende Angaben nachreichen',
-        ]
-      ,
-      supportingKeywords:
-        [
-          'Antrag',
-          'unvollständig',
-          'Nachforderung',
-          'fehlende Angaben',
-          'Nachweise',
-          'Unterlagen',
-          'Nachreichung',
-        ]
-      ,
-      weakNegativeKeywords:
-        [
-          'Terminvereinbarung',
-          'Vorsprache am',
-          'Abholung eAT',
-          'Gebührenhinweis',
-        ]
-      ,
-      strongNegativeKeywords:
-        [
-          'Ablehnungsbescheid',
-          'Bewilligungsbescheid',
-          'Terminbestätigung',
-          'Fiktionsbescheinigung',
-        ]
-      ,
+      headerKeywords: [
+        'unvollständiger Antrag',
+        'Nachforderung',
+        'fehlende Angaben',
+        'Antrag unvollständig',
+      ],
+      decisiveKeywords: [
+        'Ihr Antrag ist unvollständig',
+        'es fehlen noch Angaben',
+        'der Antrag kann erst bearbeitet werden wenn',
+        'bitte reichen Sie die fehlenden Unterlagen nach',
+        'ohne diese Unterlagen kann der Antrag nicht weiter bearbeitet werden',
+        'fehlende Angaben nachreichen',
+      ],
+      supportingKeywords: [
+        'Antrag',
+        'unvollständig',
+        'Nachforderung',
+        'fehlende Angaben',
+        'Nachweise',
+        'Unterlagen',
+        'Nachreichung',
+      ],
+      weakNegativeKeywords: [
+        'Terminvereinbarung',
+        'Vorsprache am',
+        'Abholung eAT',
+        'Gebührenhinweis',
+      ],
+      strongNegativeKeywords: [
+        'Ablehnungsbescheid',
+        'Bewilligungsbescheid',
+        'Terminbestätigung',
+        'Fiktionsbescheinigung',
+      ],
       nextStepKeys: [
         'cat_auslaender_nachforderung_step1',
         'cat_auslaender_nachforderung_step2',
@@ -1675,51 +1580,41 @@ class BriefAiCategories {
       labelKey: 'cat_auslaender_verlaengerung_hinweis_label',
       summaryKey: 'cat_auslaender_verlaengerung_hinweis_summary',
       mainCategory: MainCategory.categoryAuslaenderbehoerde,
-      headerKeywords:
-        [
-          'Verlängerung des Aufenthaltstitels',
-          'Aufenthaltstitel läuft ab',
-          'vor Ablauf',
-          'Hinweis',
-        ]
-      ,
-      decisiveKeywords:
-        [
-          'Ihr Aufenthaltstitel läuft ab',
-          'beantragen Sie rechtzeitig die Verlängerung',
-          'vor Ablauf ist ein Antrag zu stellen',
-          'bitte verlängern Sie den Aufenthaltstitel rechtzeitig',
-          'rechtzeitig einen Antrag stellen',
-          'Ablauf des Aufenthaltstitels',
-        ]
-      ,
-      supportingKeywords:
-        [
-          'Verlängerung',
-          'Ablaufdatum',
-          'Aufenthaltstitel',
-          'vor Ablauf',
-          'gültig bis',
-          'Antrag',
-          'rechtzeitig',
-        ]
-      ,
-      weakNegativeKeywords:
-        [
-          'neuer Termin',
-          'Unterlagen nachreichen',
-          'Gebührenbescheid',
-          'Ablehnung',
-        ]
-      ,
-      strongNegativeKeywords:
-        [
-          'Fiktionsbescheinigung',
-          'Bewilligungsbescheid',
-          'Terminbestätigung',
-          'Ablehnungsbescheid',
-        ]
-      ,
+      headerKeywords: [
+        'Verlängerung des Aufenthaltstitels',
+        'Aufenthaltstitel läuft ab',
+        'vor Ablauf',
+        'Hinweis',
+      ],
+      decisiveKeywords: [
+        'Ihr Aufenthaltstitel läuft ab',
+        'beantragen Sie rechtzeitig die Verlängerung',
+        'vor Ablauf ist ein Antrag zu stellen',
+        'bitte verlängern Sie den Aufenthaltstitel rechtzeitig',
+        'rechtzeitig einen Antrag stellen',
+        'Ablauf des Aufenthaltstitels',
+      ],
+      supportingKeywords: [
+        'Verlängerung',
+        'Ablaufdatum',
+        'Aufenthaltstitel',
+        'vor Ablauf',
+        'gültig bis',
+        'Antrag',
+        'rechtzeitig',
+      ],
+      weakNegativeKeywords: [
+        'neuer Termin',
+        'Unterlagen nachreichen',
+        'Gebührenbescheid',
+        'Ablehnung',
+      ],
+      strongNegativeKeywords: [
+        'Fiktionsbescheinigung',
+        'Bewilligungsbescheid',
+        'Terminbestätigung',
+        'Ablehnungsbescheid',
+      ],
       nextStepKeys: [
         'cat_auslaender_verlaengerung_hinweis_step1',
         'cat_auslaender_verlaengerung_hinweis_step2',
@@ -1736,52 +1631,42 @@ class BriefAiCategories {
       labelKey: 'cat_auslaender_verlaengerungsantrag_label',
       summaryKey: 'cat_auslaender_verlaengerungsantrag_summary',
       mainCategory: MainCategory.categoryAuslaenderbehoerde,
-      headerKeywords:
-        [
-          'Antrag auf Verlängerung des Aufenthaltstitels',
-          'Verlängerungsantrag',
-          'Aufenthaltstitel verlängern',
-          'Antrag',
-        ]
-      ,
-      decisiveKeywords:
-        [
-          'Antrag auf Verlängerung des Aufenthaltstitels',
-          'stellen Sie den Online-Antrag',
-          'laden Sie die Unterlagen innerhalb des Formulars hoch',
-          'anschließend erhalten Sie eine schriftliche Termineinladung',
-          'der Antrag ist online einzureichen',
-          'zum Antrag benötigen wir einige Nachweise und Unterlagen',
-        ]
-      ,
-      supportingKeywords:
-        [
-          'Verlängerung',
-          'Online-Antrag',
-          'Formular',
-          'hochladen',
-          'PDF',
-          'JPEG',
-          'Reisepass',
-          'Nachweise',
-        ]
-      ,
-      weakNegativeKeywords:
-        [
-          'Terminänderung',
-          'Abholung ohne Termin',
-          'Gebührenhinweis',
-          'Ablehnung',
-        ]
-      ,
-      strongNegativeKeywords:
-        [
-          'Terminbestätigung',
-          'Fiktionsbescheinigung',
-          'Bewilligungsbescheid',
-          'Gebührenbescheid',
-        ]
-      ,
+      headerKeywords: [
+        'Antrag auf Verlängerung des Aufenthaltstitels',
+        'Verlängerungsantrag',
+        'Aufenthaltstitel verlängern',
+        'Antrag',
+      ],
+      decisiveKeywords: [
+        'Antrag auf Verlängerung des Aufenthaltstitels',
+        'stellen Sie den Online-Antrag',
+        'laden Sie die Unterlagen innerhalb des Formulars hoch',
+        'anschließend erhalten Sie eine schriftliche Termineinladung',
+        'der Antrag ist online einzureichen',
+        'zum Antrag benötigen wir einige Nachweise und Unterlagen',
+      ],
+      supportingKeywords: [
+        'Verlängerung',
+        'Online-Antrag',
+        'Formular',
+        'hochladen',
+        'PDF',
+        'JPEG',
+        'Reisepass',
+        'Nachweise',
+      ],
+      weakNegativeKeywords: [
+        'Terminänderung',
+        'Abholung ohne Termin',
+        'Gebührenhinweis',
+        'Ablehnung',
+      ],
+      strongNegativeKeywords: [
+        'Terminbestätigung',
+        'Fiktionsbescheinigung',
+        'Bewilligungsbescheid',
+        'Gebührenbescheid',
+      ],
       nextStepKeys: [
         'cat_auslaender_verlaengerungsantrag_step1',
         'cat_auslaender_verlaengerungsantrag_step2',
@@ -1798,51 +1683,41 @@ class BriefAiCategories {
       labelKey: 'cat_auslaender_verlaengerung_vorsprache_label',
       summaryKey: 'cat_auslaender_verlaengerung_vorsprache_summary',
       mainCategory: MainCategory.categoryAuslaenderbehoerde,
-      headerKeywords:
-        [
-          'schriftliche Vorsprache',
-          'Verlängerung',
-          'persönliches Erscheinen',
-          'nach Prüfung',
-        ]
-      ,
-      decisiveKeywords:
-        [
-          'zunächst den Online-Antrag stellen',
-          'nach Prüfung erhalten Sie eine schriftliche Einladung',
-          'persönliche Vorsprache erfolgt später',
-          'ein Termin wird nachgereicht',
-          'nach Bearbeitung werden Sie eingeladen',
-          'Vorsprache nach gesonderter Mitteilung',
-        ]
-      ,
-      supportingKeywords:
-        [
-          'Verlängerung',
-          'Vorsprache',
-          'Online-Antrag',
-          'Einladung',
-          'Termin später',
-          'Unterlagen hochladen',
-          'Antrag stellen',
-        ]
-      ,
-      weakNegativeKeywords:
-        [
-          'Termin am',
-          'Uhrzeit genannt',
-          'ohne Termin abholen',
-          'Gebührenhinweis',
-        ]
-      ,
-      strongNegativeKeywords:
-        [
-          'Terminbestätigung',
-          'Ablehnungsbescheid',
-          'Fiktionsbescheinigung',
-          'Bewilligungsbescheid',
-        ]
-      ,
+      headerKeywords: [
+        'schriftliche Vorsprache',
+        'Verlängerung',
+        'persönliches Erscheinen',
+        'nach Prüfung',
+      ],
+      decisiveKeywords: [
+        'zunächst den Online-Antrag stellen',
+        'nach Prüfung erhalten Sie eine schriftliche Einladung',
+        'persönliche Vorsprache erfolgt später',
+        'ein Termin wird nachgereicht',
+        'nach Bearbeitung werden Sie eingeladen',
+        'Vorsprache nach gesonderter Mitteilung',
+      ],
+      supportingKeywords: [
+        'Verlängerung',
+        'Vorsprache',
+        'Online-Antrag',
+        'Einladung',
+        'Termin später',
+        'Unterlagen hochladen',
+        'Antrag stellen',
+      ],
+      weakNegativeKeywords: [
+        'Termin am',
+        'Uhrzeit genannt',
+        'ohne Termin abholen',
+        'Gebührenhinweis',
+      ],
+      strongNegativeKeywords: [
+        'Terminbestätigung',
+        'Ablehnungsbescheid',
+        'Fiktionsbescheinigung',
+        'Bewilligungsbescheid',
+      ],
       nextStepKeys: [
         'cat_auslaender_verlaengerung_vorsprache_step1',
         'cat_auslaender_verlaengerung_vorsprache_step2',
@@ -1859,52 +1734,42 @@ class BriefAiCategories {
       labelKey: 'cat_auslaender_upload_hinweis_label',
       summaryKey: 'cat_auslaender_upload_hinweis_summary',
       mainCategory: MainCategory.categoryAuslaenderbehoerde,
-      headerKeywords:
-        [
-          'Online-Formular',
-          'Upload',
-          'Dateiformat',
-          'Dateien hochladen',
-        ]
-      ,
-      decisiveKeywords:
-        [
-          'laden Sie die Unterlagen innerhalb des Formulars hoch',
-          'zugelassene Dateiformate sind PDF, JPG, JPEG und PNG',
-          'eine einzelne Datei darf maximal',
-          'die Gesamtgröße Ihrer Dateien darf',
-          'Dokumente im PDF-Format bereithalten',
-          'Dateien im Formular hochladen',
-        ]
-      ,
-      supportingKeywords:
-        [
-          'Upload',
-          'PDF',
-          'JPG',
-          'JPEG',
-          'PNG',
-          'Datei',
-          'hochladen',
-          'Format',
-        ]
-      ,
-      weakNegativeKeywords:
-        [
-          'Vorsprache am',
-          'Termin mit Uhrzeit',
-          'eAT bereit',
-          'Gebührenbescheid',
-        ]
-      ,
-      strongNegativeKeywords:
-        [
-          'Terminbestätigung',
-          'Ablehnungsbescheid',
-          'Fiktionsbescheinigung',
-          'Bewilligungsbescheid',
-        ]
-      ,
+      headerKeywords: [
+        'Online-Formular',
+        'Upload',
+        'Dateiformat',
+        'Dateien hochladen',
+      ],
+      decisiveKeywords: [
+        'laden Sie die Unterlagen innerhalb des Formulars hoch',
+        'zugelassene Dateiformate sind PDF, JPG, JPEG und PNG',
+        'eine einzelne Datei darf maximal',
+        'die Gesamtgröße Ihrer Dateien darf',
+        'Dokumente im PDF-Format bereithalten',
+        'Dateien im Formular hochladen',
+      ],
+      supportingKeywords: [
+        'Upload',
+        'PDF',
+        'JPG',
+        'JPEG',
+        'PNG',
+        'Datei',
+        'hochladen',
+        'Format',
+      ],
+      weakNegativeKeywords: [
+        'Vorsprache am',
+        'Termin mit Uhrzeit',
+        'eAT bereit',
+        'Gebührenbescheid',
+      ],
+      strongNegativeKeywords: [
+        'Terminbestätigung',
+        'Ablehnungsbescheid',
+        'Fiktionsbescheinigung',
+        'Bewilligungsbescheid',
+      ],
       nextStepKeys: [
         'cat_auslaender_upload_hinweis_step1',
         'cat_auslaender_upload_hinweis_step2',
@@ -1921,51 +1786,41 @@ class BriefAiCategories {
       labelKey: 'cat_auslaender_erteilung_antrag_label',
       summaryKey: 'cat_auslaender_erteilung_antrag_summary',
       mainCategory: MainCategory.categoryAuslaenderbehoerde,
-      headerKeywords:
-        [
-          'Antrag auf Erteilung eines Aufenthaltstitels',
-          'Aufenthaltstitel beantragen',
-          'Erteilung',
-          'Antrag',
-        ]
-      ,
-      decisiveKeywords:
-        [
-          'Antrag auf Erteilung eines Aufenthaltstitels',
-          'Aufenthaltstitel beantragen',
-          'reichen Sie den Antrag ein',
-          'füllen Sie das Antragsformular aus',
-          'erforderliche Unterlagen beifügen',
-          'Antrag vollständig einreichen',
-        ]
-      ,
-      supportingKeywords:
-        [
-          'Antrag',
-          'Formular',
-          'Reisepass',
-          'Lichtbild',
-          'Krankenversicherung',
-          'Wohnraum',
-          'Zweck des Aufenthalts',
-        ]
-      ,
-      weakNegativeKeywords:
-        [
-          'Verlängerung bestehender Titel',
-          'Terminänderung',
-          'eAT Abholung',
-          'Gebührenhinweis',
-        ]
-      ,
-      strongNegativeKeywords:
-        [
-          'Fiktionsbescheinigung',
-          'Terminbestätigung',
-          'Ablehnungsbescheid',
-          'Bewilligungsbescheid',
-        ]
-      ,
+      headerKeywords: [
+        'Antrag auf Erteilung eines Aufenthaltstitels',
+        'Aufenthaltstitel beantragen',
+        'Erteilung',
+        'Antrag',
+      ],
+      decisiveKeywords: [
+        'Antrag auf Erteilung eines Aufenthaltstitels',
+        'Aufenthaltstitel beantragen',
+        'reichen Sie den Antrag ein',
+        'füllen Sie das Antragsformular aus',
+        'erforderliche Unterlagen beifügen',
+        'Antrag vollständig einreichen',
+      ],
+      supportingKeywords: [
+        'Antrag',
+        'Formular',
+        'Reisepass',
+        'Lichtbild',
+        'Krankenversicherung',
+        'Wohnraum',
+        'Zweck des Aufenthalts',
+      ],
+      weakNegativeKeywords: [
+        'Verlängerung bestehender Titel',
+        'Terminänderung',
+        'eAT Abholung',
+        'Gebührenhinweis',
+      ],
+      strongNegativeKeywords: [
+        'Fiktionsbescheinigung',
+        'Terminbestätigung',
+        'Ablehnungsbescheid',
+        'Bewilligungsbescheid',
+      ],
       nextStepKeys: [
         'cat_auslaender_erteilung_antrag_step1',
         'cat_auslaender_erteilung_antrag_step2',
@@ -1982,50 +1837,40 @@ class BriefAiCategories {
       labelKey: 'cat_auslaender_erstantrag_label',
       summaryKey: 'cat_auslaender_erstantrag_summary',
       mainCategory: MainCategory.categoryAuslaenderbehoerde,
-      headerKeywords:
-        [
-          'Erstantrag',
-          'erstmalige Erteilung',
-          'erster Antrag',
-          'Antragstellung',
-        ]
-      ,
-      decisiveKeywords:
-        [
-          'Erstantrag',
-          'erstmalige Erteilung',
-          'zum ersten Mal beantragen',
-          'erster Aufenthaltstitel',
-          'Antrag erstmalig stellen',
-        ]
-      ,
-      supportingKeywords:
-        [
-          'Erstantrag',
-          'Reisepass',
-          'biometrisches Foto',
-          'Visum',
-          'Nachweise',
-          'Formular',
-          'Zweck des Aufenthalts',
-        ]
-      ,
-      weakNegativeKeywords:
-        [
-          'Verlängerung bestehender Titel',
-          'Terminänderung',
-          'Abholung eAT',
-          'Gebührenhinweis',
-        ]
-      ,
-      strongNegativeKeywords:
-        [
-          'Verlängerung',
-          'Fiktionsbescheinigung',
-          'Bewilligungsbescheid',
-          'Terminbestätigung',
-        ]
-      ,
+      headerKeywords: [
+        'Erstantrag',
+        'erstmalige Erteilung',
+        'erster Antrag',
+        'Antragstellung',
+      ],
+      decisiveKeywords: [
+        'Erstantrag',
+        'erstmalige Erteilung',
+        'zum ersten Mal beantragen',
+        'erster Aufenthaltstitel',
+        'Antrag erstmalig stellen',
+      ],
+      supportingKeywords: [
+        'Erstantrag',
+        'Reisepass',
+        'biometrisches Foto',
+        'Visum',
+        'Nachweise',
+        'Formular',
+        'Zweck des Aufenthalts',
+      ],
+      weakNegativeKeywords: [
+        'Verlängerung bestehender Titel',
+        'Terminänderung',
+        'Abholung eAT',
+        'Gebührenhinweis',
+      ],
+      strongNegativeKeywords: [
+        'Verlängerung',
+        'Fiktionsbescheinigung',
+        'Bewilligungsbescheid',
+        'Terminbestätigung',
+      ],
       nextStepKeys: [
         'cat_auslaender_erstantrag_step1',
         'cat_auslaender_erstantrag_step2',
@@ -2042,51 +1887,41 @@ class BriefAiCategories {
       labelKey: 'cat_auslaender_formularhinweis_label',
       summaryKey: 'cat_auslaender_formularhinweis_summary',
       mainCategory: MainCategory.categoryAuslaenderbehoerde,
-      headerKeywords:
-        [
-          'Antragsformular',
-          'Hinweise zum Antrag',
-          'Formularhinweis',
-          'Formular vollständig',
-        ]
-      ,
-      decisiveKeywords:
-        [
-          'verwenden Sie das vorgesehene Formular',
-          'das Formular ist vollständig auszufüllen',
-          'nur das offizielle Antragsformular',
-          'Antragsformular beifügen',
-          'Formular unterschreiben',
-          'Pflichtfelder vollständig ausfüllen',
-        ]
-      ,
-      supportingKeywords:
-        [
-          'Formular',
-          'Unterschrift',
-          'Anlage',
-          'Pflichtfelder',
-          'vollständig',
-          'beifügen',
-          'Antragsunterlagen',
-        ]
-      ,
-      weakNegativeKeywords:
-        [
-          'Termin mit Uhrzeit',
-          'eAT Abholung',
-          'Gebührenhinweis',
-          'Ablehnung',
-        ]
-      ,
-      strongNegativeKeywords:
-        [
-          'Terminbestätigung',
-          'Fiktionsbescheinigung',
-          'Bewilligungsbescheid',
-          'Ablehnungsbescheid',
-        ]
-      ,
+      headerKeywords: [
+        'Antragsformular',
+        'Hinweise zum Antrag',
+        'Formularhinweis',
+        'Formular vollständig',
+      ],
+      decisiveKeywords: [
+        'verwenden Sie das vorgesehene Formular',
+        'das Formular ist vollständig auszufüllen',
+        'nur das offizielle Antragsformular',
+        'Antragsformular beifügen',
+        'Formular unterschreiben',
+        'Pflichtfelder vollständig ausfüllen',
+      ],
+      supportingKeywords: [
+        'Formular',
+        'Unterschrift',
+        'Anlage',
+        'Pflichtfelder',
+        'vollständig',
+        'beifügen',
+        'Antragsunterlagen',
+      ],
+      weakNegativeKeywords: [
+        'Termin mit Uhrzeit',
+        'eAT Abholung',
+        'Gebührenhinweis',
+        'Ablehnung',
+      ],
+      strongNegativeKeywords: [
+        'Terminbestätigung',
+        'Fiktionsbescheinigung',
+        'Bewilligungsbescheid',
+        'Ablehnungsbescheid',
+      ],
       nextStepKeys: [
         'cat_auslaender_formularhinweis_step1',
         'cat_auslaender_formularhinweis_step2',
@@ -2103,51 +1938,41 @@ class BriefAiCategories {
       labelKey: 'cat_auslaender_zustimmung_label',
       summaryKey: 'cat_auslaender_zustimmung_summary',
       mainCategory: MainCategory.categoryAuslaenderbehoerde,
-      headerKeywords:
-        [
-          'Zustimmung',
-          'Stattgabe',
-          'Ihrem Antrag wird entsprochen',
-          'Genehmigung',
-        ]
-      ,
-      decisiveKeywords:
-        [
-          'Ihrem Antrag wird stattgegeben',
-          'wir stimmen zu',
-          'Zustimmung wurde erteilt',
-          'Ihrem Antrag wurde zugestimmt',
-          'stattgebender Bescheid',
-          'der Antrag ist genehmigt',
-        ]
-      ,
-      supportingKeywords:
-        [
-          'Zustimmung',
-          'stattgegeben',
-          'genehmigt',
-          'Aufenthaltstitel',
-          'erteilt',
-          'gültig bis',
-          'Schritt danach',
-        ]
-      ,
-      weakNegativeKeywords:
-        [
-          'fehlende Unterlagen',
-          'Termin mit Uhrzeit',
-          'Gebührenhinweis',
-          'Nachforderung',
-        ]
-      ,
-      strongNegativeKeywords:
-        [
-          'Ablehnungsbescheid',
-          'Terminbestätigung',
-          'Fiktionsbescheinigung',
-          'Gebührenbescheid',
-        ]
-      ,
+      headerKeywords: [
+        'Zustimmung',
+        'Stattgabe',
+        'Ihrem Antrag wird entsprochen',
+        'Genehmigung',
+      ],
+      decisiveKeywords: [
+        'Ihrem Antrag wird stattgegeben',
+        'wir stimmen zu',
+        'Zustimmung wurde erteilt',
+        'Ihrem Antrag wurde zugestimmt',
+        'stattgebender Bescheid',
+        'der Antrag ist genehmigt',
+      ],
+      supportingKeywords: [
+        'Zustimmung',
+        'stattgegeben',
+        'genehmigt',
+        'Aufenthaltstitel',
+        'erteilt',
+        'gültig bis',
+        'Schritt danach',
+      ],
+      weakNegativeKeywords: [
+        'fehlende Unterlagen',
+        'Termin mit Uhrzeit',
+        'Gebührenhinweis',
+        'Nachforderung',
+      ],
+      strongNegativeKeywords: [
+        'Ablehnungsbescheid',
+        'Terminbestätigung',
+        'Fiktionsbescheinigung',
+        'Gebührenbescheid',
+      ],
       nextStepKeys: [
         'cat_auslaender_zustimmung_step1',
         'cat_auslaender_zustimmung_step2',
@@ -2164,51 +1989,41 @@ class BriefAiCategories {
       labelKey: 'cat_auslaender_bewilligungsbescheid_label',
       summaryKey: 'cat_auslaender_bewilligungsbescheid_summary',
       mainCategory: MainCategory.categoryAuslaenderbehoerde,
-      headerKeywords:
-        [
-          'Bewilligungsbescheid',
-          'Nebenbestimmungen',
-          'Auflagen',
-          'Hinweise',
-        ]
-      ,
-      decisiveKeywords:
-        [
-          'der Aufenthaltstitel wird erteilt unter folgenden Nebenbestimmungen',
-          'es gelten folgende Auflagen',
-          'Nebenbestimmungen',
-          'mit folgenden Bedingungen',
-          'Beschäftigung ist nur erlaubt wenn',
-          'Wohnsitzauflage gilt',
-        ]
-      ,
-      supportingKeywords:
-        [
-          'Auflagen',
-          'Nebenbestimmungen',
-          'Beschränkung',
-          'Erwerbstätigkeit',
-          'Wohnsitzauflage',
-          'gültig bis',
-          'Bedingungen',
-        ]
-      ,
-      weakNegativeKeywords:
-        [
-          'Termin mit Uhrzeit',
-          'Unterlagen nachreichen',
-          'Gebührenhinweis',
-          'Abholung ohne Termin',
-        ]
-      ,
-      strongNegativeKeywords:
-        [
-          'Ablehnungsbescheid',
-          'Terminbestätigung',
-          'Fiktionsbescheinigung',
-          'Nachforderung',
-        ]
-      ,
+      headerKeywords: [
+        'Bewilligungsbescheid',
+        'Nebenbestimmungen',
+        'Auflagen',
+        'Hinweise',
+      ],
+      decisiveKeywords: [
+        'der Aufenthaltstitel wird erteilt unter folgenden Nebenbestimmungen',
+        'es gelten folgende Auflagen',
+        'Nebenbestimmungen',
+        'mit folgenden Bedingungen',
+        'Beschäftigung ist nur erlaubt wenn',
+        'Wohnsitzauflage gilt',
+      ],
+      supportingKeywords: [
+        'Auflagen',
+        'Nebenbestimmungen',
+        'Beschränkung',
+        'Erwerbstätigkeit',
+        'Wohnsitzauflage',
+        'gültig bis',
+        'Bedingungen',
+      ],
+      weakNegativeKeywords: [
+        'Termin mit Uhrzeit',
+        'Unterlagen nachreichen',
+        'Gebührenhinweis',
+        'Abholung ohne Termin',
+      ],
+      strongNegativeKeywords: [
+        'Ablehnungsbescheid',
+        'Terminbestätigung',
+        'Fiktionsbescheinigung',
+        'Nachforderung',
+      ],
       nextStepKeys: [
         'cat_auslaender_bewilligungsbescheid_step1',
         'cat_auslaender_bewilligungsbescheid_step2',
@@ -2225,50 +2040,40 @@ class BriefAiCategories {
       labelKey: 'cat_auslaender_eat_abholung_label',
       summaryKey: 'cat_auslaender_eat_abholung_summary',
       mainCategory: MainCategory.categoryAuslaenderbehoerde,
-      headerKeywords:
-        [
-          'elektronischer Aufenthaltstitel',
-          'bereit zur Abholung',
-          'eAT',
-          'Abholung',
-        ]
-      ,
-      decisiveKeywords:
-        [
-          'Ihr elektronischer Aufenthaltstitel ist abholbereit',
-          'der eAT liegt zur Abholung bereit',
-          'bitte holen Sie den eAT ab',
-          'Dokument kann abgeholt werden',
-          'Abholung des elektronischen Aufenthaltstitels',
-        ]
-      ,
-      supportingKeywords:
-        [
-          'eAT',
-          'Abholung',
-          'Reisepass',
-          'Dokument',
-          'Ausweis',
-          'persönlich',
-          'Abholschein',
-        ]
-      ,
-      weakNegativeKeywords:
-        [
-          'Unterlagen nachreichen',
-          'Terminänderung',
-          'Gebührenhinweis',
-          'Ablehnung',
-        ]
-      ,
-      strongNegativeKeywords:
-        [
-          'Terminbestätigung',
-          'Fiktionsbescheinigung',
-          'Bewilligungsbescheid',
-          'Nachforderung',
-        ]
-      ,
+      headerKeywords: [
+        'elektronischer Aufenthaltstitel',
+        'bereit zur Abholung',
+        'eAT',
+        'Abholung',
+      ],
+      decisiveKeywords: [
+        'Ihr elektronischer Aufenthaltstitel ist abholbereit',
+        'der eAT liegt zur Abholung bereit',
+        'bitte holen Sie den eAT ab',
+        'Dokument kann abgeholt werden',
+        'Abholung des elektronischen Aufenthaltstitels',
+      ],
+      supportingKeywords: [
+        'eAT',
+        'Abholung',
+        'Reisepass',
+        'Dokument',
+        'Ausweis',
+        'persönlich',
+        'Abholschein',
+      ],
+      weakNegativeKeywords: [
+        'Unterlagen nachreichen',
+        'Terminänderung',
+        'Gebührenhinweis',
+        'Ablehnung',
+      ],
+      strongNegativeKeywords: [
+        'Terminbestätigung',
+        'Fiktionsbescheinigung',
+        'Bewilligungsbescheid',
+        'Nachforderung',
+      ],
       nextStepKeys: [
         'cat_auslaender_eat_abholung_step1',
         'cat_auslaender_eat_abholung_step2',
@@ -2285,50 +2090,40 @@ class BriefAiCategories {
       labelKey: 'cat_auslaender_dokumentenausgabebox_label',
       summaryKey: 'cat_auslaender_dokumentenausgabebox_summary',
       mainCategory: MainCategory.categoryAuslaenderbehoerde,
-      headerKeywords:
-        [
-          'Dokumentenausgabebox',
-          'ohne Termin',
-          'Abholung ohne Termin',
-          'eAT-Abholung',
-        ]
-      ,
-      decisiveKeywords:
-        [
-          'Für die Abholung ist keine Terminvereinbarung notwendig',
-          'ohne Termin abholen',
-          'Dokumentenausgabebox',
-          'direkte Abholung ohne Termin',
-          'persönlich abholen oder bevollmächtigte Person',
-        ]
-      ,
-      supportingKeywords:
-        [
-          'ohne Termin',
-          'Abholung',
-          'Dokumentenausgabebox',
-          'Vollmacht',
-          'Reisepass',
-          'eAT',
-          'Öffnungszeiten',
-        ]
-      ,
-      weakNegativeKeywords:
-        [
-          'Termin am',
-          'Uhrzeit genannt',
-          'Unterlagen nachreichen',
-          'Gebührenbescheid',
-        ]
-      ,
-      strongNegativeKeywords:
-        [
-          'Terminbestätigung',
-          'Ablehnungsbescheid',
-          'Fiktionsbescheinigung',
-          'Nachforderung',
-        ]
-      ,
+      headerKeywords: [
+        'Dokumentenausgabebox',
+        'ohne Termin',
+        'Abholung ohne Termin',
+        'eAT-Abholung',
+      ],
+      decisiveKeywords: [
+        'Für die Abholung ist keine Terminvereinbarung notwendig',
+        'ohne Termin abholen',
+        'Dokumentenausgabebox',
+        'direkte Abholung ohne Termin',
+        'persönlich abholen oder bevollmächtigte Person',
+      ],
+      supportingKeywords: [
+        'ohne Termin',
+        'Abholung',
+        'Dokumentenausgabebox',
+        'Vollmacht',
+        'Reisepass',
+        'eAT',
+        'Öffnungszeiten',
+      ],
+      weakNegativeKeywords: [
+        'Termin am',
+        'Uhrzeit genannt',
+        'Unterlagen nachreichen',
+        'Gebührenbescheid',
+      ],
+      strongNegativeKeywords: [
+        'Terminbestätigung',
+        'Ablehnungsbescheid',
+        'Fiktionsbescheinigung',
+        'Nachforderung',
+      ],
       nextStepKeys: [
         'cat_auslaender_dokumentenausgabebox_step1',
         'cat_auslaender_dokumentenausgabebox_step2',
@@ -2345,52 +2140,42 @@ class BriefAiCategories {
       labelKey: 'cat_auslaender_beschaeftigung_label',
       summaryKey: 'cat_auslaender_beschaeftigung_summary',
       mainCategory: MainCategory.categoryAuslaenderbehoerde,
-      headerKeywords:
-        [
-          'Aufenthaltserlaubnis zur Beschäftigung',
-          'Beschäftigung',
-          'Erwerbstätigkeit',
-          'Arbeitsvertrag',
-        ]
-      ,
-      decisiveKeywords:
-        [
-          'Aufenthaltserlaubnis zur Beschäftigung',
-          'Arbeitsvertrag beifügen',
-          'Erklärung zum Beschäftigungsverhältnis',
-          'Beschäftigung aufnehmen',
-          'Beschäftigung ausüben',
-          'Unterlagen zur Beschäftigung einreichen',
-        ]
-      ,
-      supportingKeywords:
-        [
-          'Arbeitsvertrag',
-          'Beschäftigung',
-          'Arbeitgeber',
-          'Gehalt',
-          'Erklärung zum Beschäftigungsverhältnis',
-          'Reisepass',
-          'Krankenversicherung',
-          'Wohnraum',
-        ]
-      ,
-      weakNegativeKeywords:
-        [
-          'Studium Immatrikulation',
-          'Familiennachzug',
-          'eAT Abholung',
-          'Gebührenhinweis',
-        ]
-      ,
-      strongNegativeKeywords:
-        [
-          'Blaue Karte EU',
-          'Fiktionsbescheinigung',
-          'Ablehnungsbescheid',
-          'Terminbestätigung',
-        ]
-      ,
+      headerKeywords: [
+        'Aufenthaltserlaubnis zur Beschäftigung',
+        'Beschäftigung',
+        'Erwerbstätigkeit',
+        'Arbeitsvertrag',
+      ],
+      decisiveKeywords: [
+        'Aufenthaltserlaubnis zur Beschäftigung',
+        'Arbeitsvertrag beifügen',
+        'Erklärung zum Beschäftigungsverhältnis',
+        'Beschäftigung aufnehmen',
+        'Beschäftigung ausüben',
+        'Unterlagen zur Beschäftigung einreichen',
+      ],
+      supportingKeywords: [
+        'Arbeitsvertrag',
+        'Beschäftigung',
+        'Arbeitgeber',
+        'Gehalt',
+        'Erklärung zum Beschäftigungsverhältnis',
+        'Reisepass',
+        'Krankenversicherung',
+        'Wohnraum',
+      ],
+      weakNegativeKeywords: [
+        'Studium Immatrikulation',
+        'Familiennachzug',
+        'eAT Abholung',
+        'Gebührenhinweis',
+      ],
+      strongNegativeKeywords: [
+        'Blaue Karte EU',
+        'Fiktionsbescheinigung',
+        'Ablehnungsbescheid',
+        'Terminbestätigung',
+      ],
       nextStepKeys: [
         'cat_auslaender_beschaeftigung_step1',
         'cat_auslaender_beschaeftigung_step2',
@@ -2405,54 +2190,45 @@ class BriefAiCategories {
     CategoryDefinition(
       id: 'auslaender_erklaerung_beschaeftigungsverhaeltnis',
       labelKey: 'cat_auslaender_erklaerung_beschaeftigungsverhaeltnis_label',
-      summaryKey: 'cat_auslaender_erklaerung_beschaeftigungsverhaeltnis_summary',
+      summaryKey:
+          'cat_auslaender_erklaerung_beschaeftigungsverhaeltnis_summary',
       mainCategory: MainCategory.categoryAuslaenderbehoerde,
-      headerKeywords:
-        [
-          'Erklärung zum Beschäftigungsverhältnis',
-          'Beschäftigungsverhältnis',
-          'Arbeitgeber',
-          'Formular',
-        ]
-      ,
-      decisiveKeywords:
-        [
-          'Erklärung zum Beschäftigungsverhältnis',
-          'vom Arbeitgeber auszufüllen',
-          'ausgefüllt und unterschrieben von Ihrem Arbeitgeber',
-          'zur Vorlage bei der Ausländerbehörde',
-          'Angaben zur Beschäftigung',
-          'Formular des Arbeitgebers',
-        ]
-      ,
-      supportingKeywords:
-        [
-          'Arbeitgeber',
-          'Formular',
-          'Tätigkeit',
-          'Arbeitszeit',
-          'Gehalt',
-          'Beginn',
-          'Unterschrift',
-          'Beschäftigungsverhältnis',
-        ]
-      ,
-      weakNegativeKeywords:
-        [
-          'Arbeitsvertrag alleine',
-          'Studienbescheinigung',
-          'Familiennachzug',
-          'Gebührenhinweis',
-        ]
-      ,
-      strongNegativeKeywords:
-        [
-          'Blaue Karte EU',
-          'Fiktionsbescheinigung',
-          'Ablehnungsbescheid',
-          'Terminbestätigung',
-        ]
-      ,
+      headerKeywords: [
+        'Erklärung zum Beschäftigungsverhältnis',
+        'Beschäftigungsverhältnis',
+        'Arbeitgeber',
+        'Formular',
+      ],
+      decisiveKeywords: [
+        'Erklärung zum Beschäftigungsverhältnis',
+        'vom Arbeitgeber auszufüllen',
+        'ausgefüllt und unterschrieben von Ihrem Arbeitgeber',
+        'zur Vorlage bei der Ausländerbehörde',
+        'Angaben zur Beschäftigung',
+        'Formular des Arbeitgebers',
+      ],
+      supportingKeywords: [
+        'Arbeitgeber',
+        'Formular',
+        'Tätigkeit',
+        'Arbeitszeit',
+        'Gehalt',
+        'Beginn',
+        'Unterschrift',
+        'Beschäftigungsverhältnis',
+      ],
+      weakNegativeKeywords: [
+        'Arbeitsvertrag alleine',
+        'Studienbescheinigung',
+        'Familiennachzug',
+        'Gebührenhinweis',
+      ],
+      strongNegativeKeywords: [
+        'Blaue Karte EU',
+        'Fiktionsbescheinigung',
+        'Ablehnungsbescheid',
+        'Terminbestätigung',
+      ],
       nextStepKeys: [
         'cat_auslaender_erklaerung_beschaeftigungsverhaeltnis_step1',
         'cat_auslaender_erklaerung_beschaeftigungsverhaeltnis_step2',
@@ -2469,52 +2245,42 @@ class BriefAiCategories {
       labelKey: 'cat_auslaender_arbeitsplatzangebot_label',
       summaryKey: 'cat_auslaender_arbeitsplatzangebot_summary',
       mainCategory: MainCategory.categoryAuslaenderbehoerde,
-      headerKeywords:
-        [
-          'Arbeitsplatzangebot',
-          'statt Vertrag',
-          'verbindliches Angebot',
-          'Arbeitsangebot',
-        ]
-      ,
-      decisiveKeywords:
-        [
-          'verbindliches Arbeitsplatzangebot',
-          'Arbeitsvertrag ist noch nicht erforderlich',
-          'Angebot statt Vertrag',
-          'unterschriebenes Arbeitsplatzangebot',
-          'verbindliches Stellenangebot',
-          'Arbeitsplatzangebot einreichen',
-        ]
-      ,
-      supportingKeywords:
-        [
-          'Arbeitsplatzangebot',
-          'Arbeitgeber',
-          'Stelle',
-          'Gehalt',
-          'Tätigkeit',
-          'Beginn',
-          'Angebot',
-          'unterschrieben',
-        ]
-      ,
-      weakNegativeKeywords:
-        [
-          'Vertrag bereits abgeschlossen',
-          'Studium',
-          'Familiennachzug',
-          'Gebührenhinweis',
-        ]
-      ,
-      strongNegativeKeywords:
-        [
-          'Erklärung Beschäftigung',
-          'Blaue Karte EU',
-          'Ablehnungsbescheid',
-          'Terminbestätigung',
-        ]
-      ,
+      headerKeywords: [
+        'Arbeitsplatzangebot',
+        'statt Vertrag',
+        'verbindliches Angebot',
+        'Arbeitsangebot',
+      ],
+      decisiveKeywords: [
+        'verbindliches Arbeitsplatzangebot',
+        'Arbeitsvertrag ist noch nicht erforderlich',
+        'Angebot statt Vertrag',
+        'unterschriebenes Arbeitsplatzangebot',
+        'verbindliches Stellenangebot',
+        'Arbeitsplatzangebot einreichen',
+      ],
+      supportingKeywords: [
+        'Arbeitsplatzangebot',
+        'Arbeitgeber',
+        'Stelle',
+        'Gehalt',
+        'Tätigkeit',
+        'Beginn',
+        'Angebot',
+        'unterschrieben',
+      ],
+      weakNegativeKeywords: [
+        'Vertrag bereits abgeschlossen',
+        'Studium',
+        'Familiennachzug',
+        'Gebührenhinweis',
+      ],
+      strongNegativeKeywords: [
+        'Erklärung Beschäftigung',
+        'Blaue Karte EU',
+        'Ablehnungsbescheid',
+        'Terminbestätigung',
+      ],
       nextStepKeys: [
         'cat_auslaender_arbeitsplatzangebot_step1',
         'cat_auslaender_arbeitsplatzangebot_step2',
@@ -2531,52 +2297,42 @@ class BriefAiCategories {
       labelKey: 'cat_auslaender_blaue_karte_label',
       summaryKey: 'cat_auslaender_blaue_karte_summary',
       mainCategory: MainCategory.categoryAuslaenderbehoerde,
-      headerKeywords:
-        [
-          'Blaue Karte EU',
-          'Blue Card EU',
-          'hochqualifizierte Beschäftigung',
-          'Beschäftigung',
-        ]
-      ,
-      decisiveKeywords:
-        [
-          'Blaue Karte EU beantragen',
-          'Voraussetzungen für die Blaue Karte EU',
-          'Hochschulabschluss',
-          'Mindestgehalt',
-          'Arbeitsvertrag oder verbindliches Angebot',
-          'Zustimmung der Bundesagentur für Arbeit',
-        ]
-      ,
-      supportingKeywords:
-        [
-          'Blaue Karte EU',
-          'Arbeitsvertrag',
-          'Hochschulabschluss',
-          'Gehalt',
-          'Arbeitgeber',
-          'Beschäftigung',
-          'Reisepass',
-          'biometrisches Foto',
-        ]
-      ,
-      weakNegativeKeywords:
-        [
-          'normale Beschäftigung',
-          'Familiennachzug',
-          'eAT Abholung',
-          'Gebührenhinweis',
-        ]
-      ,
-      strongNegativeKeywords:
-        [
-          'Niederlassungserlaubnis',
-          'Fiktionsbescheinigung',
-          'Ablehnungsbescheid',
-          'Terminbestätigung',
-        ]
-      ,
+      headerKeywords: [
+        'Blaue Karte EU',
+        'Blue Card EU',
+        'hochqualifizierte Beschäftigung',
+        'Beschäftigung',
+      ],
+      decisiveKeywords: [
+        'Blaue Karte EU beantragen',
+        'Voraussetzungen für die Blaue Karte EU',
+        'Hochschulabschluss',
+        'Mindestgehalt',
+        'Arbeitsvertrag oder verbindliches Angebot',
+        'Zustimmung der Bundesagentur für Arbeit',
+      ],
+      supportingKeywords: [
+        'Blaue Karte EU',
+        'Arbeitsvertrag',
+        'Hochschulabschluss',
+        'Gehalt',
+        'Arbeitgeber',
+        'Beschäftigung',
+        'Reisepass',
+        'biometrisches Foto',
+      ],
+      weakNegativeKeywords: [
+        'normale Beschäftigung',
+        'Familiennachzug',
+        'eAT Abholung',
+        'Gebührenhinweis',
+      ],
+      strongNegativeKeywords: [
+        'Niederlassungserlaubnis',
+        'Fiktionsbescheinigung',
+        'Ablehnungsbescheid',
+        'Terminbestätigung',
+      ],
       nextStepKeys: [
         'cat_auslaender_blaue_karte_step1',
         'cat_auslaender_blaue_karte_step2',
@@ -2593,52 +2349,42 @@ class BriefAiCategories {
       labelKey: 'cat_auslaender_niederlassungserlaubnis_blaue_karte_label',
       summaryKey: 'cat_auslaender_niederlassungserlaubnis_blaue_karte_summary',
       mainCategory: MainCategory.categoryAuslaenderbehoerde,
-      headerKeywords:
-        [
-          'Niederlassungserlaubnis',
-          'Inhaber einer Blauen Karte EU',
-          'unbefristet',
-          'Blaue Karte EU',
-        ]
-      ,
-      decisiveKeywords:
-        [
-          'Niederlassungserlaubnis für Inhaber einer Blauen Karte EU',
-          'seit 21 Monaten',
-          'seit 27 Monaten',
-          'Deutschkenntnisse B1',
-          'unbefristeter Aufenthaltstitel',
-          'Blaue Karte EU Voraussetzung',
-        ]
-      ,
-      supportingKeywords:
-        [
-          'Niederlassungserlaubnis',
-          'Blaue Karte EU',
-          '21 Monate',
-          '27 Monate',
-          'Beschäftigung',
-          'Deutschkenntnisse',
-          'Rentenversicherung',
-          'unbefristet',
-        ]
-      ,
-      weakNegativeKeywords:
-        [
-          'Verlängerung Blaue Karte',
-          'Fiktionsbescheinigung',
-          'Terminänderung',
-          'Gebührenhinweis',
-        ]
-      ,
-      strongNegativeKeywords:
-        [
-          'Ablehnungsbescheid',
-          'Terminbestätigung',
-          'Bewilligungsbescheid',
-          'Studium',
-        ]
-      ,
+      headerKeywords: [
+        'Niederlassungserlaubnis',
+        'Inhaber einer Blauen Karte EU',
+        'unbefristet',
+        'Blaue Karte EU',
+      ],
+      decisiveKeywords: [
+        'Niederlassungserlaubnis für Inhaber einer Blauen Karte EU',
+        'seit 21 Monaten',
+        'seit 27 Monaten',
+        'Deutschkenntnisse B1',
+        'unbefristeter Aufenthaltstitel',
+        'Blaue Karte EU Voraussetzung',
+      ],
+      supportingKeywords: [
+        'Niederlassungserlaubnis',
+        'Blaue Karte EU',
+        '21 Monate',
+        '27 Monate',
+        'Beschäftigung',
+        'Deutschkenntnisse',
+        'Rentenversicherung',
+        'unbefristet',
+      ],
+      weakNegativeKeywords: [
+        'Verlängerung Blaue Karte',
+        'Fiktionsbescheinigung',
+        'Terminänderung',
+        'Gebührenhinweis',
+      ],
+      strongNegativeKeywords: [
+        'Ablehnungsbescheid',
+        'Terminbestätigung',
+        'Bewilligungsbescheid',
+        'Studium',
+      ],
       nextStepKeys: [
         'cat_auslaender_niederlassungserlaubnis_blaue_karte_step1',
         'cat_auslaender_niederlassungserlaubnis_blaue_karte_step2',
@@ -2655,52 +2401,42 @@ class BriefAiCategories {
       labelKey: 'cat_auslaender_studium_label',
       summaryKey: 'cat_auslaender_studium_summary',
       mainCategory: MainCategory.categoryAuslaenderbehoerde,
-      headerKeywords:
-        [
-          'Aufenthaltserlaubnis zum Studium',
-          'Studium',
-          'Hochschule',
-          'Immatrikulation',
-        ]
-      ,
-      decisiveKeywords:
-        [
-          'Immatrikulationsbescheinigung vorlegen',
-          'Aufenthaltserlaubnis zum Studium',
-          'Nachweis der Sicherung des Lebensunterhalts',
-          'Studienzweck',
-          'Hochschulzulassung',
-          'Studiennachweise einreichen',
-        ]
-      ,
-      supportingKeywords:
-        [
-          'Studium',
-          'Hochschule',
-          'Immatrikulationsbescheinigung',
-          'Krankenversicherung',
-          'Sperrkonto',
-          'Lebensunterhalt',
-          'Reisepass',
-          'Wohnraum',
-        ]
-      ,
-      weakNegativeKeywords:
-        [
-          'Beschäftigung Arbeitgeber',
-          'Familiennachzug',
-          'eAT Abholung',
-          'Gebührenhinweis',
-        ]
-      ,
-      strongNegativeKeywords:
-        [
-          'Ausbildung',
-          'Blaue Karte EU',
-          'Ablehnungsbescheid',
-          'Terminbestätigung',
-        ]
-      ,
+      headerKeywords: [
+        'Aufenthaltserlaubnis zum Studium',
+        'Studium',
+        'Hochschule',
+        'Immatrikulation',
+      ],
+      decisiveKeywords: [
+        'Immatrikulationsbescheinigung vorlegen',
+        'Aufenthaltserlaubnis zum Studium',
+        'Nachweis der Sicherung des Lebensunterhalts',
+        'Studienzweck',
+        'Hochschulzulassung',
+        'Studiennachweise einreichen',
+      ],
+      supportingKeywords: [
+        'Studium',
+        'Hochschule',
+        'Immatrikulationsbescheinigung',
+        'Krankenversicherung',
+        'Sperrkonto',
+        'Lebensunterhalt',
+        'Reisepass',
+        'Wohnraum',
+      ],
+      weakNegativeKeywords: [
+        'Beschäftigung Arbeitgeber',
+        'Familiennachzug',
+        'eAT Abholung',
+        'Gebührenhinweis',
+      ],
+      strongNegativeKeywords: [
+        'Ausbildung',
+        'Blaue Karte EU',
+        'Ablehnungsbescheid',
+        'Terminbestätigung',
+      ],
       nextStepKeys: [
         'cat_auslaender_studium_step1',
         'cat_auslaender_studium_step2',
@@ -2717,52 +2453,42 @@ class BriefAiCategories {
       labelKey: 'cat_auslaender_ausbildung_label',
       summaryKey: 'cat_auslaender_ausbildung_summary',
       mainCategory: MainCategory.categoryAuslaenderbehoerde,
-      headerKeywords:
-        [
-          'Aufenthaltserlaubnis zur Ausbildung',
-          'Weiterbildung',
-          'Ausbildungsvertrag',
-          'Berufsausbildung',
-        ]
-      ,
-      decisiveKeywords:
-        [
-          'Ausbildungsvertrag vorlegen',
-          'Aufenthaltserlaubnis zur Ausbildung',
-          'Weiterbildung',
-          'betriebliche Ausbildung',
-          'schulische Ausbildung',
-          'Unterlagen zur Ausbildung einreichen',
-        ]
-      ,
-      supportingKeywords:
-        [
-          'Ausbildung',
-          'Weiterbildungsmaßnahme',
-          'Ausbildungsvertrag',
-          'Betrieb',
-          'Berufsschule',
-          'Krankenversicherung',
-          'Reisepass',
-          'Wohnraum',
-        ]
-      ,
-      weakNegativeKeywords:
-        [
-          'Studium Immatrikulation',
-          'Familiennachzug',
-          'eAT Abholung',
-          'Gebührenhinweis',
-        ]
-      ,
-      strongNegativeKeywords:
-        [
-          'Blaue Karte EU',
-          'Ablehnungsbescheid',
-          'Terminbestätigung',
-          'Fiktionsbescheinigung',
-        ]
-      ,
+      headerKeywords: [
+        'Aufenthaltserlaubnis zur Ausbildung',
+        'Weiterbildung',
+        'Ausbildungsvertrag',
+        'Berufsausbildung',
+      ],
+      decisiveKeywords: [
+        'Ausbildungsvertrag vorlegen',
+        'Aufenthaltserlaubnis zur Ausbildung',
+        'Weiterbildung',
+        'betriebliche Ausbildung',
+        'schulische Ausbildung',
+        'Unterlagen zur Ausbildung einreichen',
+      ],
+      supportingKeywords: [
+        'Ausbildung',
+        'Weiterbildungsmaßnahme',
+        'Ausbildungsvertrag',
+        'Betrieb',
+        'Berufsschule',
+        'Krankenversicherung',
+        'Reisepass',
+        'Wohnraum',
+      ],
+      weakNegativeKeywords: [
+        'Studium Immatrikulation',
+        'Familiennachzug',
+        'eAT Abholung',
+        'Gebührenhinweis',
+      ],
+      strongNegativeKeywords: [
+        'Blaue Karte EU',
+        'Ablehnungsbescheid',
+        'Terminbestätigung',
+        'Fiktionsbescheinigung',
+      ],
       nextStepKeys: [
         'cat_auslaender_ausbildung_step1',
         'cat_auslaender_ausbildung_step2',
@@ -2779,51 +2505,41 @@ class BriefAiCategories {
       labelKey: 'cat_auslaender_nachweisblatt_studium_label',
       summaryKey: 'cat_auslaender_nachweisblatt_studium_summary',
       mainCategory: MainCategory.categoryAuslaenderbehoerde,
-      headerKeywords:
-        [
-          'Nachweisblatt Studium',
-          'Studium',
-          'Studiennachweis',
-          'Leistungsnachweis',
-        ]
-      ,
-      decisiveKeywords:
-        [
-          'Nachweisblatt Studium',
-          'aktueller Studiennachweis',
-          'Studienbescheinigung nachreichen',
-          'Nachweise zum Studienfortschritt',
-          'Studienunterlagen vorlegen',
-          'Leistungsnachweis einreichen',
-        ]
-      ,
-      supportingKeywords:
-        [
-          'Studium',
-          'Nachweisblatt',
-          'Immatrikulation',
-          'Leistungsübersicht',
-          'Studienbescheinigung',
-          'Semester',
-          'Hochschule',
-        ]
-      ,
-      weakNegativeKeywords:
-        [
-          'Arbeitsvertrag',
-          'Familiennachzug',
-          'eAT Abholung',
-          'Gebührenhinweis',
-        ]
-      ,
-      strongNegativeKeywords:
-        [
-          'Ausbildung',
-          'Blaue Karte EU',
-          'Ablehnungsbescheid',
-          'Terminbestätigung',
-        ]
-      ,
+      headerKeywords: [
+        'Nachweisblatt Studium',
+        'Studium',
+        'Studiennachweis',
+        'Leistungsnachweis',
+      ],
+      decisiveKeywords: [
+        'Nachweisblatt Studium',
+        'aktueller Studiennachweis',
+        'Studienbescheinigung nachreichen',
+        'Nachweise zum Studienfortschritt',
+        'Studienunterlagen vorlegen',
+        'Leistungsnachweis einreichen',
+      ],
+      supportingKeywords: [
+        'Studium',
+        'Nachweisblatt',
+        'Immatrikulation',
+        'Leistungsübersicht',
+        'Studienbescheinigung',
+        'Semester',
+        'Hochschule',
+      ],
+      weakNegativeKeywords: [
+        'Arbeitsvertrag',
+        'Familiennachzug',
+        'eAT Abholung',
+        'Gebührenhinweis',
+      ],
+      strongNegativeKeywords: [
+        'Ausbildung',
+        'Blaue Karte EU',
+        'Ablehnungsbescheid',
+        'Terminbestätigung',
+      ],
       nextStepKeys: [
         'cat_auslaender_nachweisblatt_studium_step1',
         'cat_auslaender_nachweisblatt_studium_step2',
@@ -2840,52 +2556,42 @@ class BriefAiCategories {
       labelKey: 'cat_auslaender_familiennachzug_label',
       summaryKey: 'cat_auslaender_familiennachzug_summary',
       mainCategory: MainCategory.categoryAuslaenderbehoerde,
-      headerKeywords:
-        [
-          'Familiennachzug',
-          'Ehepartner',
-          'Kind',
-          'familiäre Gründe',
-        ]
-      ,
-      decisiveKeywords:
-        [
-          'Aufenthaltserlaubnis zum Familiennachzug',
-          'Ehepartner',
-          'Kind',
-          'Nachweis der familiären Beziehung',
-          'Familiennachzug beantragen',
-          'Unterlagen zum Familiennachzug',
-        ]
-      ,
-      supportingKeywords:
-        [
-          'Familiennachzug',
-          'Heiratsurkunde',
-          'Geburtsurkunde',
-          'Wohnraum',
-          'Krankenversicherung',
-          'Reisepass',
-          'biometrisches Foto',
-          'Beziehung',
-        ]
-      ,
-      weakNegativeKeywords:
-        [
-          'Beschäftigung Arbeitgeber',
-          'Studium',
-          'Gebührenhinweis',
-          'eAT Abholung',
-        ]
-      ,
-      strongNegativeKeywords:
-        [
-          'Blaue Karte EU',
-          'Terminbestätigung',
-          'Ablehnungsbescheid',
-          'Fiktionsbescheinigung',
-        ]
-      ,
+      headerKeywords: [
+        'Familiennachzug',
+        'Ehepartner',
+        'Kind',
+        'familiäre Gründe',
+      ],
+      decisiveKeywords: [
+        'Aufenthaltserlaubnis zum Familiennachzug',
+        'Ehepartner',
+        'Kind',
+        'Nachweis der familiären Beziehung',
+        'Familiennachzug beantragen',
+        'Unterlagen zum Familiennachzug',
+      ],
+      supportingKeywords: [
+        'Familiennachzug',
+        'Heiratsurkunde',
+        'Geburtsurkunde',
+        'Wohnraum',
+        'Krankenversicherung',
+        'Reisepass',
+        'biometrisches Foto',
+        'Beziehung',
+      ],
+      weakNegativeKeywords: [
+        'Beschäftigung Arbeitgeber',
+        'Studium',
+        'Gebührenhinweis',
+        'eAT Abholung',
+      ],
+      strongNegativeKeywords: [
+        'Blaue Karte EU',
+        'Terminbestätigung',
+        'Ablehnungsbescheid',
+        'Fiktionsbescheinigung',
+      ],
       nextStepKeys: [
         'cat_auslaender_familiennachzug_step1',
         'cat_auslaender_familiennachzug_step2',
@@ -2902,52 +2608,42 @@ class BriefAiCategories {
       labelKey: 'cat_auslaender_nachzug_deutsche_label',
       summaryKey: 'cat_auslaender_nachzug_deutsche_summary',
       mainCategory: MainCategory.categoryAuslaenderbehoerde,
-      headerKeywords:
-        [
-          'deutschen Familienangehörigen',
-          'Nachzug zu Deutschen',
-          'Familienangehörige',
-          'Antrag',
-        ]
-      ,
-      decisiveKeywords:
-        [
-          'Nachzug zu deutschen Familienangehörigen',
-          'deutscher Ehegatte',
-          'deutsches Kind',
-          'Antrag auf Aufenthaltstitel aus familiären Gründen',
-          'Familienangehöriger deutscher Staatsangehörigkeit',
-          'Unterlagen zum Nachzug einreichen',
-        ]
-      ,
-      supportingKeywords:
-        [
-          'deutscher Familienangehöriger',
-          'Ehepartner',
-          'Kind',
-          'Nachweis der Beziehung',
-          'Reisepass',
-          'Wohnraum',
-          'Formular',
-          'biometrisches Foto',
-        ]
-      ,
-      weakNegativeKeywords:
-        [
-          'allgemeiner Familiennachzug',
-          'Beschäftigung',
-          'Gebührenhinweis',
-          'eAT Abholung',
-        ]
-      ,
-      strongNegativeKeywords:
-        [
-          'EU-Familienangehörige',
-          'Blaue Karte EU',
-          'Ablehnungsbescheid',
-          'Terminbestätigung',
-        ]
-      ,
+      headerKeywords: [
+        'deutschen Familienangehörigen',
+        'Nachzug zu Deutschen',
+        'Familienangehörige',
+        'Antrag',
+      ],
+      decisiveKeywords: [
+        'Nachzug zu deutschen Familienangehörigen',
+        'deutscher Ehegatte',
+        'deutsches Kind',
+        'Antrag auf Aufenthaltstitel aus familiären Gründen',
+        'Familienangehöriger deutscher Staatsangehörigkeit',
+        'Unterlagen zum Nachzug einreichen',
+      ],
+      supportingKeywords: [
+        'deutscher Familienangehöriger',
+        'Ehepartner',
+        'Kind',
+        'Nachweis der Beziehung',
+        'Reisepass',
+        'Wohnraum',
+        'Formular',
+        'biometrisches Foto',
+      ],
+      weakNegativeKeywords: [
+        'allgemeiner Familiennachzug',
+        'Beschäftigung',
+        'Gebührenhinweis',
+        'eAT Abholung',
+      ],
+      strongNegativeKeywords: [
+        'EU-Familienangehörige',
+        'Blaue Karte EU',
+        'Ablehnungsbescheid',
+        'Terminbestätigung',
+      ],
       nextStepKeys: [
         'cat_auslaender_nachzug_deutsche_step1',
         'cat_auslaender_nachzug_deutsche_step2',
@@ -2964,52 +2660,42 @@ class BriefAiCategories {
       labelKey: 'cat_auslaender_aufenthaltskarte_eu_label',
       summaryKey: 'cat_auslaender_aufenthaltskarte_eu_summary',
       mainCategory: MainCategory.categoryAuslaenderbehoerde,
-      headerKeywords:
-        [
-          'Aufenthaltskarte',
-          'Familienangehörige von EU-Bürgern',
-          'Freizügigkeit',
-          'EU-Bürger',
-        ]
-      ,
-      decisiveKeywords:
-        [
-          'Aufenthaltskarte für Familienangehörige von EU-Bürgern',
-          'Freizügigkeitsberechtigter Unionsbürger',
-          'Nachweis der familiären Beziehung',
-          'Aufenthaltskarte beantragen',
-          'EU-Bürger',
-          'Unterlagen für die Aufenthaltskarte',
-        ]
-      ,
-      supportingKeywords:
-        [
-          'Aufenthaltskarte',
-          'EU-Bürger',
-          'Familienangehörige',
-          'Freizügigkeit',
-          'Reisepass',
-          'biometrisches Foto',
-          'Beziehung',
-          'Formular',
-        ]
-      ,
-      weakNegativeKeywords:
-        [
-          'deutscher Familienangehöriger',
-          'Beschäftigung',
-          'Gebührenhinweis',
-          'eAT Abholung',
-        ]
-      ,
-      strongNegativeKeywords:
-        [
-          'Familiennachzug',
-          'Blaue Karte EU',
-          'Ablehnungsbescheid',
-          'Terminbestätigung',
-        ]
-      ,
+      headerKeywords: [
+        'Aufenthaltskarte',
+        'Familienangehörige von EU-Bürgern',
+        'Freizügigkeit',
+        'EU-Bürger',
+      ],
+      decisiveKeywords: [
+        'Aufenthaltskarte für Familienangehörige von EU-Bürgern',
+        'Freizügigkeitsberechtigter Unionsbürger',
+        'Nachweis der familiären Beziehung',
+        'Aufenthaltskarte beantragen',
+        'EU-Bürger',
+        'Unterlagen für die Aufenthaltskarte',
+      ],
+      supportingKeywords: [
+        'Aufenthaltskarte',
+        'EU-Bürger',
+        'Familienangehörige',
+        'Freizügigkeit',
+        'Reisepass',
+        'biometrisches Foto',
+        'Beziehung',
+        'Formular',
+      ],
+      weakNegativeKeywords: [
+        'deutscher Familienangehöriger',
+        'Beschäftigung',
+        'Gebührenhinweis',
+        'eAT Abholung',
+      ],
+      strongNegativeKeywords: [
+        'Familiennachzug',
+        'Blaue Karte EU',
+        'Ablehnungsbescheid',
+        'Terminbestätigung',
+      ],
       nextStepKeys: [
         'cat_auslaender_aufenthaltskarte_eu_step1',
         'cat_auslaender_aufenthaltskarte_eu_step2',
@@ -3026,51 +2712,41 @@ class BriefAiCategories {
       labelKey: 'cat_auslaender_eingangsbestaetigung_label',
       summaryKey: 'cat_auslaender_eingangsbestaetigung_summary',
       mainCategory: MainCategory.categoryAuslaenderbehoerde,
-      headerKeywords:
-        [
-          'Bestätigung Ihres Online-Antrags',
-          'Fiktionswirkung',
-          'Online-Antrag',
-          'Eingangsbestätigung',
-        ]
-      ,
-      decisiveKeywords:
-        [
-          'Ihr Online-Antrag ist eingegangen',
-          'Fiktionswirkung',
-          'gilt bis zur Entscheidung fort',
-          'Ihr bisheriger Aufenthaltstitel gilt fort',
-          'Eingangsbestätigung',
-          'Fortgeltung des bisherigen Titels',
-        ]
-      ,
-      supportingKeywords:
-        [
-          'Bestätigung',
-          'Online-Antrag',
-          'Fortgeltung',
-          'Fiktionswirkung',
-          'Antrag eingegangen',
-          'PDF speichern',
-          'Nachweis',
-        ]
-      ,
-      weakNegativeKeywords:
-        [
-          'Termin mit Uhrzeit',
-          'Unterlagen nachreichen',
-          'Gebührenhinweis',
-          'eAT Abholung',
-        ]
-      ,
-      strongNegativeKeywords:
-        [
-          'Fiktionsbescheinigung',
-          'Terminbestätigung',
-          'Ablehnungsbescheid',
-          'Bewilligungsbescheid',
-        ]
-      ,
+      headerKeywords: [
+        'Bestätigung Ihres Online-Antrags',
+        'Fiktionswirkung',
+        'Online-Antrag',
+        'Eingangsbestätigung',
+      ],
+      decisiveKeywords: [
+        'Ihr Online-Antrag ist eingegangen',
+        'Fiktionswirkung',
+        'gilt bis zur Entscheidung fort',
+        'Ihr bisheriger Aufenthaltstitel gilt fort',
+        'Eingangsbestätigung',
+        'Fortgeltung des bisherigen Titels',
+      ],
+      supportingKeywords: [
+        'Bestätigung',
+        'Online-Antrag',
+        'Fortgeltung',
+        'Fiktionswirkung',
+        'Antrag eingegangen',
+        'PDF speichern',
+        'Nachweis',
+      ],
+      weakNegativeKeywords: [
+        'Termin mit Uhrzeit',
+        'Unterlagen nachreichen',
+        'Gebührenhinweis',
+        'eAT Abholung',
+      ],
+      strongNegativeKeywords: [
+        'Fiktionsbescheinigung',
+        'Terminbestätigung',
+        'Ablehnungsbescheid',
+        'Bewilligungsbescheid',
+      ],
       nextStepKeys: [
         'cat_auslaender_eingangsbestaetigung_step1',
         'cat_auslaender_eingangsbestaetigung_step2',
@@ -3087,52 +2763,42 @@ class BriefAiCategories {
       labelKey: 'cat_auslaender_fiktionsbescheinigung_label',
       summaryKey: 'cat_auslaender_fiktionsbescheinigung_summary',
       mainCategory: MainCategory.categoryAuslaenderbehoerde,
-      headerKeywords:
-        [
-          'Fiktionsbescheinigung',
-          '§ 81',
-          'Fortgeltung',
-          'Bescheinigung',
-        ]
-      ,
-      decisiveKeywords:
-        [
-          'Fiktionsbescheinigung nach § 81 Abs. 3',
-          'Fiktionsbescheinigung nach § 81 Abs. 4',
-          'gilt für den Zeitraum',
-          'Bescheinigung über die Fortgeltung',
-          'rechtmäßiger Aufenthalt',
-          'vorläufige Bescheinigung',
-        ]
-      ,
-      supportingKeywords:
-        [
-          'Fiktionsbescheinigung',
-          '§ 81',
-          'Fortgeltung',
-          'Bescheinigung',
-          'Aufenthaltstitel',
-          'Antrag',
-          'Übergangszeit',
-          'Reisepass',
-        ]
-      ,
-      weakNegativeKeywords:
-        [
-          'Zustimmung stattgegeben',
-          'Termin am',
-          'Gebührenhinweis',
-          'eAT Abholung',
-        ]
-      ,
-      strongNegativeKeywords:
-        [
-          'Terminbestätigung',
-          'Ablehnungsbescheid',
-          'Bewilligungsbescheid',
-          'Nachforderung',
-        ]
-      ,
+      headerKeywords: [
+        'Fiktionsbescheinigung',
+        '§ 81',
+        'Fortgeltung',
+        'Bescheinigung',
+      ],
+      decisiveKeywords: [
+        'Fiktionsbescheinigung nach § 81 Abs. 3',
+        'Fiktionsbescheinigung nach § 81 Abs. 4',
+        'gilt für den Zeitraum',
+        'Bescheinigung über die Fortgeltung',
+        'rechtmäßiger Aufenthalt',
+        'vorläufige Bescheinigung',
+      ],
+      supportingKeywords: [
+        'Fiktionsbescheinigung',
+        '§ 81',
+        'Fortgeltung',
+        'Bescheinigung',
+        'Aufenthaltstitel',
+        'Antrag',
+        'Übergangszeit',
+        'Reisepass',
+      ],
+      weakNegativeKeywords: [
+        'Zustimmung stattgegeben',
+        'Termin am',
+        'Gebührenhinweis',
+        'eAT Abholung',
+      ],
+      strongNegativeKeywords: [
+        'Terminbestätigung',
+        'Ablehnungsbescheid',
+        'Bewilligungsbescheid',
+        'Nachforderung',
+      ],
       nextStepKeys: [
         'cat_auslaender_fiktionsbescheinigung_step1',
         'cat_auslaender_fiktionsbescheinigung_step2',
@@ -3149,51 +2815,41 @@ class BriefAiCategories {
       labelKey: 'cat_auslaender_fortgeltung_label',
       summaryKey: 'cat_auslaender_fortgeltung_summary',
       mainCategory: MainCategory.categoryAuslaenderbehoerde,
-      headerKeywords:
-        [
-          'Fortgeltung',
-          'bis zur Entscheidung',
-          'Aufenthaltstitel gilt fort',
-          'Entscheidung',
-        ]
-      ,
-      decisiveKeywords:
-        [
-          'gilt bis zur Entscheidung fort',
-          'Ihr Aufenthaltstitel gilt fort',
-          'Fortgeltung bis zur Entscheidung',
-          'bis über den Antrag entschieden wurde',
-          'bisheriger Titel bleibt wirksam',
-          'Fortbestehen des bisherigen Titels',
-        ]
-      ,
-      supportingKeywords:
-        [
-          'Fortgeltung',
-          'Entscheidung',
-          'bisheriger Aufenthaltstitel',
-          'Antrag',
-          'vor Ablauf',
-          'Nachweis',
-          'vorläufig',
-        ]
-      ,
-      weakNegativeKeywords:
-        [
-          'eAT bereit',
-          'Termin mit Uhrzeit',
-          'Gebührenhinweis',
-          'Unterlagen nachreichen',
-        ]
-      ,
-      strongNegativeKeywords:
-        [
-          'Terminbestätigung',
-          'Ablehnungsbescheid',
-          'Bewilligungsbescheid',
-          'Fiktionsbescheinigung',
-        ]
-      ,
+      headerKeywords: [
+        'Fortgeltung',
+        'bis zur Entscheidung',
+        'Aufenthaltstitel gilt fort',
+        'Entscheidung',
+      ],
+      decisiveKeywords: [
+        'gilt bis zur Entscheidung fort',
+        'Ihr Aufenthaltstitel gilt fort',
+        'Fortgeltung bis zur Entscheidung',
+        'bis über den Antrag entschieden wurde',
+        'bisheriger Titel bleibt wirksam',
+        'Fortbestehen des bisherigen Titels',
+      ],
+      supportingKeywords: [
+        'Fortgeltung',
+        'Entscheidung',
+        'bisheriger Aufenthaltstitel',
+        'Antrag',
+        'vor Ablauf',
+        'Nachweis',
+        'vorläufig',
+      ],
+      weakNegativeKeywords: [
+        'eAT bereit',
+        'Termin mit Uhrzeit',
+        'Gebührenhinweis',
+        'Unterlagen nachreichen',
+      ],
+      strongNegativeKeywords: [
+        'Terminbestätigung',
+        'Ablehnungsbescheid',
+        'Bewilligungsbescheid',
+        'Fiktionsbescheinigung',
+      ],
       nextStepKeys: [
         'cat_auslaender_fortgeltung_step1',
         'cat_auslaender_fortgeltung_step2',
@@ -3210,51 +2866,41 @@ class BriefAiCategories {
       labelKey: 'cat_auslaender_ablehnung_problemfall_label',
       summaryKey: 'cat_auslaender_ablehnung_problemfall_summary',
       mainCategory: MainCategory.categoryAuslaenderbehoerde,
-      headerKeywords:
-        [
-          'Ablehnung',
-          'Problemfall',
-          'Antrag kann nicht bearbeitet werden',
-          'Schwierigkeiten',
-        ]
-      ,
-      decisiveKeywords:
-        [
-          'Ihr Antrag wird abgelehnt',
-          'der Antrag kann nicht positiv beschieden werden',
-          'es bestehen Zweifel',
-          'Problemfall',
-          'die Voraussetzungen liegen nicht vor',
-          'Antrag kann derzeit nicht bearbeitet werden',
-        ]
-      ,
-      supportingKeywords:
-        [
-          'Ablehnung',
-          'Problem',
-          'fehlende Voraussetzungen',
-          'Begründung',
-          'Unterlagen fehlen',
-          'Entscheidung',
-          'Stellungnahme',
-        ]
-      ,
-      weakNegativeKeywords:
-        [
-          'Gebührenhinweis',
-          'Terminänderung',
-          'eAT Abholung',
-          'Eingangsbestätigung',
-        ]
-      ,
-      strongNegativeKeywords:
-        [
-          'Terminbestätigung',
-          'Bewilligungsbescheid',
-          'Fiktionsbescheinigung',
-          'Zustimmung',
-        ]
-      ,
+      headerKeywords: [
+        'Ablehnung',
+        'Problemfall',
+        'Antrag kann nicht bearbeitet werden',
+        'Schwierigkeiten',
+      ],
+      decisiveKeywords: [
+        'Ihr Antrag wird abgelehnt',
+        'der Antrag kann nicht positiv beschieden werden',
+        'es bestehen Zweifel',
+        'Problemfall',
+        'die Voraussetzungen liegen nicht vor',
+        'Antrag kann derzeit nicht bearbeitet werden',
+      ],
+      supportingKeywords: [
+        'Ablehnung',
+        'Problem',
+        'fehlende Voraussetzungen',
+        'Begründung',
+        'Unterlagen fehlen',
+        'Entscheidung',
+        'Stellungnahme',
+      ],
+      weakNegativeKeywords: [
+        'Gebührenhinweis',
+        'Terminänderung',
+        'eAT Abholung',
+        'Eingangsbestätigung',
+      ],
+      strongNegativeKeywords: [
+        'Terminbestätigung',
+        'Bewilligungsbescheid',
+        'Fiktionsbescheinigung',
+        'Zustimmung',
+      ],
       nextStepKeys: [
         'cat_auslaender_ablehnung_problemfall_step1',
         'cat_auslaender_ablehnung_problemfall_step2',
@@ -3271,51 +2917,41 @@ class BriefAiCategories {
       labelKey: 'cat_auslaender_ablehnungsbescheid_label',
       summaryKey: 'cat_auslaender_ablehnungsbescheid_summary',
       mainCategory: MainCategory.categoryAuslaenderbehoerde,
-      headerKeywords:
-        [
-          'Ablehnungsbescheid',
-          'fehlende Voraussetzungen',
-          'Voraussetzungen nicht erfüllt',
-          'Bescheid',
-        ]
-      ,
-      decisiveKeywords:
-        [
-          'die Voraussetzungen liegen nicht vor',
-          'Ihr Antrag wird abgelehnt',
-          'mangels Erfüllung der Voraussetzungen',
-          'kein Anspruch',
-          'ablehnender Bescheid',
-          'Voraussetzungen nicht erfüllt',
-        ]
-      ,
-      supportingKeywords:
-        [
-          'Ablehnungsbescheid',
-          'Voraussetzungen',
-          'Begründung',
-          'Entscheidung',
-          'Nachweise',
-          'fehlend',
-          'Voraussetzungen',
-        ]
-      ,
-      weakNegativeKeywords:
-        [
-          'Unterlagen nachreichen',
-          'Termin am',
-          'Gebührenhinweis',
-          'eAT Abholung',
-        ]
-      ,
-      strongNegativeKeywords:
-        [
-          'Bewilligungsbescheid',
-          'Terminbestätigung',
-          'Fiktionsbescheinigung',
-          'Zustimmung',
-        ]
-      ,
+      headerKeywords: [
+        'Ablehnungsbescheid',
+        'fehlende Voraussetzungen',
+        'Voraussetzungen nicht erfüllt',
+        'Bescheid',
+      ],
+      decisiveKeywords: [
+        'die Voraussetzungen liegen nicht vor',
+        'Ihr Antrag wird abgelehnt',
+        'mangels Erfüllung der Voraussetzungen',
+        'kein Anspruch',
+        'ablehnender Bescheid',
+        'Voraussetzungen nicht erfüllt',
+      ],
+      supportingKeywords: [
+        'Ablehnungsbescheid',
+        'Voraussetzungen',
+        'Begründung',
+        'Entscheidung',
+        'Nachweise',
+        'fehlend',
+        'Voraussetzungen',
+      ],
+      weakNegativeKeywords: [
+        'Unterlagen nachreichen',
+        'Termin am',
+        'Gebührenhinweis',
+        'eAT Abholung',
+      ],
+      strongNegativeKeywords: [
+        'Bewilligungsbescheid',
+        'Terminbestätigung',
+        'Fiktionsbescheinigung',
+        'Zustimmung',
+      ],
       nextStepKeys: [
         'cat_auslaender_ablehnungsbescheid_step1',
         'cat_auslaender_ablehnungsbescheid_step2',
@@ -3332,51 +2968,41 @@ class BriefAiCategories {
       labelKey: 'cat_auslaender_uebertragung_label',
       summaryKey: 'cat_auslaender_uebertragung_summary',
       mainCategory: MainCategory.categoryAuslaenderbehoerde,
-      headerKeywords:
-        [
-          'Übertragung eines Aufenthaltstitels',
-          'Übertrag',
-          'alter Pass',
-          'neuer Pass',
-        ]
-      ,
-      decisiveKeywords:
-        [
-          'Übertragung des Aufenthaltstitels',
-          'alter Pass',
-          'neuer Pass',
-          'elektronischer Aufenthaltstitel',
-          'Passübertrag',
-          'Übertrag des Titels',
-        ]
-      ,
-      supportingKeywords:
-        [
-          'alter Pass',
-          'neuer Pass',
-          'eAT',
-          'biometrisches Lichtbild',
-          'Gebühr',
-          'Übertrag',
-          'Reisedokument',
-        ]
-      ,
-      weakNegativeKeywords:
-        [
-          'Verlängerung des Titels',
-          'Terminänderung',
-          'Gebührenhinweis',
-          'Unterlagen nachreichen',
-        ]
-      ,
-      strongNegativeKeywords:
-        [
-          'Fiktionsbescheinigung',
-          'Terminbestätigung',
-          'Ablehnungsbescheid',
-          'Bewilligungsbescheid',
-        ]
-      ,
+      headerKeywords: [
+        'Übertragung eines Aufenthaltstitels',
+        'Übertrag',
+        'alter Pass',
+        'neuer Pass',
+      ],
+      decisiveKeywords: [
+        'Übertragung des Aufenthaltstitels',
+        'alter Pass',
+        'neuer Pass',
+        'elektronischer Aufenthaltstitel',
+        'Passübertrag',
+        'Übertrag des Titels',
+      ],
+      supportingKeywords: [
+        'alter Pass',
+        'neuer Pass',
+        'eAT',
+        'biometrisches Lichtbild',
+        'Gebühr',
+        'Übertrag',
+        'Reisedokument',
+      ],
+      weakNegativeKeywords: [
+        'Verlängerung des Titels',
+        'Terminänderung',
+        'Gebührenhinweis',
+        'Unterlagen nachreichen',
+      ],
+      strongNegativeKeywords: [
+        'Fiktionsbescheinigung',
+        'Terminbestätigung',
+        'Ablehnungsbescheid',
+        'Bewilligungsbescheid',
+      ],
       nextStepKeys: [
         'cat_auslaender_uebertragung_step1',
         'cat_auslaender_uebertragung_step2',
@@ -3393,52 +3019,42 @@ class BriefAiCategories {
       labelKey: 'cat_auslaender_gebuehrenhinweis_label',
       summaryKey: 'cat_auslaender_gebuehrenhinweis_summary',
       mainCategory: MainCategory.categoryAuslaenderbehoerde,
-      headerKeywords:
-        [
-          'Gebührenhinweis',
-          'Gebühr',
-          'Kosten',
-          'Zahlungsaufforderung',
-        ]
-      ,
-      decisiveKeywords:
-        [
-          'es fällt eine Gebühr an',
-          'Gebührenhinweis',
-          'zu entrichtende Gebühr',
-          'Bearbeitungsgebühr',
-          'bitte zahlen Sie die Gebühr',
-          'Kosten der Dienstleistung',
-        ]
-      ,
-      supportingKeywords:
-        [
-          'Gebühr',
-          'Kosten',
-          'Zahlung',
-          'Kasse',
-          'EC-Karte',
-          'Betrag',
-          'Bearbeitung',
-          'Zahlungshinweis',
-        ]
-      ,
-      weakNegativeKeywords:
-        [
-          'Termin mit Uhrzeit',
-          'Unterlagen nachreichen',
-          'eAT Abholung',
-          'Fiktionswirkung',
-        ]
-      ,
-      strongNegativeKeywords:
-        [
-          'Terminbestätigung',
-          'Ablehnungsbescheid',
-          'Bewilligungsbescheid',
-          'Fiktionsbescheinigung',
-        ]
-      ,
+      headerKeywords: [
+        'Gebührenhinweis',
+        'Gebühr',
+        'Kosten',
+        'Zahlungsaufforderung',
+      ],
+      decisiveKeywords: [
+        'es fällt eine Gebühr an',
+        'Gebührenhinweis',
+        'zu entrichtende Gebühr',
+        'Bearbeitungsgebühr',
+        'bitte zahlen Sie die Gebühr',
+        'Kosten der Dienstleistung',
+      ],
+      supportingKeywords: [
+        'Gebühr',
+        'Kosten',
+        'Zahlung',
+        'Kasse',
+        'EC-Karte',
+        'Betrag',
+        'Bearbeitung',
+        'Zahlungshinweis',
+      ],
+      weakNegativeKeywords: [
+        'Termin mit Uhrzeit',
+        'Unterlagen nachreichen',
+        'eAT Abholung',
+        'Fiktionswirkung',
+      ],
+      strongNegativeKeywords: [
+        'Terminbestätigung',
+        'Ablehnungsbescheid',
+        'Bewilligungsbescheid',
+        'Fiktionsbescheinigung',
+      ],
       nextStepKeys: [
         'cat_auslaender_gebuehrenhinweis_step1',
         'cat_auslaender_gebuehrenhinweis_step2',
@@ -3455,51 +3071,41 @@ class BriefAiCategories {
       labelKey: 'cat_auslaender_akteneinsicht_label',
       summaryKey: 'cat_auslaender_akteneinsicht_summary',
       mainCategory: MainCategory.categoryAuslaenderbehoerde,
-      headerKeywords:
-        [
-          'Akteneinsicht',
-          'Bevollmächtigte',
-          'Rechtsanwälte',
-          'Vollmacht',
-        ]
-      ,
-      decisiveKeywords:
-        [
-          'Einsichtnahme in die Akte',
-          'Bevollmächtigte Anwälte',
-          'Akteneinsicht beantragen',
-          'Vollmacht beifügen',
-          'Akteneinsicht für Rechtsanwälte',
-          'Antrag auf Akteneinsicht',
-        ]
-      ,
-      supportingKeywords:
-        [
-          'Akteneinsicht',
-          'Vollmacht',
-          'Rechtsanwalt',
-          'Mandant',
-          'Akte',
-          'Antrag',
-          'Bevollmächtigte',
-        ]
-      ,
-      weakNegativeKeywords:
-        [
-          'Aufenthaltstitel verlängern',
-          'Termin mit Uhrzeit',
-          'Gebührenhinweis',
-          'eAT Abholung',
-        ]
-      ,
-      strongNegativeKeywords:
-        [
-          'Terminbestätigung',
-          'Fiktionsbescheinigung',
-          'Bewilligungsbescheid',
-          'Ablehnungsbescheid',
-        ]
-      ,
+      headerKeywords: [
+        'Akteneinsicht',
+        'Bevollmächtigte',
+        'Rechtsanwälte',
+        'Vollmacht',
+      ],
+      decisiveKeywords: [
+        'Einsichtnahme in die Akte',
+        'Bevollmächtigte Anwälte',
+        'Akteneinsicht beantragen',
+        'Vollmacht beifügen',
+        'Akteneinsicht für Rechtsanwälte',
+        'Antrag auf Akteneinsicht',
+      ],
+      supportingKeywords: [
+        'Akteneinsicht',
+        'Vollmacht',
+        'Rechtsanwalt',
+        'Mandant',
+        'Akte',
+        'Antrag',
+        'Bevollmächtigte',
+      ],
+      weakNegativeKeywords: [
+        'Aufenthaltstitel verlängern',
+        'Termin mit Uhrzeit',
+        'Gebührenhinweis',
+        'eAT Abholung',
+      ],
+      strongNegativeKeywords: [
+        'Terminbestätigung',
+        'Fiktionsbescheinigung',
+        'Bewilligungsbescheid',
+        'Ablehnungsbescheid',
+      ],
       nextStepKeys: [
         'cat_auslaender_akteneinsicht_step1',
         'cat_auslaender_akteneinsicht_step2',
@@ -3521,10 +3127,10 @@ class BriefAiCategories {
       summaryKey: 'cat_krankenkasse_krankengeld_summary',
       mainCategory: MainCategory.categoryKrankenkasse,
       headerKeywords: [
-        'Krankengeld',
         'Antrag auf Zahlung von Krankengeld',
-        'Arbeitsunfähigkeit',
-        'Entgeltfortzahlung',
+        'für die Arbeitsunfähigkeit ab',
+        'Versicherungsnummer',
+        'Datenschutzhinweis',
       ],
       decisiveKeywords: [
         'Antrag auf Zahlung von Krankengeld',
@@ -3575,10 +3181,10 @@ class BriefAiCategories {
       summaryKey: 'cat_krankenkasse_pflegeleistungen_summary',
       mainCategory: MainCategory.categoryKrankenkasse,
       headerKeywords: [
-        'Pflegeleistungen',
         'Antrag auf Leistungen der Pflegeversicherung',
-        'Pflegegrad',
-        'Begutachtungstermin',
+        'Erstantrag',
+        'Antrag auf Höherstufung',
+        'Antrag auf Umstellung der Pflegeleistungen ab',
       ],
       decisiveKeywords: [
         'Antrag auf Leistungen der Pflegeversicherung',
@@ -3633,8 +3239,8 @@ class BriefAiCategories {
       headerKeywords: [
         'Beitragsbescheid',
         'Beitragsfestsetzung',
-        'Beitragshöhe',
-        'Fälligkeitstermin',
+        'Rechtsbehelfsbelehrung',
+        'Gesamtbeitrag',
       ],
       decisiveKeywords: [
         'Beitragsbescheid',
@@ -3687,9 +3293,9 @@ class BriefAiCategories {
       mainCategory: MainCategory.categoryKrankenkasse,
       headerKeywords: [
         'Wahlerklärung',
-        'Beitrittserklärung',
-        'Mitglied werden',
-        'bisherige Krankenkasse',
+        'Persönliche Angaben',
+        'Meine bisherige Versicherung',
+        'Grund meines Wechsels',
       ],
       decisiveKeywords: [
         'Wahlerklärung',
@@ -3740,10 +3346,10 @@ class BriefAiCategories {
       summaryKey: 'cat_krankenkasse_familienversicherung_summary',
       mainCategory: MainCategory.categoryKrankenkasse,
       headerKeywords: [
-        'Familienversicherung',
         'Aufnahme in die Familienversicherung',
         'Familienangehörigen',
         'beitragsfrei mitversichern',
+        'Gesamteinkommen',
       ],
       decisiveKeywords: [
         'Aufnahme in die Familienversicherung',
@@ -3790,9 +3396,9 @@ class BriefAiCategories {
       mainCategory: MainCategory.categoryKrankenkasse,
       headerKeywords: [
         'Kündigung meiner Mitgliedschaft',
-        'hiermit kündige ich',
-        'Sonderkündigungsrecht',
-        '§175 SGB V',
+        'Meine Versichertennummer',
+        'Sehr geehrte Damen und Herren',
+        'VOLLMACHT',
       ],
       decisiveKeywords: [
         'Kündigung meiner Mitgliedschaft',
@@ -3840,10 +3446,10 @@ class BriefAiCategories {
       summaryKey: 'cat_krankenkasse_haushaltshilfe_summary',
       mainCategory: MainCategory.categoryKrankenkasse,
       headerKeywords: [
-        'Haushaltshilfe',
         'Antrag auf Haushaltshilfe',
-        'Ersatzkraft',
-        'Ich beantrage eine Haushaltshilfe',
+        'Name, Vorname der/des Versicherten',
+        'Kranken-/Pflegeversicherten-Nr.',
+        'Antragsteller/in Ehe-/Lebenspartner, Lebensgefährte',
       ],
       decisiveKeywords: [
         'Antrag auf Haushaltshilfe',
@@ -3891,9 +3497,9 @@ class BriefAiCategories {
       mainCategory: MainCategory.categoryKrankenkasse,
       headerKeywords: [
         'Versicherungsbescheinigung',
-        'ist bei uns versichert',
-        'versicherungsfrei',
         'Einschreibung der Hochschule',
+        'Versicherten-Nr.',
+        'Betriebs-Nr. der Krankenkasse',
       ],
       decisiveKeywords: [
         'Versicherungsbescheinigung',
@@ -3940,10 +3546,10 @@ class BriefAiCategories {
       summaryKey: 'cat_krankenkasse_egk_summary',
       mainCategory: MainCategory.categoryKrankenkasse,
       headerKeywords: [
-        'elektronische Gesundheitskarte',
-        'eGK',
-        'Kartenantrag',
-        'Passfoto',
+        'Kartenantrag für eine elektronische Gesundheitskarte (eGK)',
+        'So funktioniert der Kartenantrag',
+        'Bitte unbedingt ausfüllen',
+        'Rückantwort',
       ],
       decisiveKeywords: [
         'elektronische Gesundheitskarte',
@@ -3995,7 +3601,7 @@ class BriefAiCategories {
         'Änderung persönlicher Daten',
         'Bisherige Daten',
         'Neue Daten',
-        'Namensänderung',
+        'Datenschutzhinweis',
       ],
       decisiveKeywords: [
         'Änderung persönlicher Daten',
@@ -4035,6 +3641,5 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.low,
     ),
-
   ];
 }
