@@ -748,5 +748,9 @@
   "cat_krankenkasse_datenaenderung_step2": "إدخال البيانات الجديدة بدقة في قسم (Neue Daten).",
   "cat_krankenkasse_datenaenderung_step3": "تحديد تاريخ بدء سريان التغيير.",
   "cat_krankenkasse_datenaenderung_step4": "إرفاق نسخة من الوثيقة المثبتة للتغيير (مثل شهادة الزواج لتغيير الاسم أو عقد الإيجار الجديد لتغيير العنوان).",
-  "cat_krankenkasse_datenaenderung_step5": "توقيع النموذج وإرساله لشركة التأمين."
+  "cat_krankenkasse_datenaenderung_step5": "توقيع النموذج وإرساله لشركة التأمين.",
+  "trustScore": "درجة الثقة",
+  "noDateSelected": "لم يتم تحديد تاريخ",
+  "noCategoryDetected": "لم يتم اكتشاف أي فئة",
+  "noCategoryDetectedHint": "لم يتمكن الذكاء الاصطناعي من تحديد هذا المستند. يرجى اختيار فئة يدويًا."
 }

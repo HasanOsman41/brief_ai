@@ -759,5 +759,8 @@
   "cat_krankenkasse_datenaenderung_step2": "Geben Sie Ihre neuen Daten korrekt im Abschnitt (Neue Daten) ein.",
   "cat_krankenkasse_datenaenderung_step3": "Legen Sie das Datum fest, ab dem die Änderung wirksam sein soll.",
   "cat_krankenkasse_datenaenderung_step4": "Fügen Sie eine Kopie des Belegs für die Änderung bei (z. B. Heiratsurkunde bei Namensänderung oder neuen Mietvertrag bei Adressänderung).",
-  "cat_krankenkasse_datenaenderung_step5": "Unterschreiben Sie das Formular und senden Sie es an die Krankenkasse."
+  "cat_krankenkasse_datenaenderung_step5": "Unterschreiben Sie das Formular und senden Sie es an die Krankenkasse.",
+  "trustScore": "Vertrauenswert",
+  "noCategoryDetected": "Keine Kategorie erkannt",
+  "noCategoryDetectedHint": "Die KI konnte dieses Dokument nicht identifizieren. Bitte wählen Sie eine Kategorie manuell aus."
 }

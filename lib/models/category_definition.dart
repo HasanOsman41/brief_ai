@@ -9,10 +9,18 @@ import 'document_result.dart';
 class MainCategoryDefinition {
   final MainCategory value;
 
-  /// l10n key → look up in AppLocalizations (e.g. AppLocalizations.of(ctx).cat_categoryJobcenter_label)
+  /// l10n key → look up in AppLocalizations
   final String labelKey;
 
-  const MainCategoryDefinition({required this.value, required this.labelKey});
+  /// Keywords that strongly indicate this main category.
+  /// A match gives every sub-category of this group a +500 head-start.
+  final List<String> keywords;
+
+  const MainCategoryDefinition({
+    required this.value,
+    required this.labelKey,
+    this.keywords = const [],
+  });
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

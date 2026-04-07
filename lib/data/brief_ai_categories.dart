@@ -19,60 +19,192 @@ import '../models/document_result.dart';
 class BriefAiCategories {
   BriefAiCategories._();
 
-  // // ───────────────────────────────────────────────────────────────────────────
-  // // MAIN GROUPS
-  // // Labels for the 10 top-level buckets shown in the app UI.
-  // // Sub-categories reference these via their [mainCategory] field.
-  // // ───────────────────────────────────────────────────────────────────────────
-  // static const List<MainCategoryDefinition> mainGroups = [
-  //   MainCategoryDefinition(
-  //     value: MainCategory.categoryJobcenter,
-  //     labelKey: 'cat_categoryJobcenter_label',
-  //   ),
-  //   MainCategoryDefinition(
-  //     value: MainCategory.categoryAuslaenderbehoerde,
-  //     labelKey: 'cat_categoryAuslaenderbehoerde_label',
-  //   ),
-  //   MainCategoryDefinition(
-  //     value: MainCategory.categoryKrankenkasse,
-  //     labelKey: 'cat_categoryKrankenkasse_label',
-  //   ),
-  //   MainCategoryDefinition(
-  //     value: MainCategory.categoryFinanzamt,
-  //     labelKey: 'cat_categoryFinanzamt_label',
-  //   ),
-  //   MainCategoryDefinition(
-  //     value: MainCategory.categoryBank,
-  //     labelKey: 'cat_categoryBank_label',
-  //   ),
-  //   MainCategoryDefinition(
-  //     value: MainCategory.categoryInsurance,
-  //     labelKey: 'cat_categoryInsurance_label',
-  //   ),
-  //   MainCategoryDefinition(
-  //     value: MainCategory.categoryRent,
-  //     labelKey: 'cat_categoryRent_label',
-  //   ),
-  //   MainCategoryDefinition(
-  //     value: MainCategory.categoryBills,
-  //     labelKey: 'cat_categoryBills_label',
-  //   ),
-  //   MainCategoryDefinition(
-  //     value: MainCategory.categoryContracts,
-  //     labelKey: 'cat_categoryContracts_label',
-  //   ),
-  //   MainCategoryDefinition(
-  //     value: MainCategory.categoryOther,
-  //     labelKey: 'cat_categoryOther_label',
-  //   ),
-  // ];
-
+  // ───────────────────────────────────────────────────────────────────────────
+  // MAIN GROUPS  (with default identification keywords)
+  // ───────────────────────────────────────────────────────────────────────────
+  static const List<MainCategoryDefinition> mainGroups = [
+    MainCategoryDefinition(
+      value: MainCategory.categoryJobcenter,
+      labelKey: 'categoryJobcenter',
+      keywords: [
+        'Jobcenter',
+        'Bundesagentur für Arbeit',
+      ],
+    ),
+    MainCategoryDefinition(
+      value: MainCategory.categoryAuslaenderbehoerde,
+      labelKey: 'categoryAuslaenderbehoerde',
+      keywords: [
+        'Ausländerbehörde',
+        'Aufenthaltstitel',
+        'Aufenthaltserlaubnis',
+        'Niederlassungserlaubnis',
+        'Duldung',
+        'Fiktionsbescheinigung',
+        'Aufenthaltsgesetz',
+        'AufenthG',
+        'Visum',
+        'Einbürgerung',
+        'Ausländerrecht',
+      ],
+    ),
+    MainCategoryDefinition(
+      value: MainCategory.categoryKrankenkasse,
+      labelKey: 'categoryKrankenkasse',
+      keywords: [
+        'AOK',
+        'Techniker Krankenkasse',
+        'TK',
+        'BARMER',
+        'DAK-Gesundheit',
+        'IKK',
+        'KKH',
+        'HEK',
+        'hkk',
+        'SBK',
+        'Krankenkasse',
+        'Gesundheitskasse',
+        'Die Gesundheitskasse'
+      ],
+    ),
+    MainCategoryDefinition(
+      value: MainCategory.categoryFinanzamt,
+      labelKey: 'categoryFinanzamt',
+      keywords: [
+        'Finanzamt',
+        'Steuerbescheid',
+        'Einkommensteuererklärung',
+        'Steueridentifikationsnummer',
+        'Steuer-ID',
+        'Umsatzsteuer',
+        'Lohnsteuer',
+        'Steuererstattung',
+        'Steuernachzahlung',
+        'Abgabenordnung',
+        'AO',
+        'EStG',
+      ],
+    ),
+    MainCategoryDefinition(
+      value: MainCategory.categoryBank,
+      labelKey: 'categoryBank',
+      keywords: [
+        'IBAN',
+        'BIC',
+        'Kontoauszug',
+        'Girokonto',
+        'Sparkasse',
+        'Deutsche Bank',
+        'Commerzbank',
+        'Volksbank',
+        'Postbank',
+        'Kreditinstitut',
+        'Kontonummer',
+        'Bankverbindung',
+        'Überweisung',
+        'Lastschrift',
+      ],
+    ),
+    MainCategoryDefinition(
+      value: MainCategory.categoryInsurance,
+      labelKey: 'categoryInsurance',
+      keywords: [
+        'Versicherung',
+        'Versicherungsschein',
+        'Police',
+        'Versicherungsnummer',
+        'Haftpflicht',
+        'Hausrat',
+        'Kfz-Versicherung',
+        'Lebensversicherung',
+        'Rentenversicherung',
+        'Unfallversicherung',
+        'Allianz',
+        'HUK',
+        'DEVK',
+        'Generali',
+      ],
+    ),
+    MainCategoryDefinition(
+      value: MainCategory.categoryRent,
+      labelKey: 'categoryRent',
+      keywords: [
+        'Miete',
+        'Mietvertrag',
+        'Vermieter',
+        'Mieter',
+        'Kaltmiete',
+        'Warmmiete',
+        'Nebenkosten',
+        'Betriebskosten',
+        'Mieterhöhung',
+        'Kündigung',
+        'Wohnung',
+        'Mietrückstand',
+        'Kaution',
+        'Wohnungsgeber',
+      ],
+    ),
+    MainCategoryDefinition(
+      value: MainCategory.categoryBills,
+      labelKey: 'categoryBills',
+      keywords: [
+        'Rechnung',
+        'Mahnung',
+        'Zahlungsaufforderung',
+        'Forderung',
+        'Inkasso',
+        'Strom',
+        'Gas',
+        'Wasser',
+        'Internet',
+        'Telefon',
+        'Rundfunkbeitrag',
+        'GEZ',
+        'Abrechnung',
+        'Rechnungsbetrag',
+      ],
+    ),
+    MainCategoryDefinition(
+      value: MainCategory.categoryContracts,
+      labelKey: 'categoryContracts',
+      keywords: [
+        'Vertrag',
+        'Arbeitsvertrag',
+        'Dienstvertrag',
+        'Werkvertrag',
+        'Kaufvertrag',
+        'Kündigung',
+        'Vertragspartner',
+        'Laufzeit',
+        'Vertragsende',
+        'Allgemeine Geschäftsbedingungen',
+        'AGB',
+        'Unterschrift',
+        'unterzeichnet',
+      ],
+    ),
+    MainCategoryDefinition(
+      value: MainCategory.categoryOther,
+      labelKey: 'categoryOther',
+      keywords: [],
+    ),
+  ];
   // GET STEPS BY ID
   static List<String> getStepsById(String id) {
     try {
       return all.firstWhere((c) => c.id == id).nextStepKeys;
     } catch (_) {
       return [];
+    }
+  }
+
+  /// Returns the [MainCategoryDefinition] for [category], or null.
+  static MainCategoryDefinition? getMainGroup(MainCategory category) {
+    try {
+      return mainGroups.firstWhere((g) => g.value == category);
+    } catch (_) {
+      return null;
     }
   }
 
