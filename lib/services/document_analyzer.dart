@@ -185,12 +185,32 @@ class DocumentAnalyzer {
     }
 
     // ── STEP 1–6 – Scan all lines for every type ──────────────────────────
-    add(_scanLines(lines, _legalKeywords, DeadlineType.legalDeadline, seen: seen));
-    add(_scanLines(lines, _deadlineKeywords, DeadlineType.deadline, seen: seen));
-    add(_scanLines(lines, _paymentKeywords, DeadlineType.paymentDeadline, seen: seen));
+    add(
+      _scanLines(lines, _legalKeywords, DeadlineType.legalDeadline, seen: seen),
+    );
+    add(
+      _scanLines(lines, _deadlineKeywords, DeadlineType.deadline, seen: seen),
+    );
+    add(
+      _scanLines(
+        lines,
+        _paymentKeywords,
+        DeadlineType.paymentDeadline,
+        seen: seen,
+      ),
+    );
     add(_scanAppointment(lines, seen: seen));
-    add(_scanLines(lines, _expiryKeywords, DeadlineType.expiryDate, seen: seen));
-    add(_scanLines(lines, _collectionKeywords, DeadlineType.collectionDate, seen: seen));
+    add(
+      _scanLines(lines, _expiryKeywords, DeadlineType.expiryDate, seen: seen),
+    );
+    add(
+      _scanLines(
+        lines,
+        _collectionKeywords,
+        DeadlineType.collectionDate,
+        seen: seen,
+      ),
+    );
 
     // ── STEP 6b – Expiry: regex pass for "gilt * bis" patterns ─────────────
     for (final line in lines) {
@@ -408,7 +428,9 @@ class DocumentAnalyzer {
           if (_isIgnored(lines[idx])) continue;
           m = _findDate(lines[idx]);
           if (m != null && !(seen?.contains(m.group(0)!) ?? false)) {
-            print('found date "${m.group(0)!}" for trigger "$kw" in line: ${lines[idx]}');
+            print(
+              'found date "${m.group(0)!}" for trigger "$kw" in line: ${lines[idx]}',
+            );
             return DeadlineResult(
               date: _parse(m.group(0)!),
               rawValue: m.group(0)!,
@@ -491,7 +513,8 @@ class DocumentAnalyzer {
   static DateTime _parse(String dateStr) {
     if (dateStr.contains(RegExp(r'[a-zA-Z]'))) {
       final parts = dateStr.split(RegExp(r'\s+'));
-      if (parts.length != 3) throw FormatException('Invalid German date format');
+      if (parts.length != 3)
+        throw FormatException('Invalid German date format');
       final day = int.parse(parts[0].replaceAll('.', ''));
       final monthStr = parts[1].toLowerCase();
       final year = int.parse(parts[2]);
@@ -525,14 +548,14 @@ class DocumentAnalyzer {
   // Fuzzy match thresholds
   // ─────────────────────────────────────────────────────────────────────────
 
-  static const int _kThresholdDecisive   = 85;
+  static const int _kThresholdDecisive = 85;
   static const int _kThresholdSupporting = 80;
-  static const int _kThresholdHeader     = 88;
-  static const int _kThresholdNegative   = 82;
+  static const int _kThresholdHeader = 88;
+  static const int _kThresholdNegative = 82;
 
   /// Threshold for main-category keyword matching.
   /// Slightly looser than header to handle OCR noise on institution names.
-  static const int _kThresholdMainCat    = 80;
+  static const int _kThresholdMainCat = 80;
 
   static ({int count, List<String> matched, List<int> scores})
   _fuzzyCountMatches(
@@ -541,11 +564,11 @@ class DocumentAnalyzer {
     required int threshold,
   }) {
     final matched = <String>[];
-    final scores  = <int>[];
+    final scores = <int>[];
 
     for (final kw in keywords) {
       final normKw = _normalise(kw);
-      final score  = normText.contains(normKw) ? 100 : 0;
+      final score = normText.contains(normKw) ? 100 : 0;
       // final score = partialRatio(normKw, normText); // swap in for full fuzzy
       if (score >= threshold) {
         matched.add(kw);
@@ -571,7 +594,7 @@ class DocumentAnalyzer {
     print('║           PHASE 1 – Main-category detection                  ║');
     print('╚══════════════════════════════════════════════════════════════╝');
 
-    int    bestScore = 0;
+    int bestScore = 0;
     MainCategory? bestMain;
 
     for (final group in BriefAiCategories.mainGroups) {
@@ -583,12 +606,14 @@ class DocumentAnalyzer {
         threshold: _kThresholdMainCat,
       );
 
-      print('  [${group.value}]  hits: ${result.count}/${group.keywords.length}'
-            '  matched: ${result.matched}');
+      print(
+        '  [${group.value}]  hits: ${result.count}/${group.keywords.length}'
+        '  matched: ${result.matched}',
+      );
 
       if (result.count > bestScore) {
         bestScore = result.count;
-        bestMain  = group.value;
+        bestMain = group.value;
       }
     }
 
@@ -608,14 +633,14 @@ class DocumentAnalyzer {
 
   static ({
     CategoryDefinition? category,
-    AnalysisConfidence  confidence,
-    List<String>        matchedKeywords,
-    int                 trustScore,
+    AnalysisConfidence confidence,
+    List<String> matchedKeywords,
+    int trustScore,
   })
   _classify(String ocrText) {
     // ── 1. Prepare text zones ────────────────────────────────────────────────
-    final normText   = _normalise(ocrText);
-    final lines      = ocrText.split('\n');
+    final normText = _normalise(ocrText);
+    final lines = ocrText.split('\n');
     final headerLines = lines.take(10).join(' ');
     final normHeader = _normalise('$headerLines $headerLines');
 
@@ -632,32 +657,40 @@ class DocumentAnalyzer {
     // ── 2. PHASE 1 – detect main category ───────────────────────────────────
     final detectedMain = _detectMainCategory(normText);
 
+    if (detectedMain == null) {
+      return (
+        category: null,
+        confidence: AnalysisConfidence.unknown,
+        matchedKeywords: <String>[],
+        trustScore: 0,
+      );
+    }
     // ── 3. Select candidate sub-categories ──────────────────────────────────
     //
     // If a main category was detected, restrict the search to that group only.
     // If detection was inconclusive, fall back to scanning everything
     // (preserves original behaviour for edge cases / mixed documents).
-    final candidates = (detectedMain != null)
-        ? BriefAiCategories.all
-            .where((c) => c.mainCategory == detectedMain)
-            .toList()
-        : BriefAiCategories.all;
+    final candidates = BriefAiCategories.all
+        .where((c) => c.mainCategory == detectedMain)
+        .toList();
 
     print('── PHASE 2 – Sub-category scan ─────────────────────────────────');
-    print('   Scanning ${candidates.length} candidate(s)'
-          '${detectedMain != null ? " in [$detectedMain]" : " (all groups)"}');
+    print(
+      '   Scanning ${candidates.length} candidate(s)'
+      'in [$detectedMain]"}',
+    );
     print('');
 
     // ── 4. Per-category scoring ──────────────────────────────────────────────
-    int bestScore             = -999999;
+    int bestScore = -999999;
     CategoryDefinition? bestCat;
-    List<String> bestMatched  = [];
+    List<String> bestMatched = [];
 
-    int bestHeaderCount       = 0;
-    int bestDecisiveCount     = 0;
-    int bestSupportingCount   = 0;
+    int bestHeaderCount = 0;
+    int bestDecisiveCount = 0;
+    int bestSupportingCount = 0;
     int bestWeakNegativeCount = 0;
-    int bestCumulativeScore   = 0;
+    int bestCumulativeScore = 0;
 
     for (final cat in candidates) {
       print('┌─ [${cat.id}] "${cat.labelKey}" ─────────────────────────────');
@@ -675,39 +708,65 @@ class DocumentAnalyzer {
         continue;
       }
       if (cat.strongNegativeKeywords.isNotEmpty) {
-        print('│  strong negatives checked: ${cat.strongNegativeKeywords.length}'
-              ' → none matched (threshold: $_kThresholdNegative)');
+        print(
+          '│  strong negatives checked: ${cat.strongNegativeKeywords.length}'
+          ' → none matched (threshold: $_kThresholdNegative)',
+        );
       }
 
       // ── 4b. Fuzzy match every group ────────────────────────────────────────
       final header = _fuzzyCountMatches(
-        normHeader, cat.headerKeywords,    threshold: _kThresholdHeader);
+        normHeader,
+        cat.headerKeywords,
+        threshold: _kThresholdHeader,
+      );
       final decisive = _fuzzyCountMatches(
-        normText,   cat.decisiveKeywords,  threshold: _kThresholdDecisive);
+        normText,
+        cat.decisiveKeywords,
+        threshold: _kThresholdDecisive,
+      );
       final supporting = _fuzzyCountMatches(
-        normText,   cat.supportingKeywords, threshold: _kThresholdSupporting);
+        normText,
+        cat.supportingKeywords,
+        threshold: _kThresholdSupporting,
+      );
       final weakNeg = _fuzzyCountMatches(
-        normText,   cat.weakNegativeKeywords, threshold: _kThresholdNegative);
+        normText,
+        cat.weakNegativeKeywords,
+        threshold: _kThresholdNegative,
+      );
 
-      print('│  header      [thresh: $_kThresholdHeader] → ${header.count}/${cat.headerKeywords.length} matched');
+      print(
+        '│  header      [thresh: $_kThresholdHeader] → ${header.count}/${cat.headerKeywords.length} matched',
+      );
       if (header.matched.isNotEmpty) {
         for (int i = 0; i < header.matched.length; i++) {
           print('│    ✓ "${header.matched[i]}"  score: ${header.scores[i]}');
         }
       }
-      print('│  decisive    [thresh: $_kThresholdDecisive] → ${decisive.count}/${cat.decisiveKeywords.length} matched');
+      print(
+        '│  decisive    [thresh: $_kThresholdDecisive] → ${decisive.count}/${cat.decisiveKeywords.length} matched',
+      );
       if (decisive.matched.isNotEmpty) {
         for (int i = 0; i < decisive.matched.length; i++) {
-          print('│    ✓ "${decisive.matched[i]}"  score: ${decisive.scores[i]}');
+          print(
+            '│    ✓ "${decisive.matched[i]}"  score: ${decisive.scores[i]}',
+          );
         }
       }
-      print('│  supporting  [thresh: $_kThresholdSupporting] → ${supporting.count}/${cat.supportingKeywords.length} matched');
+      print(
+        '│  supporting  [thresh: $_kThresholdSupporting] → ${supporting.count}/${cat.supportingKeywords.length} matched',
+      );
       if (supporting.matched.isNotEmpty) {
         for (int i = 0; i < supporting.matched.length; i++) {
-          print('│    ✓ "${supporting.matched[i]}"  score: ${supporting.scores[i]}');
+          print(
+            '│    ✓ "${supporting.matched[i]}"  score: ${supporting.scores[i]}',
+          );
         }
       }
-      print('│  weak neg    [thresh: $_kThresholdNegative] → ${weakNeg.count}/${cat.weakNegativeKeywords.length} matched');
+      print(
+        '│  weak neg    [thresh: $_kThresholdNegative] → ${weakNeg.count}/${cat.weakNegativeKeywords.length} matched',
+      );
       if (weakNeg.matched.isNotEmpty) {
         for (int i = 0; i < weakNeg.matched.length; i++) {
           print('│    ⚠ "${weakNeg.matched[i]}"  score: ${weakNeg.scores[i]}');
@@ -719,8 +778,10 @@ class DocumentAnalyzer {
           header.count > 0 || decisive.count > 0 || supporting.count >= 2;
 
       if (!hasMinimumSignal) {
-        print('│  ✗ SKIPPED – minimum signal not met '
-              '(header:${header.count}, decisive:${decisive.count}, supporting:${supporting.count})');
+        print(
+          '│  ✗ SKIPPED – minimum signal not met '
+          '(header:${header.count}, decisive:${decisive.count}, supporting:${supporting.count})',
+        );
         print('└─────────────────────────────────────────────────────────────');
         print('');
         continue;
@@ -728,10 +789,10 @@ class DocumentAnalyzer {
 
       // ── 4d. Weighted integer score ─────────────────────────────────────────
       final score =
-          (header.count    * 200) +
-          (decisive.count  * 100) +
+          (header.count * 200) +
+          (decisive.count * 100) +
           (supporting.count * 20) -
-          (weakNeg.count    * 35);
+          (weakNeg.count * 35);
 
       final cumulativeScore = [
         ...header.scores,
@@ -739,24 +800,30 @@ class DocumentAnalyzer {
         ...supporting.scores,
       ].fold(0, (a, b) => a + b);
 
-      print('│  score = (${header.count}×200) + (${decisive.count}×100) + '
-            '(${supporting.count}×20) - (${weakNeg.count}×35) = $score');
+      print(
+        '│  score = (${header.count}×200) + (${decisive.count}×100) + '
+        '(${supporting.count}×20) - (${weakNeg.count}×35) = $score',
+      );
       print('│  cumulative fuzzy score: $cumulativeScore');
 
       // ── 4e. Best-candidate selection ───────────────────────────────────────
       final isBetter =
           score > bestScore ||
           (score == bestScore && header.count > bestHeaderCount) ||
-          (score == bestScore && header.count == bestHeaderCount &&
+          (score == bestScore &&
+              header.count == bestHeaderCount &&
               decisive.count > bestDecisiveCount) ||
-          (score == bestScore && header.count == bestHeaderCount &&
+          (score == bestScore &&
+              header.count == bestHeaderCount &&
               decisive.count == bestDecisiveCount &&
               supporting.count > bestSupportingCount) ||
-          (score == bestScore && header.count == bestHeaderCount &&
+          (score == bestScore &&
+              header.count == bestHeaderCount &&
               decisive.count == bestDecisiveCount &&
               supporting.count == bestSupportingCount &&
               weakNeg.count < bestWeakNegativeCount) ||
-          (score == bestScore && header.count == bestHeaderCount &&
+          (score == bestScore &&
+              header.count == bestHeaderCount &&
               decisive.count == bestDecisiveCount &&
               supporting.count == bestSupportingCount &&
               weakNeg.count == bestWeakNegativeCount &&
@@ -765,16 +832,22 @@ class DocumentAnalyzer {
       if (isBetter) {
         final prevLabel = bestCat?.labelKey ?? 'none';
         print('│  ★ NEW BEST  (was: "$prevLabel" @ $bestScore → now: $score)');
-        bestScore             = score;
-        bestCat               = cat;
-        bestMatched           = [...header.matched, ...decisive.matched, ...supporting.matched];
-        bestHeaderCount       = header.count;
-        bestDecisiveCount     = decisive.count;
-        bestSupportingCount   = supporting.count;
+        bestScore = score;
+        bestCat = cat;
+        bestMatched = [
+          ...header.matched,
+          ...decisive.matched,
+          ...supporting.matched,
+        ];
+        bestHeaderCount = header.count;
+        bestDecisiveCount = decisive.count;
+        bestSupportingCount = supporting.count;
         bestWeakNegativeCount = weakNeg.count;
-        bestCumulativeScore   = cumulativeScore;
+        bestCumulativeScore = cumulativeScore;
       } else {
-        print('│  ✗ not better than current best "${bestCat?.labelKey}" @ $bestScore');
+        print(
+          '│  ✗ not better than current best "${bestCat?.labelKey}" @ $bestScore',
+        );
       }
 
       print('└─────────────────────────────────────────────────────────────');
@@ -786,12 +859,14 @@ class DocumentAnalyzer {
     if (bestCat == null || bestScore <= 0) {
       print('✗ No valid category found (bestScore: $bestScore)');
       print('  → returning AnalysisConfidence.unknown');
-      print('═════════════════════════════════════════════════════════════════');
+      print(
+        '═════════════════════════════════════════════════════════════════',
+      );
       return (
-        category:        null,
-        confidence:      AnalysisConfidence.unknown,
+        category: null,
+        confidence: AnalysisConfidence.unknown,
         matchedKeywords: <String>[],
-        trustScore:      0,
+        trustScore: 0,
       );
     }
 
@@ -809,10 +884,13 @@ class DocumentAnalyzer {
         : AnalysisConfidence.low;
 
     final confidenceReason = () {
-      if (bestHeaderCount >= 1 && bestDecisiveCount >= 1) return 'header≥1 + decisive≥1';
-      if (bestHeaderCount >= 1 && bestSupportingCount >= 2) return 'header≥1 + supporting≥2';
+      if (bestHeaderCount >= 1 && bestDecisiveCount >= 1)
+        return 'header≥1 + decisive≥1';
+      if (bestHeaderCount >= 1 && bestSupportingCount >= 2)
+        return 'header≥1 + supporting≥2';
       if (bestDecisiveCount >= 2) return 'decisive≥2';
-      if (bestDecisiveCount >= 1 && bestSupportingCount >= 2) return 'decisive≥1 + supporting≥2';
+      if (bestDecisiveCount >= 1 && bestSupportingCount >= 2)
+        return 'decisive≥1 + supporting≥2';
       if (bestHeaderCount >= 1) return 'header≥1 only';
       if (bestDecisiveCount >= 1) return 'decisive≥1 only';
       if (bestSupportingCount >= 3) return 'supporting≥3 only';
@@ -825,7 +903,9 @@ class DocumentAnalyzer {
 
     // ── Final summary ─────────────────────────────────────────────────────────
     print('');
-    print('ocr lines: ${lines.asMap().entries.map((e) => '[${e.key}] ${e.value}').join('\n')}');
+    print(
+      'ocr lines: ${lines.asMap().entries.map((e) => '[${e.key}] ${e.value}').join('\n')}',
+    );
     print('╔══════════════════════════════════════════════════════════════╗');
     print('║                  _classify() – RESULT                       ║');
     print('╠══════════════════════════════════════════════════════════════╣');
@@ -846,10 +926,10 @@ class DocumentAnalyzer {
     print('╚══════════════════════════════════════════════════════════════╝');
 
     return (
-      category:        bestCat,
-      confidence:      confidence,
+      category: bestCat,
+      confidence: confidence,
       matchedKeywords: bestMatched,
-      trustScore:      trustScore,
+      trustScore: trustScore,
     );
   }
 
