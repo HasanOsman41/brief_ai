@@ -135,6 +135,7 @@ class BriefAiCategories {
       value: MainCategory.categoryBills,
       labelKey: 'categoryBills',
       keywords: [
+        'Rechnung',
         'Buchhaltung',
         'Rechnungsstelle',
         'Debitorenbuchhaltung',
