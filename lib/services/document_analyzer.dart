@@ -583,19 +583,20 @@ class DocumentAnalyzer {
   // PHASE 1 – Detect main category from mainGroups keywords
   // ─────────────────────────────────────────────────────────────────────────
 
-  /// Scores every [MainCategoryDefinition] against [normText] and returns the
-  /// best-matching [MainCategory], or `null` when nothing scores above zero.
+  /// Scores every [MainCategoryDefinition] against [normText] and returns a list of
+  /// best-matching [MainCategory] values (handles ties). Returns empty list when
+  /// nothing scores above zero.
   ///
   /// The `categoryOther` group has an empty keyword list and therefore always
   /// scores 0 – it is used only as a fallback after sub-category scan fails.
-  static MainCategory? _detectMainCategory(String normText) {
+  static List<MainCategory> _detectMainCategories(String normText) {
     print('');
     print('╔══════════════════════════════════════════════════════════════╗');
     print('║           PHASE 1 – Main-category detection                  ║');
     print('╚══════════════════════════════════════════════════════════════╝');
 
     int bestScore = 0;
-    MainCategory? bestMain;
+    final bestMains = <MainCategory>[];
 
     for (final group in BriefAiCategories.mainGroups) {
       if (group.keywords.isEmpty) continue; // skip categoryOther
@@ -613,20 +614,28 @@ class DocumentAnalyzer {
 
       if (result.count > bestScore) {
         bestScore = result.count;
-        bestMain = group.value;
+        bestMains.clear();
+        bestMains.add(group.value);
+      } else if (result.count == bestScore && result.count > 0) {
+        // Tie: add to the list of best candidates
+        bestMains.add(group.value);
       }
     }
 
-    if (bestMain == null || bestScore == 0) {
+    if (bestMains.isEmpty || bestScore == 0) {
       print('  → No main category detected – will scan ALL sub-categories.');
+    } else if (bestMains.length == 1) {
+      print('  → Best main category: ${bestMains.first}  (score: $bestScore)');
     } else {
-      print('  → Best main category: $bestMain  (score: $bestScore)');
+      print(
+        '  → TIE: ${bestMains.length} main categories with score $bestScore: '
+        '${bestMains.join(', ')}',
+      );
     }
     print('');
 
-    return (bestScore > 0) ? bestMain : null;
+    return bestMains;
   }
-
   // ─────────────────────────────────────────────────────────────────────────
   // PHASE 2 – Sub-category scoring (unchanged logic, scoped to a group)
   // ─────────────────────────────────────────────────────────────────────────
@@ -641,7 +650,7 @@ class DocumentAnalyzer {
     // ── 1. Prepare text zones ────────────────────────────────────────────────
     final normText = _normalise(ocrText);
     final lines = ocrText.split('\n');
-    final headerLines = lines.take(10).join(' ');
+    final headerLines = lines.take(15).join(' ');
     final normHeader = _normalise('$headerLines $headerLines');
 
     print('╔══════════════════════════════════════════════════════════════╗');
@@ -654,10 +663,10 @@ class DocumentAnalyzer {
     print('╚══════════════════════════════════════════════════════════════╝');
     print('');
 
-    // ── 2. PHASE 1 – detect main category ───────────────────────────────────
-    final detectedMain = _detectMainCategory(normText);
+    // ── 2. PHASE 1 – detect main category/categories ───────────────────────────
+    final detectedMains = _detectMainCategories(normText);
 
-    if (detectedMain == null) {
+    if (detectedMains.isEmpty) {
       return (
         category: null,
         confidence: AnalysisConfidence.unknown,
@@ -665,19 +674,21 @@ class DocumentAnalyzer {
         trustScore: 0,
       );
     }
+
     // ── 3. Select candidate sub-categories ──────────────────────────────────
     //
-    // If a main category was detected, restrict the search to that group only.
-    // If detection was inconclusive, fall back to scanning everything
-    // (preserves original behaviour for edge cases / mixed documents).
-    final candidates = BriefAiCategories.all
-        .where((c) => c.mainCategory == detectedMain)
-        .toList();
+    // If one or more main categories were detected, restrict the search to those groups.
+    // If detection was inconclusive (empty list), fall back to scanning everything.
+    final candidates = detectedMains.isEmpty
+        ? BriefAiCategories.all
+        : BriefAiCategories.all
+              .where((c) => detectedMains.contains(c.mainCategory))
+              .toList();
 
     print('── PHASE 2 – Sub-category scan ─────────────────────────────────');
     print(
-      '   Scanning ${candidates.length} candidate(s)'
-      'in [$detectedMain]"}',
+      '   Scanning ${candidates.length} candidate(s) '
+      'in [${detectedMains.join(', ')}]',
     );
     print('');
 
@@ -909,7 +920,7 @@ class DocumentAnalyzer {
     print('╔══════════════════════════════════════════════════════════════╗');
     print('║                  _classify() – RESULT                       ║');
     print('╠══════════════════════════════════════════════════════════════╣');
-    print('║ main category : $detectedMain');
+    print('║ main category : $detectedMains');
     print('║ sub-category  : ${bestCat.id} / "${bestCat.labelKey}"');
     print('║ score         : $bestScore  (max: $maxScore)');
     print('║ trust score   : $trustScore / 100');

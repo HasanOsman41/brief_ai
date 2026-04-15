@@ -10,15 +10,12 @@
 ///    correct group. That's it – the analyzer picks it up automatically.
 ///
 /// Jobcenter section: jobcenter_modelle.docx (21 sub-categories)
-
 // ignore_for_file: prefer_single_quotes
-
 import '../models/category_definition.dart';
 import '../models/document_result.dart';
 
 class BriefAiCategories {
   BriefAiCategories._();
-
   // ───────────────────────────────────────────────────────────────────────────
   // MAIN GROUPS  (with default identification keywords)
   // ───────────────────────────────────────────────────────────────────────────
@@ -63,7 +60,18 @@ class BriefAiCategories {
     MainCategoryDefinition(
       value: MainCategory.categoryFinanzamt,
       labelKey: 'categoryFinanzamt',
-      keywords: [],
+      keywords: [
+        'Finanzamt',
+        'Finanzkasse',
+        'Landesamt für Steuern',
+        'Landesamt für Finanzen',
+        'Oberfinanzdirektion',
+        'Amt für Steuern',
+        'Finanzverwaltung',
+        'Steuerverwaltung',
+        'Veranlagungsstelle',
+        'Vollstreckungsstelle',
+      ],
     ),
     MainCategoryDefinition(
       value: MainCategory.categoryInsurance,
@@ -146,7 +154,7 @@ class BriefAiCategories {
         'Vollstreckungsgericht',
       ],
     ),
-        MainCategoryDefinition(
+    MainCategoryDefinition(
       value: MainCategory.categoryBank,
       labelKey: 'categoryBank',
       keywords: [
@@ -187,10 +195,15 @@ class BriefAiCategories {
       labelKey: 'categoryContracts',
       keywords: [
         'Vertragsabteilung',
-        'Vertragsmanagement',
         'Vertragsservice',
-        'Kündigungsabteilung',
+        'Vertragsmanagement',
+        'Kundenservice',
+        'Kundencenter',
+        'Servicecenter',
+        'Kundenbetreuung',
         'Vertragskundenservice',
+        'Mitgliederservice',
+        'Vertragsbetreuung',
       ],
     ),
     MainCategoryDefinition(
@@ -226,7 +239,6 @@ class BriefAiCategories {
     // ─────────────────────────────────────────────────────────────────────
     // JOBCENTER  (21 categories)
     // ─────────────────────────────────────────────────────────────────────
-
     // 1) Mitwirkung
     CategoryDefinition(
       id: 'jobcenter_mitwirkung',
@@ -279,7 +291,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.high,
     ),
-
     // 2) Einladung
     CategoryDefinition(
       id: 'jobcenter_einladung',
@@ -327,7 +338,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.high,
     ),
-
     // 3) Einladung zum Telefontermin
     CategoryDefinition(
       id: 'jobcenter_einladung_telefontermin',
@@ -375,7 +385,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.high,
     ),
-
     // 4) Einkommensbescheinigung
     CategoryDefinition(
       id: 'jobcenter_einkommensbescheinigung',
@@ -428,7 +437,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.low,
     ),
-
     // 5) Arbeitsbescheinigung
     CategoryDefinition(
       id: 'jobcenter_arbeitsbescheinigung',
@@ -481,7 +489,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.low,
     ),
-
     // 6) HA – Hauptantrag
     CategoryDefinition(
       id: 'jobcenter_hauptantrag',
@@ -529,7 +536,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.medium,
     ),
-
     // 7) WBA – Weiterbewilligungsantrag
     CategoryDefinition(
       id: 'jobcenter_wba',
@@ -582,7 +588,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.high,
     ),
-
     // 8) VÄM – Veränderungsmitteilung
     CategoryDefinition(
       id: 'jobcenter_vaem',
@@ -635,7 +640,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.medium,
     ),
-
     // 9) Anlage EK
     CategoryDefinition(
       id: 'jobcenter_anlage_ek',
@@ -688,7 +692,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.low,
     ),
-
     // 10) Anlage KDU
     CategoryDefinition(
       id: 'jobcenter_anlage_kdu',
@@ -736,7 +739,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.low,
     ),
-
     // 11) Anlage VM
     CategoryDefinition(
       id: 'jobcenter_anlage_vm',
@@ -789,7 +791,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.low,
     ),
-
     // 12) Anlage EKS
     CategoryDefinition(
       id: 'jobcenter_anlage_eks',
@@ -842,7 +843,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.low,
     ),
-
     // 13) Anlage WEP
     CategoryDefinition(
       id: 'jobcenter_anlage_wep',
@@ -895,7 +895,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.low,
     ),
-
     // 14) Anlage KI
     CategoryDefinition(
       id: 'jobcenter_anlage_ki',
@@ -943,7 +942,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.low,
     ),
-
     // 15) Anlage HG
     CategoryDefinition(
       id: 'jobcenter_anlage_hg',
@@ -996,7 +994,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.low,
     ),
-
     // 16) Anlage VE
     CategoryDefinition(
       id: 'jobcenter_anlage_ve',
@@ -1044,7 +1041,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.low,
     ),
-
     // 17) Anlage SV
     CategoryDefinition(
       id: 'jobcenter_anlage_sv',
@@ -1097,7 +1093,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.low,
     ),
-
     // 18) Anlage UH1
     CategoryDefinition(
       id: 'jobcenter_anlage_uh1',
@@ -1150,7 +1145,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.medium,
     ),
-
     // 19) Anlage UH2
     CategoryDefinition(
       id: 'jobcenter_anlage_uh2',
@@ -1203,7 +1197,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.medium,
     ),
-
     // 20) Anlage UH3
     CategoryDefinition(
       id: 'jobcenter_anlage_uh3',
@@ -1256,7 +1249,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.medium,
     ),
-
     // 21) Anlage BB
     CategoryDefinition(
       id: 'jobcenter_anlage_bb',
@@ -1299,7 +1291,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.low,
     ),
-
     // 22) Anlage MEB
     CategoryDefinition(
       id: 'jobcenter_anlage_meb',
@@ -1347,7 +1338,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.low,
     ),
-
     // 23) Anlage UF
     CategoryDefinition(
       id: 'jobcenter_anlage_uf',
@@ -1400,7 +1390,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.medium,
     ),
-
     // 24) AH – Ausfüllhinweise
     CategoryDefinition(
       id: 'jobcenter_hinweise',
@@ -1453,11 +1442,9 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.low,
     ),
-
     // ─────────────────────────────────────────────────────────────────────
     // AUSLÄNDERBEHÖRDE  (35 categories)
     // ─────────────────────────────────────────────────────────────────────
-
     // 1) Terminbestaetigung
     CategoryDefinition(
       id: 'auslaender_terminbestaetigung',
@@ -1500,7 +1487,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.high,
     ),
-
     // 2) Termineinladung Online
     CategoryDefinition(
       id: 'auslaender_termineinladung_online',
@@ -1549,7 +1535,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.high,
     ),
-
     // 3) Terminverlegung
     CategoryDefinition(
       id: 'auslaender_terminverlegung',
@@ -1598,7 +1583,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.high,
     ),
-
     // 4) Unterlagen Anforderung
     CategoryDefinition(
       id: 'auslaender_unterlagen_anfordering',
@@ -1642,7 +1626,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.high,
     ),
-
     // 5) Nachforderung
     CategoryDefinition(
       id: 'auslaender_nachforderung',
@@ -1691,7 +1674,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.high,
     ),
-
     // 6) Verlaengerung Hinweis
     CategoryDefinition(
       id: 'auslaender_verlaengerung_hinweis',
@@ -1740,7 +1722,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.high,
     ),
-
     // 7) Verlaengerungsantrag
     CategoryDefinition(
       id: 'auslaender_verlaengerungsantrag',
@@ -1789,7 +1770,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.medium,
     ),
-
     // 8) Verlaengerung Vorsprache
     CategoryDefinition(
       id: 'auslaender_verlaengerung_vorsprache',
@@ -1838,7 +1818,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.medium,
     ),
-
     // 9) Upload Hinweis
     CategoryDefinition(
       id: 'auslaender_upload_hinweis',
@@ -1875,7 +1854,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.low,
     ),
-
     // 10) Erteilung Antrag
     CategoryDefinition(
       id: 'auslaender_erteilung_antrag',
@@ -1924,7 +1902,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.medium,
     ),
-
     // 11) Erstantrag
     CategoryDefinition(
       id: 'auslaender_erstantrag',
@@ -1973,7 +1950,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.medium,
     ),
-
     // 12) Formularhinweis
     CategoryDefinition(
       id: 'auslaender_formularhinweis',
@@ -2022,7 +1998,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.low,
     ),
-
     // 13) Zustimmung
     CategoryDefinition(
       id: 'auslaender_zustimmung',
@@ -2071,7 +2046,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.low,
     ),
-
     // 14) Bewilligungsbescheid
     CategoryDefinition(
       id: 'auslaender_bewilligungsbescheid',
@@ -2120,7 +2094,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.low,
     ),
-
     // 15) Eat Abholung
     CategoryDefinition(
       id: 'auslaender_eat_abholung',
@@ -2169,7 +2142,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.low,
     ),
-
     // 16) Dokumentenausgabebox
     CategoryDefinition(
       id: 'auslaender_dokumentenausgabebox',
@@ -2218,7 +2190,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.low,
     ),
-
     // 17) Beschaeftigung
     CategoryDefinition(
       id: 'auslaender_beschaeftigung',
@@ -2267,7 +2238,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.medium,
     ),
-
     // 18) Erklaerung Beschaeftigungsverhaeltnis
     CategoryDefinition(
       id: 'auslaender_erklaerung_beschaeftigungsverhaeltnis',
@@ -2317,7 +2287,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.low,
     ),
-
     // 19) Arbeitsplatzangebot
     CategoryDefinition(
       id: 'auslaender_arbeitsplatzangebot',
@@ -2366,7 +2335,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.low,
     ),
-
     // 20) Blaue Karte
     CategoryDefinition(
       id: 'auslaender_blaue_karte',
@@ -2415,7 +2383,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.medium,
     ),
-
     // 21) Niederlassungserlaubnis Blaue Karte
     CategoryDefinition(
       id: 'auslaender_niederlassungserlaubnis_blaue_karte',
@@ -2464,7 +2431,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.medium,
     ),
-
     // 22) Studium
     CategoryDefinition(
       id: 'auslaender_studium',
@@ -2513,7 +2479,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.medium,
     ),
-
     // 23) Ausbildung
     CategoryDefinition(
       id: 'auslaender_ausbildung',
@@ -2562,7 +2527,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.medium,
     ),
-
     // 24) Nachweisblatt Studium
     CategoryDefinition(
       id: 'auslaender_nachweisblatt_studium',
@@ -2611,7 +2575,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.low,
     ),
-
     // 25) Familiennachzug
     CategoryDefinition(
       id: 'auslaender_familiennachzug',
@@ -2660,7 +2623,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.medium,
     ),
-
     // 26) Nachzug Deutsche
     CategoryDefinition(
       id: 'auslaender_nachzug_deutsche',
@@ -2709,7 +2671,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.medium,
     ),
-
     // 27) Aufenthaltskarte Eu
     CategoryDefinition(
       id: 'auslaender_aufenthaltskarte_eu',
@@ -2758,7 +2719,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.medium,
     ),
-
     // 28) Eingangsbestaetigung
     CategoryDefinition(
       id: 'auslaender_eingangsbestaetigung',
@@ -2807,7 +2767,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.low,
     ),
-
     // 29) Fiktionsbescheinigung
     CategoryDefinition(
       id: 'auslaender_fiktionsbescheinigung',
@@ -2856,7 +2815,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.medium,
     ),
-
     // 30) Fortgeltung
     CategoryDefinition(
       id: 'auslaender_fortgeltung',
@@ -2905,7 +2863,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.low,
     ),
-
     // 31) Ablehnung Problemfall
     CategoryDefinition(
       id: 'auslaender_ablehnung_problemfall',
@@ -2949,7 +2906,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.high,
     ),
-
     // 32) Ablehnungsbescheid
     CategoryDefinition(
       id: 'auslaender_ablehnungsbescheid',
@@ -2998,7 +2954,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.high,
     ),
-
     // 33) Uebertragung
     CategoryDefinition(
       id: 'auslaender_uebertragung',
@@ -3047,7 +3002,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.low,
     ),
-
     // 34) Gebuehrenhinweis
     CategoryDefinition(
       id: 'auslaender_gebuehrenhinweis',
@@ -3096,7 +3050,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.low,
     ),
-
     // 35) Akteneinsicht
     CategoryDefinition(
       id: 'auslaender_akteneinsicht',
@@ -3145,10 +3098,349 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.low,
     ),
+
+    // ───────────────────────────────────────────────────────────────────────────
+    // FINANZAMT (6 categories)
+    // ───────────────────────────────────────────────────────────────────────────
+    // 1) Steuerbescheid / Jahressteuerbescheid
+    CategoryDefinition(
+      id: 'finanzamt_steuerbescheid',
+      labelKey: 'cat_finanzamt_steuerbescheid_label',
+      summaryKey: 'cat_finanzamt_steuerbescheid_summary',
+      mainCategory: MainCategory.categoryFinanzamt,
+      headerKeywords: [
+        'Steuerbescheid',
+        'Bescheid für',
+        'über Einkommensteuer',
+        'Festsetzung der Einkommensteuer',
+      ],
+      decisiveKeywords: [
+        'festgesetzt werden',
+        'Besteuerungsgrundlagen',
+        'Rechtsbehelfsbelehrung',
+        'Einspruch',
+        'Abrechnung in €',
+        'verbleibende Beträge',
+        'festgesetzte Einkommensteuer',
+        'Vorbehalt der Nachprüfung',
+      ],
+      supportingKeywords: [
+        'Einkommensteuer',
+        'Solidaritätszuschlag',
+        'Kirchensteuer',
+        'Erläuterungen',
+        'Vorläufigkeit',
+        'Vorbehalt der Nachprüfung',
+        'Finanzkasse',
+        'Bescheid',
+      ],
+      weakNegativeKeywords: [
+        'Aufforderung zur Abgabe der Steuererklärung',
+        'Fragebogen zur steuerlichen Erfassung',
+        'Transferticket',
+        'Eingang auf Server',
+      ],
+      strongNegativeKeywords: [
+        'Umsatzsteuer-Voranmeldung',
+        'Übertragungsprotokoll',
+        'Fragebogen zur steuerlichen Erfassung',
+        'Aufnahme einer gewerblichen Tätigkeit',
+        'Transferticket',
+        'Eingang auf Server',
+      ],
+      nextStepKeys: [
+        'cat_finanzamt_steuerbescheid_step1',
+        'cat_finanzamt_steuerbescheid_step2',
+        'cat_finanzamt_steuerbescheid_step3',
+        'cat_finanzamt_steuerbescheid_step4',
+        'cat_finanzamt_steuerbescheid_step5',
+        'cat_finanzamt_steuerbescheid_step6',
+      ],
+      riskLevel: RiskLevel.high,
+    ),
+    // 2) Umsatzsteuer-Vorauszahlungsbescheid
+    CategoryDefinition(
+      id: 'finanzamt_umsatzsteuer_vorauszahlung',
+      labelKey: 'cat_finanzamt_umsatzsteuer_vorauszahlung_label',
+      summaryKey: 'cat_finanzamt_umsatzsteuer_vorauszahlung_summary',
+      mainCategory: MainCategory.categoryFinanzamt,
+      headerKeywords: [
+        'Bescheid über die Festsetzung der Umsatzsteuer-Vorauszahlung',
+        'Umsatzsteuer-Vorauszahlung',
+        'Festsetzung',
+        'Kalendervierteljahr',
+      ],
+      decisiveKeywords: [
+        'Umsatzsteuer-Vorauszahlung',
+        'Festsetzung',
+        'Berechnung der Umsatzsteuer-Vorauszahlung',
+        'Vorsteuerbeträge',
+        'steuerpflichtige Lieferungen',
+        'Kalendervierteljahr',
+        'Verspätungszuschlag',
+        'spätestens bis zum',
+      ],
+      supportingKeywords: [
+        'Umsatzsteuer',
+        'Voranmeldung',
+        'Vorsteuer',
+        'Bemessungsgrundlage',
+        'steuerpflichtige Umsätze',
+        'Finanzamt',
+        'Festsetzung',
+        'Fälligkeit',
+      ],
+      weakNegativeKeywords: [
+        'Steuerbescheid über Einkommensteuer',
+        'Fragebogen zur steuerlichen Erfassung',
+        'Transferticket',
+        'Aufforderung zur Abgabe',
+      ],
+      strongNegativeKeywords: [
+        'Eingang auf Server',
+        'Transferticket',
+        'Übertragungsprotokoll',
+        'Fragebogen zur steuerlichen Erfassung',
+        'Aufnahme einer gewerblichen Tätigkeit',
+        'Steuerbescheid über Einkommensteuer',
+      ],
+      nextStepKeys: [
+        'cat_finanzamt_umsatzsteuer_vorauszahlung_step1',
+        'cat_finanzamt_umsatzsteuer_vorauszahlung_step2',
+        'cat_finanzamt_umsatzsteuer_vorauszahlung_step3',
+        'cat_finanzamt_umsatzsteuer_vorauszahlung_step4',
+        'cat_finanzamt_umsatzsteuer_vorauszahlung_step5',
+        'cat_finanzamt_umsatzsteuer_vorauszahlung_step6',
+      ],
+      riskLevel: RiskLevel.medium,
+    ),
+    // 3) Vorauszahlungsbescheid Einkommensteuer / Gewerbesteuer
+    CategoryDefinition(
+      id: 'finanzamt_vorauszahlungsbescheid',
+      labelKey: 'cat_finanzamt_vorauszahlungsbescheid_label',
+      summaryKey: 'cat_finanzamt_vorauszahlungsbescheid_summary',
+      mainCategory: MainCategory.categoryFinanzamt,
+      headerKeywords: [
+        'Vorauszahlungsbescheid',
+        'Vorauszahlungen',
+        'Einkommensteuer-Vorauszahlung',
+        'Gewerbesteuer-Vorauszahlung',
+      ],
+      decisiveKeywords: [
+        'Vorauszahlung',
+        'Einkommensteuer',
+        'Gewerbesteuer',
+        'vierteljährlich',
+        '10. März',
+        '10. Juni',
+        '10. September',
+        '10. Dezember',
+      ],
+      supportingKeywords: [
+        'Veranlagungszeitraum',
+        'Zahlungstermin',
+        'Betrag je Termin',
+        'festgesetzt',
+        'Fälligkeit',
+        'Vorauszahlungen',
+        'Finanzamt',
+        'Bescheid',
+      ],
+      weakNegativeKeywords: [
+        'Steuerbescheid',
+        'Umsatzsteuer-Vorauszahlungsbescheid',
+        'Fragebogen zur steuerlichen Erfassung',
+        'Transferticket',
+      ],
+      strongNegativeKeywords: [
+        'Umsatzsteuer-Voranmeldung',
+        'Kalendervierteljahr',
+        'Eingang auf Server',
+        'Fragebogen',
+        'Transferticket',
+        'Rechtsbehelfsbelehrung allein',
+      ],
+      nextStepKeys: [
+        'cat_finanzamt_vorauszahlungsbescheid_step1',
+        'cat_finanzamt_vorauszahlungsbescheid_step2',
+        'cat_finanzamt_vorauszahlungsbescheid_step3',
+        'cat_finanzamt_vorauszahlungsbescheid_step4',
+        'cat_finanzamt_vorauszahlungsbescheid_step5',
+        'cat_finanzamt_vorauszahlungsbescheid_step6',
+      ],
+      riskLevel: RiskLevel.medium,
+    ),
+    // 4) Aufforderung zur Abgabe der Steuererklärung
+    CategoryDefinition(
+      id: 'finanzamt_aufforderung_steuererklaerung',
+      labelKey: 'cat_finanzamt_aufforderung_steuererklaerung_label',
+      summaryKey: 'cat_finanzamt_aufforderung_steuererklaerung_summary',
+      mainCategory: MainCategory.categoryFinanzamt,
+      headerKeywords: [
+        'Aufforderung zur Abgabe der Steuererklärung',
+        'Abgabe der Steuererklärung',
+        'Steuererklärung einzureichen',
+        'Bitte reichen Sie … ein',
+      ],
+      decisiveKeywords: [
+        'Aufforderung',
+        'Steuererklärung',
+        'einzureichen',
+        'Abgabefrist',
+        'Frist',
+        'Zwangsgeld',
+        'Schätzung',
+        'Verspätungszuschlag',
+      ],
+      supportingKeywords: [
+        'Einkommensteuer',
+        'Zeitraum',
+        'Finanzamt',
+        'Abgabe',
+        'Erklärung',
+        'Termin',
+        'Schätzung',
+        'Zwangsmittel',
+      ],
+      weakNegativeKeywords: [
+        'Steuerbescheid',
+        'Fragebogen zur steuerlichen Erfassung',
+        'Transferticket',
+        'Umsatzsteuer-Voranmeldung',
+      ],
+      strongNegativeKeywords: [
+        'Rechtsbehelfsbelehrung',
+        'festgesetzt werden',
+        'Art der Festsetzung',
+        'Eingang auf Server',
+        'Fragebogen zur steuerlichen Erfassung',
+        'Bescheid über die Festsetzung',
+      ],
+      nextStepKeys: [
+        'cat_finanzamt_aufforderung_steuererklaerung_step1',
+        'cat_finanzamt_aufforderung_steuererklaerung_step2',
+        'cat_finanzamt_aufforderung_steuererklaerung_step3',
+        'cat_finanzamt_aufforderung_steuererklaerung_step4',
+        'cat_finanzamt_aufforderung_steuererklaerung_step5',
+        'cat_finanzamt_aufforderung_steuererklaerung_step6',
+      ],
+      riskLevel: RiskLevel.high,
+    ),
+    // 5) Fragebogen zur steuerlichen Erfassung / Aufnahme einer Tätigkeit
+    CategoryDefinition(
+      id: 'finanzamt_fragebogen_erfassung',
+      labelKey: 'cat_finanzamt_fragebogen_erfassung_label',
+      summaryKey: 'cat_finanzamt_fragebogen_erfassung_summary',
+      mainCategory: MainCategory.categoryFinanzamt,
+      headerKeywords: [
+        'Fragebogen zur steuerlichen Erfassung',
+        'Aufnahme einer gewerblichen Tätigkeit',
+        'Aufnahme einer selbständigen Tätigkeit',
+        'Aufnahme einer freiberuflichen Tätigkeit',
+      ],
+      decisiveKeywords: [
+        'steuerliche Erfassung',
+        'Fragebogen',
+        'Aufnahme einer gewerblichen Tätigkeit',
+        'innerhalb eines Monats',
+        'Steuernummer wird beantragt',
+        'ELSTER',
+        'elektronisch zu übermitteln',
+        'unternehmerische Tätigkeit',
+      ],
+      supportingKeywords: [
+        'Neugründung',
+        'Beginn der Tätigkeit',
+        'Kleinunternehmer-Regelung',
+        'Gewinnermittlungsart',
+        'Istversteuerung',
+        'Umsatzsteuer Zahllast',
+        'Unternehmensbezeichnung',
+        'steuerlichen Erfassung',
+      ],
+      weakNegativeKeywords: [
+        'Steuerbescheid',
+        'Aufforderung zur Abgabe',
+        'Transferticket',
+        'USt-Voranmeldung',
+      ],
+      strongNegativeKeywords: [
+        'Rechtsbehelfsbelehrung',
+        'festgesetzt werden',
+        'Bitte zahlen Sie',
+        'Transferticket',
+        'Eingang auf Server',
+        'Bescheid über die Festsetzung',
+      ],
+      nextStepKeys: [
+        'cat_finanzamt_fragebogen_erfassung_step1',
+        'cat_finanzamt_fragebogen_erfassung_step2',
+        'cat_finanzamt_fragebogen_erfassung_step3',
+        'cat_finanzamt_fragebogen_erfassung_step4',
+        'cat_finanzamt_fragebogen_erfassung_step5',
+        'cat_finanzamt_fragebogen_erfassung_step6',
+      ],
+      riskLevel: RiskLevel.low,
+    ),
+    // 6) ELSTER-Übertragungsprotokoll / Transferticket
+    CategoryDefinition(
+      id: 'finanzamt_elster_protokoll',
+      labelKey: 'cat_finanzamt_elster_protokoll_label',
+      summaryKey: 'cat_finanzamt_elster_protokoll_summary',
+      mainCategory: MainCategory.categoryFinanzamt,
+      headerKeywords: [
+        'Transferticket',
+        'Übertragungsprotokoll',
+        'Eingang auf Server',
+        'Erstellungsdatum',
+      ],
+      decisiveKeywords: [
+        'Datenübermittler',
+        'Transferticket',
+        'Eingang auf Server',
+        'ELSTER',
+        'Umsatzsteuer-Voranmeldung',
+        'Kennzahl',
+        'Wert',
+        'Erstellungsdatum',
+      ],
+      supportingKeywords: [
+        'Jahr',
+        'Zeitraum',
+        'Unternehmer',
+        'Kennzahl',
+        'Wert',
+        'Finanzamt',
+        'Steuernummer',
+        'E-Mail',
+      ],
+      weakNegativeKeywords: [
+        'Steuerbescheid',
+        'Vorauszahlungsbescheid',
+        'Aufforderung zur Abgabe',
+        'Fragebogen zur steuerlichen Erfassung',
+      ],
+      strongNegativeKeywords: [
+        'Rechtsbehelfsbelehrung',
+        'Einspruch',
+        'festgesetzt werden',
+        'Bitte zahlen Sie',
+        'Art der Festsetzung',
+        'Bescheid über die Festsetzung',
+      ],
+      nextStepKeys: [
+        'cat_finanzamt_elster_protokoll_step1',
+        'cat_finanzamt_elster_protokoll_step2',
+        'cat_finanzamt_elster_protokoll_step3',
+        'cat_finanzamt_elster_protokoll_step4',
+        'cat_finanzamt_elster_protokoll_step5',
+        'cat_finanzamt_elster_protokoll_step6',
+      ],
+      riskLevel: RiskLevel.low,
+    ),
     // ─────────────────────────────────────────────────────────────────────
     // KRANKENKASSE  (10 categories)
     // ─────────────────────────────────────────────────────────────────────
-
     // 1) Krankengeld
     CategoryDefinition(
       id: 'krankenkasse_krankengeld',
@@ -3202,7 +3494,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.high,
     ),
-
     // 2) Pflegeleistungen Antrag
     CategoryDefinition(
       id: 'krankenkasse_pflegeleistungen',
@@ -3258,7 +3549,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.high,
     ),
-
     // 3) Beitragsbescheid
     CategoryDefinition(
       id: 'krankenkasse_beitragsbescheid',
@@ -3313,7 +3603,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.medium,
     ),
-
     // 4) Mitgliedsantrag Krankenkasse
     CategoryDefinition(
       id: 'krankenkasse_mitgliedsantrag',
@@ -3367,7 +3656,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.medium,
     ),
-
     // 5) Familienversicherung Antrag
     CategoryDefinition(
       id: 'krankenkasse_familienversicherung',
@@ -3416,7 +3704,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.low,
     ),
-
     // 6) Kündigung Krankenkasse
     CategoryDefinition(
       id: 'krankenkasse_kuendigung',
@@ -3467,7 +3754,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.medium,
     ),
-
     // 7) Haushaltshilfe Antrag
     CategoryDefinition(
       id: 'krankenkasse_haushaltshilfe',
@@ -3517,7 +3803,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.medium,
     ),
-
     // 8) Versicherungsbescheinigung
     CategoryDefinition(
       id: 'krankenkasse_versicherungsbescheinigung',
@@ -3567,7 +3852,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.low,
     ),
-
     // 9) Elektronische Gesundheitskarte / eGK
     CategoryDefinition(
       id: 'krankenkasse_egk',
@@ -3619,7 +3903,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.low,
     ),
-
     // 10) Datenänderung Formular
     CategoryDefinition(
       id: 'krankenkasse_datenaenderung',
@@ -3670,11 +3953,9 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.low,
     ),
-
     // ─────────────────────────────────────────────────────────────────────
     // INSURANCE  (20 categories)
     // ─────────────────────────────────────────────────────────────────────
-
     // 1) Versicherungsschein / Police
     CategoryDefinition(
       id: 'insurance_police',
@@ -3727,7 +4008,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.medium,
     ),
-
     // 2) Beitragsrechnung
     CategoryDefinition(
       id: 'insurance_beitragsrechnung',
@@ -3780,7 +4060,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.medium,
     ),
-
     // 3) Schadenregulierung
     CategoryDefinition(
       id: 'insurance_schadenregulierung',
@@ -3833,7 +4112,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.medium,
     ),
-
     // 4) Beitragsanpassung / Beitragserhöhung
     CategoryDefinition(
       id: 'insurance_beitragsanpassung',
@@ -3886,7 +4164,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.high,
     ),
-
     // 5) Schadenmeldung Bestätigung
     CategoryDefinition(
       id: 'insurance_schadenmeldung',
@@ -3939,7 +4216,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.medium,
     ),
-
     // 6) Vertragsverlängerung
     CategoryDefinition(
       id: 'insurance_vertragsverlaengerung',
@@ -3992,7 +4268,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.medium,
     ),
-
     // 7) Schadenablehnung
     CategoryDefinition(
       id: 'insurance_schadenablehnung',
@@ -4045,7 +4320,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.critical,
     ),
-
     // 8) Mahnung wegen Nichtzahlung
     CategoryDefinition(
       id: 'insurance_mahnung',
@@ -4098,7 +4372,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.high,
     ),
-
     // 9) Vertrag beendet wegen Nichtzahlung
     CategoryDefinition(
       id: 'insurance_vertrag_nichtzahlung',
@@ -4151,7 +4424,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.critical,
     ),
-
     // 10) Kündigungsbestätigung
     CategoryDefinition(
       id: 'insurance_kuendigungsbestaetigung',
@@ -4204,7 +4476,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.low,
     ),
-
     // 11) Elektronische Versicherungsbestätigung (eVB)
     CategoryDefinition(
       id: 'insurance_evb',
@@ -4257,7 +4528,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.medium,
     ),
-
     // 12) Versicherungsschein Kfz
     CategoryDefinition(
       id: 'insurance_police_kfz',
@@ -4310,7 +4580,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.medium,
     ),
-
     // 13) Schadenregulierung Kfz
     CategoryDefinition(
       id: 'insurance_schadenregulierung_kfz',
@@ -4363,7 +4632,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.medium,
     ),
-
     // 14) Beitragsrechnung Kfz
     CategoryDefinition(
       id: 'insurance_beitragsrechnung_kfz',
@@ -4416,7 +4684,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.medium,
     ),
-
     // 15) Schadenmeldung Kfz
     CategoryDefinition(
       id: 'insurance_schadenmeldung_kfz',
@@ -4469,7 +4736,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.medium,
     ),
-
     // 16) Vertragsänderung Kfz
     CategoryDefinition(
       id: 'insurance_vertragsaenderung_kfz',
@@ -4522,7 +4788,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.medium,
     ),
-
     // 17) Kilometerstandsmeldung
     CategoryDefinition(
       id: 'insurance_kilometerstand',
@@ -4575,7 +4840,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.low,
     ),
-
     // 18) Schadenfreiheitsklasse (SF-Klasse)
     CategoryDefinition(
       id: 'insurance_sf_klasse',
@@ -4628,7 +4892,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.medium,
     ),
-
     // 19) Schadenablehnung Kfz
     CategoryDefinition(
       id: 'insurance_schadenablehnung_kfz',
@@ -4681,7 +4944,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.critical,
     ),
-
     // 20) Kündigungsbestätigung Kfz
     CategoryDefinition(
       id: 'insurance_kuendigungsbestaetigung_kfz',
@@ -4737,7 +4999,6 @@ class BriefAiCategories {
     // ─────────────────────────────────────────────────────────────────────
     // WOHNEN / KAUTION  (18 categories)
     // ─────────────────────────────────────────────────────────────────────
-
     // 1) Mietvertrag
     CategoryDefinition(
       id: 'wohnen_mietvertrag',
@@ -4790,7 +5051,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.high,
     ),
-
     // 2) Wohnungsgeberbestätigung
     CategoryDefinition(
       id: 'wohnen_wohnungsgeberbestaetigung',
@@ -4843,7 +5103,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.medium,
     ),
-
     // 3) Mietbescheinigung
     CategoryDefinition(
       id: 'wohnen_mietbescheinigung',
@@ -4896,7 +5155,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.low,
     ),
-
     // 4) Nebenkostenabrechnung
     CategoryDefinition(
       id: 'wohnen_nebenkostenabrechnung',
@@ -4949,7 +5207,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.medium,
     ),
-
     // 5) Mieterhöhung
     CategoryDefinition(
       id: 'wohnen_mieterhoehung',
@@ -5002,7 +5259,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.high,
     ),
-
     // 6) Kautionsabrechnung (broad label — kept for legacy matching)
     CategoryDefinition(
       id: 'wohnen_kautionsabrechnung',
@@ -5055,7 +5311,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.medium,
     ),
-
     // 7) Modernisierungsankündigung
     CategoryDefinition(
       id: 'wohnen_modernisierungsankuendigung',
@@ -5108,7 +5363,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.medium,
     ),
-
     // 8) Reparaturankündigung / Terminankündigung
     CategoryDefinition(
       id: 'wohnen_reparaturankuendigung',
@@ -5161,7 +5415,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.low,
     ),
-
     // 9) Mietkündigung
     CategoryDefinition(
       id: 'wohnen_mieterhoehung_kuendigung',
@@ -5213,7 +5466,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.high,
     ),
-
     // 10) Fristlose Kündigung wegen Mietrückstand
     CategoryDefinition(
       id: 'wohnen_fristlose_kuendigung',
@@ -5266,7 +5518,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.high,
     ),
-
     // 11) Mietrückstand / Zahlungserinnerung
     CategoryDefinition(
       id: 'wohnen_mieterrueckstand',
@@ -5319,7 +5570,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.high,
     ),
-
     // 12) Hausordnung
     CategoryDefinition(
       id: 'wohnen_hausordnung',
@@ -5372,7 +5622,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.low,
     ),
-
     // 13) Übergabeprotokoll
     CategoryDefinition(
       id: 'wohnen_uebergabeprotokoll',
@@ -5425,7 +5674,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.medium,
     ),
-
     // 14) Kautionsvereinbarung
     CategoryDefinition(
       id: 'wohnen_kautionsvereinbarung',
@@ -5478,7 +5726,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.medium,
     ),
-
     // 15) Bestätigung der Kautionszahlung
     CategoryDefinition(
       id: 'wohnen_kaution_bestaetigung',
@@ -5531,7 +5778,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.low,
     ),
-
     // 16) Kautionsabrechnung (detailed)
     CategoryDefinition(
       id: 'wohnen_kaution_abrechnung',
@@ -5584,7 +5830,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.medium,
     ),
-
     // 17) Einbehalt der Kaution
     CategoryDefinition(
       id: 'wohnen_kaution_einbehalt',
@@ -5637,7 +5882,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.high,
     ),
-
     // 18) Kautionsrückzahlung
     CategoryDefinition(
       id: 'wohnen_kaution_rueckzahlung',
@@ -5690,7 +5934,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.low,
     ),
-
     // ─────────────────────────────────────────────────────────────────────
     // RECHNUNG / BILLS  (13 categories)
     // Sender keywords: Buchhaltung, Rechnungsstelle, Debitorenbuchhaltung,
@@ -5698,7 +5941,6 @@ class BriefAiCategories {
     //   Inkassounternehmen, Inkassodienst, Mahngericht,
     //   Amtsgericht, Gerichtsvollzieher, Vollstreckungsgericht
     // ─────────────────────────────────────────────────────────────────────
-
     // 1) Abschlagsrechnung
     CategoryDefinition(
       id: 'rechnung_abschlagsrechnung',
@@ -5751,7 +5993,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.low,
     ),
-
     // 2) Teilrechnung
     CategoryDefinition(
       id: 'rechnung_teilrechnung',
@@ -5804,7 +6045,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.low,
     ),
-
     // 3) Schlussrechnung
     CategoryDefinition(
       id: 'rechnung_schlussrechnung',
@@ -5857,7 +6097,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.low,
     ),
-
     // 4) Rechnung
     CategoryDefinition(
       id: 'rechnung_rechnung',
@@ -5911,7 +6150,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.low,
     ),
-
     // 5) Zahlungserinnerung
     CategoryDefinition(
       id: 'rechnung_zahlungserinnerung',
@@ -5959,7 +6197,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.medium,
     ),
-
     // 6) Mahnung
     CategoryDefinition(
       id: 'rechnung_mahnung',
@@ -6012,7 +6249,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.medium,
     ),
-
     // 7) Letzte Mahnung
     CategoryDefinition(
       id: 'rechnung_letzte_mahnung',
@@ -6060,7 +6296,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.high,
     ),
-
     // 8) Inkasso-Forderung
     CategoryDefinition(
       id: 'rechnung_inkasso_forderung',
@@ -6114,7 +6349,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.high,
     ),
-
     // 9) Inkasso-Ratenzahlungsangebot
     CategoryDefinition(
       id: 'rechnung_inkasso_ratenzahlung',
@@ -6167,7 +6401,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.high,
     ),
-
     // 10) Mahnbescheid
     CategoryDefinition(
       id: 'rechnung_mahnbescheid',
@@ -6220,7 +6453,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.critical,
     ),
-
     // 11) Vollstreckungsbescheid
     CategoryDefinition(
       id: 'rechnung_vollstreckungsbescheid',
@@ -6268,7 +6500,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.critical,
     ),
-
     // 12) Gerichtsvollzieherankündigung
     CategoryDefinition(
       id: 'rechnung_gerichtsvollzieher',
@@ -6321,7 +6552,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.critical,
     ),
-
     // 13) Pfändungs- und Überweisungsbeschluss
     CategoryDefinition(
       id: 'rechnung_pfaendung',
@@ -6374,10 +6604,9 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.critical,
     ),
-      // ─────────────────────────────────────────────────────────────────────
+    // ─────────────────────────────────────────────────────────────────────
     // BANK  (11 categories)
     // ─────────────────────────────────────────────────────────────────────
-
     // 1) Sicherheitswarnung
     CategoryDefinition(
       id: 'bank_sicherheitswarnung',
@@ -6431,7 +6660,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.critical,
     ),
-
     // 2) Kartensperrung / Verdacht auf Missbrauch
     CategoryDefinition(
       id: 'bank_kartensperrung',
@@ -6485,7 +6713,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.critical,
     ),
-
     // 3) SEPA-Lastschrift
     CategoryDefinition(
       id: 'bank_sepa_lastschrift',
@@ -6539,7 +6766,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.medium,
     ),
-
     // 4) Rücklastschrift
     CategoryDefinition(
       id: 'bank_ruecklastschrift',
@@ -6593,7 +6819,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.high,
     ),
-
     // 5) Kontoüberziehung
     CategoryDefinition(
       id: 'bank_kontouberziehung',
@@ -6647,7 +6872,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.high,
     ),
-
     // 6) Kontoauszug
     CategoryDefinition(
       id: 'bank_kontoauszug',
@@ -6701,7 +6925,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.low,
     ),
-
     // 7) Kreditkartenabrechnung
     CategoryDefinition(
       id: 'bank_kreditkartenabrechnung',
@@ -6755,7 +6978,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.low,
     ),
-
     // 8) Überweisungsbestätigung
     CategoryDefinition(
       id: 'bank_ueberweisungsbestaetigung',
@@ -6809,7 +7031,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.low,
     ),
-
     // 9) Dauerauftrag eingerichtet
     CategoryDefinition(
       id: 'bank_dauerauftrag_eingerichtet',
@@ -6863,19 +7084,13 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.low,
     ),
-
     // 10) Dauerauftrag geändert oder gelöscht
     CategoryDefinition(
       id: 'bank_dauerauftrag_geaendert',
       labelKey: 'cat_bank_dauerauftrag_geaendert_label',
       summaryKey: 'cat_bank_dauerauftrag_geaendert_summary',
       mainCategory: MainCategory.categoryBank,
-      headerKeywords: [
-        'Dauerauftrag',
-        'geändert',
-        'gelöscht',
-        'Löschung am',
-      ],
+      headerKeywords: ['Dauerauftrag', 'geändert', 'gelöscht', 'Löschung am'],
       decisiveKeywords: [
         'Dauerauftrag geändert',
         'Dauerauftrag gelöscht',
@@ -6917,7 +7132,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.medium,
     ),
-
     // 11) Bankgebühren
     CategoryDefinition(
       id: 'bank_bankgebuehren',
@@ -6971,11 +7185,9 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.low,
     ),
-
     // ─────────────────────────────────────────────────────────────────────
     // VERTRÄGE  (12 categories)
     // ─────────────────────────────────────────────────────────────────────
-
     // 1) Kündigung Ihres Vertrags
     CategoryDefinition(
       id: 'vertrag_kuendigung',
@@ -6997,7 +7209,7 @@ class BriefAiCategories {
         'Kündigungstermin',
       ],
       supportingKeywords: [
-        'Kunden-Nr.',
+        'Kundennummer',
         'Vertragsnummer',
         'Kündigungsfrist',
         'Vertragsende',
@@ -7008,16 +7220,17 @@ class BriefAiCategories {
       ],
       weakNegativeKeywords: [
         'Kündigungsbestätigung',
-        'wir bestätigen Ihre Kündigung',
         'Vertragsende',
-        'automatische Vertragsverlängerung',
+        'Automatische Vertragsverlängerung',
+        'Kündigung durch Anbieter',
       ],
       strongNegativeKeywords: [
+        'wir bestätigen Ihre Kündigung',
         'wir kündigen den Vertrag',
-        'wir beenden das Vertragsverhältnis',
+        'Arbeitsverhältnis',
+        'Agentur für Arbeit',
+        'Personalleitung',
         'Rechnung',
-        'Mahnung',
-        'Beitragsrechnung',
       ],
       nextStepKeys: [
         'cat_vertrag_kuendigung_step1',
@@ -7029,7 +7242,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.medium,
     ),
-
     // 2) Kündigungsbestätigung
     CategoryDefinition(
       id: 'vertrag_kuendigungsbestaetigung',
@@ -7039,7 +7251,7 @@ class BriefAiCategories {
       headerKeywords: [
         'Kündigungsbestätigung',
         'Bestätigung Ihrer Kündigung',
-        'Ihre Kündigung',
+        'Ihre Kündigung wurde bestätigt',
         'Kündigung bestätigt',
       ],
       decisiveKeywords: [
@@ -7056,22 +7268,23 @@ class BriefAiCategories {
         'Eingang',
         'Bestätigung',
         'Kündigungstermin',
-        'Vertrag endet',
         'Bearbeitung',
-        'Textform',
+        'vorgemerkt',
+        'endet',
       ],
       weakNegativeKeywords: [
         'hiermit kündige ich',
-        'Kündigung meines Vertrags',
-        'automatische Vertragsverlängerung',
+        'Automatische Vertragsverlängerung',
         'Vertragsende',
+        'Kündigung durch Anbieter',
       ],
       strongNegativeKeywords: [
         'wir kündigen den Vertrag',
+        'kündigen wir Ihnen',
+        'Arbeitsverhältnis',
         'Rechnung',
         'Mahnung',
-        'Beitragsrechnung',
-        'Vertragsverlängerung',
+        'Mitgliedsbeitrag',
       ],
       nextStepKeys: [
         'cat_vertrag_kuendigungsbestaetigung_step1',
@@ -7083,7 +7296,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.low,
     ),
-
     // 3) Kündigung durch Anbieter
     CategoryDefinition(
       id: 'vertrag_kuendigung_anbieter',
@@ -7116,16 +7328,17 @@ class BriefAiCategories {
       ],
       weakNegativeKeywords: [
         'Kündigungsbestätigung',
-        'hiermit kündige ich',
         'Vertragsende',
-        'automatische Vertragsverlängerung',
+        'Automatische Vertragsverlängerung',
+        'Kündigung Ihres Vertrags',
       ],
       strongNegativeKeywords: [
+        'Arbeitsverhältnis',
+        'Agentur für Arbeit',
+        'Personalleitung',
+        'hiermit kündige ich',
         'wir bestätigen Ihre Kündigung',
-        'hiermit kündige ich meinen Vertrag',
         'Rechnung',
-        'Mahnung',
-        'Beitragsrechnung',
       ],
       nextStepKeys: [
         'cat_vertrag_kuendigung_anbieter_step1',
@@ -7137,7 +7350,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.high,
     ),
-
     // 4) Automatische Vertragsverlängerung
     CategoryDefinition(
       id: 'vertrag_automatische_verlaengerung',
@@ -7162,24 +7374,25 @@ class BriefAiCategories {
         'Laufzeit',
         'Vertragslaufzeit',
         'Mindestlaufzeit',
-        'Kündigungsfrist',
-        'Monat',
         'Frist',
+        'Monat',
         'Verlängerung',
         'Ablauf',
+        'Vertrag',
       ],
       weakNegativeKeywords: [
-        'Kündigungsbestätigung',
         'Vertragsende',
-        'hiermit kündige ich',
-        'wir kündigen den Vertrag',
+        'Kündigungsbestätigung',
+        'Kündigung Ihres Vertrags',
+        'Kündigung durch Anbieter',
       ],
       strongNegativeKeywords: [
+        'endet am',
+        'wir bestätigen Ihre Kündigung',
+        'hiermit kündige ich',
         'Rechnung',
         'Mahnung',
-        'Beitragsrechnung',
-        'Mahnbescheid',
-        'Vollstreckungsbescheid',
+        'Arbeitsverhältnis',
       ],
       nextStepKeys: [
         'cat_vertrag_automatische_verlaengerung_step1',
@@ -7191,7 +7404,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.medium,
     ),
-
     // 5) Vertragsende
     CategoryDefinition(
       id: 'vertrag_vertragsende',
@@ -7214,26 +7426,27 @@ class BriefAiCategories {
       ],
       supportingKeywords: [
         'Laufzeit',
-        'endet',
         'Ablauf',
-        'Vertragsende',
+        'endet',
         'Datum',
+        'Vertragsende',
         'Frist',
         'Anschlussvertrag',
-        'Verlängerung',
+        'Ende',
       ],
       weakNegativeKeywords: [
         'Kündigungsbestätigung',
-        'automatische Vertragsverlängerung',
-        'hiermit kündige ich',
-        'wir kündigen den Vertrag',
+        'Automatische Vertragsverlängerung',
+        'Kündigung Ihres Vertrags',
+        'Kündigung durch Anbieter',
       ],
       strongNegativeKeywords: [
+        'kündigen wir',
+        'wir bestätigen Ihre Kündigung',
+        'verlängert sich automatisch',
+        'Arbeitsverhältnis',
+        'Personalleitung',
         'Rechnung',
-        'Mahnung',
-        'Inkasso',
-        'Beitragsrechnung',
-        'Mahnbescheid',
       ],
       nextStepKeys: [
         'cat_vertrag_vertragsende_step1',
@@ -7245,7 +7458,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.medium,
     ),
-
     // 6) Arbeitsvertrag
     CategoryDefinition(
       id: 'vertrag_arbeitsvertrag',
@@ -7254,40 +7466,43 @@ class BriefAiCategories {
       mainCategory: MainCategory.categoryContracts,
       headerKeywords: [
         'Arbeitsvertrag',
-        'Anstellungsvertrag',
-        'Beginn des Arbeitsverhältnisses',
+        'Befristeter Arbeitsvertrag',
+        'Unbefristeter Arbeitsvertrag',
         'Arbeitsverhältnis',
       ],
       decisiveKeywords: [
-        'Bruttogehalt',
-        'Arbeitszeit',
-        'Probezeit',
-        'Urlaubstage',
         'Arbeitgeber',
         'Arbeitnehmer',
+        'Bruttogehalt',
+        'regelmäßige wöchentliche Arbeitszeit',
+        'Probezeit',
+        'Urlaub',
+        'Beginn des Arbeitsverhältnisses',
+        'Tätigkeitsbeschreibung',
       ],
       supportingKeywords: [
-        'Tätigkeitsbeschreibung',
-        'Vergütung',
-        'Urlaub',
-        'Kündigungsfrist',
+        'Entlohnung',
+        'Arbeitsstunden',
         'Arbeitsort',
-        'Wochenstunden',
-        'Entgelt',
-        'Beginn',
+        'Akkordarbeit',
+        'Verfallfristen',
+        'Gerichtsstand',
+        'MiLoG',
+        'Urlaubstage',
       ],
       weakNegativeKeywords: [
-        'Kaufvertrag',
-        'Mitgliedschaft',
-        'Internetvertrag',
-        'Versicherungsvertrag',
+        'Kündigungsbestätigung',
+        'Vertragsende',
+        'Kündigung Ihres Vertrags',
+        'Kündigung durch Anbieter',
       ],
       strongNegativeKeywords: [
-        'Versicherungsschein',
-        'Rechnung',
-        'Mahnung',
-        'Kontoauszug',
-        'Aufenthaltstitel',
+        'Kündigung des Arbeitsverhältnisses',
+        'kündigen wir Ihnen',
+        'Agentur für Arbeit',
+        'Arbeitssuche',
+        '§ 38 SGB III',
+        'Personalleitung',
       ],
       nextStepKeys: [
         'cat_vertrag_arbeitsvertrag_step1',
@@ -7299,7 +7514,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.high,
     ),
-
     // 7) Stromvertrag
     CategoryDefinition(
       id: 'vertrag_stromvertrag',
@@ -7307,41 +7521,44 @@ class BriefAiCategories {
       summaryKey: 'cat_vertrag_stromvertrag_summary',
       mainCategory: MainCategory.categoryContracts,
       headerKeywords: [
-        'Stromliefervertrag',
-        'Stromvertrag',
         'Auftrag zur Stromlieferung',
-        'Energieliefervertrag',
+        'Stromvertrag',
+        'Stromliefervertrag',
+        'Energielieferung',
       ],
       decisiveKeywords: [
         'Arbeitspreis',
         'Grundpreis',
-        'Vertragslaufzeit',
-        'Lieferbeginn',
-        'Kündigungsfrist',
-        'Tarif',
+        'StromGVV',
+        'Lieferstelle',
+        'Zählernummer',
+        'Stromlieferant',
+        'Niederspannung',
+        'SEPA-Basislastschriftmandat',
       ],
       supportingKeywords: [
-        'Strom',
-        'Lieferstelle',
-        'Tarifname',
-        'Zählernummer',
-        'kWh',
-        'Bonus',
-        'Mindestlaufzeit',
-        'Preisgarantie',
+        'Vorjahresverbrauch in kWh',
+        'Lieferbeginn',
+        'MaLo-ID',
+        'Anbieterwechsel',
+        'Preisblatt',
+        'Grundversorgung',
+        'Ersatzversorgung',
+        'Sondervertrag',
       ],
       weakNegativeKeywords: [
-        'Internetvertrag',
-        'Mitgliedschaft',
-        'Kündigungsbestätigung',
         'Vertragsende',
+        'Kündigungsbestätigung',
+        'Kündigung Ihres Vertrags',
+        'Rechnung',
       ],
       strongNegativeKeywords: [
-        'Jahresrechnung',
-        'Abschlag',
-        'Mahnung',
-        'Beitragsrechnung',
-        'Kontoauszug',
+        'Mobilfunk',
+        'Datenvolumen',
+        'Bruttogehalt',
+        'Kaufpreis',
+        'Mitgliedschaft',
+        'Darlehensvertrag',
       ],
       nextStepKeys: [
         'cat_vertrag_stromvertrag_step1',
@@ -7353,7 +7570,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.medium,
     ),
-
     // 8) Internetvertrag / Mobilfunkvertrag
     CategoryDefinition(
       id: 'vertrag_internetvertrag',
@@ -7361,41 +7577,44 @@ class BriefAiCategories {
       summaryKey: 'cat_vertrag_internetvertrag_summary',
       mainCategory: MainCategory.categoryContracts,
       headerKeywords: [
-        'Mobilfunkvertrag',
+        'Vertragszusammenfassung',
+        'Mobilfunk',
         'Internetvertrag',
         'Telekommunikationsvertrag',
-        'Auftrag für Internet / Mobilfunk',
       ],
       decisiveKeywords: [
         'Mindestvertragslaufzeit',
-        'monatlicher Grundpreis',
-        'Datenvolumen',
-        'Download-Geschwindigkeit',
-        'Anschlusspreis',
-        'Rufnummernmitnahme',
+        'monatliche Zahlungen',
+        'Daten Inklusiv-Volumen',
+        'Download',
+        'Upload',
+        'Tarif',
+        'Bereitstellung',
+        'wesentliche Merkmale der Dienste',
       ],
       supportingKeywords: [
-        'Tarif',
-        'SIM',
-        'Router',
-        'Anschluss',
-        'Bereitstellung',
-        'Mobilfunknummer',
+        'SMS',
+        'Minuten',
+        'EU-Roaming',
         'Bandbreite',
-        'Laufzeit',
+        'Schlichtungsverfahren',
+        'Tarifoption',
+        'Mobilfunknummer',
+        'Internetdienst',
       ],
       weakNegativeKeywords: [
-        'Stromvertrag',
-        'Mitgliedschaft',
         'Vertragsende',
-        'Kündigungsbestätigung',
+        'Kündigung Ihres Vertrags',
+        'Automatische Vertragsverlängerung',
+        'Rechnung',
       ],
       strongNegativeKeywords: [
-        'Rechnung',
-        'Mahnung',
-        'Kontoauszug',
-        'Inkasso',
-        'Versicherungsschein',
+        'Arbeitspreis',
+        'Grundpreis',
+        'Arbeitsverhältnis',
+        'Kaufpreis',
+        'Mitgliedsbeitrag',
+        'effektiver Jahreszins',
       ],
       nextStepKeys: [
         'cat_vertrag_internetvertrag_step1',
@@ -7407,7 +7626,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.medium,
     ),
-
     // 9) Versicherungsvertrag
     CategoryDefinition(
       id: 'vertrag_versicherungsvertrag',
@@ -7417,39 +7635,42 @@ class BriefAiCategories {
       headerKeywords: [
         'Versicherungsvertrag',
         'Versicherungsschein',
-        'Versicherungsbeginn',
         'Versicherungsbedingungen',
+        'Versicherungsbeginn',
       ],
       decisiveKeywords: [
         'Versicherungsschein',
-        'Versicherungsbeginn',
-        'Versicherungsumfang',
-        'versicherte Risiken',
-        'Beitrag',
-        'Allgemeine Versicherungsbedingungen',
+        'Versicherungsnehmer',
+        'Vertragspartner',
+        'Versicherungsschutz',
+        'Leistungsbausteine',
+        'Versicherungsbedingungen',
+        'Versicherungsfall',
+        'Laufzeit des Vertrags',
       ],
       supportingKeywords: [
-        'Versicherer',
-        'Versicherungsnehmer',
-        'Versicherungsleistung',
-        'Prämie',
-        'Laufzeit',
-        'Kündigung',
-        'AVB',
-        'Vertrag',
+        'versicherte Risiken',
+        'Beitrag',
+        'vorläufiger Versicherungsschutz',
+        'Versicherte Personen',
+        'Leistungsausschlüsse',
+        'Obliegenheiten',
+        'Versicherungsjahr',
+        'Kündigung nach Eintritt des Versicherungsfalls',
       ],
       weakNegativeKeywords: [
-        'Kündigungsbestätigung',
-        'Vertragsende',
-        'Mitgliedschaftsvertrag',
-        'Kaufvertrag',
-      ],
-      strongNegativeKeywords: [
         'Beitragsrechnung',
         'Schadenanzeige',
-        'eVB',
-        'Mahnung',
+        'Sonderkündigung',
+        'Vertragsende',
+      ],
+      strongNegativeKeywords: [
         'Rechnung',
+        'Mahnung',
+        'Kontoauszug',
+        'Kaufpreis',
+        'Mitgliedsbeitrag',
+        'effektiver Jahreszins',
       ],
       nextStepKeys: [
         'cat_vertrag_versicherungsvertrag_step1',
@@ -7461,7 +7682,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.medium,
     ),
-
     // 10) Kaufvertrag
     CategoryDefinition(
       id: 'vertrag_kaufvertrag',
@@ -7475,35 +7695,38 @@ class BriefAiCategories {
         'Kaufpreis',
       ],
       decisiveKeywords: [
-        'Kaufpreis',
-        'Käufer',
         'Verkäufer',
-        'Übergabe',
-        'Mängel',
-        'Gewährleistung',
+        'Käufer',
+        'Kaufgegenstand',
+        'Kaufpreis',
+        'technische Mängel',
+        'Sachmängelhaftung',
+        'Privatverkauf',
+        'Eigentum des Verkäufers',
       ],
       supportingKeywords: [
-        'Übergabetermin',
-        'Kaufgegenstand',
-        'Zustand',
-        'Sachmangel',
-        'Zahlung',
-        'Eigentum',
-        'Übergabeprotokoll',
-        'Gewährleistung',
+        'Hersteller',
+        'Modell',
+        'Seriennummer',
+        'Zubehör',
+        'Artikel',
+        'Nebenabreden',
+        'Unterschrift des Verkäufers',
+        'Unterschrift des Käufers',
       ],
       weakNegativeKeywords: [
         'Ratenzahlungsvertrag',
-        'Mitgliedschaft',
-        'Versicherungsvertrag',
         'Vertragsende',
+        'Kündigung Ihres Vertrags',
+        'Mitgliedschaft',
       ],
       strongNegativeKeywords: [
-        'Rechnung',
-        'Mahnung',
-        'Inkasso',
-        'Versicherungsschein',
-        'Kontoauszug',
+        'monatliche Rate',
+        'effektiver Jahreszins',
+        'Arbeitsverhältnis',
+        'StromGVV',
+        'Datenvolumen',
+        'Versicherungsnehmer',
       ],
       nextStepKeys: [
         'cat_vertrag_kaufvertrag_step1',
@@ -7515,7 +7738,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.medium,
     ),
-
     // 11) Ratenzahlungsvertrag
     CategoryDefinition(
       id: 'vertrag_ratenzahlungsvertrag',
@@ -7523,41 +7745,44 @@ class BriefAiCategories {
       summaryKey: 'cat_vertrag_ratenzahlungsvertrag_summary',
       mainCategory: MainCategory.categoryContracts,
       headerKeywords: [
+        'Darlehensvertrag',
         'Ratenzahlungsvertrag',
         'Kreditvertrag',
-        'Teilzahlung',
         'Finanzierung',
       ],
       decisiveKeywords: [
-        'monatliche Rate',
         'effektiver Jahreszins',
-        'Laufzeit',
-        'Gesamtbetrag',
-        'Anzahl der Raten',
+        'Gesamtlaufzeit des Darlehens',
+        'Anzahl der Rückzahlungsraten',
+        'monatlichen Raten',
+        'Darlehensnehmer',
         'Darlehensbetrag',
+        'Rückzahlung',
+        'Sollzinsbindung',
       ],
       supportingKeywords: [
-        'Finanzierung',
-        'Rate',
-        'Kredit',
-        'Sollzins',
-        'Nettodarlehensbetrag',
-        'Ratenplan',
+        'Rückzahlungsphase',
+        'Zinsanpassungstermine',
+        'Auszahlungstermine',
+        'Darlehenssaldo',
+        'Abschlussrate',
+        'Nominalzinssatz',
         'Tilgung',
-        'Fälligkeit',
+        'Karenzphase',
       ],
       weakNegativeKeywords: [
         'Kaufvertrag',
-        'Mitgliedschaft',
         'Bankgebühren',
-        'Kontoauszug',
+        'Vertragsende',
+        'Kündigungsbestätigung',
       ],
       strongNegativeKeywords: [
+        'Kreditkonto',
+        'Kreditrate als Mahnung',
         'Rechnung',
-        'Mahnung',
-        'Kreditkartenabrechnung',
-        'Versicherungsbedingungen',
-        'Mahnbescheid',
+        'Arbeitsverhältnis',
+        'Mitgliedschaft',
+        'Arbeitspreis',
       ],
       nextStepKeys: [
         'cat_vertrag_ratenzahlungsvertrag_step1',
@@ -7569,7 +7794,6 @@ class BriefAiCategories {
       ],
       riskLevel: RiskLevel.high,
     ),
-
     // 12) Mitgliedschaftsvertrag / Abo
     CategoryDefinition(
       id: 'vertrag_mitgliedschaft',
@@ -7577,28 +7801,30 @@ class BriefAiCategories {
       summaryKey: 'cat_vertrag_mitgliedschaft_summary',
       mainCategory: MainCategory.categoryContracts,
       headerKeywords: [
+        'Mitgliedschaftsvertrag',
         'Mitgliedschaft',
         'Abo',
         'Abonnement',
-        'Mitgliedschaftsvertrag',
       ],
       decisiveKeywords: [
-        'Mindestlaufzeit',
         'Mitgliedsbeitrag',
-        'automatische Verlängerung',
-        'Kündigungsfrist',
-        'monatlicher Beitrag',
+        'Erstlaufzeit',
+        'Mitgliedschaft verlängert sich',
         'Mitgliedsnummer',
+        'jederzeit schriftlich kündbar',
+        'Vertragsverlängerung',
+        'Mitglied',
+        'Allgemeine Geschäftsbedingungen',
       ],
       supportingKeywords: [
-        'Mitgliedsnummer',
+        'Mitglied',
+        'Gym',
+        'Trainingszeiten',
+        'Vorabnutzung',
+        'AGB',
         'Beitrag',
         'Laufzeit',
-        'Verlängerung',
-        'Kündigung',
-        'Abo',
-        'Tarif',
-        'Beginn',
+        'schriftlich kündbar',
       ],
       weakNegativeKeywords: [
         'Automatische Vertragsverlängerung',
@@ -7607,11 +7833,12 @@ class BriefAiCategories {
         'Kaufvertrag',
       ],
       strongNegativeKeywords: [
-        'Rechnung',
-        'Mahnung',
+        'Arbeitspreis',
+        'Bruttogehalt',
+        'Darlehensvertrag',
         'Versicherungsschein',
-        'Kontoauszug',
-        'Arbeitsvertrag',
+        'Kaufpreis',
+        'Mobilfunk',
       ],
       nextStepKeys: [
         'cat_vertrag_mitgliedschaft_step1',
