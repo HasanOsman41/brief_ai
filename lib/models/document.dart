@@ -38,16 +38,16 @@ class Document {
   /// Check if document has a deadline
   bool get hasDeadline => deadline != null;
 
-  /// Get formatted deadline string
-  String? get formattedDeadline {
-    if (deadline == null) return null;
-    return '${deadline!.day}.${deadline!.month}.${deadline!.year}';
-  }
+  // /// Get formatted deadline string
+  // String? get formattedDeadline {
+  //   if (deadline == null) return null;
+  //   return '${deadline!.day}.${deadline!.month}.${deadline!.year}';
+  // }
 
-  /// Get formatted creation date string
-  String get formattedCreatedAt {
-    return '${createdAt.day}.${createdAt.month}.${createdAt.year}';
-  }
+  // /// Get formatted creation date string
+  // String get formattedCreatedAt {
+  //   return '${createdAt.day}.${createdAt.month}.${createdAt.year}';
+  // }
 
   /// Get main image path (first image)
   String? get mainImagePath {
@@ -111,7 +111,30 @@ class Document {
           [],
     );
   }
-
+factory Document.fromListingRow(Map<String, dynamic> row) {
+  return Document(
+    id: row['id'] as int?,
+    title: row['title'] as String,
+    mainCategoryKey: row['mainCategoryKey'] as String,
+    subCategoryKey: row['subCategoryKey'] as String,
+    statusKey: row['statusKey'] as String,
+    summaryKey: '',
+    ocrText: '',
+    createdAt: DateTime.parse(row['createdAt'] as String),
+    deadline: row['deadline'] != null
+        ? DateTime.parse(row['deadline'] as String)
+        : null,
+    images: row['firstImagePath'] != null
+        ? [
+            DocumentImage(
+              documentId: row['id'] as int,
+              imagePath: row['firstImagePath'] as String,
+              createdAt: DateTime.now(),
+            ),
+          ]
+        : [],
+  );
+}
   /// Create a copy of the document with optional field updates
   Document copyWith({
     int? id,

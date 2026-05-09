@@ -252,8 +252,8 @@ class _SearchScreenState extends State<SearchScreen> {
                 child: DocumentCard(
                   title: doc.title,
                   category: _getCategoryLabel(doc.mainCategoryKey),
-                  date: doc.formattedCreatedAt,
-                  deadline: doc.formattedDeadline,
+                  date: doc.createdAt,
+                  deadline: doc.deadline,
                   status: _getStatusLabel(doc.statusKey),
                   hasDeadline: doc.hasDeadline,
                   imagePath: doc.mainImagePath,

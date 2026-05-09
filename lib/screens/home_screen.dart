@@ -2,13 +2,10 @@
 import 'dart:ui';
 
 import 'package:brief_ai/localization/app_localizations.dart';
-import 'package:brief_ai/models/document.dart';
-import 'package:brief_ai/models/document_result.dart';
-import 'package:brief_ai/services/document_service.dart';
+import 'package:brief_ai/screens/tabs/documents_tab.dart';
+import 'package:brief_ai/screens/tabs/home_dashboard_tab.dart';
+import 'package:brief_ai/screens/tabs/tasks_tab.dart';
 import 'package:brief_ai/theme/app_theme.dart';
-import 'package:brief_ai/widgets/category_chip.dart';
-import 'package:brief_ai/widgets/document_card.dart';
-import 'package:brief_ai/widgets/glass_card.dart';
 import 'package:brief_ai/widgets/primary_fab.dart';
 import 'package:flutter/material.dart';
 
@@ -23,484 +20,9 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
-  String _selectedCategory = 'all';
-  List<Document> _documents = [];
-  bool _isLoading = false;
-  String? _error;
 
-  @override
-  void initState() {
-    super.initState();
-    _loadDocuments();
-  }
 
-  Future<void> _loadDocuments() async {
-    setState(() {
-      _isLoading = true;
-      _error = null;
-    });
-
-    try {
-      final documents = await DocumentService().getAllDocuments();
-
-      if (!mounted) return;
-
-      setState(() {
-        _documents = documents;
-        _isLoading = false;
-      });
-    } catch (e) {
-      if (!mounted) return;
-
-      setState(() {
-        _error = e.toString();
-        _isLoading = false;
-      });
-    }
-  }
-
-  Future<void> _refreshDocuments() async {
-    await _loadDocuments();
-  }
-
-  // Helper method to get localized status
-  String _getStatusLabel(String statusKey) {
-    switch (statusKey) {
-      case 'pending':
-        return AppLocalizations.tr(context, 'pending');
-      case 'inProgress':
-        return AppLocalizations.tr(context, 'inProgress');
-      case 'done':
-        return AppLocalizations.tr(context, 'done');
-      case 'archived':
-        return AppLocalizations.tr(context, 'archived');
-      default:
-        return statusKey;
-    }
-  }
-
-  // Build Home Tab Dashboard
-  Widget _buildHomeDashboard() {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final primaryColor = Theme.of(context).colorScheme.primary;
-
-    if (_isLoading) {
-      return Center(
-        child: CircularProgressIndicator(
-          valueColor: AlwaysStoppedAnimation(primaryColor),
-        ),
-      );
-    }
-
-    if (_error != null) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.error_outline, size: 48, color: Colors.red),
-            const SizedBox(height: 16),
-            Text(
-              'Error loading dashboard',
-              style: Theme.of(context).textTheme.bodyLarge,
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _refreshDocuments,
-              child: Text(AppLocalizations.tr(context, 'retry')),
-            ),
-          ],
-        ),
-      );
-    }
-
-    // Calculate statistics
-    int totalDocuments = _documents.length;
-    int pendingDocuments = _documents
-        .where(
-          (doc) => doc.statusKey == 'pending' || doc.statusKey == 'inProgress',
-        )
-        .length;
-    int closedDocuments = _documents
-        .where((doc) => doc.statusKey == 'done')
-        .length;
-
-    // Get recently added documents (last 3)
-    var recentDocuments = _documents.take(3).toList();
-
-    return RefreshIndicator(
-      onRefresh: _refreshDocuments,
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        physics: const AlwaysScrollableScrollPhysics(),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Statistics Cards
-            Row(
-              children: [
-                Expanded(
-                  child: _buildStatCard(
-                    context,
-                    icon: Icons.description,
-                    value: totalDocuments.toString(),
-                    label: AppLocalizations.tr(context, 'totalDocuments'),
-                    color: primaryColor,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _buildStatCard(
-                    context,
-                    icon: Icons.pending_actions,
-                    value: pendingDocuments.toString(),
-                    label: AppLocalizations.tr(context, 'pending'),
-                    color: isDark
-                        ? AppTheme.darkWarning
-                        : AppTheme.lightWarning,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _buildStatCard(
-                    context,
-                    icon: Icons.check_circle,
-                    value: closedDocuments.toString(),
-                    label: AppLocalizations.tr(context, 'done'),
-                    color: isDark
-                        ? AppTheme.darkSuccess
-                        : AppTheme.lightSuccess,
-                  ),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 24),
-
-            // Recently Added Section Header
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  AppLocalizations.tr(context, 'recentlyAdded'),
-                  style: TextStyle(
-                    color: isDark
-                        ? AppTheme.darkTextPrimary
-                        : AppTheme.lightTextPrimary,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                TextButton(
-                  onPressed: () {
-                    setState(() {
-                      _selectedIndex = 2;
-                    });
-                  },
-                  child: Text(
-                    AppLocalizations.tr(context, 'viewAll'),
-                    style: TextStyle(color: primaryColor),
-                  ),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 12),
-
-            // Recently Added Documents List
-            recentDocuments.isEmpty
-                ? Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(32.0),
-                      child: Text(
-                        AppLocalizations.tr(context, 'noDocuments'),
-                        style: TextStyle(
-                          color: isDark
-                              ? AppTheme.darkTextSecondary
-                              : AppTheme.lightTextSecondary,
-                        ),
-                      ),
-                    ),
-                  )
-                : ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: recentDocuments.length,
-                    itemBuilder: (context, index) {
-                      final doc = recentDocuments[index];
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
-                        child: DocumentCard(
-                          title: doc.title,
-                          category: AppLocalizations.tr(
-                            context,
-                            doc.mainCategoryKey,
-                          ),
-                          date: doc.formattedCreatedAt,
-                          deadline: doc.formattedDeadline,
-                          status: _getStatusLabel(doc.statusKey),
-                          hasDeadline: doc.hasDeadline,
-                          imagePath: doc.mainImagePath,
-                          onTap: () {
-                            Navigator.pushNamed(
-                              context,
-                              '/document-detail',
-                              arguments: {'documentId': doc.id},
-                            );
-                          },
-                        ),
-                      );
-                    },
-                  ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildStatCard(
-    BuildContext context, {
-    required IconData icon,
-    required String value,
-    required String label,
-    required Color color,
-  }) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    return GlassCard(
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Icon(icon, color: color, size: 20),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              value,
-              style: TextStyle(
-                color: isDark
-                    ? AppTheme.darkTextPrimary
-                    : AppTheme.lightTextPrimary,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            Text(
-              label,
-              style: TextStyle(
-                color: isDark
-                    ? AppTheme.darkTextSecondary
-                    : AppTheme.lightTextSecondary,
-                fontSize: 11,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // Build Documents Tab (Original document list with search and filters)
-  Widget _buildDocumentsTab() {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final primaryColor = Theme.of(context).colorScheme.primary;
-
-    if (_isLoading) {
-      return Center(
-        child: CircularProgressIndicator(
-          valueColor: AlwaysStoppedAnimation(primaryColor),
-        ),
-      );
-    }
-
-    if (_error != null) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.error_outline, size: 48, color: Colors.red),
-            const SizedBox(height: 16),
-            Text(
-              'Error loading documents',
-              style: Theme.of(context).textTheme.bodyLarge,
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _refreshDocuments,
-              child: Text(AppLocalizations.tr(context, 'retry')),
-            ),
-          ],
-        ),
-      );
-    }
-
-    // Filter documents by selected category
-    final filteredDocuments = _selectedCategory == 'all'
-        ? _documents
-        : _documents
-              .where((doc) => doc.mainCategoryKey == _selectedCategory)
-              .toList();
-
-    return Column(
-      children: [
-        // Search bar
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: GestureDetector(
-            onTap: () {
-              Navigator.pushNamed(context, '/search');
-            },
-            child: GlassCard(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 0),
-              child: Container(
-                height: 56,
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.search,
-                      color: Theme.of(context).textTheme.bodyMedium?.color,
-                    ),
-                    const SizedBox(width: 12),
-                    Text(
-                      AppLocalizations.tr(context, 'searchHint'),
-                      style: TextStyle(
-                        color: Theme.of(context).textTheme.bodyMedium?.color,
-                        fontSize: 16,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-
-        const SizedBox(height: 16),
-
-        // Filter chips
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Row(
-            children: [
-              // "All" category chip
-              Padding(
-                padding: const EdgeInsets.only(right: 8),
-                child: CategoryChip(
-                  label: AppLocalizations.tr(context, 'all'),
-                  isSelected: _selectedCategory == 'all',
-                  onTap: () {
-                    setState(() {
-                      _selectedCategory = 'all';
-                    });
-                  },
-                ),
-              ),
-              // Categories from MainCategory enum
-              ...MainCategory.values.map((category) {
-                return Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: CategoryChip(
-                    label: AppLocalizations.tr(context, category.key),
-                    icon: category.iconData,
-                    isSelected: _selectedCategory == category.key,
-                    onTap: () {
-                      setState(() {
-                        _selectedCategory = category.key;
-                      });
-                    },
-                  ),
-                );
-              }).toList(),
-            ],
-          ),
-        ),
-
-        const SizedBox(height: 16),
-
-        // Sort options
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Row(
-            children: [
-              Text(
-                '${AppLocalizations.tr(context, 'sortBy')} ',
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-              const SizedBox(width: 12),
-              _buildSortDropdown(context),
-            ],
-          ),
-        ),
-
-        const SizedBox(height: 16),
-
-        // Document list
-        Expanded(
-          child: filteredDocuments.isEmpty
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.folder_outlined,
-                        size: 64,
-                        color: isDark
-                            ? AppTheme.darkTextSecondary
-                            : AppTheme.lightTextSecondary,
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        _selectedCategory == 'all'
-                            ? AppLocalizations.tr(context, 'noDocuments')
-                            : 'No documents in this category',
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
-                    ],
-                  ),
-                )
-              : RefreshIndicator(
-                  onRefresh: _refreshDocuments,
-                  child: ListView.builder(
-                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 80),
-                    itemCount: filteredDocuments.length,
-                    itemBuilder: (context, index) {
-                      final doc = filteredDocuments[index];
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
-                        child: DocumentCard(
-                          title: doc.title,
-                          category: AppLocalizations.tr(
-                            context,
-                            doc.mainCategoryKey,
-                          ),
-                          date: doc.formattedCreatedAt,
-                          deadline: doc.formattedDeadline,
-                          status: _getStatusLabel(doc.statusKey),
-                          hasDeadline: doc.hasDeadline,
-                          imagePath: doc.mainImagePath,
-                          onTap: () {
-                            Navigator.pushNamed(
-                              context,
-                              '/document-detail',
-                              arguments: {'documentId': doc.id},
-                            );
-                          },
-                        ),
-                      );
-                    },
-                  ),
-                ),
-        ),
-      ],
-    );
-  }
+  
 
   @override
   Widget build(BuildContext context) {
@@ -526,7 +48,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // Left side - App name and local indicator
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -675,13 +196,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 index: _selectedIndex,
                 children: [
                   // Home Tab - Dashboard
-                  _buildHomeDashboard(),
-
-                  // Scan Tab - Will be handled by navigation
-                  const SizedBox.shrink(),
+                  HomeDashboardTab(onTabChange: (index) => setState(() => _selectedIndex = index)),
 
                   // Documents Tab - Full document list
-                  _buildDocumentsTab(),
+                  const DocumentsTab(),
+
+                  // Tasks Tab
+                  const TasksTab(),
 
                   // Profile Tab - Placeholder
                   Center(
@@ -754,13 +275,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 setState(() {
                   _selectedIndex = index;
                 });
-
-                // Handle navigation based on index
-                switch (index) {
-                  case 1: // Scan
-                    Navigator.pushNamed(context, '/scan');
-                    break;
-                }
               },
               backgroundColor: Colors.transparent,
               elevation: 0,
@@ -774,14 +288,14 @@ class _HomeScreenState extends State<HomeScreen> {
                   label: AppLocalizations.tr(context, 'home'),
                 ),
                 BottomNavigationBarItem(
-                  icon: const Icon(Icons.scanner_outlined),
-                  activeIcon: const Icon(Icons.scanner),
-                  label: AppLocalizations.tr(context, 'scanButton'),
-                ),
-                BottomNavigationBarItem(
                   icon: const Icon(Icons.folder_outlined),
                   activeIcon: const Icon(Icons.folder),
                   label: AppLocalizations.tr(context, 'documents'),
+                ),
+                BottomNavigationBarItem(
+                  icon: const Icon(Icons.task_outlined),
+                  activeIcon: const Icon(Icons.task),
+                  label: AppLocalizations.tr(context, 'tasks'),
                 ),
                 BottomNavigationBarItem(
                   icon: const Icon(Icons.person_outlined),
@@ -796,117 +310,5 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildSortDropdown(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final primaryColor = Theme.of(context).colorScheme.primary;
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xBF141928) : const Color(0xE5FFFFFF),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: isDark ? const Color(0x14FFFFFF) : const Color(0x0F000000),
-        ),
-      ),
-      child: PopupMenuButton<String>(
-        onSelected: (value) {
-          // Sort documents based on selection
-          setState(() {
-            switch (value) {
-              case 'latest':
-                _documents.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-                break;
-              case 'deadline':
-                _documents.sort((a, b) {
-                  if (a.deadline == null && b.deadline == null) return 0;
-                  if (a.deadline == null) return 1;
-                  if (b.deadline == null) return -1;
-                  return a.deadline!.compareTo(b.deadline!);
-                });
-                break;
-              case 'category':
-                _documents.sort(
-                  (a, b) => a.mainCategoryKey.compareTo(b.mainCategoryKey),
-                );
-                break;
-            }
-          });
-
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Sorted by ${_getSortLabel(context, value)}'),
-              duration: const Duration(seconds: 1),
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
-        },
-        offset: const Offset(0, 40),
-        color: isDark ? AppTheme.darkCard : AppTheme.lightCard,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        child: Row(
-          children: [
-            Text(
-              AppLocalizations.tr(context, 'latest'),
-              style: TextStyle(
-                color: Theme.of(context).textTheme.bodyLarge?.color,
-                fontSize: 14,
-              ),
-            ),
-            const SizedBox(width: 4),
-            Icon(
-              Icons.arrow_drop_down,
-              size: 18,
-              color: Theme.of(context).textTheme.bodyLarge?.color,
-            ),
-          ],
-        ),
-        itemBuilder: (context) => [
-          PopupMenuItem(
-            value: 'latest',
-            child: Row(
-              children: [
-                Icon(Icons.access_time, color: primaryColor, size: 18),
-                const SizedBox(width: 8),
-                Text(AppLocalizations.tr(context, 'latest')),
-              ],
-            ),
-          ),
-          PopupMenuItem(
-            value: 'deadline',
-            child: Row(
-              children: [
-                Icon(Icons.calendar_today, color: primaryColor, size: 18),
-                const SizedBox(width: 8),
-                Text(AppLocalizations.tr(context, 'deadline')),
-              ],
-            ),
-          ),
-          PopupMenuItem(
-            value: 'category',
-            child: Row(
-              children: [
-                Icon(Icons.category, color: primaryColor, size: 18),
-                const SizedBox(width: 8),
-                Text(AppLocalizations.tr(context, 'category')),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  String _getSortLabel(BuildContext context, String sortKey) {
-    switch (sortKey) {
-      case 'latest':
-        return AppLocalizations.tr(context, 'latest');
-      case 'deadline':
-        return AppLocalizations.tr(context, 'deadline');
-      case 'category':
-        return AppLocalizations.tr(context, 'category');
-      default:
-        return sortKey;
-    }
-  }
 }

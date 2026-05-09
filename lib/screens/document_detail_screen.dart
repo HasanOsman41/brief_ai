@@ -18,6 +18,7 @@ import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
+import 'package:brief_ai/utils/risk_level.dart';
 
 class DocumentDetailScreen extends StatefulWidget {
   const DocumentDetailScreen({super.key});
@@ -761,30 +762,7 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
   }
 
   Widget _buildRiskLevelSection(BuildContext context, bool isDark) {
-    final now = DateTime.now();
-    final daysLeft = _dueDate.difference(now).inDays;
-
-    Color riskColor;
-    String riskText;
-    IconData riskIcon;
-
-    if (daysLeft < 0) {
-      riskColor = isDark ? AppTheme.darkDanger : AppTheme.lightDanger;
-      riskText = AppLocalizations.tr(context, 'overdue');
-      riskIcon = Icons.error_outline;
-    } else if (daysLeft <= 3) {
-      riskColor = isDark ? AppTheme.darkDanger : AppTheme.lightDanger;
-      riskText = AppLocalizations.tr(context, 'high');
-      riskIcon = Icons.warning_amber_rounded;
-    } else if (daysLeft <= 7) {
-      riskColor = Colors.orange;
-      riskText = AppLocalizations.tr(context, 'medium');
-      riskIcon = Icons.info_outline;
-    } else {
-      riskColor = isDark ? AppTheme.darkSuccess : AppTheme.lightSuccess;
-      riskText = AppLocalizations.tr(context, 'low');
-      riskIcon = Icons.check_circle_outline;
-    }
+    final level = calcRiskLevel(_dueDate);
 
     return GlassCard(
       child: Padding(
@@ -798,10 +776,10 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
                   margin: const EdgeInsets.only(left: 8),
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: riskColor.withOpacity(0.15),
+                    color: level.color(isDark).withOpacity(0.15),
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(Icons.speed_outlined, color: riskColor, size: 22),
+                  child: Icon(Icons.speed_outlined, color: level.color(isDark), size: 22),
                 ),
                 const SizedBox(width: 12),
                 Text(
@@ -815,20 +793,22 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
             ),
             Container(
               margin: const EdgeInsets.only(right: 8),
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 8),
               decoration: BoxDecoration(
-                color: riskColor.withOpacity(0.15),
+                color: level.color(isDark).withOpacity(0.15),
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: riskColor.withOpacity(0.3), width: 1),
+                border: Border.all(color: level.color(isDark).withOpacity(0.3), width: 1),
               ),
               child: Row(
                 children: [
-                  Icon(riskIcon, color: riskColor, size: 18),
+                  Icon(level.icon, color: level.color(isDark), size: 18),
                   const SizedBox(width: 6),
                   Text(
-                    riskText,
+                    level.translationKey.isNotEmpty
+                        ? AppLocalizations.tr(context, level.translationKey)
+                        : level.name.toUpperCase(),
                     style: TextStyle(
-                      color: riskColor,
+                      color: level.color(isDark),
                       fontWeight: FontWeight.w600,
                       fontSize: 13,
                     ),

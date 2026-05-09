@@ -1183,9 +1183,9 @@ class _DatePickerChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) => GestureDetector(
     onTap: () async {
-      final picked = await showDatePicker(
+       DateTime? picked = await showDatePicker(
         context: context,
-        initialDate: date ?? DateTime.now(),
+        initialDate: DateTime.now(),
         firstDate: DateTime.now(),
         lastDate: DateTime.now().add(const Duration(days: 365)),
         builder: (ctx, child) => Theme(
@@ -1205,6 +1205,7 @@ class _DatePickerChip extends StatelessWidget {
           child: child!,
         ),
       );
+      picked=picked?.add(const Duration(hours: 23, minutes: 59)); // Set to end of day
       if (picked != null) onChanged(picked);
     },
     child: Container(

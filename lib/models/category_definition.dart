@@ -1,5 +1,7 @@
 /// BriefAI – Category Definition Models
 
+import 'package:brief_ai/utils/risk_level.dart';
+
 import 'document_result.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -59,7 +61,6 @@ class CategoryDefinition {
   /// Ordered l10n keys for next steps → 'cat_<id>_step1', 'cat_<id>_step2', …
   final List<String> nextStepKeys;
 
-  final RiskLevel riskLevel;
 
   const CategoryDefinition({
     required this.id,
@@ -72,6 +73,5 @@ class CategoryDefinition {
     this.strongNegativeKeywords = const [],
     this.weakNegativeKeywords = const [],
     required this.nextStepKeys,
-    required this.riskLevel,
   });
 }

@@ -2,18 +2,18 @@
 import 'dart:io';
 
 import 'package:brief_ai/localization/app_localizations.dart';
-import 'package:brief_ai/theme/app_theme.dart';
+import 'package:brief_ai/utils/risk_level.dart';
 import 'package:brief_ai/widgets/glass_card.dart';
 import 'package:flutter/material.dart';
 
 class DocumentCard extends StatelessWidget {
   final String title;
   final String category;
-  final String date;
-  final String? deadline; // Changed from DateTime? to String?
+  final DateTime date;
+  final DateTime? deadline; 
   final String status;
   final bool hasDeadline;
-  final String? imagePath; // Renamed from image to imagePath and made nullable
+  final String? imagePath;
   final VoidCallback onTap;
 
   const DocumentCard({
@@ -21,24 +21,21 @@ class DocumentCard extends StatelessWidget {
     required this.title,
     required this.category,
     required this.date,
-    this.deadline, // Now accepts String?
+    this.deadline,
     required this.status,
-    this.imagePath, // Now nullable
+    this.imagePath,
     this.hasDeadline = false,
     required this.onTap,
   }) : super(key: key);
 
-  String _getDeadlineText(BuildContext context, String? deadlineStr) {
-    if (deadlineStr == null) return '';
+  String _getDeadlineText(BuildContext context, DateTime? deadline) {
+    if (deadline == null) return '';
 
     try {
-      // Parse the deadline string (format: "DD.MM.YYYY")
-      final parts = deadlineStr.split('.');
-      if (parts.length != 3) return '';
 
-      final day = int.tryParse(parts[0]) ?? 0;
-      final month = int.tryParse(parts[1]) ?? 0;
-      final year = int.tryParse(parts[2]) ?? 0;
+      final day = deadline.day;
+      final month = deadline.month;
+      final year = deadline.year;
 
       if (day == 0 || month == 0 || year == 0) return '';
 
@@ -65,27 +62,22 @@ class DocumentCard extends StatelessWidget {
     return '';
   }
 
-  bool _isDeadlineNear(String? deadlineStr) {
-    if (deadlineStr == null) return false;
+  DateTime? _parseDeadline(String? deadlineStr) {
+    if (deadlineStr == null) return null;
 
     try {
       final parts = deadlineStr.split('.');
-      if (parts.length != 3) return false;
+      if (parts.length != 3) return null;
 
       final day = int.tryParse(parts[0]) ?? 0;
       final month = int.tryParse(parts[1]) ?? 0;
       final year = int.tryParse(parts[2]) ?? 0;
 
-      if (day == 0 || month == 0 || year == 0) return false;
+      if (day == 0 || month == 0 || year == 0) return null;
 
-      final deadlineDate = DateTime(year, month, day);
-      final now = DateTime.now();
-      final today = DateTime(now.year, now.month, now.day);
-
-      final daysUntil = deadlineDate.difference(today).inDays;
-      return daysUntil <= 3 && daysUntil >= 0;
+      return DateTime(year, month, day);
     } catch (e) {
-      return false;
+      return null;
     }
   }
 
@@ -99,8 +91,10 @@ class DocumentCard extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final primaryColor = Theme.of(context).colorScheme.primary;
 
-    final isDeadlineNear = _isDeadlineNear(deadline);
-    final deadlineText = _getDeadlineText(context, deadline);
+    final deadlineDate = deadline;
+    final riskLevel = calcRiskLevel(deadlineDate);
+    final shouldShowWarning = riskLevel == RiskLevel.wichtig;
+    final deadlineText = _getDeadlineText(context, deadlineDate);
 
     return GestureDetector(
       onTap: onTap,
@@ -166,32 +160,29 @@ class DocumentCard extends StatelessWidget {
 
                       // Deadline warning badge
                       if (hasDeadline &&
-                          isDeadlineNear &&
-                          deadlineText.isNotEmpty)
+                          shouldShowWarning)
                         Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 8,
                             vertical: 2,
                           ),
                           decoration: BoxDecoration(
-                            color:
-                                (isDark
-                                        ? AppTheme.darkWarning
-                                        : AppTheme.lightWarning)
-                                    .withOpacity(0.2),
+                            color: riskLevel.color(isDark).withOpacity(0.2),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Text('❗', style: TextStyle(fontSize: 10)),
+                              Icon(
+                                riskLevel.icon,
+                                size: 10,
+                                color: riskLevel.color(isDark),
+                              ),
                               const SizedBox(width: 2),
                               Text(
                                 deadlineText,
                                 style: TextStyle(
-                                  color: isDark
-                                      ? AppTheme.darkWarning
-                                      : AppTheme.lightWarning,
+                                  color: riskLevel.color(isDark),
                                   fontSize: 10,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -225,32 +216,13 @@ class DocumentCard extends StatelessWidget {
                         color: Theme.of(context).textTheme.bodyMedium?.color,
                       ),
                       const SizedBox(width: 4),
-                      Text(date, style: Theme.of(context).textTheme.bodyMedium),
+                      Text(
+                        hasDeadline && deadline != null ? deadline!.toString() : date.toString(),
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
                     ],
                   ),
                 ],
-              ),
-            ),
-
-            // Status icon
-            Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                color: status == AppLocalizations.tr(context, 'done')
-                    ? (isDark ? AppTheme.darkSuccess : AppTheme.lightSuccess)
-                          .withOpacity(0.1)
-                    : Colors.transparent,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                status == AppLocalizations.tr(context, 'done')
-                    ? Icons.check_circle
-                    : Icons.radio_button_unchecked,
-                color: status == AppLocalizations.tr(context, 'done')
-                    ? (isDark ? AppTheme.darkSuccess : AppTheme.lightSuccess)
-                    : Theme.of(context).textTheme.bodyMedium?.color,
-                size: 20,
               ),
             ),
           ],

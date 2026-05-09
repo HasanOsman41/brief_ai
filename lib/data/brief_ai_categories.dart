@@ -289,7 +289,6 @@ class BriefAiCategories {
         'cat_jobcenter_mitwirkung_step5',
         'cat_jobcenter_mitwirkung_step6',
       ],
-      riskLevel: RiskLevel.high,
     ),
     // 2) Einladung
     CategoryDefinition(
@@ -336,7 +335,6 @@ class BriefAiCategories {
         'cat_jobcenter_einladung_step5',
         'cat_jobcenter_einladung_step6',
       ],
-      riskLevel: RiskLevel.high,
     ),
     // 3) Einladung zum Telefontermin
     CategoryDefinition(
@@ -383,7 +381,6 @@ class BriefAiCategories {
         'cat_jobcenter_einladung_telefontermin_step5',
         'cat_jobcenter_einladung_telefontermin_step6',
       ],
-      riskLevel: RiskLevel.high,
     ),
     // 4) Einkommensbescheinigung
     CategoryDefinition(
@@ -435,7 +432,6 @@ class BriefAiCategories {
         'cat_jobcenter_einkommensbescheinigung_step5',
         'cat_jobcenter_einkommensbescheinigung_step6',
       ],
-      riskLevel: RiskLevel.low,
     ),
     // 5) Arbeitsbescheinigung
     CategoryDefinition(
@@ -487,7 +483,6 @@ class BriefAiCategories {
         'cat_jobcenter_arbeitsbescheinigung_step5',
         'cat_jobcenter_arbeitsbescheinigung_step6',
       ],
-      riskLevel: RiskLevel.low,
     ),
     // 6) HA – Hauptantrag
     CategoryDefinition(
@@ -534,7 +529,6 @@ class BriefAiCategories {
         'cat_jobcenter_hauptantrag_step5',
         'cat_jobcenter_hauptantrag_step6',
       ],
-      riskLevel: RiskLevel.medium,
     ),
     // 7) WBA – Weiterbewilligungsantrag
     CategoryDefinition(
@@ -586,7 +580,6 @@ class BriefAiCategories {
         'cat_jobcenter_wba_step5',
         'cat_jobcenter_wba_step6',
       ],
-      riskLevel: RiskLevel.high,
     ),
     // 8) VÄM – Veränderungsmitteilung
     CategoryDefinition(
@@ -638,7 +631,6 @@ class BriefAiCategories {
         'cat_jobcenter_vaem_step5',
         'cat_jobcenter_vaem_step6',
       ],
-      riskLevel: RiskLevel.medium,
     ),
     // 9) Anlage EK
     CategoryDefinition(
@@ -690,7 +682,6 @@ class BriefAiCategories {
         'cat_jobcenter_anlage_ek_step5',
         'cat_jobcenter_anlage_ek_step6',
       ],
-      riskLevel: RiskLevel.low,
     ),
     // 10) Anlage KDU
     CategoryDefinition(
@@ -737,7 +728,6 @@ class BriefAiCategories {
         'cat_jobcenter_anlage_kdu_step5',
         'cat_jobcenter_anlage_kdu_step6',
       ],
-      riskLevel: RiskLevel.low,
     ),
     // 11) Anlage VM
     CategoryDefinition(
@@ -789,7 +779,6 @@ class BriefAiCategories {
         'cat_jobcenter_anlage_vm_step5',
         'cat_jobcenter_anlage_vm_step6',
       ],
-      riskLevel: RiskLevel.low,
     ),
     // 12) Anlage EKS
     CategoryDefinition(
@@ -841,7 +830,6 @@ class BriefAiCategories {
         'cat_jobcenter_anlage_eks_step5',
         'cat_jobcenter_anlage_eks_step6',
       ],
-      riskLevel: RiskLevel.low,
     ),
     // 13) Anlage WEP
     CategoryDefinition(
@@ -893,7 +881,6 @@ class BriefAiCategories {
         'cat_jobcenter_anlage_wep_step5',
         'cat_jobcenter_anlage_wep_step6',
       ],
-      riskLevel: RiskLevel.low,
     ),
     // 14) Anlage KI
     CategoryDefinition(
@@ -940,7 +927,6 @@ class BriefAiCategories {
         'cat_jobcenter_anlage_ki_step5',
         'cat_jobcenter_anlage_ki_step6',
       ],
-      riskLevel: RiskLevel.low,
     ),
     // 15) Anlage HG
     CategoryDefinition(
@@ -992,7 +978,6 @@ class BriefAiCategories {
         'cat_jobcenter_anlage_hg_step5',
         'cat_jobcenter_anlage_hg_step6',
       ],
-      riskLevel: RiskLevel.low,
     ),
     // 16) Anlage VE
     CategoryDefinition(
@@ -1039,7 +1024,6 @@ class BriefAiCategories {
         'cat_jobcenter_anlage_ve_step5',
         'cat_jobcenter_anlage_ve_step6',
       ],
-      riskLevel: RiskLevel.low,
     ),
     // 17) Anlage SV
     CategoryDefinition(
@@ -1091,7 +1075,6 @@ class BriefAiCategories {
         'cat_jobcenter_anlage_sv_step5',
         'cat_jobcenter_anlage_sv_step6',
       ],
-      riskLevel: RiskLevel.low,
     ),
     // 18) Anlage UH1
     CategoryDefinition(
@@ -1143,7 +1126,6 @@ class BriefAiCategories {
         'cat_jobcenter_anlage_uh1_step5',
         'cat_jobcenter_anlage_uh1_step6',
       ],
-      riskLevel: RiskLevel.medium,
     ),
     // 19) Anlage UH2
     CategoryDefinition(
@@ -1195,7 +1177,6 @@ class BriefAiCategories {
         'cat_jobcenter_anlage_uh2_step5',
         'cat_jobcenter_anlage_uh2_step6',
       ],
-      riskLevel: RiskLevel.medium,
     ),
     // 20) Anlage UH3
     CategoryDefinition(
@@ -1247,7 +1228,6 @@ class BriefAiCategories {
         'cat_jobcenter_anlage_uh3_step5',
         'cat_jobcenter_anlage_uh3_step6',
       ],
-      riskLevel: RiskLevel.medium,
     ),
     // 21) Anlage BB
     CategoryDefinition(
@@ -1289,7 +1269,6 @@ class BriefAiCategories {
         'cat_jobcenter_anlage_bb_step5',
         'cat_jobcenter_anlage_bb_step6',
       ],
-      riskLevel: RiskLevel.low,
     ),
     // 22) Anlage MEB
     CategoryDefinition(
@@ -1336,7 +1315,6 @@ class BriefAiCategories {
         'cat_jobcenter_anlage_meb_step5',
         'cat_jobcenter_anlage_meb_step6',
       ],
-      riskLevel: RiskLevel.low,
     ),
     // 23) Anlage UF
     CategoryDefinition(
@@ -1388,7 +1366,6 @@ class BriefAiCategories {
         'cat_jobcenter_anlage_uf_step5',
         'cat_jobcenter_anlage_uf_step6',
       ],
-      riskLevel: RiskLevel.medium,
     ),
     // 24) AH – Ausfüllhinweise
     CategoryDefinition(
@@ -1440,7 +1417,6 @@ class BriefAiCategories {
         'cat_jobcenter_hinweise_step5',
         'cat_jobcenter_hinweise_step6',
       ],
-      riskLevel: RiskLevel.low,
     ),
     // ─────────────────────────────────────────────────────────────────────
     // AUSLÄNDERBEHÖRDE  (35 categories)
@@ -1485,7 +1461,6 @@ class BriefAiCategories {
         'cat_auslaender_terminbestaetigung_step5',
         'cat_auslaender_terminbestaetigung_step6',
       ],
-      riskLevel: RiskLevel.high,
     ),
     // 2) Termineinladung Online
     CategoryDefinition(
@@ -1533,7 +1508,6 @@ class BriefAiCategories {
         'cat_auslaender_termineinladung_online_step5',
         'cat_auslaender_termineinladung_online_step6',
       ],
-      riskLevel: RiskLevel.high,
     ),
     // 3) Terminverlegung
     CategoryDefinition(
@@ -1581,7 +1555,6 @@ class BriefAiCategories {
         'cat_auslaender_terminverlegung_step5',
         'cat_auslaender_terminverlegung_step6',
       ],
-      riskLevel: RiskLevel.high,
     ),
     // 4) Unterlagen Anforderung
     CategoryDefinition(
@@ -1624,7 +1597,6 @@ class BriefAiCategories {
         'cat_auslaender_unterlagen_anfordering_step5',
         'cat_auslaender_unterlagen_anfordering_step6',
       ],
-      riskLevel: RiskLevel.high,
     ),
     // 5) Nachforderung
     CategoryDefinition(
@@ -1672,7 +1644,6 @@ class BriefAiCategories {
         'cat_auslaender_nachforderung_step5',
         'cat_auslaender_nachforderung_step6',
       ],
-      riskLevel: RiskLevel.high,
     ),
     // 6) Verlaengerung Hinweis
     CategoryDefinition(
@@ -1720,7 +1691,6 @@ class BriefAiCategories {
         'cat_auslaender_verlaengerung_hinweis_step5',
         'cat_auslaender_verlaengerung_hinweis_step6',
       ],
-      riskLevel: RiskLevel.high,
     ),
     // 7) Verlaengerungsantrag
     CategoryDefinition(
@@ -1768,7 +1738,6 @@ class BriefAiCategories {
         'cat_auslaender_verlaengerungsantrag_step5',
         'cat_auslaender_verlaengerungsantrag_step6',
       ],
-      riskLevel: RiskLevel.medium,
     ),
     // 8) Verlaengerung Vorsprache
     CategoryDefinition(
@@ -1816,7 +1785,6 @@ class BriefAiCategories {
         'cat_auslaender_verlaengerung_vorsprache_step5',
         'cat_auslaender_verlaengerung_vorsprache_step6',
       ],
-      riskLevel: RiskLevel.medium,
     ),
     // 9) Upload Hinweis
     CategoryDefinition(
@@ -1852,7 +1820,6 @@ class BriefAiCategories {
         'cat_auslaender_upload_hinweis_step5',
         'cat_auslaender_upload_hinweis_step6',
       ],
-      riskLevel: RiskLevel.low,
     ),
     // 10) Erteilung Antrag
     CategoryDefinition(
@@ -1900,7 +1867,6 @@ class BriefAiCategories {
         'cat_auslaender_erteilung_antrag_step5',
         'cat_auslaender_erteilung_antrag_step6',
       ],
-      riskLevel: RiskLevel.medium,
     ),
     // 11) Erstantrag
     CategoryDefinition(
@@ -1948,7 +1914,6 @@ class BriefAiCategories {
         'cat_auslaender_erstantrag_step5',
         'cat_auslaender_erstantrag_step6',
       ],
-      riskLevel: RiskLevel.medium,
     ),
     // 12) Formularhinweis
     CategoryDefinition(
@@ -1996,7 +1961,6 @@ class BriefAiCategories {
         'cat_auslaender_formularhinweis_step5',
         'cat_auslaender_formularhinweis_step6',
       ],
-      riskLevel: RiskLevel.low,
     ),
     // 13) Zustimmung
     CategoryDefinition(
@@ -2044,7 +2008,6 @@ class BriefAiCategories {
         'cat_auslaender_zustimmung_step5',
         'cat_auslaender_zustimmung_step6',
       ],
-      riskLevel: RiskLevel.low,
     ),
     // 14) Bewilligungsbescheid
     CategoryDefinition(
@@ -2092,7 +2055,6 @@ class BriefAiCategories {
         'cat_auslaender_bewilligungsbescheid_step5',
         'cat_auslaender_bewilligungsbescheid_step6',
       ],
-      riskLevel: RiskLevel.low,
     ),
     // 15) Eat Abholung
     CategoryDefinition(
@@ -2140,7 +2102,6 @@ class BriefAiCategories {
         'cat_auslaender_eat_abholung_step5',
         'cat_auslaender_eat_abholung_step6',
       ],
-      riskLevel: RiskLevel.low,
     ),
     // 16) Dokumentenausgabebox
     CategoryDefinition(
@@ -2188,7 +2149,6 @@ class BriefAiCategories {
         'cat_auslaender_dokumentenausgabebox_step5',
         'cat_auslaender_dokumentenausgabebox_step6',
       ],
-      riskLevel: RiskLevel.low,
     ),
     // 17) Beschaeftigung
     CategoryDefinition(
@@ -2236,7 +2196,6 @@ class BriefAiCategories {
         'cat_auslaender_beschaeftigung_step5',
         'cat_auslaender_beschaeftigung_step6',
       ],
-      riskLevel: RiskLevel.medium,
     ),
     // 18) Erklaerung Beschaeftigungsverhaeltnis
     CategoryDefinition(
@@ -2285,7 +2244,6 @@ class BriefAiCategories {
         'cat_auslaender_erklaerung_beschaeftigungsverhaeltnis_step5',
         'cat_auslaender_erklaerung_beschaeftigungsverhaeltnis_step6',
       ],
-      riskLevel: RiskLevel.low,
     ),
     // 19) Arbeitsplatzangebot
     CategoryDefinition(
@@ -2333,7 +2291,6 @@ class BriefAiCategories {
         'cat_auslaender_arbeitsplatzangebot_step5',
         'cat_auslaender_arbeitsplatzangebot_step6',
       ],
-      riskLevel: RiskLevel.low,
     ),
     // 20) Blaue Karte
     CategoryDefinition(
@@ -2381,7 +2338,6 @@ class BriefAiCategories {
         'cat_auslaender_blaue_karte_step5',
         'cat_auslaender_blaue_karte_step6',
       ],
-      riskLevel: RiskLevel.medium,
     ),
     // 21) Niederlassungserlaubnis Blaue Karte
     CategoryDefinition(
@@ -2429,7 +2385,6 @@ class BriefAiCategories {
         'cat_auslaender_niederlassungserlaubnis_blaue_karte_step5',
         'cat_auslaender_niederlassungserlaubnis_blaue_karte_step6',
       ],
-      riskLevel: RiskLevel.medium,
     ),
     // 22) Studium
     CategoryDefinition(
@@ -2477,7 +2432,6 @@ class BriefAiCategories {
         'cat_auslaender_studium_step5',
         'cat_auslaender_studium_step6',
       ],
-      riskLevel: RiskLevel.medium,
     ),
     // 23) Ausbildung
     CategoryDefinition(
@@ -2525,7 +2479,6 @@ class BriefAiCategories {
         'cat_auslaender_ausbildung_step5',
         'cat_auslaender_ausbildung_step6',
       ],
-      riskLevel: RiskLevel.medium,
     ),
     // 24) Nachweisblatt Studium
     CategoryDefinition(
@@ -2573,7 +2526,6 @@ class BriefAiCategories {
         'cat_auslaender_nachweisblatt_studium_step5',
         'cat_auslaender_nachweisblatt_studium_step6',
       ],
-      riskLevel: RiskLevel.low,
     ),
     // 25) Familiennachzug
     CategoryDefinition(
@@ -2621,7 +2573,6 @@ class BriefAiCategories {
         'cat_auslaender_familiennachzug_step5',
         'cat_auslaender_familiennachzug_step6',
       ],
-      riskLevel: RiskLevel.medium,
     ),
     // 26) Nachzug Deutsche
     CategoryDefinition(
@@ -2669,7 +2620,6 @@ class BriefAiCategories {
         'cat_auslaender_nachzug_deutsche_step5',
         'cat_auslaender_nachzug_deutsche_step6',
       ],
-      riskLevel: RiskLevel.medium,
     ),
     // 27) Aufenthaltskarte Eu
     CategoryDefinition(
@@ -2717,7 +2667,6 @@ class BriefAiCategories {
         'cat_auslaender_aufenthaltskarte_eu_step5',
         'cat_auslaender_aufenthaltskarte_eu_step6',
       ],
-      riskLevel: RiskLevel.medium,
     ),
     // 28) Eingangsbestaetigung
     CategoryDefinition(
@@ -2765,7 +2714,6 @@ class BriefAiCategories {
         'cat_auslaender_eingangsbestaetigung_step5',
         'cat_auslaender_eingangsbestaetigung_step6',
       ],
-      riskLevel: RiskLevel.low,
     ),
     // 29) Fiktionsbescheinigung
     CategoryDefinition(
@@ -2813,7 +2761,6 @@ class BriefAiCategories {
         'cat_auslaender_fiktionsbescheinigung_step5',
         'cat_auslaender_fiktionsbescheinigung_step6',
       ],
-      riskLevel: RiskLevel.medium,
     ),
     // 30) Fortgeltung
     CategoryDefinition(
@@ -2861,7 +2808,6 @@ class BriefAiCategories {
         'cat_auslaender_fortgeltung_step5',
         'cat_auslaender_fortgeltung_step6',
       ],
-      riskLevel: RiskLevel.low,
     ),
     // 31) Ablehnung Problemfall
     CategoryDefinition(
@@ -2904,7 +2850,6 @@ class BriefAiCategories {
         'cat_auslaender_ablehnung_problemfall_step5',
         'cat_auslaender_ablehnung_problemfall_step6',
       ],
-      riskLevel: RiskLevel.high,
     ),
     // 32) Ablehnungsbescheid
     CategoryDefinition(
@@ -2952,7 +2897,6 @@ class BriefAiCategories {
         'cat_auslaender_ablehnungsbescheid_step5',
         'cat_auslaender_ablehnungsbescheid_step6',
       ],
-      riskLevel: RiskLevel.high,
     ),
     // 33) Uebertragung
     CategoryDefinition(
@@ -3000,7 +2944,6 @@ class BriefAiCategories {
         'cat_auslaender_uebertragung_step5',
         'cat_auslaender_uebertragung_step6',
       ],
-      riskLevel: RiskLevel.low,
     ),
     // 34) Gebuehrenhinweis
     CategoryDefinition(
@@ -3048,7 +2991,6 @@ class BriefAiCategories {
         'cat_auslaender_gebuehrenhinweis_step5',
         'cat_auslaender_gebuehrenhinweis_step6',
       ],
-      riskLevel: RiskLevel.low,
     ),
     // 35) Akteneinsicht
     CategoryDefinition(
@@ -3096,7 +3038,6 @@ class BriefAiCategories {
         'cat_auslaender_akteneinsicht_step5',
         'cat_auslaender_akteneinsicht_step6',
       ],
-      riskLevel: RiskLevel.low,
     ),
 
     // ───────────────────────────────────────────────────────────────────────────
@@ -3156,7 +3097,6 @@ class BriefAiCategories {
         'cat_finanzamt_steuerbescheid_step5',
         'cat_finanzamt_steuerbescheid_step6',
       ],
-      riskLevel: RiskLevel.high,
     ),
     // 2) Umsatzsteuer-Vorauszahlungsbescheid
     CategoryDefinition(
@@ -3212,7 +3152,6 @@ class BriefAiCategories {
         'cat_finanzamt_umsatzsteuer_vorauszahlung_step5',
         'cat_finanzamt_umsatzsteuer_vorauszahlung_step6',
       ],
-      riskLevel: RiskLevel.medium,
     ),
     // 3) Vorauszahlungsbescheid Einkommensteuer / Gewerbesteuer
     CategoryDefinition(
@@ -3268,7 +3207,6 @@ class BriefAiCategories {
         'cat_finanzamt_vorauszahlungsbescheid_step5',
         'cat_finanzamt_vorauszahlungsbescheid_step6',
       ],
-      riskLevel: RiskLevel.medium,
     ),
     // 4) Aufforderung zur Abgabe der Steuererklärung
     CategoryDefinition(
@@ -3324,7 +3262,6 @@ class BriefAiCategories {
         'cat_finanzamt_aufforderung_steuererklaerung_step5',
         'cat_finanzamt_aufforderung_steuererklaerung_step6',
       ],
-      riskLevel: RiskLevel.high,
     ),
     // 5) Fragebogen zur steuerlichen Erfassung / Aufnahme einer Tätigkeit
     CategoryDefinition(
@@ -3380,7 +3317,6 @@ class BriefAiCategories {
         'cat_finanzamt_fragebogen_erfassung_step5',
         'cat_finanzamt_fragebogen_erfassung_step6',
       ],
-      riskLevel: RiskLevel.low,
     ),
     // 6) ELSTER-Übertragungsprotokoll / Transferticket
     CategoryDefinition(
@@ -3436,7 +3372,6 @@ class BriefAiCategories {
         'cat_finanzamt_elster_protokoll_step5',
         'cat_finanzamt_elster_protokoll_step6',
       ],
-      riskLevel: RiskLevel.low,
     ),
     // ─────────────────────────────────────────────────────────────────────
     // KRANKENKASSE  (10 categories)
@@ -3492,7 +3427,6 @@ class BriefAiCategories {
         'cat_krankenkasse_krankengeld_step4',
         'cat_krankenkasse_krankengeld_step5',
       ],
-      riskLevel: RiskLevel.high,
     ),
     // 2) Pflegeleistungen Antrag
     CategoryDefinition(
@@ -3547,7 +3481,6 @@ class BriefAiCategories {
         'cat_krankenkasse_pflegeleistungen_step4',
         'cat_krankenkasse_pflegeleistungen_step5',
       ],
-      riskLevel: RiskLevel.high,
     ),
     // 3) Beitragsbescheid
     CategoryDefinition(
@@ -3601,7 +3534,6 @@ class BriefAiCategories {
         'cat_krankenkasse_beitragsbescheid_step4',
         'cat_krankenkasse_beitragsbescheid_step5',
       ],
-      riskLevel: RiskLevel.medium,
     ),
     // 4) Mitgliedsantrag Krankenkasse
     CategoryDefinition(
@@ -3654,7 +3586,6 @@ class BriefAiCategories {
         'cat_krankenkasse_mitgliedsantrag_step4',
         'cat_krankenkasse_mitgliedsantrag_step5',
       ],
-      riskLevel: RiskLevel.medium,
     ),
     // 5) Familienversicherung Antrag
     CategoryDefinition(
@@ -3702,7 +3633,6 @@ class BriefAiCategories {
         'cat_krankenkasse_familienversicherung_step4',
         'cat_krankenkasse_familienversicherung_step5',
       ],
-      riskLevel: RiskLevel.low,
     ),
     // 6) Kündigung Krankenkasse
     CategoryDefinition(
@@ -3752,7 +3682,6 @@ class BriefAiCategories {
         'cat_krankenkasse_kuendigung_step4',
         'cat_krankenkasse_kuendigung_step5',
       ],
-      riskLevel: RiskLevel.medium,
     ),
     // 7) Haushaltshilfe Antrag
     CategoryDefinition(
@@ -3801,7 +3730,6 @@ class BriefAiCategories {
         'cat_krankenkasse_haushaltshilfe_step4',
         'cat_krankenkasse_haushaltshilfe_step5',
       ],
-      riskLevel: RiskLevel.medium,
     ),
     // 8) Versicherungsbescheinigung
     CategoryDefinition(
@@ -3850,7 +3778,6 @@ class BriefAiCategories {
         'cat_krankenkasse_versicherungsbescheinigung_step4',
         'cat_krankenkasse_versicherungsbescheinigung_step5',
       ],
-      riskLevel: RiskLevel.low,
     ),
     // 9) Elektronische Gesundheitskarte / eGK
     CategoryDefinition(
@@ -3901,7 +3828,6 @@ class BriefAiCategories {
         'cat_krankenkasse_egk_step4',
         'cat_krankenkasse_egk_step5',
       ],
-      riskLevel: RiskLevel.low,
     ),
     // 10) Datenänderung Formular
     CategoryDefinition(
@@ -3951,7 +3877,6 @@ class BriefAiCategories {
         'cat_krankenkasse_datenaenderung_step4',
         'cat_krankenkasse_datenaenderung_step5',
       ],
-      riskLevel: RiskLevel.low,
     ),
     // ─────────────────────────────────────────────────────────────────────
     // INSURANCE  (20 categories)
@@ -4006,7 +3931,6 @@ class BriefAiCategories {
         'cat_insurance_police_step5',
         'cat_insurance_police_step6',
       ],
-      riskLevel: RiskLevel.medium,
     ),
     // 2) Beitragsrechnung
     CategoryDefinition(
@@ -4058,7 +3982,6 @@ class BriefAiCategories {
         'cat_insurance_beitragsrechnung_step5',
         'cat_insurance_beitragsrechnung_step6',
       ],
-      riskLevel: RiskLevel.medium,
     ),
     // 3) Schadenregulierung
     CategoryDefinition(
@@ -4110,7 +4033,6 @@ class BriefAiCategories {
         'cat_insurance_schadenregulierung_step5',
         'cat_insurance_schadenregulierung_step6',
       ],
-      riskLevel: RiskLevel.medium,
     ),
     // 4) Beitragsanpassung / Beitragserhöhung
     CategoryDefinition(
@@ -4162,7 +4084,6 @@ class BriefAiCategories {
         'cat_insurance_beitragsanpassung_step5',
         'cat_insurance_beitragsanpassung_step6',
       ],
-      riskLevel: RiskLevel.high,
     ),
     // 5) Schadenmeldung Bestätigung
     CategoryDefinition(
@@ -4214,7 +4135,6 @@ class BriefAiCategories {
         'cat_insurance_schadenmeldung_step5',
         'cat_insurance_schadenmeldung_step6',
       ],
-      riskLevel: RiskLevel.medium,
     ),
     // 6) Vertragsverlängerung
     CategoryDefinition(
@@ -4266,7 +4186,6 @@ class BriefAiCategories {
         'cat_insurance_vertragsverlaengerung_step5',
         'cat_insurance_vertragsverlaengerung_step6',
       ],
-      riskLevel: RiskLevel.medium,
     ),
     // 7) Schadenablehnung
     CategoryDefinition(
@@ -4318,7 +4237,6 @@ class BriefAiCategories {
         'cat_insurance_schadenablehnung_step5',
         'cat_insurance_schadenablehnung_step6',
       ],
-      riskLevel: RiskLevel.critical,
     ),
     // 8) Mahnung wegen Nichtzahlung
     CategoryDefinition(
@@ -4370,7 +4288,6 @@ class BriefAiCategories {
         'cat_insurance_mahnung_step5',
         'cat_insurance_mahnung_step6',
       ],
-      riskLevel: RiskLevel.high,
     ),
     // 9) Vertrag beendet wegen Nichtzahlung
     CategoryDefinition(
@@ -4422,7 +4339,6 @@ class BriefAiCategories {
         'cat_insurance_vertrag_nichtzahlung_step5',
         'cat_insurance_vertrag_nichtzahlung_step6',
       ],
-      riskLevel: RiskLevel.critical,
     ),
     // 10) Kündigungsbestätigung
     CategoryDefinition(
@@ -4474,7 +4390,6 @@ class BriefAiCategories {
         'cat_insurance_kuendigungsbestaetigung_step5',
         'cat_insurance_kuendigungsbestaetigung_step6',
       ],
-      riskLevel: RiskLevel.low,
     ),
     // 11) Elektronische Versicherungsbestätigung (eVB)
     CategoryDefinition(
@@ -4526,7 +4441,6 @@ class BriefAiCategories {
         'cat_insurance_evb_step5',
         'cat_insurance_evb_step6',
       ],
-      riskLevel: RiskLevel.medium,
     ),
     // 12) Versicherungsschein Kfz
     CategoryDefinition(
@@ -4578,7 +4492,6 @@ class BriefAiCategories {
         'cat_insurance_police_kfz_step5',
         'cat_insurance_police_kfz_step6',
       ],
-      riskLevel: RiskLevel.medium,
     ),
     // 13) Schadenregulierung Kfz
     CategoryDefinition(
@@ -4630,7 +4543,6 @@ class BriefAiCategories {
         'cat_insurance_schadenregulierung_kfz_step5',
         'cat_insurance_schadenregulierung_kfz_step6',
       ],
-      riskLevel: RiskLevel.medium,
     ),
     // 14) Beitragsrechnung Kfz
     CategoryDefinition(
@@ -4682,7 +4594,6 @@ class BriefAiCategories {
         'cat_insurance_beitragsrechnung_kfz_step5',
         'cat_insurance_beitragsrechnung_kfz_step6',
       ],
-      riskLevel: RiskLevel.medium,
     ),
     // 15) Schadenmeldung Kfz
     CategoryDefinition(
@@ -4734,7 +4645,6 @@ class BriefAiCategories {
         'cat_insurance_schadenmeldung_kfz_step5',
         'cat_insurance_schadenmeldung_kfz_step6',
       ],
-      riskLevel: RiskLevel.medium,
     ),
     // 16) Vertragsänderung Kfz
     CategoryDefinition(
@@ -4786,7 +4696,6 @@ class BriefAiCategories {
         'cat_insurance_vertragsaenderung_kfz_step5',
         'cat_insurance_vertragsaenderung_kfz_step6',
       ],
-      riskLevel: RiskLevel.medium,
     ),
     // 17) Kilometerstandsmeldung
     CategoryDefinition(
@@ -4838,7 +4747,6 @@ class BriefAiCategories {
         'cat_insurance_kilometerstand_step5',
         'cat_insurance_kilometerstand_step6',
       ],
-      riskLevel: RiskLevel.low,
     ),
     // 18) Schadenfreiheitsklasse (SF-Klasse)
     CategoryDefinition(
@@ -4890,7 +4798,6 @@ class BriefAiCategories {
         'cat_insurance_sf_klasse_step5',
         'cat_insurance_sf_klasse_step6',
       ],
-      riskLevel: RiskLevel.medium,
     ),
     // 19) Schadenablehnung Kfz
     CategoryDefinition(
@@ -4942,7 +4849,6 @@ class BriefAiCategories {
         'cat_insurance_schadenablehnung_kfz_step5',
         'cat_insurance_schadenablehnung_kfz_step6',
       ],
-      riskLevel: RiskLevel.critical,
     ),
     // 20) Kündigungsbestätigung Kfz
     CategoryDefinition(
@@ -4994,7 +4900,6 @@ class BriefAiCategories {
         'cat_insurance_kuendigungsbestaetigung_kfz_step5',
         'cat_insurance_kuendigungsbestaetigung_kfz_step6',
       ],
-      riskLevel: RiskLevel.low,
     ),
     // ─────────────────────────────────────────────────────────────────────
     // WOHNEN / KAUTION  (18 categories)
@@ -5049,7 +4954,6 @@ class BriefAiCategories {
         'cat_wohnen_mietvertrag_step5',
         'cat_wohnen_mietvertrag_step6',
       ],
-      riskLevel: RiskLevel.high,
     ),
     // 2) Wohnungsgeberbestätigung
     CategoryDefinition(
@@ -5101,7 +5005,6 @@ class BriefAiCategories {
         'cat_wohnen_wohnungsgeberbestaetigung_step5',
         'cat_wohnen_wohnungsgeberbestaetigung_step6',
       ],
-      riskLevel: RiskLevel.medium,
     ),
     // 3) Mietbescheinigung
     CategoryDefinition(
@@ -5153,7 +5056,6 @@ class BriefAiCategories {
         'cat_wohnen_mietbescheinigung_step5',
         'cat_wohnen_mietbescheinigung_step6',
       ],
-      riskLevel: RiskLevel.low,
     ),
     // 4) Nebenkostenabrechnung
     CategoryDefinition(
@@ -5205,7 +5107,6 @@ class BriefAiCategories {
         'cat_wohnen_nebenkostenabrechnung_step5',
         'cat_wohnen_nebenkostenabrechnung_step6',
       ],
-      riskLevel: RiskLevel.medium,
     ),
     // 5) Mieterhöhung
     CategoryDefinition(
@@ -5257,7 +5158,6 @@ class BriefAiCategories {
         'cat_wohnen_mieterhoehung_step5',
         'cat_wohnen_mieterhoehung_step6',
       ],
-      riskLevel: RiskLevel.high,
     ),
     // 6) Kautionsabrechnung (broad label — kept for legacy matching)
     CategoryDefinition(
@@ -5309,7 +5209,6 @@ class BriefAiCategories {
         'cat_wohnen_kautionsabrechnung_step5',
         'cat_wohnen_kautionsabrechnung_step6',
       ],
-      riskLevel: RiskLevel.medium,
     ),
     // 7) Modernisierungsankündigung
     CategoryDefinition(
@@ -5361,7 +5260,6 @@ class BriefAiCategories {
         'cat_wohnen_modernisierungsankuendigung_step5',
         'cat_wohnen_modernisierungsankuendigung_step6',
       ],
-      riskLevel: RiskLevel.medium,
     ),
     // 8) Reparaturankündigung / Terminankündigung
     CategoryDefinition(
@@ -5413,7 +5311,6 @@ class BriefAiCategories {
         'cat_wohnen_reparaturankuendigung_step5',
         'cat_wohnen_reparaturankuendigung_step6',
       ],
-      riskLevel: RiskLevel.low,
     ),
     // 9) Mietkündigung
     CategoryDefinition(
@@ -5464,7 +5361,6 @@ class BriefAiCategories {
         'cat_wohnen_mieterhoehung_kuendigung_step5',
         'cat_wohnen_mieterhoehung_kuendigung_step6',
       ],
-      riskLevel: RiskLevel.high,
     ),
     // 10) Fristlose Kündigung wegen Mietrückstand
     CategoryDefinition(
@@ -5516,7 +5412,6 @@ class BriefAiCategories {
         'cat_wohnen_fristlose_kuendigung_step5',
         'cat_wohnen_fristlose_kuendigung_step6',
       ],
-      riskLevel: RiskLevel.high,
     ),
     // 11) Mietrückstand / Zahlungserinnerung
     CategoryDefinition(
@@ -5568,7 +5463,6 @@ class BriefAiCategories {
         'cat_wohnen_mieterrueckstand_step5',
         'cat_wohnen_mieterrueckstand_step6',
       ],
-      riskLevel: RiskLevel.high,
     ),
     // 12) Hausordnung
     CategoryDefinition(
@@ -5620,7 +5514,6 @@ class BriefAiCategories {
         'cat_wohnen_hausordnung_step5',
         'cat_wohnen_hausordnung_step6',
       ],
-      riskLevel: RiskLevel.low,
     ),
     // 13) Übergabeprotokoll
     CategoryDefinition(
@@ -5672,7 +5565,6 @@ class BriefAiCategories {
         'cat_wohnen_uebergabeprotokoll_step5',
         'cat_wohnen_uebergabeprotokoll_step6',
       ],
-      riskLevel: RiskLevel.medium,
     ),
     // 14) Kautionsvereinbarung
     CategoryDefinition(
@@ -5724,7 +5616,6 @@ class BriefAiCategories {
         'cat_wohnen_kautionsvereinbarung_step5',
         'cat_wohnen_kautionsvereinbarung_step6',
       ],
-      riskLevel: RiskLevel.medium,
     ),
     // 15) Bestätigung der Kautionszahlung
     CategoryDefinition(
@@ -5776,7 +5667,6 @@ class BriefAiCategories {
         'cat_wohnen_kaution_bestaetigung_step5',
         'cat_wohnen_kaution_bestaetigung_step6',
       ],
-      riskLevel: RiskLevel.low,
     ),
     // 16) Kautionsabrechnung (detailed)
     CategoryDefinition(
@@ -5828,7 +5718,6 @@ class BriefAiCategories {
         'cat_wohnen_kaution_abrechnung_step5',
         'cat_wohnen_kaution_abrechnung_step6',
       ],
-      riskLevel: RiskLevel.medium,
     ),
     // 17) Einbehalt der Kaution
     CategoryDefinition(
@@ -5880,7 +5769,6 @@ class BriefAiCategories {
         'cat_wohnen_kaution_einbehalt_step5',
         'cat_wohnen_kaution_einbehalt_step6',
       ],
-      riskLevel: RiskLevel.high,
     ),
     // 18) Kautionsrückzahlung
     CategoryDefinition(
@@ -5932,7 +5820,6 @@ class BriefAiCategories {
         'cat_wohnen_kaution_rueckzahlung_step5',
         'cat_wohnen_kaution_rueckzahlung_step6',
       ],
-      riskLevel: RiskLevel.low,
     ),
     // ─────────────────────────────────────────────────────────────────────
     // RECHNUNG / BILLS  (13 categories)
@@ -5991,7 +5878,6 @@ class BriefAiCategories {
         'cat_rechnung_abschlagsrechnung_step5',
         'cat_rechnung_abschlagsrechnung_step6',
       ],
-      riskLevel: RiskLevel.low,
     ),
     // 2) Teilrechnung
     CategoryDefinition(
@@ -6043,7 +5929,6 @@ class BriefAiCategories {
         'cat_rechnung_teilrechnung_step5',
         'cat_rechnung_teilrechnung_step6',
       ],
-      riskLevel: RiskLevel.low,
     ),
     // 3) Schlussrechnung
     CategoryDefinition(
@@ -6095,7 +5980,6 @@ class BriefAiCategories {
         'cat_rechnung_schlussrechnung_step5',
         'cat_rechnung_schlussrechnung_step6',
       ],
-      riskLevel: RiskLevel.low,
     ),
     // 4) Rechnung
     CategoryDefinition(
@@ -6148,7 +6032,6 @@ class BriefAiCategories {
         'cat_rechnung_rechnung_step5',
         'cat_rechnung_rechnung_step6',
       ],
-      riskLevel: RiskLevel.low,
     ),
     // 5) Zahlungserinnerung
     CategoryDefinition(
@@ -6195,7 +6078,6 @@ class BriefAiCategories {
         'cat_rechnung_zahlungserinnerung_step5',
         'cat_rechnung_zahlungserinnerung_step6',
       ],
-      riskLevel: RiskLevel.medium,
     ),
     // 6) Mahnung
     CategoryDefinition(
@@ -6247,7 +6129,6 @@ class BriefAiCategories {
         'cat_rechnung_mahnung_step5',
         'cat_rechnung_mahnung_step6',
       ],
-      riskLevel: RiskLevel.medium,
     ),
     // 7) Letzte Mahnung
     CategoryDefinition(
@@ -6294,7 +6175,6 @@ class BriefAiCategories {
         'cat_rechnung_letzte_mahnung_step5',
         'cat_rechnung_letzte_mahnung_step6',
       ],
-      riskLevel: RiskLevel.high,
     ),
     // 8) Inkasso-Forderung
     CategoryDefinition(
@@ -6347,7 +6227,6 @@ class BriefAiCategories {
         'cat_rechnung_inkasso_forderung_step5',
         'cat_rechnung_inkasso_forderung_step6',
       ],
-      riskLevel: RiskLevel.high,
     ),
     // 9) Inkasso-Ratenzahlungsangebot
     CategoryDefinition(
@@ -6399,7 +6278,6 @@ class BriefAiCategories {
         'cat_rechnung_inkasso_ratenzahlung_step5',
         'cat_rechnung_inkasso_ratenzahlung_step6',
       ],
-      riskLevel: RiskLevel.high,
     ),
     // 10) Mahnbescheid
     CategoryDefinition(
@@ -6451,7 +6329,6 @@ class BriefAiCategories {
         'cat_rechnung_mahnbescheid_step5',
         'cat_rechnung_mahnbescheid_step6',
       ],
-      riskLevel: RiskLevel.critical,
     ),
     // 11) Vollstreckungsbescheid
     CategoryDefinition(
@@ -6498,7 +6375,6 @@ class BriefAiCategories {
         'cat_rechnung_vollstreckungsbescheid_step5',
         'cat_rechnung_vollstreckungsbescheid_step6',
       ],
-      riskLevel: RiskLevel.critical,
     ),
     // 12) Gerichtsvollzieherankündigung
     CategoryDefinition(
@@ -6550,7 +6426,6 @@ class BriefAiCategories {
         'cat_rechnung_gerichtsvollzieher_step5',
         'cat_rechnung_gerichtsvollzieher_step6',
       ],
-      riskLevel: RiskLevel.critical,
     ),
     // 13) Pfändungs- und Überweisungsbeschluss
     CategoryDefinition(
@@ -6602,7 +6477,6 @@ class BriefAiCategories {
         'cat_rechnung_pfaendung_step5',
         'cat_rechnung_pfaendung_step6',
       ],
-      riskLevel: RiskLevel.critical,
     ),
     // ─────────────────────────────────────────────────────────────────────
     // BANK  (11 categories)
@@ -6658,7 +6532,6 @@ class BriefAiCategories {
         'cat_bank_sicherheitswarnung_step5',
         'cat_bank_sicherheitswarnung_step6',
       ],
-      riskLevel: RiskLevel.critical,
     ),
     // 2) Kartensperrung / Verdacht auf Missbrauch
     CategoryDefinition(
@@ -6711,7 +6584,6 @@ class BriefAiCategories {
         'cat_bank_kartensperrung_step5',
         'cat_bank_kartensperrung_step6',
       ],
-      riskLevel: RiskLevel.critical,
     ),
     // 3) SEPA-Lastschrift
     CategoryDefinition(
@@ -6764,7 +6636,6 @@ class BriefAiCategories {
         'cat_bank_sepa_lastschrift_step5',
         'cat_bank_sepa_lastschrift_step6',
       ],
-      riskLevel: RiskLevel.medium,
     ),
     // 4) Rücklastschrift
     CategoryDefinition(
@@ -6817,7 +6688,6 @@ class BriefAiCategories {
         'cat_bank_ruecklastschrift_step5',
         'cat_bank_ruecklastschrift_step6',
       ],
-      riskLevel: RiskLevel.high,
     ),
     // 5) Kontoüberziehung
     CategoryDefinition(
@@ -6870,7 +6740,6 @@ class BriefAiCategories {
         'cat_bank_kontouberziehung_step5',
         'cat_bank_kontouberziehung_step6',
       ],
-      riskLevel: RiskLevel.high,
     ),
     // 6) Kontoauszug
     CategoryDefinition(
@@ -6923,7 +6792,6 @@ class BriefAiCategories {
         'cat_bank_kontoauszug_step5',
         'cat_bank_kontoauszug_step6',
       ],
-      riskLevel: RiskLevel.low,
     ),
     // 7) Kreditkartenabrechnung
     CategoryDefinition(
@@ -6976,7 +6844,6 @@ class BriefAiCategories {
         'cat_bank_kreditkartenabrechnung_step5',
         'cat_bank_kreditkartenabrechnung_step6',
       ],
-      riskLevel: RiskLevel.low,
     ),
     // 8) Überweisungsbestätigung
     CategoryDefinition(
@@ -7029,7 +6896,6 @@ class BriefAiCategories {
         'cat_bank_ueberweisungsbestaetigung_step5',
         'cat_bank_ueberweisungsbestaetigung_step6',
       ],
-      riskLevel: RiskLevel.low,
     ),
     // 9) Dauerauftrag eingerichtet
     CategoryDefinition(
@@ -7082,7 +6948,6 @@ class BriefAiCategories {
         'cat_bank_dauerauftrag_eingerichtet_step5',
         'cat_bank_dauerauftrag_eingerichtet_step6',
       ],
-      riskLevel: RiskLevel.low,
     ),
     // 10) Dauerauftrag geändert oder gelöscht
     CategoryDefinition(
@@ -7130,7 +6995,6 @@ class BriefAiCategories {
         'cat_bank_dauerauftrag_geaendert_step5',
         'cat_bank_dauerauftrag_geaendert_step6',
       ],
-      riskLevel: RiskLevel.medium,
     ),
     // 11) Bankgebühren
     CategoryDefinition(
@@ -7183,7 +7047,6 @@ class BriefAiCategories {
         'cat_bank_bankgebuehren_step5',
         'cat_bank_bankgebuehren_step6',
       ],
-      riskLevel: RiskLevel.low,
     ),
     // ─────────────────────────────────────────────────────────────────────
     // VERTRÄGE  (12 categories)
@@ -7240,7 +7103,6 @@ class BriefAiCategories {
         'cat_vertrag_kuendigung_step5',
         'cat_vertrag_kuendigung_step6',
       ],
-      riskLevel: RiskLevel.medium,
     ),
     // 2) Kündigungsbestätigung
     CategoryDefinition(
@@ -7294,7 +7156,6 @@ class BriefAiCategories {
         'cat_vertrag_kuendigungsbestaetigung_step5',
         'cat_vertrag_kuendigungsbestaetigung_step6',
       ],
-      riskLevel: RiskLevel.low,
     ),
     // 3) Kündigung durch Anbieter
     CategoryDefinition(
@@ -7348,7 +7209,6 @@ class BriefAiCategories {
         'cat_vertrag_kuendigung_anbieter_step5',
         'cat_vertrag_kuendigung_anbieter_step6',
       ],
-      riskLevel: RiskLevel.high,
     ),
     // 4) Automatische Vertragsverlängerung
     CategoryDefinition(
@@ -7402,7 +7262,6 @@ class BriefAiCategories {
         'cat_vertrag_automatische_verlaengerung_step5',
         'cat_vertrag_automatische_verlaengerung_step6',
       ],
-      riskLevel: RiskLevel.medium,
     ),
     // 5) Vertragsende
     CategoryDefinition(
@@ -7456,7 +7315,6 @@ class BriefAiCategories {
         'cat_vertrag_vertragsende_step5',
         'cat_vertrag_vertragsende_step6',
       ],
-      riskLevel: RiskLevel.medium,
     ),
     // 6) Arbeitsvertrag
     CategoryDefinition(
@@ -7512,7 +7370,6 @@ class BriefAiCategories {
         'cat_vertrag_arbeitsvertrag_step5',
         'cat_vertrag_arbeitsvertrag_step6',
       ],
-      riskLevel: RiskLevel.high,
     ),
     // 7) Stromvertrag
     CategoryDefinition(
@@ -7568,7 +7425,6 @@ class BriefAiCategories {
         'cat_vertrag_stromvertrag_step5',
         'cat_vertrag_stromvertrag_step6',
       ],
-      riskLevel: RiskLevel.medium,
     ),
     // 8) Internetvertrag / Mobilfunkvertrag
     CategoryDefinition(
@@ -7624,7 +7480,6 @@ class BriefAiCategories {
         'cat_vertrag_internetvertrag_step5',
         'cat_vertrag_internetvertrag_step6',
       ],
-      riskLevel: RiskLevel.medium,
     ),
     // 9) Versicherungsvertrag
     CategoryDefinition(
@@ -7680,7 +7535,6 @@ class BriefAiCategories {
         'cat_vertrag_versicherungsvertrag_step5',
         'cat_vertrag_versicherungsvertrag_step6',
       ],
-      riskLevel: RiskLevel.medium,
     ),
     // 10) Kaufvertrag
     CategoryDefinition(
@@ -7736,7 +7590,6 @@ class BriefAiCategories {
         'cat_vertrag_kaufvertrag_step5',
         'cat_vertrag_kaufvertrag_step6',
       ],
-      riskLevel: RiskLevel.medium,
     ),
     // 11) Ratenzahlungsvertrag
     CategoryDefinition(
@@ -7792,7 +7645,6 @@ class BriefAiCategories {
         'cat_vertrag_ratenzahlungsvertrag_step5',
         'cat_vertrag_ratenzahlungsvertrag_step6',
       ],
-      riskLevel: RiskLevel.high,
     ),
     // 12) Mitgliedschaftsvertrag / Abo
     CategoryDefinition(
@@ -7848,7 +7700,6 @@ class BriefAiCategories {
         'cat_vertrag_mitgliedschaft_step5',
         'cat_vertrag_mitgliedschaft_step6',
       ],
-      riskLevel: RiskLevel.medium,
     ),
   ];
 }

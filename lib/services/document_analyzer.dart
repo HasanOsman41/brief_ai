@@ -126,7 +126,6 @@ class DocumentAnalyzer {
           : DocumentCategory(
               id: cat.id,
               labelKey: cat.labelKey,
-              riskLevel: cat.riskLevel,
               mainCategory: cat.mainCategory,
             ),
       title: cat?.labelKey ?? 'categoryOther',

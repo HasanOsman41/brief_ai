@@ -1,6 +1,7 @@
 // lib/data/repositories/document_repository.dart
 import 'package:brief_ai/data/local/database_helper.dart';
 import 'package:brief_ai/models/document.dart';
+import 'package:brief_ai/models/document_image.dart';
 
 class DocumentRepository {
   final DatabaseHelper _dbHelper = DatabaseHelper();
@@ -27,13 +28,29 @@ class DocumentRepository {
   }
 
   /// Get all documents (without images)
-  Future<List<Document>> getAll() async {
-    final db = await _dbHelper.database;
-    final result = await db.query('documents', orderBy: 'createdAt DESC');
+Future<List<Document>> getAll() async {
+  final db = await _dbHelper.database;
 
-    return result.map((json) => Document.fromJson(json)).toList();
-  }
+  final result = await db.rawQuery('''
+    SELECT 
+      d.id,
+      d.title,
+      d.mainCategoryKey,
+      d.subCategoryKey,
+      d.statusKey,
+      d.createdAt,
+      d.deadline,
+      (SELECT imagePath 
+       FROM images 
+       WHERE documentId = d.id 
+       ORDER BY createdAt ASC 
+       LIMIT 1) AS firstImagePath
+    FROM documents d
+    ORDER BY d.createdAt DESC
+  ''');
 
+ return result.map((row) => Document.fromListingRow(row)).toList();
+}
   /// Get document by ID (without images)
   Future<Document?> getById(int id) async {
     final db = await _dbHelper.database;

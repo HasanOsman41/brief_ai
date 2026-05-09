@@ -1,6 +1,7 @@
 /// BriefAI – Document Analysis Result Model
 
 /// Top-level document group shown in the app UI.
+import 'package:brief_ai/utils/risk_level.dart';
 import 'package:flutter/material.dart';
 
 enum MainCategory {
@@ -45,7 +46,6 @@ enum MainCategory {
   }
 }
 
-enum RiskLevel { low, medium, high, critical }
 
 enum AnalysisConfidence { high, medium, low, unknown }
 
@@ -55,7 +55,6 @@ class DocumentCategory {
   /// l10n key → resolve via AppLocalizations: 'cat_<id>_label'
   final String labelKey;
 
-  final RiskLevel riskLevel;
 
   /// Top-level group this category belongs to.
   final MainCategory mainCategory;
@@ -63,14 +62,12 @@ class DocumentCategory {
   const DocumentCategory({
     required this.id,
     required this.labelKey,
-    required this.riskLevel,
     required this.mainCategory,
   });
 
   Map<String, dynamic> toMap() => {
     'id': id,
     'label_key': labelKey,
-    'risk_level': riskLevel.name,
     'main_category': mainCategory.name,
   };
 }

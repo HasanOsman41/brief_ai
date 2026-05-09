@@ -24,18 +24,8 @@ class DocumentService {
   /// Get all documents with their images
   Future<List<Document>> getAllDocuments() async {
     try {
-      final documents = await _documentRepo.getAll();
-
-      // Fetch images for each document
-      final result = <Document>[];
-      for (final doc in documents) {
-        if (doc.id != null) {
-          final images = await _imageRepo.getByDocumentId(doc.id!);
-          result.add(doc.copyWith(images: images));
-        }
-      }
-
-      return result;
+      // JOIN already handles images — no loop needed
+      return await _documentRepo.getAll();
     } catch (e) {
       print('❌ Error fetching all documents: $e');
       return [];
