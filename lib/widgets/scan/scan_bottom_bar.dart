@@ -3,13 +3,14 @@ import 'package:brief_ai/localization/app_localizations.dart';
 import 'package:brief_ai/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
-/// The floating bottom panel: AI button + scan / gallery / delete action buttons.
+/// The floating bottom panel: Two analyze buttons + scan / gallery / delete action buttons.
 class ScanBottomBar extends StatelessWidget {
   const ScanBottomBar({
     super.key,
     required this.pageCount,
     required this.onScan,
-    required this.onAnalyze,
+    required this.onOfflineAnalyze,
+    required this.onAiAnalyze,
     required this.onOpenGallery,
     required this.onDelete,
     required this.onDownloadPdf,
@@ -18,7 +19,8 @@ class ScanBottomBar extends StatelessWidget {
 
   final int pageCount;
   final VoidCallback onScan;
-  final VoidCallback onAnalyze;
+  final VoidCallback onOfflineAnalyze;
+  final VoidCallback onAiAnalyze;
   final VoidCallback onOpenGallery;
   final VoidCallback onDelete;
   final VoidCallback onDownloadPdf;
@@ -39,7 +41,11 @@ class ScanBottomBar extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           if (_hasPages) ...[
-            _AnalyzeButton(onTap: onAnalyze, isDark: isDark),
+            _AnalyzeButtonsRow(
+              onOfflineAnalyze: onOfflineAnalyze,
+              onAiAnalyze: onAiAnalyze,
+              isDark: isDark,
+            ),
             const SizedBox(height: 14),
           ],
           _ActionBar(
@@ -49,10 +55,53 @@ class ScanBottomBar extends StatelessWidget {
             primary: primary,
             onScan: onScan,
             onOpenGallery: onOpenGallery,
-            onDelete: onDelete,            onDownloadPdf: onDownloadPdf,
-            isPdfLoading: isPdfLoading,          ),
+            onDelete: onDelete,
+            onDownloadPdf: onDownloadPdf,
+            isPdfLoading: isPdfLoading,
+          ),
         ],
       ),
+    );
+  }
+}
+
+// ── Analyze buttons row ───────────────────────────────────────────────────
+
+class _AnalyzeButtonsRow extends StatelessWidget {
+  const _AnalyzeButtonsRow({
+    required this.onOfflineAnalyze,
+    required this.onAiAnalyze,
+    required this.isDark,
+  });
+
+  final VoidCallback onOfflineAnalyze;
+  final VoidCallback onAiAnalyze;
+  final bool isDark;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: _AnalyzeButton(
+            onTap: onOfflineAnalyze,
+            isDark: isDark,
+            label: AppLocalizations.tr(context, 'offlineAnalyze'),
+            icon: Icons.offline_bolt,
+            isPrimary: false,
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: _AnalyzeButton(
+            onTap: onAiAnalyze,
+            isDark: isDark,
+            label: AppLocalizations.tr(context, 'aiAnalyze'),
+            icon: Icons.auto_awesome,
+            isPrimary: true,
+          ),
+        ),
+      ],
     );
   }
 }
@@ -60,35 +109,69 @@ class ScanBottomBar extends StatelessWidget {
 // ── Analyze button ─────────────────────────────────────────────────────────
 
 class _AnalyzeButton extends StatelessWidget {
-  const _AnalyzeButton({required this.onTap, required this.isDark});
+  const _AnalyzeButton({
+    required this.onTap,
+    required this.isDark,
+    required this.label,
+    required this.icon,
+    required this.isPrimary,
+  });
+
   final VoidCallback onTap;
   final bool isDark;
+  final String label;
+  final IconData icon;
+  final bool isPrimary;
 
   @override
   Widget build(BuildContext context) {
     final primary = isDark ? AppTheme.darkPrimary : AppTheme.lightPrimary;
+    final secondary = isDark
+        ? AppTheme.darkTextSecondary
+        : AppTheme.lightTextSecondary;
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 16),
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [primary.withOpacity(0.75), primary],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
+          gradient: isPrimary
+              ? LinearGradient(
+                  colors: [primary.withOpacity(0.75), primary],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                )
+              : null,
+          color: isPrimary
+              ? null
+              : (isDark ? AppTheme.darkSurface : AppTheme.lightSurface),
           borderRadius: BorderRadius.circular(14),
-          boxShadow: [BoxShadow(color: primary.withOpacity(0.35), blurRadius: 10, offset: const Offset(0, 4))],
+          border: isPrimary
+              ? null
+              : Border.all(color: secondary.withOpacity(0.3), width: 1.5),
+          boxShadow: isPrimary
+              ? [
+                  BoxShadow(
+                    color: primary.withOpacity(0.35),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ]
+              : null,
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.auto_awesome, color: Colors.white, size: 20),
-            const SizedBox(width: 10),
+            Icon(icon, color: isPrimary ? Colors.white : secondary, size: 20),
+            const SizedBox(width: 8),
             Text(
-              AppLocalizations.tr(context, 'analyzeWithAI'),
-              style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 0.3),
+              label,
+              style: TextStyle(
+                color: isPrimary ? Colors.white : secondary,
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 0.3,
+              ),
             ),
           ],
         ),
@@ -128,7 +211,13 @@ class _ActionBar extends StatelessWidget {
       decoration: BoxDecoration(
         color: isDark ? AppTheme.darkSurface : AppTheme.lightSurface,
         borderRadius: BorderRadius.circular(22),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(isDark ? 0.3 : 0.08), blurRadius: 12, offset: const Offset(0, 4))],
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(isDark ? 0.3 : 0.08),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Row(
@@ -137,13 +226,16 @@ class _ActionBar extends StatelessWidget {
           // Camera/Scan button (always visible)
           _CircleActionButton(
             icon: Icons.document_scanner_outlined,
-            label: AppLocalizations.tr(context, hasPages ? 'addPage' : 'cameraPreview'),
+            label: AppLocalizations.tr(
+              context,
+              hasPages ? 'addPage' : 'cameraPreview',
+            ),
             highlighted: !hasPages,
             isDark: isDark,
             primary: primary,
             onTap: onScan,
           ),
-          
+
           if (hasPages) ...[
             // Download PDF button
             _CircleActionButton(
@@ -154,7 +246,7 @@ class _ActionBar extends StatelessWidget {
               onTap: onDownloadPdf,
               isLoading: isPdfLoading,
             ),
-            
+
             // Delete button
             _CircleActionButton(
               icon: Icons.delete_outline,
@@ -164,7 +256,7 @@ class _ActionBar extends StatelessWidget {
               onTap: onDelete,
               isDestructive: true,
             ),
-            
+
             // Gallery button
             _CircleActionButton(
               icon: Icons.photo_library_outlined,
@@ -220,15 +312,23 @@ class _CircleActionButton extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: highlighted 
-                ? primary 
-                : (isDestructive 
-                    ? (isDark ? AppTheme.darkDanger.withOpacity(0.15) : AppTheme.lightDanger.withOpacity(0.1))
-                    : (isDark ? AppTheme.darkCard : AppTheme.lightCard)),
+              color: highlighted
+                  ? primary
+                  : (isDestructive
+                        ? (isDark
+                              ? AppTheme.darkDanger.withOpacity(0.15)
+                              : AppTheme.lightDanger.withOpacity(0.1))
+                        : (isDark ? AppTheme.darkCard : AppTheme.lightCard)),
               shape: BoxShape.circle,
-              boxShadow: highlighted 
-                ? [BoxShadow(color: primary.withOpacity(0.4), blurRadius: 10, offset: const Offset(0, 4))] 
-                : null,
+              boxShadow: highlighted
+                  ? [
+                      BoxShadow(
+                        color: primary.withOpacity(0.4),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ]
+                  : null,
             ),
             child: isLoading
                 ? SizedBox(
@@ -243,11 +343,13 @@ class _CircleActionButton extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            label, 
+            label,
             style: TextStyle(
-              color: isDestructive 
-                ? (isDark ? AppTheme.darkDanger : AppTheme.lightDanger)
-                : (isDark ? AppTheme.darkTextSecondary : AppTheme.lightTextSecondary), 
+              color: isDestructive
+                  ? (isDark ? AppTheme.darkDanger : AppTheme.lightDanger)
+                  : (isDark
+                        ? AppTheme.darkTextSecondary
+                        : AppTheme.lightTextSecondary),
               fontSize: 10,
               fontWeight: isDestructive ? FontWeight.w500 : FontWeight.normal,
             ),

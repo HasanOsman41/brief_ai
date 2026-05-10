@@ -22,10 +22,26 @@ class _DocumentsTabState extends State<DocumentsTab> {
   bool _isLoading = false;
   String? _error;
 
+  // Search & filter state
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+  DateTime? _selectedDate;
+
   @override
   void initState() {
     super.initState();
     _loadDocuments();
+    _searchController.addListener(() {
+      setState(() {
+        _searchQuery = _searchController.text.trim().toLowerCase();
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadDocuments() async {
@@ -36,16 +52,13 @@ class _DocumentsTabState extends State<DocumentsTab> {
 
     try {
       final documents = await DocumentService().getAllDocuments();
-
       if (!mounted) return;
-
       setState(() {
         _documents = documents;
         _isLoading = false;
       });
     } catch (e) {
       if (!mounted) return;
-
       setState(() {
         _error = e.toString();
         _isLoading = false;
@@ -95,6 +108,70 @@ class _DocumentsTabState extends State<DocumentsTab> {
     });
   }
 
+  Future<void> _pickDate() async {
+    final now = DateTime.now();
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate ?? now,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+    );
+    if (picked != null) {
+      setState(() => _selectedDate = picked);
+    }
+  }
+
+  void _clearDate() {
+    setState(() => _selectedDate = null);
+  }
+
+  /// Checks whether a document's created date falls within ±1 day
+  /// of the selected date (i.e. same day, day before, or day after).
+  bool _matchesDate(Document doc) {
+    if (_selectedDate == null) return true;
+    final from = DateTime(
+      _selectedDate!.year,
+      _selectedDate!.month,
+      _selectedDate!.day,
+    ).subtract(const Duration(days: 1));
+    final to = DateTime(
+      _selectedDate!.year,
+      _selectedDate!.month,
+      _selectedDate!.day,
+    ).add(const Duration(days: 2)); // exclusive upper bound (next day midnight)
+    return doc.createdAt.isAfter(from) && doc.createdAt.isBefore(to);
+  }
+
+  /// Checks whether the translated title or translated category contains
+  /// the current search query.
+  bool _matchesSearch(Document doc) {
+    if (_searchQuery.isEmpty) return true;
+    final translatedTitle = AppLocalizations.tr(
+      context,
+      doc.title,
+    ).toLowerCase();
+    // final translatedCategory = AppLocalizations.tr(
+    //   context,
+    //   doc.mainCategoryKey,
+    // ).toLowerCase();
+    return translatedTitle.contains(_searchQuery);
+    // || translatedCategory.contains(_searchQuery);
+  }
+
+  List<Document> get _filteredDocuments {
+    return _documents.where((doc) {
+      final categoryMatch =
+          _selectedCategory == 'all' ||
+          doc.mainCategoryKey == _selectedCategory;
+      return categoryMatch && _matchesSearch(doc) && _matchesDate(doc);
+    }).toList();
+  }
+
+  bool get _hasActiveFilters =>
+      _searchQuery.isNotEmpty ||
+      _selectedDate != null ||
+      _selectedCategory != 'all';
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -113,7 +190,7 @@ class _DocumentsTabState extends State<DocumentsTab> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.error_outline, size: 48, color: Colors.red),
+            const Icon(Icons.error_outline, size: 48, color: Colors.red),
             const SizedBox(height: 16),
             Text(
               'Error loading documents',
@@ -129,69 +206,162 @@ class _DocumentsTabState extends State<DocumentsTab> {
       );
     }
 
-    // Filter documents by selected category
-    final filteredDocuments = _selectedCategory == 'all'
-        ? _documents
-        : _documents
-              .where((doc) => doc.mainCategoryKey == _selectedCategory)
-              .toList();
+    final filteredDocuments = _filteredDocuments;
 
     return Column(
       children: [
-        // Search bar
+        // ── Search bar ──────────────────────────────
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: GestureDetector(
-            onTap: () {
-              Navigator.pushNamed(context, '/search');
-            },
-            child: GlassCard(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 0),
-              child: Container(
-                height: 56,
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.search,
-                      color: Theme.of(context).textTheme.bodyMedium?.color,
-                    ),
-                    const SizedBox(width: 12),
-                    Text(
-                      AppLocalizations.tr(context, 'searchHint'),
+          child: GlassCard(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+            child: SizedBox(
+              height: 56,
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.search,
+                    color: Theme.of(context).textTheme.bodyMedium?.color,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: TextField(
+                      controller: _searchController,
+                      decoration: InputDecoration(
+                        hintText: AppLocalizations.tr(context, 'searchHint'),
+                        hintStyle: TextStyle(
+                          color: Theme.of(context).textTheme.bodyMedium?.color,
+                          fontSize: 16,
+                        ),
+                        border: InputBorder.none,
+                        isDense: true,
+                        contentPadding: EdgeInsets.zero,
+                      ),
                       style: TextStyle(
-                        color: Theme.of(context).textTheme.bodyMedium?.color,
                         fontSize: 16,
+                        color: Theme.of(context).textTheme.bodyLarge?.color,
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                  if (_searchQuery.isNotEmpty)
+                    GestureDetector(
+                      onTap: () => _searchController.clear(),
+                      child: Icon(
+                        Icons.close,
+                        size: 20,
+                        color: Theme.of(context).textTheme.bodyMedium?.color,
+                      ),
+                    ),
+                ],
               ),
             ),
           ),
         ),
 
-        const SizedBox(height: 16),
+        const SizedBox(height: 12),
 
-        // Filter chips
+        // ── Date picker row ─────────────────────────────────────────────────
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Row(
+            children: [
+              GestureDetector(
+                onTap: _pickDate,
+                child: GlassCard(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 10,
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.calendar_today_outlined,
+                        size: 18,
+                        color: _selectedDate != null
+                            ? primaryColor
+                            : Theme.of(context).textTheme.bodyMedium?.color,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        _selectedDate != null
+                            ? '${_selectedDate!.day.toString().padLeft(2, '0')}/'
+                                  '${_selectedDate!.month.toString().padLeft(2, '0')}/'
+                                  '${_selectedDate!.year}'
+                            : AppLocalizations.tr(context, 'filterByDate'),
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: _selectedDate != null
+                              ? primaryColor
+                              : Theme.of(context).textTheme.bodyMedium?.color,
+                          fontWeight: _selectedDate != null
+                              ? FontWeight.w600
+                              : FontWeight.normal,
+                        ),
+                      ),
+                      if (_selectedDate != null) ...[
+                        const SizedBox(width: 8),
+                        GestureDetector(
+                          onTap: _clearDate,
+                          child: Icon(
+                            Icons.close,
+                            size: 16,
+                            color: primaryColor,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+              const Spacer(),
+              // Active filter count badge
+              if (_hasActiveFilters)
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: primaryColor.withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.filter_list, size: 14, color: primaryColor),
+                      const SizedBox(width: 4),
+                      Text(
+                        '${filteredDocuments.length} ${AppLocalizations.tr(context, 'results')}',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: primaryColor,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+            ],
+          ),
+        ),
+
+        const SizedBox(height: 12),
+
+        // ── Category filter chips ───────────────────────────────────────────
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Row(
             children: [
-              // "All" category chip
               Padding(
                 padding: const EdgeInsets.only(right: 8),
                 child: CategoryChip(
                   label: AppLocalizations.tr(context, 'all'),
                   isSelected: _selectedCategory == 'all',
-                  onTap: () {
-                    setState(() {
-                      _selectedCategory = 'all';
-                    });
-                  },
+                  onTap: () => setState(() => _selectedCategory = 'all'),
                 ),
               ),
-              // Categories from MainCategory enum
               ...MainCategory.values.map((category) {
                 return Padding(
                   padding: const EdgeInsets.only(right: 8),
@@ -199,11 +369,8 @@ class _DocumentsTabState extends State<DocumentsTab> {
                     label: AppLocalizations.tr(context, category.key),
                     icon: category.iconData,
                     isSelected: _selectedCategory == category.key,
-                    onTap: () {
-                      setState(() {
-                        _selectedCategory = category.key;
-                      });
-                    },
+                    onTap: () =>
+                        setState(() => _selectedCategory = category.key),
                   ),
                 );
               }).toList(),
@@ -211,9 +378,9 @@ class _DocumentsTabState extends State<DocumentsTab> {
           ),
         ),
 
-        const SizedBox(height: 16),
+        const SizedBox(height: 12),
 
-        // Sort options
+        // ── Sort row ────────────────────────────────────────────────────────
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Row(
@@ -228,9 +395,9 @@ class _DocumentsTabState extends State<DocumentsTab> {
           ),
         ),
 
-        const SizedBox(height: 16),
+        const SizedBox(height: 12),
 
-        // Document list
+        // ── Document list ───────────────────────────────────────────────────
         Expanded(
           child: filteredDocuments.isEmpty
               ? Center(
@@ -238,7 +405,9 @@ class _DocumentsTabState extends State<DocumentsTab> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(
-                        Icons.folder_outlined,
+                        _hasActiveFilters
+                            ? Icons.search_off_outlined
+                            : Icons.folder_outlined,
                         size: 64,
                         color: isDark
                             ? AppTheme.darkTextSecondary
@@ -246,11 +415,26 @@ class _DocumentsTabState extends State<DocumentsTab> {
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        _selectedCategory == 'all'
-                            ? AppLocalizations.tr(context, 'noDocuments')
-                            : 'No documents in this category',
+                        _hasActiveFilters
+                            ? AppLocalizations.tr(context, 'noResults')
+                            : AppLocalizations.tr(context, 'noDocuments'),
                         style: Theme.of(context).textTheme.bodyMedium,
                       ),
+                      if (_hasActiveFilters) ...[
+                        const SizedBox(height: 12),
+                        TextButton(
+                          onPressed: () {
+                            _searchController.clear();
+                            setState(() {
+                              _selectedCategory = 'all';
+                              _selectedDate = null;
+                            });
+                          },
+                          child: Text(
+                            AppLocalizations.tr(context, 'clearFilters'),
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                 )

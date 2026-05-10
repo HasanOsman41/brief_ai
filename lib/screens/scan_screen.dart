@@ -54,7 +54,7 @@ class _ScanScreenState extends State<ScanScreen>
   DocumentResult? _result;
   String _ocrText = '';
   DateTime? _deadline;
-
+  Map<String, dynamic>? _data;
   @override
   void initState() {
     super.initState();
@@ -152,16 +152,24 @@ class _ScanScreenState extends State<ScanScreen>
     setState(() => _showingMagicEffect = true);
 
     try {
-      // Add slight delay for better UX
-      // await Future.delayed(const Duration(milliseconds: 600));
-      final data = await _detectCategory();
+      _data = await _extractDocumentData();
 
-      setState(() => _showingMagicEffect = false);
+      setState(() {
+        _showingMagicEffect = false;
+      });
       if (!mounted) return;
 
+      if (_data!['error'] != null) {
+        _snackError(
+          '${AppLocalizations.tr(context, 'analysisFailed')}: ${_data!['error']}',
+        );
+        return;
+      }
+
       HapticFeedback.mediumImpact();
-      _showCategoryDialog(data);
+      _showCategoryDialog(_data!);
     } catch (e) {
+      _data = null;
       setState(() => _showingMagicEffect = false);
       if (!mounted) return;
       _snackError('${AppLocalizations.tr(context, 'analysisFailed')}: $e');
@@ -367,26 +375,11 @@ class _ScanScreenState extends State<ScanScreen>
                   const SizedBox(height: 28),
 
                   // Action buttons
-                  Row(
+                  Column(
                     children: [
-                      // PDF Button
-                      Expanded(
-                        child: _buildActionButton(
-                          icon: Icons.picture_as_pdf_rounded,
-                          label: AppLocalizations.tr(context, 'savePdf'),
-                          isPrimary: false,
-                          isDark: isDark,
-                          onTap: () {
-                            Navigator.pop(ctx);
-                            _handlePdfExport();
-                          },
-                        ),
-                      ),
-
-                      const SizedBox(width: 12),
-
                       // AI Analyze Button
-                      Expanded(
+                      SizedBox(
+                        width: double.infinity,
                         child: _buildActionButton(
                           icon: Icons.bolt_rounded,
                           label: AppLocalizations.tr(context, 'whatNext'),
@@ -395,6 +388,23 @@ class _ScanScreenState extends State<ScanScreen>
                           onTap: () {
                             Navigator.pop(ctx);
                             _analyze();
+                          },
+                        ),
+                      ),
+
+                      const SizedBox(height: 12),
+
+                      // PDF Button
+                      SizedBox(
+                        width: double.infinity,
+                        child: _buildActionButton(
+                          icon: Icons.picture_as_pdf_rounded,
+                          label: AppLocalizations.tr(context, 'savePdf'),
+                          isPrimary: false,
+                          isDark: isDark,
+                          onTap: () {
+                            Navigator.pop(ctx);
+                            _handlePdfExport();
                           },
                         ),
                       ),
@@ -609,14 +619,15 @@ class _ScanScreenState extends State<ScanScreen>
             borderRadius: BorderRadius.circular(16),
           ),
         ),
-        child: Column(
+        child: Row(
           mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 22),
-            const SizedBox(height: 6),
+            Icon(icon, size: 20),
+            const SizedBox(width: 8),
             Text(
               label,
-              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
             ),
           ],
         ),
@@ -624,17 +635,45 @@ class _ScanScreenState extends State<ScanScreen>
     }
   }
 
-  Future<Map<String, dynamic>> _detectCategory() async {
+  /// Unified data extraction function for both category dialog and analyze bottom sheet
+  Future<Map<String, dynamic>> _extractDocumentData({
+    Function(int current, int total)? onProgress,
+  }) async {
     if (_pages.isEmpty) return {'category': 'Unknown'};
+
     try {
-      final text = await OcrService.instance.recogniseAll(_pages);
+      final text = await OcrService.instance.recogniseAll(
+        _pages,
+        onProgress: onProgress,
+      );
+
+      if (text.isEmpty) {
+        return {
+          'category': null,
+          'deadline': null,
+          'result': null,
+          'ocrText': '',
+          'error': 'noTextFound',
+        };
+      }
+
       final result = DocumentAnalyzer.analyze(text);
+
       return {
         'category': result.category?.mainCategory.key ?? 'categoryOther',
         'deadline': _parseDeadline(result.deadline),
+        'result': result,
+        'ocrText': text,
+        'error': null,
       };
     } catch (e) {
-      return {'category': null};
+      return {
+        'category': null,
+        'deadline': null,
+        'result': null,
+        'ocrText': '',
+        'error': e.toString(),
+      };
     }
   }
 
@@ -644,63 +683,42 @@ class _ScanScreenState extends State<ScanScreen>
   }
 
   // ── Analysis ───────────────────────────────────────────────────────────────
-
+  // When user taps "what next", the _data map is already populated from the initial OCR + analysis. We can directly show the bottom sheet with results without re-processing.
+  // If user taps "analyze with AI" from bottom bar the _data map will be null, so we perform OCR + analysis and cache results in _data before showing bottom sheet. This way we avoid doing OCR twice if user first checks category dialog then taps analyze.
+  // So _data will be not null just after initial scan and category dialog, and will be cleared after showing bottom sheet. Tapping analyze again will re-run OCR + analysis.
   Future<void> _analyze() async {
     if (_pages.isEmpty) {
       _snackError(AppLocalizations.tr(context, 'pleaseCaptureOrSelectImages'));
       return;
     }
-
     HapticFeedback.mediumImpact();
-
-    setState(() {
-      _processing = true;
-      _processingStep = AppLocalizations.tr(context, 'startingOcr');
-    });
-
     try {
-      final text = await OcrService.instance.recogniseAll(
-        _pages,
-        onProgress: (cur, total) => setState(
-          () => _processingStep =
-              '${AppLocalizations.tr(context, 'ocrPage')} $cur / $total',
-        ),
-      );
+      if (_data == null) {
+        setState(() => _showingMagicEffect = true);
+      }
+      _data = _data ?? await _extractDocumentData();
+      setState(() => _showingMagicEffect = false);
 
-      if (text.isEmpty) {
-        setState(() {
-          _processing = false;
-          _processingStep = '';
-        });
-        _snackError(AppLocalizations.tr(context, 'noTextFound'));
+      if (_data!['error'] != null) {
+        if (_data!['error'] == 'noTextFound') {
+          _snackError(AppLocalizations.tr(context, 'noTextFound'));
+        } else {
+          _snackError(
+            '${AppLocalizations.tr(context, 'analysisFailed')}: ${_data!['error']}',
+          );
+        }
         return;
       }
 
-      setState(
-        () => _processingStep = AppLocalizations.tr(
-          context,
-          'extractingDocumentInfo',
-        ),
-      );
-
-      final docResult = DocumentAnalyzer.analyze(text);
-
       setState(() {
-        _result = docResult;
-        _ocrText = text;
-        _deadline = _parseDeadline(docResult.deadline);
-        _processing = false;
-        _processingStep = '';
+        _result = _data!['result'] as DocumentResult?;
+        _ocrText = _data!['ocrText'] as String;
+        _deadline = _data!['deadline'] as DateTime?;
       });
-
       HapticFeedback.heavyImpact();
       _showResults();
       _snackSuccess(AppLocalizations.tr(context, 'aiAnalysisComplete'));
     } catch (e) {
-      setState(() {
-        _processing = false;
-        _processingStep = '';
-      });
       _snackError('${AppLocalizations.tr(context, 'analysisFailed')}: $e');
     }
   }
@@ -716,6 +734,7 @@ class _ScanScreenState extends State<ScanScreen>
       documentId: _documentId,
       onSave: (DateTime? d) => setState(() => _deadline = d),
     );
+    _data = null; // Clear cached data after showing results
   }
 
   Future<void> _handlePdfExport() async {
@@ -950,7 +969,8 @@ class _ScanScreenState extends State<ScanScreen>
         ScanBottomBar(
           pageCount: _pages.length,
           onScan: _launchScanner,
-          onAnalyze: _analyze,
+          onOfflineAnalyze: _analyze,
+          onAiAnalyze: _analyze, // For now, both do the same thing
           onDelete: _deleteCurrentPage,
           onOpenGallery: () => setState(() => _showGallery = true),
           onDownloadPdf: _handlePdfExport,
@@ -1937,15 +1957,16 @@ class _PulsingActionButtonState extends State<_PulsingActionButton>
                 borderRadius: BorderRadius.circular(16),
               ),
             ),
-            child: Column(
+            child: Row(
               mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(widget.icon, size: 22),
-                const SizedBox(height: 6),
+                Icon(widget.icon, size: 20),
+                const SizedBox(width: 8),
                 Text(
                   widget.label,
                   style: const TextStyle(
-                    fontSize: 13,
+                    fontSize: 14,
                     fontWeight: FontWeight.w600,
                   ),
                   textAlign: TextAlign.center,

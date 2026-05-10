@@ -249,7 +249,10 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
                             shape: BoxShape.circle,
                           ),
                           child: IconButton(
-                            icon: const Icon(Icons.edit, color: Colors.white),
+                            icon: const Icon(
+                              Icons.document_scanner,
+                              color: Colors.white,
+                            ),
                             onPressed: () {
                               if (_document?.imagePaths != null &&
                                   _document?.id != null) {
@@ -274,7 +277,7 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
                           child: IconButton(
                             icon: const Icon(
                               Icons.delete_outline,
-                              color: Colors.white,
+                              color: Colors.red,
                             ),
                             onPressed: () => _showDeleteDialog(context),
                           ),
@@ -314,14 +317,14 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
 
           // Scrollable content card
           DraggableScrollableSheet(
-            initialChildSize: 0.35,
+            initialChildSize: 0.3,
             minChildSize: 0.1,
             maxChildSize: 0.95,
             snap: true,
-            snapSizes: const [0.35, 0.7, 0.95],
+            snapAnimationDuration: Duration(milliseconds: 200),
+            // snapSizes: const [0.3, 0.7, 0.95],
             builder: (context, scrollController) {
-              return AnimatedContainer(
-                duration: const Duration(milliseconds: 300),
+              return Container(
                 decoration: BoxDecoration(
                   color: isDark
                       ? AppTheme.darkBackground
@@ -779,7 +782,11 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
                     color: level.color(isDark).withOpacity(0.15),
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(Icons.speed_outlined, color: level.color(isDark), size: 22),
+                  child: Icon(
+                    Icons.speed_outlined,
+                    color: level.color(isDark),
+                    size: 22,
+                  ),
                 ),
                 const SizedBox(width: 12),
                 Text(
@@ -797,7 +804,10 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
               decoration: BoxDecoration(
                 color: level.color(isDark).withOpacity(0.15),
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: level.color(isDark).withOpacity(0.3), width: 1),
+                border: Border.all(
+                  color: level.color(isDark).withOpacity(0.3),
+                  width: 1,
+                ),
               ),
               child: Row(
                 children: [
