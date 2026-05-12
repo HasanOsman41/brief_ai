@@ -1,3 +1,4 @@
+import 'package:brief_ai/theme/app_theme.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
@@ -53,7 +54,7 @@ class NotificationService {
       priority: Priority.high,
       playSound: true,
       enableVibration: true,
-      color: const Color(0xFF6366F1),
+      color: AppTheme.lightPrimary,
       colorized: true,
       actions: <AndroidNotificationAction>[
         const AndroidNotificationAction(

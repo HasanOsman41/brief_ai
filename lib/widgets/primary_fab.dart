@@ -1,6 +1,7 @@
 // lib/widgets/primary_fab.dart
 import 'dart:ui';
 
+import 'package:brief_ai/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 class PrimaryFAB extends StatefulWidget {
@@ -136,8 +137,8 @@ class _PrimaryFABState extends State<PrimaryFAB> with TickerProviderStateMixin {
                     filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
                     child: Material(
                       color: isDark
-                          ? const Color(0xBF141928).withOpacity(0.9)
-                          : const Color(0xE5FFFFFF).withOpacity(0.9),
+                          ? AppTheme.darkSurface.withOpacity(0.9)
+                          : AppTheme.lightSurface.withOpacity(0.9),
                       borderRadius: BorderRadius.circular(30),
                       child: InkWell(
                         onTap: _onPressed,
@@ -150,8 +151,8 @@ class _PrimaryFABState extends State<PrimaryFAB> with TickerProviderStateMixin {
                           decoration: BoxDecoration(
                             border: Border.all(
                               color: isDark
-                                  ? const Color(0x14FFFFFF)
-                                  : const Color(0x0F000000),
+                                  ? AppTheme.darkBorder
+                                  : AppTheme.lightBorder,
                               width: 1,
                             ),
                             borderRadius: BorderRadius.circular(30),
@@ -173,9 +174,9 @@ class _PrimaryFABState extends State<PrimaryFAB> with TickerProviderStateMixin {
                                 Text(
                                   widget.label!,
                                   style: TextStyle(
-                                    color: Theme.of(
-                                      context,
-                                    ).textTheme.bodyLarge?.color,
+                                    color: isDark
+                                        ? AppTheme.darkTextPrimary
+                                        : AppTheme.lightTextPrimary,
                                     fontWeight: FontWeight.w600,
                                     fontSize: 16,
                                   ),

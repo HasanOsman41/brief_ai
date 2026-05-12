@@ -216,7 +216,10 @@ class _AnalysisBottomSheetState extends State<AnalysisBottomSheet> {
 
       // Block save if category was not detected and user hasn't picked one.
       if (_subCategoryKey.isEmpty) {
-        _snack(AppLocalizations.tr(context, 'noCategoryDetected'), success: false);
+        _snack(
+          AppLocalizations.tr(context, 'noCategoryDetected'),
+          success: false,
+        );
         return;
       }
 
@@ -465,8 +468,7 @@ class _DocumentInfoCardState extends State<_DocumentInfoCard> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Undetected category banner
-        if (!widget.categoryDetected)
-          _NoCategoryBanner(isDark: widget.isDark),
+        if (!widget.categoryDetected) _NoCategoryBanner(isDark: widget.isDark),
         if (!widget.categoryDetected) const SizedBox(height: 12),
         // Editable category selector
         _CategorySelector(
@@ -549,7 +551,9 @@ class _DocumentInfoCardState extends State<_DocumentInfoCard> {
           Container(
             decoration: BoxDecoration(
               border: Border.all(
-                color: widget.isDark ? AppTheme.darkBorder : AppTheme.lightBorder,
+                color: widget.isDark
+                    ? AppTheme.darkBorder
+                    : AppTheme.lightBorder,
               ),
               borderRadius: BorderRadius.circular(8),
             ),
@@ -613,7 +617,7 @@ class _CategorySelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final warningColor = const Color(0xFFF59E0B);
+    final warningColor = isDark ? AppTheme.darkWarning : AppTheme.lightWarning;
 
     // If no category was detected, show a tap-to-select placeholder
     if (!categoryDetected && selectedCategoryId.isEmpty) {
@@ -643,7 +647,11 @@ class _CategorySelector extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  Icon(Icons.help_outline_rounded, size: 18, color: warningColor),
+                  Icon(
+                    Icons.help_outline_rounded,
+                    size: 18,
+                    color: warningColor,
+                  ),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
@@ -901,7 +909,9 @@ class _CategoryPickerSheetState extends State<_CategoryPickerSheet> {
                           Icon(
                             Icons.search_off_rounded,
                             size: 48,
-                            color: widget.isDark ? Colors.white24 : Colors.black26,
+                            color: widget.isDark
+                                ? Colors.white24
+                                : Colors.black26,
                           ),
                           const SizedBox(height: 12),
                           Text(
@@ -917,61 +927,65 @@ class _CategoryPickerSheetState extends State<_CategoryPickerSheet> {
                       ),
                     )
                   : ListView.builder(
-                controller: scrollController,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 4,
-                ),
-                itemCount: _filtered.length,
-                itemBuilder: (context, i) {
-                  final cat = _filtered[i];
-                  final isCurrent = cat.id == widget.currentCategoryId;
-                  final mainLabel = AppLocalizations.tr(
-                    context,
-                    cat.mainCategory.key,
-                  );
-                  return ListTile(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    tileColor: isCurrent
-                        ? widget.primary.withOpacity(0.1)
-                        : null,
-                    leading: Icon(
-                      cat.mainCategory.iconData,
-                      color: isCurrent
-                          ? widget.primary
-                          : (widget.isDark ? Colors.white54 : Colors.black45),
-                      size: 22,
-                    ),
-                    title: Text(
-                      AppLocalizations.tr(context, cat.labelKey),
-                      style: TextStyle(
-                        fontWeight: isCurrent
-                            ? FontWeight.w700
-                            : FontWeight.w500,
-                        color: isCurrent ? widget.primary : null,
-                        fontSize: 14,
+                      controller: scrollController,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 4,
                       ),
+                      itemCount: _filtered.length,
+                      itemBuilder: (context, i) {
+                        final cat = _filtered[i];
+                        final isCurrent = cat.id == widget.currentCategoryId;
+                        final mainLabel = AppLocalizations.tr(
+                          context,
+                          cat.mainCategory.key,
+                        );
+                        return ListTile(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          tileColor: isCurrent
+                              ? widget.primary.withOpacity(0.1)
+                              : null,
+                          leading: Icon(
+                            cat.mainCategory.iconData,
+                            color: isCurrent
+                                ? widget.primary
+                                : (widget.isDark
+                                      ? Colors.white54
+                                      : Colors.black45),
+                            size: 22,
+                          ),
+                          title: Text(
+                            AppLocalizations.tr(context, cat.labelKey),
+                            style: TextStyle(
+                              fontWeight: isCurrent
+                                  ? FontWeight.w700
+                                  : FontWeight.w500,
+                              color: isCurrent ? widget.primary : null,
+                              fontSize: 14,
+                            ),
+                          ),
+                          subtitle: Text(
+                            mainLabel,
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: widget.isDark
+                                  ? Colors.white38
+                                  : Colors.black38,
+                            ),
+                          ),
+                          trailing: isCurrent
+                              ? Icon(
+                                  Icons.check_circle,
+                                  color: widget.primary,
+                                  size: 18,
+                                )
+                              : null,
+                          onTap: () => widget.onSelected(cat),
+                        );
+                      },
                     ),
-                    subtitle: Text(
-                      mainLabel,
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: widget.isDark ? Colors.white38 : Colors.black38,
-                      ),
-                    ),
-                    trailing: isCurrent
-                        ? Icon(
-                            Icons.check_circle,
-                            color: widget.primary,
-                            size: 18,
-                          )
-                        : null,
-                    onTap: () => widget.onSelected(cat),
-                  );
-                },
-              ),
             ),
           ],
         ),
@@ -1183,7 +1197,7 @@ class _DatePickerChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) => GestureDetector(
     onTap: () async {
-       DateTime? picked = await showDatePicker(
+      DateTime? picked = await showDatePicker(
         context: context,
         initialDate: DateTime.now(),
         firstDate: DateTime.now(),
@@ -1205,7 +1219,9 @@ class _DatePickerChip extends StatelessWidget {
           child: child!,
         ),
       );
-      picked=picked?.add(const Duration(hours: 23, minutes: 59)); // Set to end of day
+      picked = picked?.add(
+        const Duration(hours: 23, minutes: 59),
+      ); // Set to end of day
       if (picked != null) onChanged(picked);
     },
     child: Container(
@@ -1430,7 +1446,8 @@ class _NoCategoryBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const color = Color(0xFFF59E0B);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final color = isDark ? AppTheme.darkWarning : AppTheme.lightWarning;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
@@ -1440,12 +1457,12 @@ class _NoCategoryBanner extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const Icon(Icons.search_off_rounded, color: color, size: 18),
+          Icon(Icons.search_off_rounded, color: color, size: 18),
           const SizedBox(width: 10),
           Expanded(
             child: Text(
               AppLocalizations.tr(context, 'noCategoryDetectedHint'),
-              style: const TextStyle(
+              style: TextStyle(
                 color: color,
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
@@ -1474,15 +1491,19 @@ class _TrustScoreSlider extends StatelessWidget {
   final int score;
   final bool categoryDetected;
 
-  Color get _color {
-    if (!categoryDetected) return const Color(0xFF94A3B8);
-    if (score >= 70) return const Color(0xFF22C55E);
-    if (score >= 40) return const Color(0xFFF59E0B);
-    return const Color(0xFFEF4444);
+  Color _getColor(BuildContext context) {
+    if (!categoryDetected)
+      return isDark ? AppTheme.darkTextSecondary : AppTheme.lightTextSecondary;
+    if (score >= 70)
+      return isDark ? AppTheme.darkSuccess : AppTheme.lightSuccess;
+    if (score >= 40)
+      return isDark ? AppTheme.darkWarning : AppTheme.lightWarning;
+    return isDark ? AppTheme.darkDanger : AppTheme.lightDanger;
   }
 
   String _label(BuildContext context) {
-    if (!categoryDetected) return AppLocalizations.tr(context, 'noCategoryDetected');
+    if (!categoryDetected)
+      return AppLocalizations.tr(context, 'noCategoryDetected');
     if (score >= 70) return AppLocalizations.tr(context, 'high');
     if (score >= 40) return AppLocalizations.tr(context, 'medium');
     return AppLocalizations.tr(context, 'low');
@@ -1497,6 +1518,7 @@ class _TrustScoreSlider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final color = _getColor(context);
     final filled = categoryDetected ? (score / 10).round().clamp(0, 10) : 0;
     final bg = isDark ? AppTheme.darkBackground : AppTheme.lightBackground;
     final displayScore = categoryDetected ? '$score%' : '--';
@@ -1504,13 +1526,13 @@ class _TrustScoreSlider extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
-        color: _color.withOpacity(0.08),
+        color: color.withOpacity(0.08),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: _color.withOpacity(0.25)),
+        border: Border.all(color: color.withOpacity(0.25)),
       ),
       child: Row(
         children: [
-          Icon(_icon, color: _color, size: 18),
+          Icon(_icon, color: color, size: 18),
           const SizedBox(width: 10),
           Expanded(
             child: Column(
@@ -1536,13 +1558,13 @@ class _TrustScoreSlider extends StatelessWidget {
                         vertical: 2,
                       ),
                       decoration: BoxDecoration(
-                        color: _color.withOpacity(0.15),
+                        color: color.withOpacity(0.15),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
                         '${_label(context)} · $displayScore',
                         style: TextStyle(
-                          color: _color,
+                          color: color,
                           fontSize: 10,
                           fontWeight: FontWeight.w700,
                         ),
@@ -1559,12 +1581,12 @@ class _TrustScoreSlider extends StatelessWidget {
                         margin: const EdgeInsets.only(right: 3),
                         height: 5,
                         decoration: BoxDecoration(
-                          color: active ? _color : bg,
+                          color: active ? color : bg,
                           borderRadius: BorderRadius.circular(3),
                           border: active
                               ? null
                               : Border.all(
-                                  color: _color.withOpacity(0.2),
+                                  color: color.withOpacity(0.2),
                                   width: 1,
                                 ),
                         ),

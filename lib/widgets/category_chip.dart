@@ -1,4 +1,5 @@
 // lib/widgets/category_chip.dart
+import 'package:brief_ai/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 class CategoryChip extends StatelessWidget {
@@ -29,14 +30,14 @@ class CategoryChip extends StatelessWidget {
           color: isSelected
               ? primaryColor
               : isDark
-                  ? const Color(0xBF141928)
-                  : const Color(0xE5FFFFFF),
+                  ? AppTheme.darkSurface
+                  : AppTheme.lightSurface,
           border: Border.all(
             color: isSelected
                 ? Colors.transparent
                 : isDark
-                    ? const Color(0x14FFFFFF)
-                    : const Color(0x0F000000),
+                    ? AppTheme.darkBorder
+                    : AppTheme.lightBorder,
           ),
         ),
         child: Row(

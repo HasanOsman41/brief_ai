@@ -1,6 +1,7 @@
 // lib/widgets/glass_card.dart
 import 'dart:ui';
 
+import 'package:brief_ai/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 class GlassCard extends StatelessWidget {
@@ -28,8 +29,8 @@ class GlassCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(borderRadius),
         border: hasBorder ? Border.all(
           color: isDark 
-              ? const Color(0x14FFFFFF) 
-              : const Color(0x0F000000),
+              ? AppTheme.darkBorder
+              : AppTheme.lightBorder,
           width: 1,
         ) : null,
         boxShadow: [
@@ -50,8 +51,8 @@ class GlassCard extends StatelessWidget {
             padding: padding ?? const EdgeInsets.all(20),
             decoration: BoxDecoration(
               color: isDark
-                  ? const Color(0xBF141928) // rgba(20,25,40,0.75)
-                  : const Color(0xE5FFFFFF), // 90% white
+                  ? AppTheme.darkSurface
+                  : AppTheme.lightSurface,
               borderRadius: BorderRadius.circular(borderRadius),
             ),
             child: child,

@@ -167,11 +167,11 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
                     end: Alignment.bottomCenter,
                     colors: [
                       isDark
-                          ? const Color(0xFF1A1A1A)
-                          : const Color(0xFF2C3E50),
+                          ? AppTheme.darkBackground
+                          : AppTheme.lightBackground,
                       isDark
-                          ? const Color(0xFF2D2D2D)
-                          : const Color(0xFF34495E),
+                          ? AppTheme.darkSurface
+                          : AppTheme.lightSurface,
                     ],
                   ),
                 ),

@@ -4,9 +4,9 @@ import 'package:brief_ai/models/document_result.dart';
 import 'package:brief_ai/services/document_service.dart';
 import 'package:brief_ai/theme/app_theme.dart';
 import 'package:brief_ai/widgets/category_chip.dart';
-import 'package:brief_ai/widgets/common_widgets.dart';
 import 'package:brief_ai/widgets/document_card.dart';
 import 'package:brief_ai/widgets/glass_card.dart';
+import 'package:brief_ai/widgets/sort_dropdown.dart';
 import 'package:flutter/material.dart';
 
 class DocumentsTab extends StatefulWidget {

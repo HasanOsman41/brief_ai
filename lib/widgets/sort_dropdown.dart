@@ -1,74 +1,11 @@
 import 'package:brief_ai/localization/app_localizations.dart';
 import 'package:brief_ai/theme/app_theme.dart';
-import 'package:brief_ai/widgets/glass_card.dart';
 import 'package:flutter/material.dart';
-
-class StatCard extends StatelessWidget {
-  final IconData icon;
-  final String value;
-  final String label;
-  final Color color;
-
-  const StatCard({
-    Key? key,
-    required this.icon,
-    required this.value,
-    required this.label,
-    required this.color,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    return GlassCard(
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Icon(icon, color: color, size: 20),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              value,
-              style: TextStyle(
-                color: isDark
-                    ? AppTheme.darkTextPrimary
-                    : AppTheme.lightTextPrimary,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            Text(
-              label,
-              style: TextStyle(
-                color: isDark
-                    ? AppTheme.darkTextSecondary
-                    : AppTheme.lightTextSecondary,
-                fontSize: 11,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
 
 class SortDropdown extends StatelessWidget {
   final Function(String) onSortChanged;
 
-  const SortDropdown({
-    Key? key,
-    required this.onSortChanged,
-  }) : super(key: key);
+  const SortDropdown({Key? key, required this.onSortChanged}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -78,10 +15,10 @@ class SortDropdown extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xBF141928) : const Color(0xE5FFFFFF),
+        color: isDark ? AppTheme.darkSurface : AppTheme.lightSurface,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: isDark ? const Color(0x14FFFFFF) : const Color(0x0F000000),
+          color: isDark ? AppTheme.darkBorder : AppTheme.lightBorder,
         ),
       ),
       child: PopupMenuButton<String>(

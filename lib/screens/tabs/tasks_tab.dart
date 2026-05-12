@@ -3,8 +3,8 @@ import 'package:brief_ai/models/document.dart';
 import 'package:brief_ai/services/document_service.dart';
 import 'package:brief_ai/theme/app_theme.dart';
 import 'package:brief_ai/utils/risk_level.dart';
-import 'package:brief_ai/widgets/common_widgets.dart';
 import 'package:brief_ai/widgets/document_card.dart';
+import 'package:brief_ai/widgets/stat_card.dart';
 import 'package:flutter/material.dart';
 
 class TasksTab extends StatefulWidget {
@@ -57,10 +57,14 @@ class _TasksTabState extends State<TasksTab> {
 
   RiskLevel _filterToLevel(String filter) {
     switch (filter) {
-      case 'wichtig': return RiskLevel.wichtig;
-      case 'pruefen': return RiskLevel.pruefen;
-      case 'offen': return RiskLevel.offen;
-      default: return RiskLevel.offen;
+      case 'wichtig':
+        return RiskLevel.wichtig;
+      case 'pruefen':
+        return RiskLevel.pruefen;
+      case 'offen':
+        return RiskLevel.offen;
+      default:
+        return RiskLevel.offen;
     }
   }
 
@@ -101,19 +105,34 @@ class _TasksTabState extends State<TasksTab> {
       );
     }
 
-    final wichtig = _documents.where((d) => calcRiskLevel(d.deadline) == RiskLevel.wichtig).toList();
-    final pruefen = _documents.where((d) => calcRiskLevel(d.deadline) == RiskLevel.pruefen).toList();
-    final offen = _documents.where((d) => calcRiskLevel(d.deadline) == RiskLevel.offen).toList();
+    final wichtig = _documents
+        .where((d) => calcRiskLevel(d.deadline) == RiskLevel.wichtig)
+        .toList();
+    final pruefen = _documents
+        .where((d) => calcRiskLevel(d.deadline) == RiskLevel.pruefen)
+        .toList();
+    final offen = _documents
+        .where((d) => calcRiskLevel(d.deadline) == RiskLevel.offen)
+        .toList();
 
     List<Document> filtered;
     switch (_taskFilter) {
-      case 'wichtig': filtered = wichtig; break;
-      case 'pruefen': filtered = pruefen; break;
-      case 'offen': filtered = offen; break;
-      default: filtered = [...wichtig, ...pruefen, ...offen];
+      case 'wichtig':
+        filtered = wichtig;
+        break;
+      case 'pruefen':
+        filtered = pruefen;
+        break;
+      case 'offen':
+        filtered = offen;
+        break;
+      default:
+        filtered = [...wichtig, ...pruefen, ...offen];
     }
 
-    final textSecondary = isDark ? AppTheme.darkTextSecondary : AppTheme.lightTextSecondary;
+    final textSecondary = isDark
+        ? AppTheme.darkTextSecondary
+        : AppTheme.lightTextSecondary;
 
     return Column(
       children: [
@@ -126,7 +145,10 @@ class _TasksTabState extends State<TasksTab> {
                 child: StatCard(
                   icon: RiskLevel.wichtig.icon,
                   value: wichtig.length.toString(),
-                  label: AppLocalizations.tr(context, RiskLevel.wichtig.translationKey),
+                  label: AppLocalizations.tr(
+                    context,
+                    RiskLevel.wichtig.translationKey,
+                  ),
                   color: RiskLevel.wichtig.color(isDark),
                 ),
               ),
@@ -135,7 +157,10 @@ class _TasksTabState extends State<TasksTab> {
                 child: StatCard(
                   icon: RiskLevel.pruefen.icon,
                   value: pruefen.length.toString(),
-                  label: AppLocalizations.tr(context, RiskLevel.pruefen.translationKey),
+                  label: AppLocalizations.tr(
+                    context,
+                    RiskLevel.pruefen.translationKey,
+                  ),
                   color: RiskLevel.pruefen.color(isDark),
                 ),
               ),
@@ -144,7 +169,10 @@ class _TasksTabState extends State<TasksTab> {
                 child: StatCard(
                   icon: RiskLevel.offen.icon,
                   value: offen.length.toString(),
-                  label: AppLocalizations.tr(context, RiskLevel.offen.translationKey),
+                  label: AppLocalizations.tr(
+                    context,
+                    RiskLevel.offen.translationKey,
+                  ),
                   color: RiskLevel.offen.color(isDark),
                 ),
               ),
@@ -165,24 +193,39 @@ class _TasksTabState extends State<TasksTab> {
                     onTap: () => setState(() => _taskFilter = f),
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 200),
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
                       decoration: BoxDecoration(
                         color: _taskFilter == f
-                            ? (f == 'all' ? primaryColor : _filterToLevel(f).color(isDark))
-                            : (isDark ? AppTheme.darkSurface : AppTheme.lightSurface),
+                            ? (f == 'all'
+                                  ? primaryColor
+                                  : _filterToLevel(f).color(isDark))
+                            : (isDark
+                                  ? AppTheme.darkSurface
+                                  : AppTheme.lightSurface),
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
-                          color: f == 'all' ? primaryColor : _filterToLevel(f).color(isDark),
+                          color: f == 'all'
+                              ? primaryColor
+                              : _filterToLevel(f).color(isDark),
                           width: 1,
                         ),
                       ),
                       child: Text(
                         f == 'all'
                             ? AppLocalizations.tr(context, 'all')
-                            : AppLocalizations.tr(context, _filterToLevel(f).translationKey),
+                            : AppLocalizations.tr(
+                                context,
+                                _filterToLevel(f).translationKey,
+                              ),
                         style: TextStyle(
-                          color: _taskFilter == f ? Colors.white
-                              : (f == 'all' ? primaryColor : _filterToLevel(f).color(isDark)),
+                          color: _taskFilter == f
+                              ? Colors.white
+                              : (f == 'all'
+                                    ? primaryColor
+                                    : _filterToLevel(f).color(isDark)),
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
                         ),
@@ -210,14 +253,19 @@ class _TasksTabState extends State<TasksTab> {
                     itemCount: filtered.length,
                     itemBuilder: (context, index) {
                       final doc = filtered[index];
-                      final groupColor = calcRiskLevel(doc.deadline).color(isDark);
+                      final groupColor = calcRiskLevel(
+                        doc.deadline,
+                      ).color(isDark);
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 12),
                         child: Stack(
                           children: [
                             DocumentCard(
                               title: doc.title,
-                              category: AppLocalizations.tr(context, doc.mainCategoryKey),
+                              category: AppLocalizations.tr(
+                                context,
+                                doc.mainCategoryKey,
+                              ),
                               date: doc.createdAt,
                               deadline: doc.deadline,
                               status: _getStatusLabel(doc.statusKey),

@@ -1,7 +1,5 @@
 /// BriefAI – Document Analysis Result Model
 
-/// Top-level document group shown in the app UI.
-import 'package:brief_ai/utils/risk_level.dart';
 import 'package:flutter/material.dart';
 
 enum MainCategory {
@@ -46,7 +44,6 @@ enum MainCategory {
   }
 }
 
-
 enum AnalysisConfidence { high, medium, low, unknown }
 
 class DocumentCategory {
@@ -54,7 +51,6 @@ class DocumentCategory {
 
   /// l10n key → resolve via AppLocalizations: 'cat_<id>_label'
   final String labelKey;
-
 
   /// Top-level group this category belongs to.
   final MainCategory mainCategory;
@@ -98,6 +94,9 @@ class DocumentResult {
   /// Trust score as a percentage (0–100)
   final int trustScore;
 
+  /// Full OCR text extracted from the document images.
+  final String ocrText;
+
   const DocumentResult({
     required this.category,
     required this.title,
@@ -107,6 +106,7 @@ class DocumentResult {
     required this.confidence,
     required this.matchedKeywords,
     this.trustScore = 0,
+    this.ocrText = '',
   });
 
   Map<String, dynamic> toMap() => {
@@ -117,6 +117,7 @@ class DocumentResult {
     'next_step_keys': nextStepKeys,
     'confidence': confidence.name,
     'matched_keywords': matchedKeywords,
+    'ocr_text': ocrText,
   };
 
   @override

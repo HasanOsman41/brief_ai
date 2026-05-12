@@ -1,30 +1,102 @@
-/// BriefAI – Document Analyzer Service
+/// BriefAI Offline Analysis Service
+///
+/// Implements local document analysis using keyword matching and pattern recognition.
+/// This service provides fast, privacy-focused document classification without
+/// requiring internet connectivity.
+///
+/// Features:
+/// - Local keyword-based document classification
+/// - Advanced deadline extraction with multiple date formats
+/// - German administrative document specialization
+/// - Confidence scoring and trust metrics
+/// - No external dependencies or API calls
+
+import 'package:brief_ai/models/category_definition.dart';
+import '../../models/document_result.dart';
+import '../analysis_service.dart';
+import 'package:brief_ai/data/brief_ai_categories.dart';
+import '../ocr_service.dart';
+
+/// Offline analysis service using local keyword matching and pattern recognition.
+///
+/// Provides immediate document analysis without network requirements.
+/// Optimized for German administrative documents and common bureaucratic forms.
+class OfflineAnalysisService implements AnalysisService {
+  /// Analyzes document images using OCR and local document analyzer.
+  ///
+  /// Performs comprehensive document classification including:
+  /// - OCR text extraction from images
+  /// - Category detection based on keyword matching
+  /// - Deadline extraction with priority handling
+  /// - Confidence assessment based on match quality
+  @override
+  Future<DocumentResult> analyze(
+    List<String> imagePaths, {
+    void Function(int current, int total)? onProgress,
+  }) async {
+    // Perform OCR on all images
+    final ocrText = await OcrService.instance.recogniseAll(
+      imagePaths,
+      onProgress: onProgress,
+    );
+
+    // Analyze the extracted text
+    final result = DocumentAnalyzer.analyze(ocrText);
+
+    return DocumentResult(
+      category: result.category,
+      title: result.title,
+      summaryKey: result.summaryKey,
+      deadline: result.deadline,
+      nextStepKeys: result.nextStepKeys,
+      confidence: result.confidence,
+      matchedKeywords: result.matchedKeywords,
+      trustScore: result.trustScore,
+      ocrText: ocrText,
+    );
+  }
+
+  /// Always returns true as offline analysis has no external dependencies.
+  @override
+  bool get isAvailable => true;
+
+  /// Returns the display name for this analysis service.
+  @override
+  String get serviceName => 'Offline Analysis';
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// DocumentAnalyzer - Core Analysis Engine
+// ═══════════════════════════════════════════════════════════════════════════════
+
+/// Core document analysis engine for BriefAI.
+///
+/// Provides comprehensive document classification and deadline extraction
+/// using keyword matching, pattern recognition, and fuzzy text matching.
 ///
 /// Usage:
-///   final result = DocumentAnalyzer.analyze(ocrText);
+/// ```dart
+/// final result = DocumentAnalyzer.analyze(ocrText);
+/// ```
 ///
 /// The returned [DocumentResult] contains:
-///   - category.mainCategory : top-level group (MainCategory enum)
-///   - category.id           : specific sub-category id
-///   - category.labelKey     : l10n key → resolve via AppLocalizations
-///   - title                 : extracted or derived title
-///   - summary               : short summary from OCR body
-///   - deadline              : extracted date string (dd.MM.yyyy) or null
-///   - nextStepKeys          : ordered l10n keys, resolve via AppLocalizations
-///   - confidence            : high / medium / low / unknown
-///   - matchedKeywords       : keywords that triggered the match
-
-import 'package:brief_ai/data/brief_ai_categories.dart';
-import 'package:fuzzywuzzy/fuzzywuzzy.dart' show partialRatio;
-
-import '../models/category_definition.dart';
-import '../models/document_result.dart';
+/// - `category`: Document classification with main category and sub-category
+/// - `title`: Extracted or derived document title
+/// - `summaryKey`: Localization key for document summary
+/// - `deadline`: Most important extracted date (dd.MM.yyyy format)
+/// - `nextStepKeys`: Ordered action items as localization keys
+/// - `confidence`: Analysis confidence level (high/medium/low/unknown)
+/// - `matchedKeywords`: Keywords that triggered the classification
+/// - `trustScore`: Numerical confidence score (0-100)
 
 // ─────────────────────────────────────────────────────────────────────────────
-// DeadlineResult – structured return value from extractDeadlineInfo()
+// DeadlineResult - Structured Date Information
 // ─────────────────────────────────────────────────────────────────────────────
 
-/// The type / urgency category of an extracted date.
+/// Categorizes different types of dates found in documents.
+///
+/// Used to prioritize deadlines by importance and determine appropriate
+/// user actions and notifications.
 enum DeadlineType {
   /// Personal appointment (Termin, Vorsprache, Einladung …)
   appointment,
@@ -48,7 +120,10 @@ enum DeadlineType {
   relativeLegal,
 }
 
-/// Structured result returned by [DocumentAnalyzer.extractDeadlineInfo].
+/// Structured result containing extracted deadline information.
+///
+/// Returned by [DocumentAnalyzer.extractDeadlineInfo] with parsed date,
+/// original text, semantic type, and optional time information.
 class DeadlineResult {
   /// Parsed date. Null only for [DeadlineType.relativeLegal].
   final DateTime? date;
@@ -82,17 +157,29 @@ class DeadlineResult {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// DocumentAnalyzer
+// DocumentAnalyzer - Main Analysis Class
 // ─────────────────────────────────────────────────────────────────────────────
 
+/// Core document analysis engine providing classification and deadline extraction.
+///
+/// This class contains all the logic for analyzing German administrative documents,
+/// extracting deadlines, and classifying document types using keyword matching.
 class DocumentAnalyzer {
   DocumentAnalyzer._();
 
   // ───────────────────────────────────────────────────────────────────────────
-  // PUBLIC API
+  // Public Analysis API
   // ───────────────────────────────────────────────────────────────────────────
 
-  /// Analyse [ocrText] and return structured document information.
+  /// Analyzes OCR text and returns comprehensive document information.
+  ///
+  /// Performs multi-phase analysis:
+  /// 1. Document classification (main category → sub-category)
+  /// 2. Deadline extraction with priority handling
+  /// 3. Summary key generation
+  /// 4. Next steps determination
+  ///
+  /// Returns [DocumentResult] with unknown confidence for empty input.
   static DocumentResult analyze(String ocrText) {
     if (ocrText.trim().isEmpty) {
       return const DocumentResult(
@@ -141,20 +228,24 @@ class DocumentAnalyzer {
   }
 
   // ───────────────────────────────────────────────────────────────────────────
-  // PUBLIC: extractDeadlineInfo
+  // Public Deadline Extraction API
   // ───────────────────────────────────────────────────────────────────────────
 
-  /// Extracts the single most important date from [ocrText].
+  /// Extracts the most important deadline from document text.
   ///
-  /// Priority: legalDeadline > deadline > paymentDeadline >
-  ///           appointment > expiryDate > collectionDate > fallback
+  /// Applies priority ranking:
+  /// legalDeadline > deadline > paymentDeadline > appointment > expiryDate > collectionDate
+  ///
+  /// Returns null if no actionable dates are found.
   static DeadlineResult? extractDeadlineInfo(String text) {
     final all = extractAllDeadlines(text);
     return all.isEmpty ? null : all.first;
   }
 
-  /// Extracts **all** actionable dates from [ocrText] and returns them sorted
-  /// by priority (highest first).
+  /// Extracts all actionable dates from document text.
+  ///
+  /// Returns comprehensive list of deadlines sorted by priority (highest first).
+  /// Handles multiple date formats including German month names and relative dates.
   static List<DeadlineResult> extractAllDeadlines(String text) {
     final lines = text.split('\n');
     final results = <DeadlineResult>[];

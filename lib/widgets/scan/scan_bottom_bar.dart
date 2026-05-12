@@ -1,6 +1,8 @@
 // lib/widgets/scan/scan_bottom_bar.dart
 import 'package:brief_ai/localization/app_localizations.dart';
+import 'package:brief_ai/services/analysis_service_factory.dart';
 import 'package:brief_ai/theme/app_theme.dart';
+import 'package:brief_ai/widgets/common_button.dart';
 import 'package:flutter/material.dart';
 
 /// The floating bottom panel: Two analyze buttons + scan / gallery / delete action buttons.
@@ -32,6 +34,7 @@ class ScanBottomBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final primary = Theme.of(context).colorScheme.primary;
+    final isOnlineAvailable = AnalysisServiceFactory.instance.isOnlineAvailable;
 
     return Positioned(
       bottom: 30,
@@ -45,6 +48,7 @@ class ScanBottomBar extends StatelessWidget {
               onOfflineAnalyze: onOfflineAnalyze,
               onAiAnalyze: onAiAnalyze,
               isDark: isDark,
+              isOnlineAvailable: isOnlineAvailable,
             ),
             const SizedBox(height: 14),
           ],
@@ -72,110 +76,37 @@ class _AnalyzeButtonsRow extends StatelessWidget {
     required this.onOfflineAnalyze,
     required this.onAiAnalyze,
     required this.isDark,
+    required this.isOnlineAvailable,
   });
 
   final VoidCallback onOfflineAnalyze;
   final VoidCallback onAiAnalyze;
   final bool isDark;
+  final bool isOnlineAvailable;
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
         Expanded(
-          child: _AnalyzeButton(
-            onTap: onOfflineAnalyze,
-            isDark: isDark,
-            label: AppLocalizations.tr(context, 'offlineAnalyze'),
+          child: CommonButton(
+            text: AppLocalizations.tr(context, 'offlineAnalyze'),
             icon: Icons.offline_bolt,
             isPrimary: false,
+            onTap: onOfflineAnalyze,
           ),
         ),
         const SizedBox(width: 10),
         Expanded(
-          child: _AnalyzeButton(
-            onTap: onAiAnalyze,
-            isDark: isDark,
-            label: AppLocalizations.tr(context, 'aiAnalyze'),
+          child: CommonButton(
+            text: AppLocalizations.tr(context, 'aiAnalyze'),
             icon: Icons.auto_awesome,
+            withPulse: true,
             isPrimary: true,
+            onTap: isOnlineAvailable ? onAiAnalyze : null,
           ),
         ),
       ],
-    );
-  }
-}
-
-// ── Analyze button ─────────────────────────────────────────────────────────
-
-class _AnalyzeButton extends StatelessWidget {
-  const _AnalyzeButton({
-    required this.onTap,
-    required this.isDark,
-    required this.label,
-    required this.icon,
-    required this.isPrimary,
-  });
-
-  final VoidCallback onTap;
-  final bool isDark;
-  final String label;
-  final IconData icon;
-  final bool isPrimary;
-
-  @override
-  Widget build(BuildContext context) {
-    final primary = isDark ? AppTheme.darkPrimary : AppTheme.lightPrimary;
-    final secondary = isDark
-        ? AppTheme.darkTextSecondary
-        : AppTheme.lightTextSecondary;
-
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        decoration: BoxDecoration(
-          gradient: isPrimary
-              ? LinearGradient(
-                  colors: [primary.withOpacity(0.75), primary],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                )
-              : null,
-          color: isPrimary
-              ? null
-              : (isDark ? AppTheme.darkSurface : AppTheme.lightSurface),
-          borderRadius: BorderRadius.circular(14),
-          border: isPrimary
-              ? null
-              : Border.all(color: secondary.withOpacity(0.3), width: 1.5),
-          boxShadow: isPrimary
-              ? [
-                  BoxShadow(
-                    color: primary.withOpacity(0.35),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ]
-              : null,
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, color: isPrimary ? Colors.white : secondary, size: 20),
-            const SizedBox(width: 8),
-            Text(
-              label,
-              style: TextStyle(
-                color: isPrimary ? Colors.white : secondary,
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 0.3,
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

@@ -258,7 +258,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           border: Border(
             top: BorderSide(
-              color: isDark ? const Color(0x14FFFFFF) : const Color(0x0F000000),
+              color: isDark ? AppTheme.darkBorder : AppTheme.lightBorder,
             ),
           ),
         ),

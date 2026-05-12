@@ -2,14 +2,15 @@ import 'package:brief_ai/localization/app_localizations.dart';
 import 'package:brief_ai/models/document.dart';
 import 'package:brief_ai/services/document_service.dart';
 import 'package:brief_ai/theme/app_theme.dart';
-import 'package:brief_ai/widgets/common_widgets.dart';
 import 'package:brief_ai/widgets/document_card.dart';
+import 'package:brief_ai/widgets/stat_card.dart';
 import 'package:flutter/material.dart';
 
 class HomeDashboardTab extends StatefulWidget {
   final Function(int) onTabChange;
 
-  const HomeDashboardTab({Key? key, required this.onTabChange}) : super(key: key);
+  const HomeDashboardTab({Key? key, required this.onTabChange})
+    : super(key: key);
 
   @override
   State<HomeDashboardTab> createState() => _HomeDashboardTabState();

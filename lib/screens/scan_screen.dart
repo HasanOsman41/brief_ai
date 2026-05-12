@@ -4,11 +4,11 @@ import 'dart:math' show pi, sin, cos;
 
 import 'package:brief_ai/localization/app_localizations.dart';
 import 'package:brief_ai/models/document_result.dart';
-import 'package:brief_ai/services/document_analyzer.dart';
+import 'package:brief_ai/services/analysis_service_factory.dart';
 import 'package:brief_ai/services/file_storage_service.dart';
-import 'package:brief_ai/services/ocr_service.dart';
 import 'package:brief_ai/services/pdf_service.dart';
 import 'package:brief_ai/theme/app_theme.dart';
+import 'package:brief_ai/widgets/common_button.dart';
 import 'package:brief_ai/widgets/confirm_dialog.dart';
 import 'package:brief_ai/widgets/scan/analysis_bottom_sheet.dart';
 import 'package:brief_ai/widgets/scan/scan_bottom_bar.dart';
@@ -380,13 +380,17 @@ class _ScanScreenState extends State<ScanScreen>
                       // AI Analyze Button
                       SizedBox(
                         width: double.infinity,
-                        child: _buildActionButton(
+                        child: CommonButton(
+                          text: AppLocalizations.tr(context, 'whatNext'),
                           icon: Icons.bolt_rounded,
-                          label: AppLocalizations.tr(context, 'whatNext'),
                           isPrimary: true,
-                          isDark: isDark,
+                          withPulse: true,
                           onTap: () {
                             Navigator.pop(ctx);
+                            // Use default offline analysis for "What Next"
+                            AnalysisServiceFactory.instance.setMode(
+                              AnalysisMode.offline,
+                            );
                             _analyze();
                           },
                         ),
@@ -397,11 +401,10 @@ class _ScanScreenState extends State<ScanScreen>
                       // PDF Button
                       SizedBox(
                         width: double.infinity,
-                        child: _buildActionButton(
+                        child: CommonButton(
+                          text: AppLocalizations.tr(context, 'savePdf'),
                           icon: Icons.picture_as_pdf_rounded,
-                          label: AppLocalizations.tr(context, 'savePdf'),
                           isPrimary: false,
-                          isDark: isDark,
                           onTap: () {
                             Navigator.pop(ctx);
                             _handlePdfExport();
@@ -585,56 +588,6 @@ class _ScanScreenState extends State<ScanScreen>
     );
   }
 
-  Widget _buildActionButton({
-    required IconData icon,
-    required String label,
-    required bool isPrimary,
-    required bool isDark,
-    required VoidCallback onTap,
-  }) {
-    if (isPrimary) {
-      return _PulsingActionButton(
-        icon: icon,
-        label: label,
-        isDark: isDark,
-        onTap: onTap,
-      );
-    } else {
-      return OutlinedButton(
-        onPressed: onTap,
-        style: OutlinedButton.styleFrom(
-          foregroundColor: isDark
-              ? AppTheme.darkTextPrimary
-              : AppTheme.lightTextPrimary,
-          side: BorderSide(
-            width: 1.5,
-            color:
-                (isDark
-                        ? AppTheme.darkTextSecondary
-                        : AppTheme.lightTextSecondary)
-                    .withOpacity(0.3),
-          ),
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, size: 20),
-            const SizedBox(width: 8),
-            Text(
-              label,
-              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-            ),
-          ],
-        ),
-      );
-    }
-  }
-
   /// Unified data extraction function for both category dialog and analyze bottom sheet
   Future<Map<String, dynamic>> _extractDocumentData({
     Function(int current, int total)? onProgress,
@@ -642,12 +595,13 @@ class _ScanScreenState extends State<ScanScreen>
     if (_pages.isEmpty) return {'category': 'Unknown'};
 
     try {
-      final text = await OcrService.instance.recogniseAll(
+      final analysisService = AnalysisServiceFactory.instance.createService();
+      final result = await analysisService.analyze(
         _pages,
         onProgress: onProgress,
       );
 
-      if (text.isEmpty) {
+      if (result.ocrText.trim().isEmpty) {
         return {
           'category': null,
           'deadline': null,
@@ -657,13 +611,11 @@ class _ScanScreenState extends State<ScanScreen>
         };
       }
 
-      final result = DocumentAnalyzer.analyze(text);
-
       return {
         'category': result.category?.mainCategory.key ?? 'categoryOther',
         'deadline': _parseDeadline(result.deadline),
         'result': result,
-        'ocrText': text,
+        'ocrText': result.ocrText,
         'error': null,
       };
     } catch (e) {
@@ -683,9 +635,28 @@ class _ScanScreenState extends State<ScanScreen>
   }
 
   // ── Analysis ───────────────────────────────────────────────────────────────
-  // When user taps "what next", the _data map is already populated from the initial OCR + analysis. We can directly show the bottom sheet with results without re-processing.
-  // If user taps "analyze with AI" from bottom bar the _data map will be null, so we perform OCR + analysis and cache results in _data before showing bottom sheet. This way we avoid doing OCR twice if user first checks category dialog then taps analyze.
-  // So _data will be not null just after initial scan and category dialog, and will be cleared after showing bottom sheet. Tapping analyze again will re-run OCR + analysis.
+
+  /// Analyzes with a specific mode (offline or online).
+  Future<void> _analyzeWithMode(AnalysisMode mode) async {
+    if (_pages.isEmpty) {
+      _snackError(AppLocalizations.tr(context, 'pleaseCaptureOrSelectImages'));
+      return;
+    }
+
+    // Set the analysis mode
+    AnalysisServiceFactory.instance.setMode(mode);
+
+    // Check if the selected mode is available
+    final service = AnalysisServiceFactory.instance.createService();
+    if (!service.isAvailable) {
+      _snackError(AppLocalizations.tr(context, 'onlineAnalysisNotAvailable'));
+      return;
+    }
+
+    await _analyze();
+  }
+
+  /// Performs analysis using the current mode.
   Future<void> _analyze() async {
     if (_pages.isEmpty) {
       _snackError(AppLocalizations.tr(context, 'pleaseCaptureOrSelectImages'));
@@ -969,8 +940,8 @@ class _ScanScreenState extends State<ScanScreen>
         ScanBottomBar(
           pageCount: _pages.length,
           onScan: _launchScanner,
-          onOfflineAnalyze: _analyze,
-          onAiAnalyze: _analyze, // For now, both do the same thing
+          onOfflineAnalyze: () => _analyzeWithMode(AnalysisMode.offline),
+          onAiAnalyze: () => _analyzeWithMode(AnalysisMode.online),
           onDelete: _deleteCurrentPage,
           onOpenGallery: () => setState(() => _showGallery = true),
           onDownloadPdf: _handlePdfExport,
@@ -1888,94 +1859,5 @@ class _SlideGradientTransform extends GradientTransform {
   @override
   Matrix4? transform(Rect bounds, {TextDirection? textDirection}) {
     return Matrix4.translationValues(offset, 0, 0);
-  }
-}
-
-/// Pulsing animated button for AI Analyze action
-class _PulsingActionButton extends StatefulWidget {
-  final IconData icon;
-  final String label;
-  final bool isDark;
-  final VoidCallback onTap;
-
-  const _PulsingActionButton({
-    required this.icon,
-    required this.label,
-    required this.isDark,
-    required this.onTap,
-  });
-
-  @override
-  State<_PulsingActionButton> createState() => _PulsingActionButtonState();
-}
-
-class _PulsingActionButtonState extends State<_PulsingActionButton>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _pulseController;
-  late Animation<double> _scaleAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-
-    _pulseController = AnimationController(
-      duration: const Duration(milliseconds: 1500),
-      vsync: this,
-    );
-
-    _scaleAnimation = Tween<double>(begin: 0.95, end: 1.05).animate(
-      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
-    );
-
-    // Start the infinite pulse animation
-    _pulseController.repeat(reverse: true);
-  }
-
-  @override
-  void dispose() {
-    _pulseController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _scaleAnimation,
-      builder: (context, child) {
-        return Transform.scale(
-          scale: _scaleAnimation.value,
-          child: ElevatedButton(
-            onPressed: widget.onTap,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: widget.isDark
-                  ? AppTheme.darkPrimary
-                  : AppTheme.lightPrimary,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(widget.icon, size: 20),
-                const SizedBox(width: 8),
-                Text(
-                  widget.label,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
   }
 }

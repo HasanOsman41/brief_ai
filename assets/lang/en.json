@@ -14,6 +14,7 @@
   "analyzeWithAI": "Analyze with AI",
   "offlineAnalyze": "Offline Analyze",
   "aiAnalyze": "AI Analyze",
+  "onlineAnalysisNotAvailable": "Online analysis is not available yet",
   "appName": "BriefAI",
   "appVersion": "Version",
   "appearance": "Appearance",
