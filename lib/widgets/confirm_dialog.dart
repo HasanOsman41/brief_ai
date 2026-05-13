@@ -63,7 +63,7 @@ class ConfirmDialog extends StatelessWidget {
                 onPressed: onConfirm,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: effectiveConfirmColor,
-                  foregroundColor: Colors.white,
+                  foregroundColor: Theme.of(context).colorScheme.onPrimary,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20),
                   ),

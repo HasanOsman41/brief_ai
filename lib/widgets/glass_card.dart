@@ -35,9 +35,9 @@ class GlassCard extends StatelessWidget {
         ) : null,
         boxShadow: [
           BoxShadow(
-            color: isDark 
-                ? Colors.black.withOpacity(0.45) 
-                : Colors.black.withOpacity(0.08),
+            color: isDark
+                ? Theme.of(context).colorScheme.onSurface.withOpacity(0.02)
+                : Theme.of(context).colorScheme.onSurface.withOpacity(0.08),
             blurRadius: 30,
             offset: const Offset(0, 10),
           ),

@@ -80,7 +80,7 @@ class FilterTabs extends StatelessWidget {
           color: primaryColor,
           borderRadius: BorderRadius.circular(30),
         ),
-        labelColor: Colors.white,
+        labelColor: Theme.of(context).colorScheme.onPrimary,
         unselectedLabelColor: isDark
             ? AppTheme.darkTextSecondary
             : AppTheme.lightTextSecondary,

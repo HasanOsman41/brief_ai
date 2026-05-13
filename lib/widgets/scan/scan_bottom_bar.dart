@@ -34,7 +34,6 @@ class ScanBottomBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final primary = Theme.of(context).colorScheme.primary;
-    final isOnlineAvailable = AnalysisServiceFactory.instance.isOnlineAvailable;
 
     return Positioned(
       bottom: 30,
@@ -48,7 +47,6 @@ class ScanBottomBar extends StatelessWidget {
               onOfflineAnalyze: onOfflineAnalyze,
               onAiAnalyze: onAiAnalyze,
               isDark: isDark,
-              isOnlineAvailable: isOnlineAvailable,
             ),
             const SizedBox(height: 14),
           ],
@@ -76,13 +74,11 @@ class _AnalyzeButtonsRow extends StatelessWidget {
     required this.onOfflineAnalyze,
     required this.onAiAnalyze,
     required this.isDark,
-    required this.isOnlineAvailable,
   });
 
   final VoidCallback onOfflineAnalyze;
   final VoidCallback onAiAnalyze;
   final bool isDark;
-  final bool isOnlineAvailable;
 
   @override
   Widget build(BuildContext context) {
@@ -101,9 +97,9 @@ class _AnalyzeButtonsRow extends StatelessWidget {
           child: CommonButton(
             text: AppLocalizations.tr(context, 'aiAnalyze'),
             icon: Icons.auto_awesome,
-            withPulse: true,
+            withPulse: false,
             isPrimary: true,
-            onTap: isOnlineAvailable ? onAiAnalyze : null,
+            onTap:onAiAnalyze,
           ),
         ),
       ],
@@ -144,11 +140,10 @@ class _ActionBar extends StatelessWidget {
         borderRadius: BorderRadius.circular(22),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.3 : 0.08),
+            color: Theme.of(context).colorScheme.onBackground.withOpacity(isDark ? 0.3 : 0.08),
             blurRadius: 12,
             offset: const Offset(0, 4),
-          ),
-        ],
+          ),        ],
       ),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Row(
@@ -230,7 +225,7 @@ class _CircleActionButton extends StatelessWidget {
     if (isDestructive) {
       iconColor = isDark ? AppTheme.darkDanger : AppTheme.lightDanger;
     } else if (highlighted) {
-      iconColor = Colors.white;
+      iconColor = Theme.of(context).colorScheme.onPrimary;
     } else {
       iconColor = isDark ? AppTheme.darkTextPrimary : AppTheme.lightTextPrimary;
     }

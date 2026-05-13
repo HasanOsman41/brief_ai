@@ -375,12 +375,12 @@ class _SaveButton extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.save, color: Colors.white, size: 14),
+          Icon(Icons.save, color: Theme.of(context).colorScheme.onPrimary, size: 14),
           const SizedBox(width: 4),
           Text(
             AppLocalizations.tr(context, 'save'),
-            style: const TextStyle(
-              color: Colors.white,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onPrimary,
               fontSize: 12,
               fontWeight: FontWeight.bold,
             ),
@@ -842,7 +842,9 @@ class _CategoryPickerSheetState extends State<_CategoryPickerSheet> {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: widget.isDark ? Colors.white24 : Colors.black26,
+                color: widget.isDark
+                    ? Theme.of(context).colorScheme.onSurface.withOpacity(0.24)
+                    : Theme.of(context).colorScheme.onBackground.withOpacity(0.26),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -910,16 +912,16 @@ class _CategoryPickerSheetState extends State<_CategoryPickerSheet> {
                             Icons.search_off_rounded,
                             size: 48,
                             color: widget.isDark
-                                ? Colors.white24
-                                : Colors.black26,
+                                ? Theme.of(context).colorScheme.onSurface.withOpacity(0.24)
+                                : Theme.of(context).colorScheme.onBackground.withOpacity(0.26),
                           ),
                           const SizedBox(height: 12),
                           Text(
                             AppLocalizations.tr(context, 'noCategoryDetected'),
                             style: TextStyle(
                               color: widget.isDark
-                                  ? Colors.white38
-                                  : Colors.black38,
+                                  ? Theme.of(context).colorScheme.onSurface.withOpacity(0.38)
+                                  : Theme.of(context).colorScheme.onBackground.withOpacity(0.38),
                               fontSize: 14,
                             ),
                           ),
@@ -952,8 +954,8 @@ class _CategoryPickerSheetState extends State<_CategoryPickerSheet> {
                             color: isCurrent
                                 ? widget.primary
                                 : (widget.isDark
-                                      ? Colors.white54
-                                      : Colors.black45),
+                                      ? Theme.of(context).colorScheme.onSurface.withOpacity(0.54)
+                                      : Theme.of(context).colorScheme.onBackground.withOpacity(0.45)),
                             size: 22,
                           ),
                           title: Text(
@@ -971,8 +973,8 @@ class _CategoryPickerSheetState extends State<_CategoryPickerSheet> {
                             style: TextStyle(
                               fontSize: 11,
                               color: widget.isDark
-                                  ? Colors.white38
-                                  : Colors.black38,
+                                  ? Theme.of(context).colorScheme.onSurface.withOpacity(0.38)
+                                  : Theme.of(context).colorScheme.onBackground.withOpacity(0.38),
                             ),
                           ),
                           trailing: isCurrent
@@ -1020,7 +1022,7 @@ class _FilterChip extends StatelessWidget {
       child: Text(
         label,
         style: TextStyle(
-          color: selected ? Colors.white : primary,
+          color: selected ? Theme.of(context).colorScheme.onPrimary : primary,
           fontSize: 12,
           fontWeight: FontWeight.w600,
         ),
@@ -1206,7 +1208,7 @@ class _DatePickerChip extends StatelessWidget {
           data: Theme.of(ctx).copyWith(
             colorScheme: ColorScheme.light(
               primary: primary,
-              onPrimary: Colors.white,
+              onPrimary: Theme.of(ctx).colorScheme.onPrimary,
               surface: isDark ? AppTheme.darkCard : AppTheme.lightCard,
               onSurface: isDark
                   ? AppTheme.darkTextPrimary

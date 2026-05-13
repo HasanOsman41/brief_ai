@@ -75,7 +75,7 @@ class ProfessionalSnackbar {
                       style: TextStyle(
                         fontWeight: FontWeight.w600,
                         fontSize: 14,
-                        color: isDark ? Colors.white : AppTheme.lightTextPrimary,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                     const SizedBox(height: 2),
@@ -83,7 +83,7 @@ class ProfessionalSnackbar {
                       message,
                       style: TextStyle(
                         fontSize: 12,
-                        color: isDark ? Colors.white70 : AppTheme.lightTextSecondary,
+                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
                       ),
                     ),
                   ],
@@ -99,14 +99,14 @@ class ProfessionalSnackbar {
                   child: Icon(
                     Icons.close,
                     size: 16,
-                    color: isDark ? Colors.white70 : AppTheme.lightTextSecondary,
+                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
                   ),
                 ),
               ),
             ],
           ),
         ),
-        backgroundColor: isDark ? AppTheme.darkCard : Colors.white,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),

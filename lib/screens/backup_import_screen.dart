@@ -87,7 +87,7 @@ class BackupImportScreen extends StatelessWidget {
                           style: ElevatedButton.styleFrom(
                             padding: EdgeInsets.zero,
                             backgroundColor: primaryColor,
-                            foregroundColor: Colors.white,
+                            foregroundColor: Theme.of(context).colorScheme.onPrimary,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20),
                             ),
@@ -151,7 +151,7 @@ class BackupImportScreen extends StatelessWidget {
                           style: ElevatedButton.styleFrom(
                             padding: EdgeInsets.zero,
                             backgroundColor: primaryColor,
-                            foregroundColor: Colors.white,
+                            foregroundColor: Theme.of(context).colorScheme.onPrimary,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20),
                             ),

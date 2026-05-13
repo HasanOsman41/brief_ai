@@ -1,4 +1,3 @@
-import 'package:brief_ai/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 class CommonButton extends StatefulWidget {
@@ -54,11 +53,11 @@ class _CommonButtonState extends State<CommonButton>
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final primary = isDark ? AppTheme.darkPrimary : AppTheme.lightPrimary;
-    final secondary = isDark
-        ? AppTheme.darkTextSecondary
-        : AppTheme.lightTextSecondary;
+    final colorScheme = Theme.of(context).colorScheme;
+    final primary = colorScheme.primary;
+    final surface = colorScheme.surface;
+    final onPrimary = colorScheme.onPrimary;
+    final onSurface = colorScheme.onSurface;
     final isEnabled = widget.onTap != null;
 
     Widget button = GestureDetector(
@@ -76,8 +75,8 @@ class _CommonButtonState extends State<CommonButton>
                 )
               : null,
           color: widget.isPrimary
-              ? (isEnabled ? null : Colors.grey.withOpacity(0.3))
-              : (isDark ? AppTheme.darkSurface : AppTheme.darkTextSecondary),
+              ? (isEnabled ? null : onPrimary.withOpacity(0.12))
+              : surface,
           borderRadius: BorderRadius.circular(14),
           boxShadow: widget.isPrimary && isEnabled
               ? [
@@ -97,8 +96,8 @@ class _CommonButtonState extends State<CommonButton>
               Icon(
                 widget.icon,
                 color: isEnabled
-                    ? (widget.isPrimary ? Colors.white : secondary)
-                    : Colors.grey,
+                    ? (widget.isPrimary ? onPrimary : onSurface)
+                    : onSurface.withOpacity(0.38),
                 size: 20,
               ),
               const SizedBox(width: 8),
@@ -107,8 +106,8 @@ class _CommonButtonState extends State<CommonButton>
               widget.text,
               style: TextStyle(
                 color: isEnabled
-                    ? (widget.isPrimary ? Colors.white : secondary)
-                    : Colors.grey,
+                    ? (widget.isPrimary ? onPrimary : onSurface)
+                    : onSurface.withOpacity(0.38),
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
                 letterSpacing: 0.3,

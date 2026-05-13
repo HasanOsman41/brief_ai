@@ -222,7 +222,7 @@ class _TasksTabState extends State<TasksTab> {
                               ),
                         style: TextStyle(
                           color: _taskFilter == f
-                              ? Colors.white
+                              ? Theme.of(context).colorScheme.onPrimary
                               : (f == 'all'
                                     ? primaryColor
                                     : _filterToLevel(f).color(isDark)),

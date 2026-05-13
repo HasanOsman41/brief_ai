@@ -111,8 +111,18 @@ class _GalleryTile extends StatelessWidget {
           bottom: 6, left: 6,
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-            decoration: BoxDecoration(color: Colors.black54, borderRadius: BorderRadius.circular(8)),
-            child: Text('$pageNumber', style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600)),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.onBackground.withOpacity(0.54),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              '$pageNumber',
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onPrimary,
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ),
         ),
         Positioned(
@@ -122,8 +132,7 @@ class _GalleryTile extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(color: isDark ? AppTheme.darkDanger : AppTheme.lightDanger, shape: BoxShape.circle),
-              child: const Icon(Icons.close, color: Colors.white, size: 14),
-            ),
+              child: Icon(Icons.close, color: Theme.of(context).colorScheme.onPrimary, size: 14),            ),
           ),
         ),
       ]),

@@ -210,7 +210,7 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
                         shape: BoxShape.circle,
                       ),
                       child: IconButton(
-                        icon: const Icon(Icons.arrow_back, color: Colors.white),
+                        icon: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.onPrimary),
                         onPressed: () => Navigator.pop(context),
                       ),
                     ),
@@ -224,7 +224,7 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
                             shape: BoxShape.circle,
                           ),
                           child: IconButton(
-                            icon: const Icon(Icons.share, color: Colors.white),
+                            icon: Icon(Icons.share, color: Theme.of(context).colorScheme.onPrimary),
                             onPressed: () => _showShareOptions(context),
                           ),
                         ),
@@ -235,9 +235,9 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
                             shape: BoxShape.circle,
                           ),
                           child: IconButton(
-                            icon: const Icon(
+                            icon: Icon(
                               Icons.edit_square,
-                              color: Colors.white,
+                              color: Theme.of(context).colorScheme.onPrimary,
                             ),
                             onPressed: () => _editCurrentImage(),
                           ),
@@ -249,9 +249,9 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
                             shape: BoxShape.circle,
                           ),
                           child: IconButton(
-                            icon: const Icon(
+                            icon:  Icon(
                               Icons.document_scanner,
-                              color: Colors.white,
+                              color: Theme.of(context).colorScheme.onPrimary,
                             ),
                             onPressed: () {
                               if (_document?.imagePaths != null &&
@@ -275,9 +275,9 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
                             shape: BoxShape.circle,
                           ),
                           child: IconButton(
-                            icon: const Icon(
+                            icon: Icon(
                               Icons.delete_outline,
-                              color: Colors.red,
+                              color: Theme.of(context).colorScheme.error,
                             ),
                             onPressed: () => _showDeleteDialog(context),
                           ),
@@ -307,8 +307,8 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: _currentPage == index
-                          ? Colors.white
-                          : Colors.white.withOpacity(0.5),
+                          ? Theme.of(context).colorScheme.onPrimary
+                          : Theme.of(context).colorScheme.onPrimary.withOpacity(0.5),
                     ),
                   ),
                 ),
@@ -334,13 +334,13 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(isDark ? 0.3 : 0.15),
+                      color:  Theme.of(context).colorScheme.onSurface.withOpacity(isDark ? 0.08 : 0.15),
                       blurRadius: 20,
                       spreadRadius: 2,
                       offset: const Offset(0, -8),
                     ),
                     BoxShadow(
-                      color: Colors.black.withOpacity(isDark ? 0.1 : 0.05),
+                      color: Theme.of(context).colorScheme.onSurface.withOpacity(isDark ? 0.01 : 0.05),
                       blurRadius: 40,
                       spreadRadius: 5,
                       offset: const Offset(0, -15),
@@ -373,7 +373,7 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
                             height: 2,
                             decoration: BoxDecoration(
                               color: isDark
-                                  ? Colors.white.withOpacity(0.2)
+                                  ? Theme.of(context).colorScheme.onPrimary.withOpacity(0.2)
                                   : Colors.black.withOpacity(0.2),
                               borderRadius: BorderRadius.circular(1),
                             ),
@@ -886,12 +886,12 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.check_circle, color: Colors.white, size: 24),
+               Icon(Icons.check_circle, color: Theme.of(context).colorScheme.onPrimary, size: 24),
               const SizedBox(width: 12),
               Text(
                 AppLocalizations.tr(context, 'done'),
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.onPrimary,
                   fontWeight: FontWeight.w600,
                   fontSize: 16,
                 ),
@@ -927,12 +927,12 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
                     margin: const EdgeInsets.only(left: 12),
                     padding: const EdgeInsets.all(6),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.25),
+                      color: Theme.of(context).colorScheme.onPrimary.withOpacity(0.25),
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(
+                    child:  Icon(
                       Icons.check_circle,
-                      color: Colors.white,
+                      color: Theme.of(context).colorScheme.onPrimary,
                       size: 20,
                     ),
                   ),
@@ -940,7 +940,7 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
                   Text(
                     AppLocalizations.tr(context, 'markAsDone'),
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: Colors.white,
+                      color: Theme.of(context).colorScheme.onPrimary,
                       fontWeight: FontWeight.w600,
                       fontSize: 16,
                     ),

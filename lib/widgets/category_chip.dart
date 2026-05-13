@@ -48,7 +48,7 @@ class CategoryChip extends StatelessWidget {
                 icon,
                 size: 18,
                 color: isSelected
-                    ? Colors.white
+                    ? Theme.of(context).colorScheme.onPrimary
                     : Theme.of(context).textTheme.bodyMedium?.color,
               ),
               const SizedBox(width: 6),
@@ -57,7 +57,7 @@ class CategoryChip extends StatelessWidget {
               label,
               style: TextStyle(
                 color: isSelected
-                    ? Colors.white
+                    ? Theme.of(context).colorScheme.onPrimary
                     : Theme.of(context).textTheme.bodyLarge?.color,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
                 fontSize: 14,

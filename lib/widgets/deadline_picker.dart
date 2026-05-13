@@ -29,7 +29,7 @@ class DeadlinePicker extends StatelessWidget {
             data: Theme.of(ctx).copyWith(
               colorScheme: ColorScheme.light(
                 primary: primary,
-                onPrimary: Colors.white,
+                onPrimary: Theme.of(ctx).colorScheme.onPrimary,
                 surface: isDark ? AppTheme.darkCard : AppTheme.lightCard,
                 onSurface: isDark
                     ? AppTheme.darkTextPrimary

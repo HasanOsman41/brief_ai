@@ -2,6 +2,7 @@
 import 'dart:io';
 
 import 'package:brief_ai/localization/app_localizations.dart';
+import 'package:brief_ai/theme/app_theme.dart';
 import 'package:brief_ai/utils/risk_level.dart';
 import 'package:brief_ai/widgets/glass_card.dart';
 import 'package:flutter/material.dart';
@@ -62,24 +63,6 @@ class DocumentCard extends StatelessWidget {
     return '';
   }
 
-  DateTime? _parseDeadline(String? deadlineStr) {
-    if (deadlineStr == null) return null;
-
-    try {
-      final parts = deadlineStr.split('.');
-      if (parts.length != 3) return null;
-
-      final day = int.tryParse(parts[0]) ?? 0;
-      final month = int.tryParse(parts[1]) ?? 0;
-      final year = int.tryParse(parts[2]) ?? 0;
-
-      if (day == 0 || month == 0 || year == 0) return null;
-
-      return DateTime(year, month, day);
-    } catch (e) {
-      return null;
-    }
-  }
 
   String _translateIfKey(BuildContext context, String value) {
     final translated = AppLocalizations.tr(context, value);
@@ -107,7 +90,7 @@ class DocumentCard extends StatelessWidget {
               width: 60,
               height: 80,
               decoration: BoxDecoration(
-                color: isDark ? Colors.grey[800] : Colors.grey[200],
+                color: isDark ? AppTheme.darkCard : AppTheme.lightSurface,
                 borderRadius: BorderRadius.circular(12),
                 image: imagePath != null
                     ? DecorationImage(
@@ -123,7 +106,7 @@ class DocumentCard extends StatelessWidget {
                       child: Icon(
                         Icons.description_outlined,
                         size: 30,
-                        color: isDark ? Colors.grey[600] : Colors.grey[400],
+                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                       ),
                     )
                   : null,

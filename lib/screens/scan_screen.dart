@@ -186,7 +186,7 @@ class _ScanScreenState extends State<ScanScreen>
     showDialog(
       context: context,
       barrierDismissible: false,
-      barrierColor: Colors.black.withOpacity(0.7),
+      barrierColor: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
       builder: (ctx) => Dialog(
         backgroundColor: Colors.transparent,
         insetPadding: const EdgeInsets.symmetric(horizontal: 24),
@@ -205,7 +205,7 @@ class _ScanScreenState extends State<ScanScreen>
                 end: Alignment.bottomRight,
                 colors: isDark
                     ? [AppTheme.darkCard, AppTheme.darkBackground]
-                    : [AppTheme.lightCard, Colors.white],
+                    : [AppTheme.lightCard, Theme.of(context).colorScheme.onPrimary],
               ),
               borderRadius: BorderRadius.circular(32),
               boxShadow: [
@@ -218,7 +218,7 @@ class _ScanScreenState extends State<ScanScreen>
                 ),
               ],
               border: Border.all(
-                color: (isDark ? Colors.white : Colors.black).withOpacity(0.1),
+                color: (isDark ? Theme.of(context).colorScheme.onPrimary : Theme.of(context).colorScheme.onSurface).withOpacity(0.1),
                 width: 1,
               ),
             ),
@@ -275,7 +275,7 @@ class _ScanScreenState extends State<ScanScreen>
                               ),
                               child: Icon(
                                 Icons.description_rounded,
-                                color: Colors.white,
+                                color: Theme.of(context).colorScheme.onPrimary,
                                 size: 32,
                               ),
                             ),
@@ -724,7 +724,7 @@ class _ScanScreenState extends State<ScanScreen>
           AppLocalizations.tr(context, 'pdfDownloadStarted'),
           action: SnackBarAction(
             label: AppLocalizations.tr(context, 'open'),
-            textColor: Colors.white,
+            textColor: Theme.of(context).colorScheme.onPrimary,
             onPressed: () => OpenFile.open(path),
           ),
         );
@@ -831,7 +831,7 @@ class _ScanScreenState extends State<ScanScreen>
                   end: Alignment.bottomCenter,
                   colors: Theme.of(context).brightness == Brightness.dark
                       ? [AppTheme.darkBackground, AppTheme.darkSurface]
-                      : [AppTheme.lightBackground, Colors.white],
+                      : [AppTheme.lightBackground, Theme.of(context).colorScheme.onPrimary],
                 ),
               ),
             ),
@@ -1079,17 +1079,17 @@ class _PageCounter extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            Colors.black.withOpacity(0.7),
-            Colors.black.withOpacity(0.5),
+            Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+            Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(40),
-        border: Border.all(color: Colors.white.withOpacity(0.2), width: 1),
+        border: Border.all(color: Theme.of(context).colorScheme.onPrimary.withOpacity(0.2), width: 1),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.3),
+            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.3),
             blurRadius: 15,
             offset: const Offset(0, 5),
           ),
@@ -1113,8 +1113,8 @@ class _PageCounter extends StatelessWidget {
             child: Center(
               child: Text(
                 current.toString(),
-                style: const TextStyle(
-                  color: Colors.white,
+                style:  TextStyle(
+                  color: Theme.of(context).colorScheme.onPrimary,
                   fontSize: 13,
                   fontWeight: FontWeight.bold,
                 ),
@@ -1125,7 +1125,7 @@ class _PageCounter extends StatelessWidget {
           Text(
             'of',
             style: TextStyle(
-              color: Colors.white.withOpacity(0.6),
+              color: Theme.of(context).colorScheme.onPrimary.withOpacity(0.6),
               fontSize: 13,
               fontWeight: FontWeight.w400,
             ),
@@ -1133,8 +1133,8 @@ class _PageCounter extends StatelessWidget {
           const SizedBox(width: 8),
           Text(
             total.toString(),
-            style: const TextStyle(
-              color: Colors.white,
+            style:  TextStyle(
+              color: Theme.of(context).colorScheme.onPrimary,
               fontSize: 15,
               fontWeight: FontWeight.w600,
             ),
@@ -1196,20 +1196,20 @@ class _Arrow extends StatelessWidget {
           shape: BoxShape.circle,
           gradient: RadialGradient(
             colors: [
-              Colors.black.withOpacity(0.5),
-              Colors.black.withOpacity(0.3),
+              Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+              Theme.of(context).colorScheme.onSurface.withOpacity(0.3),
             ],
           ),
-          border: Border.all(color: Colors.white.withOpacity(0.2), width: 1),
+          border: Border.all(color: Theme.of(context).colorScheme.onPrimary.withOpacity(0.2), width: 1),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.3),
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.3),
               blurRadius: 12,
               offset: const Offset(0, 3),
             ),
           ],
         ),
-        child: Center(child: Icon(icon, size: 32, color: Colors.white)),
+        child: Center(child: Icon(icon, size: 32, color: Theme.of(context).colorScheme.onPrimary)),
       ),
     );
   }
@@ -1228,7 +1228,7 @@ class _ProcessingOverlay extends StatelessWidget {
     final primaryColor = Theme.of(context).colorScheme.primary;
 
     return Container(
-      color: Colors.black.withOpacity(0.8),
+      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
       child: Center(
         child: TweenAnimationBuilder<double>(
           tween: Tween(begin: 0.9, end: 1.0),
@@ -1246,7 +1246,7 @@ class _ProcessingOverlay extends StatelessWidget {
                 end: Alignment.bottomRight,
                 colors: isDark
                     ? [AppTheme.darkCard, AppTheme.darkBackground]
-                    : [AppTheme.lightCard, Colors.white],
+                    : [AppTheme.lightCard, Theme.of(context).colorScheme.onPrimary],
               ),
               borderRadius: BorderRadius.circular(32),
               boxShadow: [
@@ -1372,8 +1372,8 @@ class _MagicLoadingAnimationState extends State<_MagicLoadingAnimation>
 
     return Container(
       color: isDark
-          ? Colors.black.withOpacity(0.85)
-          : Colors.white.withOpacity(0.85),
+          ? Theme.of(context).colorScheme.onSurface.withOpacity(0.85)
+          : Theme.of(context).colorScheme.onPrimary.withOpacity(0.85),
       child: AnimatedBuilder(
         animation: Listenable.merge([
           _mainController,
@@ -1480,10 +1480,10 @@ class _MagicLoadingAnimationState extends State<_MagicLoadingAnimation>
                                       ),
                                     ],
                                   ),
-                                  child: const Center(
+                                  child:  Center(
                                     child: Icon(
                                       Icons.auto_awesome_rounded,
-                                      color: Colors.white,
+                                      color: Theme.of(context).colorScheme.onPrimary,
                                       size: 40,
                                     ),
                                   ),
@@ -1815,11 +1815,11 @@ class _ShimmerTextState extends State<_ShimmerText> {
 
               return LinearGradient(
                 colors: [
-                  Colors.white.withOpacity(0.2),
+                  Theme.of(context).colorScheme.onPrimary.withOpacity(0.2),
                   widget.primaryColor,
                   widget.secondaryColor,
                   widget.primaryColor,
-                  Colors.white.withOpacity(0.2),
+                  Theme.of(context).colorScheme.onPrimary.withOpacity(0.2),
                 ],
                 stops: const [0.0, 0.2, 0.5, 0.8, 1.0],
                 begin: Alignment.centerLeft,
@@ -1836,10 +1836,10 @@ class _ShimmerTextState extends State<_ShimmerText> {
             },
             child: Text(
               widget.text,
-              style: const TextStyle(
+              style:  TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w500,
-                color: Colors.white,
+                color: Theme.of(context).colorScheme.onPrimary,
                 letterSpacing: 0.5,
               ),
             ),

@@ -181,7 +181,7 @@ class _LanguageScreenState extends State<LanguageScreen> {
 
           if (_isLoading)
             Container(
-              color: Colors.black.withOpacity(0.3),
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.3),
               child: Center(
                 child: Container(
                   padding: const EdgeInsets.all(20),

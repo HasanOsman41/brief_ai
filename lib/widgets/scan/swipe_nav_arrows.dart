@@ -48,8 +48,8 @@ class _Arrow extends StatelessWidget {
         child: Icon(
           icon,
           size: 40,
-          color: Colors.white,
-          shadows: const [Shadow(color: Colors.black38, blurRadius: 10)],
+          color: Theme.of(context).colorScheme.onPrimary,
+          shadows: [Shadow(color: Theme.of(context).colorScheme.onBackground.withOpacity(0.38), blurRadius: 10)],
         ),
       ),
     );
