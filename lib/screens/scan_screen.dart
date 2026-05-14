@@ -188,7 +188,7 @@ class _ScanScreenState extends State<ScanScreen>
       barrierDismissible: false,
       barrierColor: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
       builder: (ctx) => Dialog(
-        backgroundColor: Colors.transparent,
+        backgroundColor: Theme.of(context).colorScheme.background,
         insetPadding: const EdgeInsets.symmetric(horizontal: 24),
         child: TweenAnimationBuilder<double>(
           tween: Tween(begin: 0.8, end: 1.0),
@@ -205,7 +205,10 @@ class _ScanScreenState extends State<ScanScreen>
                 end: Alignment.bottomRight,
                 colors: isDark
                     ? [AppTheme.darkCard, AppTheme.darkBackground]
-                    : [AppTheme.lightCard, Theme.of(context).colorScheme.onPrimary],
+                    : [
+                        AppTheme.lightCard,
+                        Theme.of(context).colorScheme.onPrimary,
+                      ],
               ),
               borderRadius: BorderRadius.circular(32),
               boxShadow: [
@@ -218,7 +221,11 @@ class _ScanScreenState extends State<ScanScreen>
                 ),
               ],
               border: Border.all(
-                color: (isDark ? Theme.of(context).colorScheme.onPrimary : Theme.of(context).colorScheme.onSurface).withOpacity(0.1),
+                color:
+                    (isDark
+                            ? Theme.of(context).colorScheme.onPrimary
+                            : Theme.of(context).colorScheme.onSurface)
+                        .withOpacity(0.1),
                 width: 1,
               ),
             ),
@@ -429,7 +436,11 @@ class _ScanScreenState extends State<ScanScreen>
         children: [
           Row(
             children: [
-              Icon(Icons.speed_outlined, size: 18, color: Colors.grey),
+              Icon(
+                Icons.speed_outlined,
+                size: 18,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
               const SizedBox(width: 8),
               Text(
                 AppLocalizations.tr(context, 'riskLevel'),
@@ -449,16 +460,20 @@ class _ScanScreenState extends State<ScanScreen>
             padding: const EdgeInsets.only(left: 26),
             child: Row(
               children: [
-                Icon(Icons.help_outline, size: 16, color: Colors.grey),
+                Icon(
+                  Icons.help_outline,
+                  size: 16,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
                 const SizedBox(width: 6),
                 Text(
                   AppLocalizations.tr(context, 'unableToAssess'),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: Colors.grey,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
               ],
@@ -485,7 +500,7 @@ class _ScanScreenState extends State<ScanScreen>
       riskText =
           '${AppLocalizations.tr(context, 'high')} - $daysLeft ${AppLocalizations.tr(context, 'daysLeft')}';
     } else if (daysLeft <= 7) {
-      riskColor = Colors.orange;
+      riskColor = Theme.of(context).colorScheme.secondary;
       riskIcon = Icons.info_outline;
       riskText =
           '${AppLocalizations.tr(context, 'medium')} - $daysLeft ${AppLocalizations.tr(context, 'daysLeft')}';
@@ -819,7 +834,7 @@ class _ScanScreenState extends State<ScanScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.transparent,
+      backgroundColor: Theme.of(context).colorScheme.background,
       body: SafeArea(
         child: Stack(
           children: [
@@ -831,7 +846,10 @@ class _ScanScreenState extends State<ScanScreen>
                   end: Alignment.bottomCenter,
                   colors: Theme.of(context).brightness == Brightness.dark
                       ? [AppTheme.darkBackground, AppTheme.darkSurface]
-                      : [AppTheme.lightBackground, Theme.of(context).colorScheme.onPrimary],
+                      : [
+                          AppTheme.lightBackground,
+                          Theme.of(context).colorScheme.onPrimary,
+                        ],
                 ),
               ),
             ),
@@ -964,7 +982,7 @@ class _ScanScreenState extends State<ScanScreen>
       child: Hero(
         tag: 'scan-image-${_pages[_currentIndex]}',
         child: Container(
-          color: Colors.transparent,
+          color: Theme.of(context).colorScheme.background,
           child: Center(
             child: InteractiveViewer(
               minScale: 0.8,
@@ -1086,7 +1104,10 @@ class _PageCounter extends StatelessWidget {
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(40),
-        border: Border.all(color: Theme.of(context).colorScheme.onPrimary.withOpacity(0.2), width: 1),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.onPrimary.withOpacity(0.2),
+          width: 1,
+        ),
         boxShadow: [
           BoxShadow(
             color: Theme.of(context).colorScheme.onSurface.withOpacity(0.3),
@@ -1113,7 +1134,7 @@ class _PageCounter extends StatelessWidget {
             child: Center(
               child: Text(
                 current.toString(),
-                style:  TextStyle(
+                style: TextStyle(
                   color: Theme.of(context).colorScheme.onPrimary,
                   fontSize: 13,
                   fontWeight: FontWeight.bold,
@@ -1133,7 +1154,7 @@ class _PageCounter extends StatelessWidget {
           const SizedBox(width: 8),
           Text(
             total.toString(),
-            style:  TextStyle(
+            style: TextStyle(
               color: Theme.of(context).colorScheme.onPrimary,
               fontSize: 15,
               fontWeight: FontWeight.w600,
@@ -1200,7 +1221,10 @@ class _Arrow extends StatelessWidget {
               Theme.of(context).colorScheme.onSurface.withOpacity(0.3),
             ],
           ),
-          border: Border.all(color: Theme.of(context).colorScheme.onPrimary.withOpacity(0.2), width: 1),
+          border: Border.all(
+            color: Theme.of(context).colorScheme.onPrimary.withOpacity(0.2),
+            width: 1,
+          ),
           boxShadow: [
             BoxShadow(
               color: Theme.of(context).colorScheme.onSurface.withOpacity(0.3),
@@ -1209,7 +1233,13 @@ class _Arrow extends StatelessWidget {
             ),
           ],
         ),
-        child: Center(child: Icon(icon, size: 32, color: Theme.of(context).colorScheme.onPrimary)),
+        child: Center(
+          child: Icon(
+            icon,
+            size: 32,
+            color: Theme.of(context).colorScheme.onPrimary,
+          ),
+        ),
       ),
     );
   }
@@ -1246,7 +1276,10 @@ class _ProcessingOverlay extends StatelessWidget {
                 end: Alignment.bottomRight,
                 colors: isDark
                     ? [AppTheme.darkCard, AppTheme.darkBackground]
-                    : [AppTheme.lightCard, Theme.of(context).colorScheme.onPrimary],
+                    : [
+                        AppTheme.lightCard,
+                        Theme.of(context).colorScheme.onPrimary,
+                      ],
               ),
               borderRadius: BorderRadius.circular(32),
               boxShadow: [
@@ -1480,10 +1513,12 @@ class _MagicLoadingAnimationState extends State<_MagicLoadingAnimation>
                                       ),
                                     ],
                                   ),
-                                  child:  Center(
+                                  child: Center(
                                     child: Icon(
                                       Icons.auto_awesome_rounded,
-                                      color: Theme.of(context).colorScheme.onPrimary,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.onPrimary,
                                       size: 40,
                                     ),
                                   ),
@@ -1512,7 +1547,9 @@ class _MagicLoadingAnimationState extends State<_MagicLoadingAnimation>
                       'Detecting content and structure',
                       style: TextStyle(
                         fontSize: 14,
-                        color: isDark ? Colors.white60 : Colors.black54,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withOpacity(0.7),
                         letterSpacing: 0.3,
                       ),
                     ),
@@ -1524,7 +1561,9 @@ class _MagicLoadingAnimationState extends State<_MagicLoadingAnimation>
                       width: 200,
                       height: 4,
                       decoration: BoxDecoration(
-                        color: isDark ? Colors.white12 : Colors.black12,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withOpacity(0.2),
                         borderRadius: BorderRadius.circular(2),
                       ),
                       child: Stack(
@@ -1836,7 +1875,7 @@ class _ShimmerTextState extends State<_ShimmerText> {
             },
             child: Text(
               widget.text,
-              style:  TextStyle(
+              style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w500,
                 color: Theme.of(context).colorScheme.onPrimary,

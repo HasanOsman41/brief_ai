@@ -34,7 +34,7 @@ class CategoryChip extends StatelessWidget {
                   : AppTheme.lightSurface,
           border: Border.all(
             color: isSelected
-                ? Colors.transparent
+                ? Theme.of(context).colorScheme.background
                 : isDark
                     ? AppTheme.darkBorder
                     : AppTheme.lightBorder,

@@ -7701,5 +7701,13 @@ class BriefAiCategories {
         'cat_vertrag_mitgliedschaft_step6',
       ],
     ),
+    CategoryDefinition(
+      id: 'other',
+      labelKey: 'other',
+      mainCategory: MainCategory.categoryOther,
+      decisiveKeywords: [],
+      supportingKeywords: [],
+      nextStepKeys: [],
+    ),
   ];
 }

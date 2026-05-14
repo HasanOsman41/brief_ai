@@ -100,7 +100,7 @@ class _GalleryTile extends StatelessWidget {
           duration: const Duration(milliseconds: 150),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: isSelected ? primary : Colors.transparent, width: 3),
+            border: Border.all(color: isSelected ? primary : Theme.of(context).colorScheme.background, width: 3),
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(8),

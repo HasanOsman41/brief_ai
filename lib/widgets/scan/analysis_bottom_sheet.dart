@@ -41,7 +41,7 @@ class AnalysisBottomSheet extends StatefulWidget {
   }) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.transparent,
+      backgroundColor: Theme.of(context).colorScheme.background,
       isScrollControlled: true,
       builder: (_) => AnalysisBottomSheet(
         result: result,
@@ -745,7 +745,7 @@ class _CategorySelector extends StatelessWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
+      backgroundColor: Theme.of(context).colorScheme.background,
       builder: (_) => _CategoryPickerSheet(
         isDark: isDark,
         primary: primary,

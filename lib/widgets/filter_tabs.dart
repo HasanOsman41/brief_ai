@@ -86,7 +86,7 @@ class FilterTabs extends StatelessWidget {
             : AppTheme.lightTextSecondary,
         labelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
         unselectedLabelStyle: const TextStyle(fontSize: 13),
-        dividerColor: Colors.transparent,
+        dividerColor: Theme.of(context).colorScheme.background,
         indicatorSize: TabBarIndicatorSize.tab,
         tabs: [
           Tab(text: AppLocalizations.tr(context, 'important')),

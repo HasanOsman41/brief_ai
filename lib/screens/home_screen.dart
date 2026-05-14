@@ -21,9 +21,6 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
 
-
-  
-
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -196,7 +193,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 index: _selectedIndex,
                 children: [
                   // Home Tab - Dashboard
-                  HomeDashboardTab(onTabChange: (index) => setState(() => _selectedIndex = index)),
+                  HomeDashboardTab(
+                    onTabChange: (index) =>
+                        setState(() => _selectedIndex = index),
+                  ),
 
                   // Documents Tab - Full document list
                   const DocumentsTab(),
@@ -309,6 +309,4 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-
-
 }

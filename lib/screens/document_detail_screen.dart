@@ -169,9 +169,7 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
                       isDark
                           ? AppTheme.darkBackground
                           : AppTheme.lightBackground,
-                      isDark
-                          ? AppTheme.darkSurface
-                          : AppTheme.lightSurface,
+                      isDark ? AppTheme.darkSurface : AppTheme.lightSurface,
                     ],
                   ),
                 ),
@@ -206,11 +204,16 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
                   children: [
                     Container(
                       decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.3),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onBackground.withOpacity(0.3),
                         shape: BoxShape.circle,
                       ),
                       child: IconButton(
-                        icon: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.onPrimary),
+                        icon: Icon(
+                          Icons.arrow_back,
+                          color: Theme.of(context).colorScheme.onPrimary,
+                        ),
                         onPressed: () => Navigator.pop(context),
                       ),
                     ),
@@ -220,18 +223,25 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
                       children: [
                         Container(
                           decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.3),
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onBackground.withOpacity(0.3),
                             shape: BoxShape.circle,
                           ),
                           child: IconButton(
-                            icon: Icon(Icons.share, color: Theme.of(context).colorScheme.onPrimary),
+                            icon: Icon(
+                              Icons.share,
+                              color: Theme.of(context).colorScheme.onPrimary,
+                            ),
                             onPressed: () => _showShareOptions(context),
                           ),
                         ),
                         const SizedBox(width: 8),
                         Container(
                           decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.3),
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onBackground.withOpacity(0.3),
                             shape: BoxShape.circle,
                           ),
                           child: IconButton(
@@ -245,11 +255,13 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
                         const SizedBox(width: 8),
                         Container(
                           decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.3),
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onBackground.withOpacity(0.3),
                             shape: BoxShape.circle,
                           ),
                           child: IconButton(
-                            icon:  Icon(
+                            icon: Icon(
                               Icons.document_scanner,
                               color: Theme.of(context).colorScheme.onPrimary,
                             ),
@@ -271,7 +283,9 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
                         const SizedBox(width: 8),
                         Container(
                           decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.3),
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onBackground.withOpacity(0.3),
                             shape: BoxShape.circle,
                           ),
                           child: IconButton(
@@ -308,7 +322,9 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
                       shape: BoxShape.circle,
                       color: _currentPage == index
                           ? Theme.of(context).colorScheme.onPrimary
-                          : Theme.of(context).colorScheme.onPrimary.withOpacity(0.5),
+                          : Theme.of(
+                              context,
+                            ).colorScheme.onPrimary.withOpacity(0.5),
                     ),
                   ),
                 ),
@@ -334,13 +350,17 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color:  Theme.of(context).colorScheme.onSurface.withOpacity(isDark ? 0.08 : 0.15),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withOpacity(isDark ? 0.02 : 0.15),
                       blurRadius: 20,
                       spreadRadius: 2,
                       offset: const Offset(0, -8),
                     ),
                     BoxShadow(
-                      color: Theme.of(context).colorScheme.onSurface.withOpacity(isDark ? 0.01 : 0.05),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withOpacity(isDark ? 0.02 : 0.15),
                       blurRadius: 40,
                       spreadRadius: 5,
                       offset: const Offset(0, -15),
@@ -373,8 +393,12 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
                             height: 2,
                             decoration: BoxDecoration(
                               color: isDark
-                                  ? Theme.of(context).colorScheme.onPrimary.withOpacity(0.2)
-                                  : Colors.black.withOpacity(0.2),
+                                  ? Theme.of(
+                                      context,
+                                    ).colorScheme.onPrimary.withOpacity(0.2)
+                                  : Theme.of(
+                                      context,
+                                    ).colorScheme.onBackground.withOpacity(0.2),
                               borderRadius: BorderRadius.circular(1),
                             ),
                           ),
@@ -390,10 +414,10 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
                             colors: [
-                              Colors.transparent,
-                              Colors.black,
-                              Colors.black,
-                              Colors.transparent,
+                              Theme.of(context).colorScheme.background,
+                              Theme.of(context).colorScheme.onBackground,
+                              Theme.of(context).colorScheme.onBackground,
+                              Theme.of(context).colorScheme.background,
                             ],
                             stops: const [0.0, 0.05, 0.95, 1.0],
                           ).createShader(bounds);
@@ -460,7 +484,11 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.error_outline, size: 48, color: Colors.red),
+            Icon(
+              Icons.error_outline,
+              size: 48,
+              color: Theme.of(context).colorScheme.error,
+            ),
             const SizedBox(height: 16),
             Text(
               'Document not found',
@@ -560,7 +588,9 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
   Widget _buildReminderSwitch(Color primaryColor) {
     return Icon(
       _reminderEnabled ? Icons.notifications_active : Icons.notifications_off,
-      color: _reminderEnabled ? primaryColor : Colors.grey,
+      color: _reminderEnabled
+          ? primaryColor
+          : Theme.of(context).colorScheme.onSurface,
       size: 20,
     );
   }
@@ -844,7 +874,7 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.4),
+        color: Theme.of(context).colorScheme.onBackground.withOpacity(0.4),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: successColor.withOpacity(0.6), width: 1.5),
       ),
@@ -886,7 +916,11 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-               Icon(Icons.check_circle, color: Theme.of(context).colorScheme.onPrimary, size: 24),
+              Icon(
+                Icons.check_circle,
+                color: Theme.of(context).colorScheme.onPrimary,
+                size: 24,
+              ),
               const SizedBox(width: 12),
               Text(
                 AppLocalizations.tr(context, 'done'),
@@ -907,7 +941,7 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
       child: SizedBox(
         height: 56,
         child: Material(
-          color: Colors.transparent,
+          color: Theme.of(context).colorScheme.background,
           child: InkWell(
             onTap: () => _showMarkAsDoneDialog(context),
             borderRadius: BorderRadius.circular(14),
@@ -927,10 +961,12 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
                     margin: const EdgeInsets.only(left: 12),
                     padding: const EdgeInsets.all(6),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.onPrimary.withOpacity(0.25),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onPrimary.withOpacity(0.25),
                       shape: BoxShape.circle,
                     ),
-                    child:  Icon(
+                    child: Icon(
                       Icons.check_circle,
                       color: Theme.of(context).colorScheme.onPrimary,
                       size: 20,
@@ -957,7 +993,7 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
   void _showShareOptions(BuildContext context) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.transparent,
+      backgroundColor: Theme.of(context).colorScheme.background,
       builder: (context) => GlassCard(
         child: Column(
           mainAxisSize: MainAxisSize.min,

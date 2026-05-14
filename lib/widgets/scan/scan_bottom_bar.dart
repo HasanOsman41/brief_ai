@@ -99,7 +99,7 @@ class _AnalyzeButtonsRow extends StatelessWidget {
             icon: Icons.auto_awesome,
             withPulse: false,
             isPrimary: true,
-            onTap:onAiAnalyze,
+            onTap: onAiAnalyze,
           ),
         ),
       ],
@@ -140,10 +140,13 @@ class _ActionBar extends StatelessWidget {
         borderRadius: BorderRadius.circular(22),
         boxShadow: [
           BoxShadow(
-            color: Theme.of(context).colorScheme.onBackground.withOpacity(isDark ? 0.3 : 0.08),
-            blurRadius: 12,
+            color: Theme.of(
+              context,
+            ).colorScheme.onBackground.withOpacity(isDark ? 0.1 : 0.15),
+            blurRadius: 20,
             offset: const Offset(0, 4),
-          ),        ],
+          ),
+        ],
       ),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Row(
