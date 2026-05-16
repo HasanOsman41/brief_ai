@@ -24,7 +24,6 @@ dependencies:
   flutter_document_scanner: ^1.1.2
   flutter_doc_scanner: ^0.0.18
   open_file: ^3.5.11
-  pdf: ^3.11.3
   permission_handler: ^12.0.1
   sqflite: ^2.3.0
   path_provider: ^2.1.0
@@ -34,6 +33,10 @@ dependencies:
   image_editor_plus: ^1.0.8
   string_similarity: ^2.1.1
   fuzzywuzzy: ^1.2.0
+  syncfusion_flutter_pdf: ^33.2.6
+  syncfusion_flutter_pdfviewer: ^33.2.6
+  pdf: ^3.12.0
+  pro_image_editor: ^12.0.0
 
 dev_dependencies:
   flutter_test:

@@ -965,7 +965,7 @@
   "taskOffen": "Offen",
   "trustScore": "Vertrauenswert",
   "noCategoryDetected": "Keine Kategorie erkannt",
-  "noCategoryDetectedHint": "Die KI konnte dieses Dokument nicht identifizieren. Bitte wählen Sie eine Kategorie manuell aus.",
+  "noCategoryDetectedHint": "Dieses Dokument konnte durch die Offline-Analyse nicht identifiziert werden. Bitte verwenden Sie die KI-Analyse oder wählen Sie die passende Kategorie manuell aus.",
   "cat_wohnen_mietvertrag_label": "Mietvertrag",
   "cat_wohnen_mietvertrag_summary": "Dieses Dokument ist die vollständige rechtliche Grundlage der Beziehung zwischen Ihnen und der vermietenden Partei. Es regelt den Beginn des Mietverhältnisses, die Miethöhe, Nebenkosten, die Vertragsdauer und die Kaution sowie die Nutzungs- und Kündigungsbedingungen. Es ist die erste Referenz bei jedem späteren Streit über das Mietverhältnis, Zahlungen oder Laufzeiten.",
   "cat_wohnen_mietvertrag_step1": "Überprüfen Sie Ihren Namen, den Namen der vermietenden Partei und die Wohnungsadresse buchstabengenau.",

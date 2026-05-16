@@ -964,7 +964,7 @@
   "taskOffen": "Open",
   "trustScore": "Trust Score",
   "noCategoryDetected": "No category detected",
-  "noCategoryDetectedHint": "The AI could not identify this document. Please select a category manually.",
+  "noCategoryDetectedHint": "Unable to identify this document using offline analysis. Please use AI analysis or select the appropriate category manually.",
   "cat_wohnen_mietvertrag_label": "Rental Contract",
   "cat_wohnen_mietvertrag_summary": "This document is the complete legal foundation of the relationship between you and the landlord. It defines the start of the tenancy, the rent amount, additional costs, the contract duration, and the security deposit, as well as conditions for use and termination. It is the primary reference for any future dispute about the tenancy, payments, or duration.",
   "cat_wohnen_mietvertrag_step1": "Check your name, the landlord's name, and the apartment address character by character.",

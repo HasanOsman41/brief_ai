@@ -13,12 +13,13 @@ import 'package:brief_ai/widgets/glass_card.dart';
 import 'package:brief_ai/widgets/what_you_should_card.dart';
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:image_editor_plus/image_editor_plus.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 import 'package:brief_ai/utils/risk_level.dart';
+import 'dart:typed_data';
+import 'package:pro_image_editor/pro_image_editor.dart';
 
 class DocumentDetailScreen extends StatefulWidget {
   const DocumentDetailScreen({super.key});
@@ -1126,32 +1127,64 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
     }
 
     try {
-      // Open image editor
-      final editedImage = await Navigator.push(
+      final Uint8List imageBytes = await imageFile.readAsBytes();
+
+      final editedImage = await Navigator.push<Uint8List>(
         context,
         MaterialPageRoute(
-          builder: (context) => ImageEditor(image: imageFile.readAsBytesSync()),
+          builder: (context) => ProImageEditor.memory(
+            imageBytes,
+
+            configs: ProImageEditorConfigs(
+              paintEditor: PaintEditorConfigs(
+                enableZoom: true,
+                enableDoubleTapZoom: true,
+              ),
+
+              textEditor: TextEditorConfigs(
+                enableEdit: true,
+                enableSuggestions: true,
+                enableAutocorrect: true,
+                initFontSize: 24,
+                initialPrimaryColor: Colors.black,
+                showTextAlignButton: true,
+                showFontScaleButton: true,
+              ),
+
+              cropRotateEditor: CropRotateEditorConfigs(),
+            ),
+
+            callbacks: ProImageEditorCallbacks(
+              onImageEditingComplete: (Uint8List bytes) async {
+                Navigator.pop(context, bytes);
+              },
+            ),
+          ),
         ),
       );
 
       if (editedImage != null) {
-        // Save edited image to a new file
+        // Save edited image
         final directory = await getApplicationDocumentsDirectory();
+
         final fileName =
             'edited_${DateTime.now().millisecondsSinceEpoch}_${path.basename(currentImage.imagePath)}';
+
         final newPath = path.join(directory.path, fileName);
 
         final newFile = File(newPath);
+
         await newFile.writeAsBytes(editedImage);
 
-        // Update the image path in database
+        // Update database
         await DocumentService().updateImagePath(currentImage.id!, newPath);
 
-        // Reload document to refresh UI
+        // Reload document
         if (_document?.id != null) {
           final updatedDocument = await DocumentService().getDocumentById(
             _document!.id!,
           );
+
           if (mounted && updatedDocument != null) {
             setState(() {
               _document = updatedDocument;
