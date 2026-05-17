@@ -1,18 +1,8 @@
+// lib/database/database_helper.dart
 import 'package:sqflite/sqflite.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart';
-
-/// DatabaseHelper - Singleton for managing database connection and schema
-///
-/// This helper is responsible for:
-/// - Creating and managing the SQLite database connection
-/// - Creating and maintaining database tables and schema
-/// - Providing access to the database instance for repositories
-///
-/// All CRUD operations are delegated to specific repositories:
-/// - DocumentRepository (document operations)
-/// - ImageRepository (image operations)
-/// - Add more repositories as new tables are added
+import 'dart:io';
 
 class DatabaseHelper {
   static final DatabaseHelper _instance = DatabaseHelper._internal();
@@ -24,13 +14,11 @@ class DatabaseHelper {
 
   DatabaseHelper._internal();
 
-  /// Get or create the database instance
   Future<Database> get database async {
     _database ??= await _initDatabase();
     return _database!;
   }
 
-  /// Initialize the database and create tables
   Future<Database> _initDatabase() async {
     final documentsDirectory = await getApplicationDocumentsDirectory();
     final path = join(documentsDirectory.path, 'brief_ai.db');
@@ -38,11 +26,10 @@ class DatabaseHelper {
     return await openDatabase(path, version: 1, onCreate: _createTables);
   }
 
-  /// Create database tables
   Future<void> _createTables(Database db, int version) async {
     // Documents table
     await db.execute('''
-        CREATE TABLE documents(
+      CREATE TABLE documents(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         title TEXT NOT NULL,
         subCategoryKey TEXT NOT NULL,
@@ -59,10 +46,10 @@ class DatabaseHelper {
         reminderCustomTime TEXT,
         createdAt TEXT DEFAULT CURRENT_TIMESTAMP,
         updatedAt TEXT DEFAULT CURRENT_TIMESTAMP
-        )
+      )
     ''');
 
-    // Images table - store multiple images per document
+    // Images table - store relative paths to images directory
     await db.execute('''
       CREATE TABLE images(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -73,25 +60,42 @@ class DatabaseHelper {
       )
     ''');
 
-    // Create indexes for efficient queries
-    await db.execute('''
-      CREATE INDEX idx_documents_category ON documents(mainCategoryKey)
-    ''');
-
-    await db.execute('''
-      CREATE INDEX idx_documents_status ON documents(statusKey)
-    ''');
-
-    await db.execute('''
-      CREATE INDEX idx_images_documentId ON images(documentId)
-    ''');
+    // Create indexes
+    await db.execute(
+      'CREATE INDEX idx_documents_category ON documents(mainCategoryKey)',
+    );
+    await db.execute(
+      'CREATE INDEX idx_documents_status ON documents(statusKey)',
+    );
+    await db.execute(
+      'CREATE INDEX idx_images_documentId ON images(documentId)',
+    );
   }
 
-  /// Close the database connection (call during app shutdown if needed)
+  /// Close the database connection
   Future<void> close() async {
     if (_database != null) {
       await _database!.close();
       _database = null;
     }
+  }
+
+  /// Get the images directory path
+  Future<String> getImagesDirectoryPath() async {
+    final documentsDirectory = await getApplicationDocumentsDirectory();
+    final imagesDir = join(documentsDirectory.path, 'images');
+    await Directory(imagesDir).create(recursive: true);
+    return imagesDir;
+  }
+
+  /// Save an image file and return the stored path
+  Future<String> saveImageFile(File imageFile, int documentId) async {
+    final imagesDir = await getImagesDirectoryPath();
+    final fileName =
+        'doc_${documentId}_${DateTime.now().millisecondsSinceEpoch}.jpg';
+    final savedPath = join(imagesDir, fileName);
+
+    await imageFile.copy(savedPath);
+    return savedPath;
   }
 }

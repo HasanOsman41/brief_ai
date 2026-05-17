@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'package:brief_ai/localization/app_localizations.dart';
 import 'package:brief_ai/screens/tabs/documents_tab.dart';
 import 'package:brief_ai/screens/tabs/home_dashboard_tab.dart';
+import 'package:brief_ai/screens/tabs/profile_tab.dart'; // ← NEW
 import 'package:brief_ai/screens/tabs/tasks_tab.dart';
 import 'package:brief_ai/theme/app_theme.dart';
 import 'package:brief_ai/widgets/primary_fab.dart';
@@ -101,84 +102,29 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ],
                     ),
-
-                    // Right side - Theme and settings buttons
                     Row(
                       children: [
-                        // Theme toggle
-                        Container(
-                          decoration: BoxDecoration(
-                            color: isDark
-                                ? AppTheme.darkSurface.withOpacity(0.5)
-                                : AppTheme.lightSurface.withOpacity(0.5),
-                            borderRadius: BorderRadius.circular(30),
-                            border: Border.all(
-                              color: isDark
-                                  ? AppTheme.darkBorder
-                                  : AppTheme.lightBorder,
-                              width: 0.5,
-                            ),
-                          ),
-                          child: IconButton(
-                            icon: Icon(
-                              isDark ? Icons.light_mode : Icons.dark_mode,
-                              size: 22,
-                              color: primaryColor,
-                            ),
-                            onPressed: widget.onToggleTheme,
-                          ),
+                        _HeaderIconButton(
+                          icon: isDark ? Icons.light_mode : Icons.dark_mode,
+                          primaryColor: primaryColor,
+                          isDark: isDark,
+                          onPressed: widget.onToggleTheme,
                         ),
                         const SizedBox(width: 8),
-                        // Reminders button
-                        Container(
-                          decoration: BoxDecoration(
-                            color: isDark
-                                ? AppTheme.darkSurface.withOpacity(0.5)
-                                : AppTheme.lightSurface.withOpacity(0.5),
-                            borderRadius: BorderRadius.circular(30),
-                            border: Border.all(
-                              color: isDark
-                                  ? AppTheme.darkBorder
-                                  : AppTheme.lightBorder,
-                              width: 0.5,
-                            ),
-                          ),
-                          child: IconButton(
-                            icon: Icon(
-                              Icons.notifications_outlined,
-                              size: 22,
-                              color: primaryColor,
-                            ),
-                            onPressed: () {
-                              Navigator.pushNamed(context, '/reminders');
-                            },
-                          ),
+                        _HeaderIconButton(
+                          icon: Icons.notifications_outlined,
+                          primaryColor: primaryColor,
+                          isDark: isDark,
+                          onPressed: () =>
+                              Navigator.pushNamed(context, '/reminders'),
                         ),
                         const SizedBox(width: 8),
-                        // Settings button
-                        Container(
-                          decoration: BoxDecoration(
-                            color: isDark
-                                ? AppTheme.darkSurface.withOpacity(0.5)
-                                : AppTheme.lightSurface.withOpacity(0.5),
-                            borderRadius: BorderRadius.circular(30),
-                            border: Border.all(
-                              color: isDark
-                                  ? AppTheme.darkBorder
-                                  : AppTheme.lightBorder,
-                              width: 0.5,
-                            ),
-                          ),
-                          child: IconButton(
-                            icon: Icon(
-                              Icons.settings_outlined,
-                              size: 22,
-                              color: primaryColor,
-                            ),
-                            onPressed: () {
-                              Navigator.pushNamed(context, '/settings');
-                            },
-                          ),
+                        _HeaderIconButton(
+                          icon: Icons.settings_outlined,
+                          primaryColor: primaryColor,
+                          isDark: isDark,
+                          onPressed: () =>
+                              Navigator.pushNamed(context, '/settings'),
                         ),
                       ],
                     ),
@@ -187,50 +133,20 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
 
-            // Content based on selected tab
+            // Tab content
             Expanded(
               child: IndexedStack(
                 index: _selectedIndex,
                 children: [
-                  // Home Tab - Dashboard
                   HomeDashboardTab(
                     onTabChange: (index) =>
                         setState(() => _selectedIndex = index),
                   ),
-
-                  // Documents Tab - Full document list
                   const DocumentsTab(),
-
-                  // Tasks Tab
                   const TasksTab(),
 
-                  // Profile Tab - Placeholder
-                  Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.person_outline,
-                          size: 80,
-                          color: isDark
-                              ? AppTheme.darkTextSecondary
-                              : AppTheme.lightTextSecondary,
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          AppLocalizations.tr(context, 'profile'),
-                          style: TextStyle(
-                            color: isDark
-                                ? AppTheme.darkTextPrimary
-                                : AppTheme.lightTextPrimary,
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                      ],
-                    ),
-                  ),
+                  // ── Profile tab ──────────────────────────────
+                  ProfileTab(onToggleTheme: widget.onToggleTheme),
                 ],
               ),
             ),
@@ -238,17 +154,13 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
 
-      // Floating scan button
       floatingActionButton: PrimaryFAB(
-        onPressed: () {
-          Navigator.pushNamed(context, '/scan');
-        },
+        onPressed: () => Navigator.pushNamed(context, '/scan'),
         icon: Icons.document_scanner,
         label: AppLocalizations.tr(context, 'scanButton'),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
 
-      // Bottom navigation
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.primary,
@@ -271,11 +183,7 @@ class _HomeScreenState extends State<HomeScreen> {
             filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
             child: BottomNavigationBar(
               currentIndex: _selectedIndex,
-              onTap: (index) {
-                setState(() {
-                  _selectedIndex = index;
-                });
-              },
+              onTap: (index) => setState(() => _selectedIndex = index),
               backgroundColor: Colors.transparent,
               elevation: 0,
               type: BottomNavigationBarType.fixed,
@@ -306,6 +214,41 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+// Small helper to avoid repeating the header button decoration
+class _HeaderIconButton extends StatelessWidget {
+  final IconData icon;
+  final Color primaryColor;
+  final bool isDark;
+  final VoidCallback onPressed;
+
+  const _HeaderIconButton({
+    required this.icon,
+    required this.primaryColor,
+    required this.isDark,
+    required this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: isDark
+            ? AppTheme.darkSurface.withOpacity(0.5)
+            : AppTheme.lightSurface.withOpacity(0.5),
+        borderRadius: BorderRadius.circular(30),
+        border: Border.all(
+          color: isDark ? AppTheme.darkBorder : AppTheme.lightBorder,
+          width: 0.5,
+        ),
+      ),
+      child: IconButton(
+        icon: Icon(icon, size: 22, color: primaryColor),
+        onPressed: onPressed,
       ),
     );
   }
