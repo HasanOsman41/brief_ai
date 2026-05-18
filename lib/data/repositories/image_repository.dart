@@ -1,4 +1,6 @@
 // lib/data/repositories/image_repository.dart
+import 'dart:io';
+
 import 'package:brief_ai/data/local/database_helper.dart';
 import 'package:brief_ai/models/document_image.dart';
 import 'package:sqflite/sqflite.dart';
@@ -25,12 +27,15 @@ class ImageRepository {
   ) async {
     final db = await _dbHelper.database;
     final List<int> ids = [];
-
     await db.transaction((txn) async {
       for (int i = 0; i < imagePaths.length; i++) {
+        String newPath = await _dbHelper.saveImageFile(
+          File(imagePaths[i]),
+          documentId,
+        );
         final image = DocumentImage(
           documentId: documentId,
-          imagePath: imagePaths[i],
+          imagePath: newPath,
           createdAt: DateTime.now(),
         );
         final id = await txn.insert('images', image.toMap());

@@ -117,10 +117,7 @@ class _ScanScreenState extends State<ScanScreen>
           .where((p) => File(p).existsSync())
           .toList();
 
-      final permanentPaths = await FileStorageService.instance.copyToAppStorage(
-        cleaned,
-      );
-
+      final permanentPaths = cleaned;
       setState(() {
         _pages.addAll(permanentPaths);
         _currentIndex = _pages.length - 1;

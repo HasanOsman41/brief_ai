@@ -6,7 +6,6 @@ import 'package:brief_ai/screens/splash_screen.dart';
 import 'package:brief_ai/screens/home_screen.dart';
 import 'package:brief_ai/screens/scan_screen.dart';
 import 'package:brief_ai/screens/document_detail_screen.dart';
-import 'package:brief_ai/screens/settings_screen.dart';
 import 'package:brief_ai/screens/onboarding_screen.dart';
 import 'package:brief_ai/screens/search_screen.dart';
 import 'package:brief_ai/screens/backup_import_screen.dart';
@@ -117,7 +116,6 @@ class _BriefAIAppState extends State<BriefAIApp> {
         '/home': (context) => HomeScreen(onToggleTheme: _toggleTheme),
         '/scan': (context) => const ScanScreen(),
         '/document-detail': (context) => const DocumentDetailScreen(),
-        '/settings': (context) => SettingsScreen(onToggleTheme: _toggleTheme),
         '/search': (context) => const SearchScreen(),
         '/backup': (context) => const BackupImportScreen(),
         '/privacy': (context) => const PrivacyScreen(),

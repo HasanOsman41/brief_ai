@@ -3,14 +3,12 @@ import 'package:brief_ai/localization/app_localizations.dart';
 import 'package:brief_ai/services/backup_service.dart';
 import 'package:brief_ai/theme/app_theme.dart';
 import 'package:brief_ai/widgets/glass_card.dart';
+import 'package:brief_ai/widgets/language_sheet.dart';
+import 'package:brief_ai/widgets/confirm_dialog.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'dart:convert';
 import 'dart:io';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 class ProfileTab extends StatefulWidget {
   final VoidCallback onToggleTheme;
@@ -34,7 +32,7 @@ class _ProfileTabState extends State<ProfileTab> {
   final String _planKey = 'free'; // 'free' | 'pro' | 'team'
 
   // Backup helper instance
-  final BackupService _backupHelper = BackupService();
+  final BackupService _backupService = BackupService();
 
   // ── Language ──────────────────────────────────────────────
   static const _languages = [
@@ -77,10 +75,14 @@ class _ProfileTabState extends State<ProfileTab> {
       }
     } catch (e) {
       if (mounted) {
+        final isDark = Theme.of(context).brightness == Brightness.dark;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error changing language: $e'),
-            backgroundColor: Colors.red,
+            backgroundColor:
+                isDark //
+                ? AppTheme.darkDanger
+                : AppTheme.lightDanger,
           ),
         );
       }
@@ -88,65 +90,7 @@ class _ProfileTabState extends State<ProfileTab> {
   }
 
   void _showLanguageSheet() {
-    final primary = Theme.of(context).colorScheme.primary;
-    final currentCode = _currentLang.code;
-
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (ctx) {
-        return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Center(
-                  child: Container(
-                    width: 36,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: Theme.of(ctx).dividerColor,
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  AppLocalizations.tr(ctx, 'language'),
-                  style: Theme.of(ctx).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                for (int i = 0; i < _languages.length; i++) ...[
-                  ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    leading: Text(
-                      _languages[i].flag,
-                      style: const TextStyle(fontSize: 24),
-                    ),
-                    title: Text(_languages[i].name),
-                    trailing: currentCode == _languages[i].code
-                        ? Icon(Icons.check_circle, color: primary)
-                        : null,
-                    onTap: () {
-                      Navigator.pop(ctx);
-                      _changeLanguage(_languages[i].code);
-                    },
-                  ),
-                  if (i < _languages.length - 1) const Divider(height: 1),
-                ],
-                const SizedBox(height: 8),
-              ],
-            ),
-          ),
-        );
-      },
-    );
+    LanguageSheet.show(context);
   }
 
   // ── Export/Import/Delete using BackupHelper ─────────────────
@@ -157,11 +101,11 @@ class _ProfileTabState extends State<ProfileTab> {
       builder: (context) => const Center(child: CircularProgressIndicator()),
     );
 
-    final success = await _backupHelper.exportBackup(context);
+    final path = await _backupService.createBackup();
 
     if (mounted) {
       Navigator.pop(context);
-      if (success) {
+      if (path != null) {
         final isDark = Theme.of(context).brightness == Brightness.dark;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -177,16 +121,14 @@ class _ProfileTabState extends State<ProfileTab> {
   }
 
   Future<void> _importBackup() async {
-    // Show loading indicator
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (context) => const Center(child: CircularProgressIndicator()),
     );
 
-    final success = await _backupHelper.importBackup(context);
+    final success = await _backupService.restoreBackup();
 
-    // Close loading dialog
     if (mounted) {
       Navigator.pop(context);
 
@@ -202,29 +144,64 @@ class _ProfileTabState extends State<ProfileTab> {
           ),
         );
 
-        // Refresh the UI to show restored data
         setState(() {});
       }
     }
   }
 
   Future<void> _deleteAllData() async {
-    final success = await _backupHelper.deleteAllData(context);
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => ConfirmDialog(
+        title: AppLocalizations.tr(ctx, 'deleteAllData'),
+        content: AppLocalizations.tr(ctx, 'deleteAllDataConfirm'),
+        confirmText: AppLocalizations.tr(ctx, 'delete'),
+        cancelText: AppLocalizations.tr(ctx, 'cancel'),
+        isDestructive: true,
+        onConfirm: () => Navigator.pop(ctx, true),
+        onCancel: () => Navigator.pop(ctx, false),
+      ),
+    );
 
-    if (success && mounted) {
-      final isDark = Theme.of(context).brightness == Brightness.dark;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(AppLocalizations.tr(context, 'dataDeleted')),
-          backgroundColor: isDark
-              ? AppTheme.darkSuccess
-              : AppTheme.lightSuccess,
-          duration: const Duration(seconds: 2),
-        ),
-      );
+    if (confirmed != true) return;
 
-      // Refresh the UI
-      setState(() {});
+    // Show loading indicator
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(child: CircularProgressIndicator()),
+    );
+
+    final success = await _backupService.deleteAllData();
+
+    // Close loading dialog
+    if (mounted) {
+      Navigator.pop(context);
+
+      if (success) {
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(AppLocalizations.tr(context, 'dataDeleted')),
+            backgroundColor: isDark
+                ? AppTheme.darkSuccess
+                : AppTheme.lightSuccess,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+
+        setState(() {});
+      } else {
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(AppLocalizations.tr(context, 'deleteFailed')),
+            backgroundColor: isDark
+                ? AppTheme.darkDanger
+                : AppTheme.lightDanger,
+          ),
+        );
+      }
     }
   }
 
@@ -293,7 +270,7 @@ class _ProfileTabState extends State<ProfileTab> {
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: primary,
-                    foregroundColor: Colors.white,
+                    foregroundColor: Theme.of(context).colorScheme.onPrimary,
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -313,7 +290,6 @@ class _ProfileTabState extends State<ProfileTab> {
     if (message.trim().isEmpty) return;
 
     try {
-      // Save feedback locally
       final directory = await getApplicationDocumentsDirectory();
       final feedbackFile = File('${directory.path}/feedback_log.txt');
       final feedbackEntry = '${DateTime.now().toIso8601String()}: $message\n';
@@ -333,10 +309,13 @@ class _ProfileTabState extends State<ProfileTab> {
       }
     } catch (e) {
       if (mounted) {
+        final isDark = Theme.of(context).brightness == Brightness.dark;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error sending feedback: $e'),
-            backgroundColor: Colors.red,
+            backgroundColor: isDark
+                ? AppTheme.darkDanger
+                : AppTheme.lightDanger,
           ),
         );
       }
@@ -519,7 +498,6 @@ class _ProfileTabState extends State<ProfileTab> {
         GlassCard(
           child: Column(
             children: [
-              // Dark mode — inline Switch
               _ToggleRow(
                 icon: isDark ? Icons.dark_mode : Icons.light_mode,
                 label: AppLocalizations.tr(context, 'darkMode'),
@@ -531,7 +509,6 @@ class _ProfileTabState extends State<ProfileTab> {
 
               const Divider(height: 1),
 
-              // Language — bottom sheet picker
               _NavRow(
                 icon: Icons.language_outlined,
                 label: AppLocalizations.tr(context, 'language'),
@@ -543,7 +520,6 @@ class _ProfileTabState extends State<ProfileTab> {
 
               const Divider(height: 1),
 
-              // Notifications — inline Switch
               _ToggleRow(
                 icon: Icons.notifications_outlined,
                 label: AppLocalizations.tr(context, 'notifications'),
@@ -887,11 +863,20 @@ class _LoggedInAccount extends StatelessWidget {
           onPressed: onLogout,
           child: Text(
             AppLocalizations.tr(context, 'logout'),
-            style: const TextStyle(color: Colors.red),
+            style: TextStyle(
+              color:
+                  isDark(context) // ✅ Helper for theme-aware danger color
+                  ? AppTheme.darkDanger
+                  : AppTheme.lightDanger,
+            ),
           ),
         ),
       ],
     );
+  }
+
+  bool isDark(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark;
   }
 }
 
@@ -928,7 +913,7 @@ class _NotLoggedIn extends StatelessWidget {
             label: Text(AppLocalizations.tr(context, 'login')),
             style: ElevatedButton.styleFrom(
               backgroundColor: primaryColor,
-              foregroundColor: Colors.white,
+              foregroundColor: Theme.of(context).colorScheme.onPrimary,
               padding: const EdgeInsets.symmetric(vertical: 12),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),

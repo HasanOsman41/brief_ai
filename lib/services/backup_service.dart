@@ -1,533 +1,443 @@
-// lib/helpers/backup_helper.dart
+// lib/services/backup_service.dart
+import 'dart:convert';
 import 'dart:io';
+import 'package:archive/archive_io.dart';
 import 'package:brief_ai/data/local/database_helper.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/material.dart';
+import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:path/path.dart' as path;
-import 'package:archive/archive.dart';
 
 class BackupService {
-  static final BackupService _instance = BackupService._internal();
-  factory BackupService() => _instance;
-  BackupService._internal();
+  final DatabaseHelper _dbHelper;
 
-  /// Get the database file path
-  Future<String> _getDatabasePath() async {
-    final documentsDirectory = await getApplicationDocumentsDirectory();
-    return path.join(documentsDirectory.path, 'brief_ai.db');
-  }
+  BackupService({DatabaseHelper? dbHelper})
+    : _dbHelper = dbHelper ?? DatabaseHelper();
 
-  /// Get the images directory path
-  Future<String> _getImagesDirectoryPath() async {
-    final documentsDirectory = await getApplicationDocumentsDirectory();
-    final imagesDir = Directory(path.join(documentsDirectory.path, 'images'));
-    if (!await imagesDir.exists()) {
-      await imagesDir.create(recursive: true);
+  /// Let user pick a folder and create backup there
+  /// Returns the path to the created backup file, or null if cancelled
+  Future<String?> createBackup({
+    String? backupFileName,
+    Function(double)? onProgress, // Optional progress callback (0.0 to 1.0)
+  }) async {
+    // Request storage permission on Android
+    if (!(await _requestStoragePermission())) {
+      return null;
     }
-    return imagesDir.path;
+
+    // Let user pick destination folder
+    final selectedDir = await FilePicker.getDirectoryPath(
+      dialogTitle: 'Select Backup Destination',
+      lockParentWindow: true,
+    );
+
+    if (selectedDir == null) {
+      // User cancelled
+      return null;
+    }
+
+    return await _createBackupToPath(
+      selectedDir,
+      backupFileName: backupFileName,
+      onProgress: onProgress,
+    );
   }
 
-  /// Export backup - zip database file and images folder
-  Future<bool> exportBackup(BuildContext context) async {
+  Future<String> _createBackupToPath(
+    String destinationDir, {
+    String? backupFileName,
+    Function(double)? onProgress,
+  }) async {
+    // Ensure database is closed before backup
+    await _dbHelper.close();
+
+    final fileName =
+        backupFileName ??
+        'brief_ai_backup_${DateTime.now().toIso8601String().replaceAll(RegExp(r'[^0-9]'), '')}.zip';
+    final backupPath = path.join(destinationDir, fileName);
+
+    // Create temp directory for staging backup contents
+    final appDocsDir = await getApplicationDocumentsDirectory();
+    final tempDir = path.join(
+      appDocsDir.path,
+      'temp_backup_${DateTime.now().millisecondsSinceEpoch}',
+    );
+    await Directory(tempDir).create(recursive: true);
+
     try {
-      // Request storage permission if needed
-      if (Platform.isAndroid || Platform.isIOS) {
-        final status = await Permission.storage.request();
-        if (!status.isGranted) {
-          if (context.mounted) {
-            _showPermissionDeniedDialog(context);
-          }
-          return false;
-        }
+      onProgress?.call(0.1);
+
+      // 1. Copy database file
+      final dbPath = await _dbHelper.getDatabasePath();
+      if (await File(dbPath).exists()) {
+        await File(dbPath).copy(path.join(tempDir, 'brief_ai.db'));
       }
+      onProgress?.call(0.3);
 
-      // Close database connection to ensure no locks
-      await DatabaseHelper().close();
-
-      // Get database file
-      final dbPath = await _getDatabasePath();
-      final dbFile = File(dbPath);
-
-      if (!await dbFile.exists()) {
-        throw Exception('Database file not found');
-      }
-
-      // Get images directory
-      final imagesDirPath = await _getImagesDirectoryPath();
-      final imagesDir = Directory(imagesDirPath);
-
-      // Create temporary directory for backup
-      final tempDir = await getTemporaryDirectory();
-      final backupTempDir = Directory(
-        path.join(
-          tempDir.path,
-          'backup_temp_${DateTime.now().millisecondsSinceEpoch}',
-        ),
-      );
-      await backupTempDir.create(recursive: true);
-
-      // Copy database file to temp directory
-      final tempDbFile = File(path.join(backupTempDir.path, 'brief_ai.db'));
-      await dbFile.copy(tempDbFile.path);
-
-      // Copy images folder to temp directory
-      if (await imagesDir.exists()) {
-        final tempImagesDir = Directory(
-          path.join(backupTempDir.path, 'images'),
+      // 2. Copy images directory
+      final imagesDir = await _dbHelper.getImagesDirectoryPath();
+      if (await Directory(imagesDir).exists()) {
+        await _copyDirectory(
+          Directory(imagesDir),
+          path.join(tempDir, 'images'),
+          onProgress: (progress) => onProgress?.call(0.3 + (progress * 0.4)),
         );
-        await _copyDirectory(imagesDir, tempImagesDir);
       }
+      onProgress?.call(0.7);
 
-      // Create zip file
-      final zipFile = await _createZipFile(backupTempDir);
+      // 3. Create metadata
+      final metadata = {
+        'backupDate': DateTime.now().toIso8601String(),
+        'databaseVersion': 1,
+        'imageCount': await _countImagesInDirectory(imagesDir),
+      };
+      await File(
+        path.join(tempDir, 'metadata.json'),
+      ).writeAsString(jsonEncode(metadata));
 
-      // Let user choose where to save the zip file
-      String? outputPath;
+      onProgress?.call(0.85);
 
-      if (Platform.isAndroid || Platform.isIOS) {
-        String? selectedDirectory = await FilePicker.getDirectoryPath();
-        if (selectedDirectory == null) {
-          // User cancelled
-          await backupTempDir.delete(recursive: true);
-          return false;
-        }
+      // 4. Create ZIP archive
+      await _createZipArchive(tempDir, backupPath);
 
-        final fileName =
-            'briefai_backup_${DateTime.now().millisecondsSinceEpoch}.zip';
-        outputPath = '$selectedDirectory/$fileName';
-      } else {
-        // Desktop fallback - save to documents directory
-        final directory = await getApplicationDocumentsDirectory();
-        final fileName =
-            'briefai_backup_${DateTime.now().millisecondsSinceEpoch}.zip';
-        outputPath = '${directory.path}/$fileName';
+      onProgress?.call(1.0);
+
+      return backupPath;
+    } catch (e) {
+      // Clean up on error
+      if (await Directory(tempDir).exists()) {
+        await Directory(tempDir).delete(recursive: true);
       }
-
-      // Copy zip file to user selected location
-      final outputFile = File(outputPath!);
-      await zipFile.copy(outputFile.path);
-
+      if (await File(backupPath).exists()) {
+        await File(backupPath).delete();
+      }
+      rethrow;
+    } finally {
       // Clean up temp directory
-      await backupTempDir.delete(recursive: true);
+      if (await Directory(tempDir).exists()) {
+        await Directory(tempDir).delete(recursive: true);
+      }
+      // Reopen database
+      await _dbHelper.database;
+    }
+  }
 
-      if (context.mounted) {
-        _showSuccessDialog(context, outputPath);
+  /// Let user pick a backup file and restore from it
+  /// Returns true if restore was successful
+  Future<bool> restoreBackup({Function(double)? onProgress}) async {
+    if (!(await _requestStoragePermission())) {
+      return false;
+    }
+
+    // Let user pick backup file
+    final result = await FilePicker.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['zip'],
+      dialogTitle: 'Select Backup File to Restore',
+      lockParentWindow: true,
+      allowMultiple: false,
+    );
+
+    if (result == null || result.files.isEmpty) {
+      return false; // User cancelled
+    }
+
+    final backupPath = result.files.first.path;
+    if (backupPath == null) {
+      throw Exception('Could not get path to selected backup file');
+    }
+
+    return await restoreBackupFromPath(backupPath, onProgress: onProgress);
+  }
+
+  /// Restore from a specific backup file path
+  Future<bool> restoreBackupFromPath(
+    String backupFilePath, {
+    Function(double)? onProgress,
+  }) async {
+    if (!await File(backupFilePath).exists()) {
+      throw Exception('Backup file not found: $backupFilePath');
+    }
+
+    // Close current database
+    await _dbHelper.close();
+
+    final appDocsDir = await getApplicationDocumentsDirectory();
+    final tempDir = path.join(
+      appDocsDir.path,
+      'temp_restore_${DateTime.now().millisecondsSinceEpoch}',
+    );
+    await Directory(tempDir).create(recursive: true);
+
+    try {
+      onProgress?.call(0.1);
+
+      // 1. Extract ZIP
+      await _extractZipArchive(backupFilePath, tempDir);
+      onProgress?.call(0.3);
+
+      // 2. Verify & read metadata
+      final metadataPath = path.join(tempDir, 'metadata.json');
+      if (await File(metadataPath).exists()) {
+        final metadata = jsonDecode(await File(metadataPath).readAsString());
+        print('📦 Restoring backup from: ${metadata['backupDate']}');
+        print('🖼️  Image count in backup: ${metadata['imageCount']}');
+      }
+      onProgress?.call(0.4);
+
+      // 3. Restore database
+      final dbPath = await _dbHelper.getDatabasePath();
+      final backupDb = path.join(tempDir, 'brief_ai.db');
+
+      if (!await File(backupDb).exists()) {
+        throw Exception('Database file missing in backup');
       }
 
-      // Reopen database connection
-      await DatabaseHelper().database;
+      if (await File(dbPath).exists()) {
+        await File(dbPath).delete();
+      }
+      await File(backupDb).copy(dbPath);
+      onProgress?.call(0.7);
+
+      // 4. Restore images
+      final imagesDir = await _dbHelper.getImagesDirectoryPath();
+      final backupImages = path.join(tempDir, 'images');
+
+      if (await Directory(backupImages).exists()) {
+        if (await Directory(imagesDir).exists()) {
+          await Directory(imagesDir).delete(recursive: true);
+        }
+        await _copyDirectory(
+          Directory(backupImages),
+          imagesDir,
+          onProgress: (progress) => onProgress?.call(0.7 + (progress * 0.25)),
+        );
+      }
+      onProgress?.call(0.95);
+
+      // 5. Reinitialize database
+      await _dbHelper.database;
+      onProgress?.call(1.0);
 
       return true;
     } catch (e) {
-      debugPrint('Export error: $e');
-      if (context.mounted) {
-        _showErrorDialog(context, 'Export failed: $e');
+      print('❌ Restore failed: $e');
+      // Try to recover database state
+      await _dbHelper.database;
+      rethrow;
+    } finally {
+      // Cleanup
+      if (await Directory(tempDir).exists()) {
+        await Directory(tempDir).delete(recursive: true);
       }
-      // Try to reopen database
+    }
+  }
+
+  /// Get info about a backup file without restoring
+  Future<Map<String, dynamic>?> getBackupInfo(String backupFilePath) async {
+    if (!await File(backupFilePath).exists()) return null;
+
+    final appDocsDir = await getApplicationDocumentsDirectory();
+    final tempDir = path.join(
+      appDocsDir.path,
+      'temp_info_${DateTime.now().millisecondsSinceEpoch}',
+    );
+    await Directory(tempDir).create(recursive: true);
+
+    try {
+      // Extract only metadata.json
+      final bytes = await File(backupFilePath).readAsBytes();
+      final archive = ZipDecoder().decodeBytes(bytes);
+
+      final metadataFile = archive.firstWhere(
+        (f) => f.name == 'metadata.json',
+        orElse: () => throw Exception('No metadata found'),
+      );
+
+      if (metadataFile.isFile) {
+        final content = utf8.decode(metadataFile.content as List<int>);
+        final metadata = jsonDecode(content) as Map<String, dynamic>;
+
+        final stats = await File(backupFilePath).stat();
+        return {
+          ...metadata,
+          'fileName': path.basename(backupFilePath),
+          'fileSize': stats.size,
+          'fileModified': stats.modified,
+        };
+      }
+      return null;
+    } catch (e) {
+      print('Error reading backup info: $e');
+      return null;
+    } finally {
+      if (await Directory(tempDir).exists()) {
+        await Directory(tempDir).delete(recursive: true);
+      }
+    }
+  }
+
+  /// Delete a backup file
+  Future<bool> deleteBackup(String backupFilePath) async {
+    if (await File(backupFilePath).exists()) {
+      await File(backupFilePath).delete();
+      return true;
+    }
+    return false;
+  }
+
+  /// Delete all app data: database and images directory
+  /// Returns true if deletion was successful
+  Future<bool> deleteAllData() async {
+    try {
+      // 1. Close current database connection first
+      await _dbHelper.close();
+
+      // 2. Delete database file
+      final dbPath = await _dbHelper.getDatabasePath();
+      if (await File(dbPath).exists()) {
+        await File(dbPath).delete();
+      }
+
+      // 3. Delete images directory and all contents
+      final imagesDir = await _dbHelper.getImagesDirectoryPath();
+      if (await Directory(imagesDir).exists()) {
+        await Directory(imagesDir).delete(recursive: true);
+      }
+
+      // 4. Reinitialize fresh database with empty tables
+      await _dbHelper.database;
+
+      // 5. Recreate images directory for future use
+      await Directory(imagesDir).create(recursive: true);
+
+      print('✅ All data deleted successfully');
+      return true;
+    } catch (e) {
+      print('❌ Failed to delete all data: $e');
+      // Try to recover database state
       try {
-        await DatabaseHelper().database;
+        await _dbHelper.database;
       } catch (_) {}
       return false;
     }
   }
+  // ==================== Helper Methods ====================
 
-  /// Create zip file from backup directory
-  Future<File> _createZipFile(Directory sourceDir) async {
-    final tempDir = await getTemporaryDirectory();
-    final zipPath = path.join(
-      tempDir.path,
-      'backup_${DateTime.now().millisecondsSinceEpoch}.zip',
-    );
-
-    // Create archive
-    final archive = Archive();
-
-    // Add all files from source directory
-    await _addDirectoryToArchive(sourceDir, archive, sourceDir.path);
-
-    // Write zip file
-    final zipFile = File(zipPath);
-    final zipData = ZipEncoder().encode(archive);
-    await zipFile.writeAsBytes(zipData);
-
-    return zipFile;
-  }
-
-  /// Recursively add directory contents to archive
-  Future<void> _addDirectoryToArchive(
-    Directory dir,
-    Archive archive,
-    String basePath,
-  ) async {
-    final List<FileSystemEntity> entities = await dir.list().toList();
-
-    for (final entity in entities) {
-      if (entity is File) {
-        final relativePath = path.relative(entity.path, from: basePath);
-        final fileBytes = await entity.readAsBytes();
-        final archiveFile = ArchiveFile(
-          relativePath,
-          fileBytes.length,
-          fileBytes,
-        );
-        archive.addFile(archiveFile);
-      } else if (entity is Directory) {
-        await _addDirectoryToArchive(entity, archive, basePath);
-      }
-    }
-  }
-
-  /// Copy directory recursively
-  Future<void> _copyDirectory(Directory source, Directory destination) async {
-    if (!await destination.exists()) {
-      await destination.create(recursive: true);
-    }
-
-    final List<FileSystemEntity> entities = await source.list().toList();
-
-    for (final entity in entities) {
-      if (entity is File) {
-        final destFile = File(
-          path.join(destination.path, path.basename(entity.path)),
-        );
-        await entity.copy(destFile.path);
-      } else if (entity is Directory) {
-        final destDir = Directory(
-          path.join(destination.path, path.basename(entity.path)),
-        );
-        await _copyDirectory(entity, destDir);
-      }
-    }
-  }
-
-  /// Import backup - extract zip file and restore database and images
-  Future<bool> importBackup(BuildContext context) async {
-    try {
-      // Request storage permission
-      if (Platform.isAndroid || Platform.isIOS) {
-        final status = await Permission.storage.request();
-        if (!status.isGranted) {
-          if (context.mounted) {
-            _showPermissionDeniedDialog(context);
-          }
-          return false;
-        }
-      }
-
-      // Let user pick backup zip file
-      FilePickerResult? result = await FilePicker.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ['zip'],
-        dialogTitle: 'Select backup file',
-      );
-
-      if (result == null) {
-        // User cancelled
+  Future<bool> _requestStoragePermission() async {
+    if (Platform.isAndroid) {
+      if (await _requestPermission(Permission.storage) &&
+          // access media location needed for android 10/Q
+          await _requestPermission(Permission.accessMediaLocation) &&
+          // manage external storage needed for android 11/R
+          await _requestPermission(Permission.manageExternalStorage)) {
+        return true;
+      } else {
         return false;
       }
-
-      final zipFilePath = result.files.single.path!;
-
-      // Close database connection
-      await DatabaseHelper().close();
-
-      // Create temporary directory for extraction
-      final tempDir = await getTemporaryDirectory();
-      final extractDir = Directory(
-        path.join(
-          tempDir.path,
-          'restore_temp_${DateTime.now().millisecondsSinceEpoch}',
-        ),
-      );
-      await extractDir.create(recursive: true);
-
-      // Read zip file
-      final zipFile = File(zipFilePath);
-      final zipBytes = await zipFile.readAsBytes();
-
-      // Extract zip
-      final archive = ZipDecoder().decodeBytes(zipBytes);
-
-      // Extract all files to temporary directory
-      for (final file in archive) {
-        if (file.isFile) {
-          final extractedFile = File(path.join(extractDir.path, file.name));
-          await extractedFile.create(recursive: true);
-          await extractedFile.writeAsBytes(file.content as List<int>);
-        }
-      }
-
-      // Get target database path
-      final targetDbPath = await _getDatabasePath();
-      final targetImagesDirPath = await _getImagesDirectoryPath();
-
-      // Backup current data before restore (optional safety backup)
-      final safetyBackupDir = Directory(
-        path.join(
-          (await getTemporaryDirectory()).path,
-          'safety_backup_${DateTime.now().millisecondsSinceEpoch}',
-        ),
-      );
-      await safetyBackupDir.create();
-
-      // Backup current database if exists
-      final currentDbFile = File(targetDbPath);
-      if (await currentDbFile.exists()) {
-        await currentDbFile.copy(
-          path.join(safetyBackupDir.path, 'brief_ai.db.backup'),
-        );
-      }
-
-      // Backup current images if exists
-      final currentImagesDir = Directory(targetImagesDirPath);
-      if (await currentImagesDir.exists()) {
-        final safetyImagesDir = Directory(
-          path.join(safetyBackupDir.path, 'images'),
-        );
-        await _copyDirectory(currentImagesDir, safetyImagesDir);
-      }
-
-      // Restore database from extracted files
-      final extractedDbFile = File(path.join(extractDir.path, 'brief_ai.db'));
-      if (await extractedDbFile.exists()) {
-        // Delete current database if exists
-        if (await currentDbFile.exists()) {
-          await currentDbFile.delete();
-        }
-        // Copy extracted database to target location
-        await extractedDbFile.copy(targetDbPath);
+    }
+    if (Platform.isIOS) {
+      if (await _requestPermission(Permission.photos)) {
+        return true;
       } else {
-        throw Exception('Database file not found in backup');
+        return false;
       }
-
-      // Restore images folder
-      final extractedImagesDir = Directory(
-        path.join(extractDir.path, 'images'),
-      );
-      if (await extractedImagesDir.exists()) {
-        // Delete current images directory if exists
-        if (await currentImagesDir.exists()) {
-          await currentImagesDir.delete(recursive: true);
-        }
-        // Create fresh images directory
-        await currentImagesDir.create(recursive: true);
-        // Copy extracted images to target location
-        await _copyDirectory(extractedImagesDir, currentImagesDir);
-      }
-
-      // Clean up temp directory
-      await extractDir.delete(recursive: true);
-
-      // Reopen database connection
-      await DatabaseHelper().database;
-
-      if (context.mounted) {
-        _showRestoreSuccessDialog(context);
-      }
-
-      return true;
-    } catch (e) {
-      debugPrint('Import error: $e');
-      if (context.mounted) {
-        _showErrorDialog(context, 'Import failed: $e');
-      }
-      // Try to reopen database
-      try {
-        await DatabaseHelper().database;
-      } catch (_) {}
+    } else {
+      // not android or ios
       return false;
     }
   }
 
-  /// Delete all data - delete database file and images folder
-  Future<bool> deleteAllData(BuildContext context) async {
-    try {
-      // Show confirmation dialog first
-      final confirmed = await _showDeleteConfirmationDialog(context);
-      if (!confirmed) return false;
+  Future<bool> _requestPermission(Permission permission) async {
+    final status = await permission.status;
+    if (!status.isGranted) {
+      final newStatus = await permission.request();
+      return newStatus.isGranted;
+    }
+    return true;
+  }
 
-      // Close database connection
-      await DatabaseHelper().close();
-
-      // Delete database file
-      final dbPath = await _getDatabasePath();
-      final dbFile = File(dbPath);
-      if (await dbFile.exists()) {
-        await dbFile.delete();
+  Future<int> _countImagesInDirectory(String dirPath) async {
+    if (!await Directory(dirPath).exists()) return 0;
+    int count = 0;
+    await for (final entity in Directory(dirPath).list(recursive: true)) {
+      if (entity is File &&
+          (entity.path.endsWith('.jpg') ||
+              entity.path.endsWith('.jpeg') ||
+              entity.path.endsWith('.png'))) {
+        count++;
       }
+    }
+    return count;
+  }
 
-      // Delete images directory
-      final imagesDirPath = await _getImagesDirectoryPath();
-      final imagesDir = Directory(imagesDirPath);
-      if (await imagesDir.exists()) {
-        await imagesDir.delete(recursive: true);
+  Future<void> _copyDirectory(
+    Directory source,
+    String destination, {
+    Function(double)? onProgress,
+  }) async {
+    if (!await source.exists()) return;
+    await Directory(destination).create(recursive: true);
+
+    final files = await source
+        .list(recursive: true)
+        .where((e) => e is File)
+        .cast<File>()
+        .toList();
+
+    final total = files.length;
+    int current = 0;
+
+    for (final file in files) {
+      final relative = path.relative(file.path, from: source.path);
+      final newPath = path.join(destination, relative);
+      await Directory(path.dirname(newPath)).create(recursive: true);
+      await file.copy(newPath);
+
+      current++;
+      if (onProgress != null && total > 0) {
+        onProgress(current / total);
       }
-
-      // Recreate empty database (this will create new tables)
-      await DatabaseHelper().database;
-
-      // Recreate images directory
-      await Directory(imagesDirPath).create(recursive: true);
-
-      if (context.mounted) {
-        _showDeleteSuccessDialog(context);
-      }
-
-      return true;
-    } catch (e) {
-      debugPrint('Delete error: $e');
-      if (context.mounted) {
-        _showErrorDialog(context, 'Delete failed: $e');
-      }
-      // Try to reopen database
-      try {
-        await DatabaseHelper().database;
-      } catch (_) {}
-      return false;
     }
   }
 
-  // Dialog helpers
-  Future<bool> _showDeleteConfirmationDialog(BuildContext context) async {
-    return await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Delete All Data'),
-        content: const Text(
-          'Are you sure you want to delete all your data?\n\n'
-          'This action cannot be undone and will delete:\n'
-          '• All documents\n'
-          '• All images\n'
-          '• All app data',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
-    ).then((value) => value ?? false);
+  Future<void> _createZipArchive(String sourceDir, String outputPath) async {
+    final encoder = ZipFileEncoder();
+    encoder.create(outputPath);
+    await _addToZip(encoder, Directory(sourceDir), sourceDir);
+    await encoder.close();
   }
 
-  void _showSuccessDialog(BuildContext context, String filePath) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Export Successful'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text('Your data has been successfully backed up.'),
-            const SizedBox(height: 8),
-            const Text('Backup includes:'),
-            const SizedBox(height: 4),
-            const Text('• Database file', style: TextStyle(fontSize: 12)),
-            const Text('• All images', style: TextStyle(fontSize: 12)),
-            const SizedBox(height: 8),
-            Text(
-              'Saved to:\n$filePath',
-              style: const TextStyle(fontSize: 12, fontFamily: 'monospace'),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('OK'),
-          ),
-        ],
-      ),
-    );
+  Future<void> _addToZip(
+    ZipFileEncoder encoder,
+    Directory dir,
+    String rootDir,
+  ) async {
+    await for (final entity in dir.list(recursive: false)) {
+      if (entity is File) {
+        final relative = path.relative(entity.path, from: rootDir);
+        encoder.addFile(entity, relative);
+      } else if (entity is Directory) {
+        await _addToZip(encoder, entity, rootDir);
+      }
+    }
   }
 
-  void _showRestoreSuccessDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Restore Successful'),
-        content: const Text(
-          'Your data has been successfully restored.\n\n'
-          'The app will refresh to show your restored data.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(ctx);
-              // Trigger a refresh of the UI
-            },
-            child: const Text('OK'),
-          ),
-        ],
-      ),
-    );
-  }
+  Future<void> _extractZipArchive(String zipPath, String extractTo) async {
+    final bytes = await File(zipPath).readAsBytes();
+    final archive = ZipDecoder().decodeBytes(bytes);
 
-  void _showDeleteSuccessDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Data Deleted'),
-        content: const Text(
-          'All your data has been permanently deleted.\n\n'
-          'The app has been reset to its initial state.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('OK'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showErrorDialog(BuildContext context, String message) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Error'),
-        content: Text(message),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('OK'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showPermissionDeniedDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Permission Required'),
-        content: const Text(
-          'Storage permission is required to backup and restore your data.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(ctx);
-              openAppSettings();
-            },
-            child: const Text('Open Settings'),
-          ),
-        ],
-      ),
-    );
+    for (final file in archive) {
+      final filename = file.name;
+      if (file.isFile) {
+        final data = file.content as List<int>;
+        final filePath = path.join(extractTo, filename);
+        await File(filePath)
+          ..create(recursive: true)
+          ..writeAsBytes(data);
+      } else if (file.isDirectory) {
+        await Directory(path.join(extractTo, filename)).create(recursive: true);
+      }
+    }
   }
 }

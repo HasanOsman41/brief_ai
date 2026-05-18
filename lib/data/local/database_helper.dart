@@ -21,9 +21,9 @@ class DatabaseHelper {
 
   Future<Database> _initDatabase() async {
     final documentsDirectory = await getApplicationDocumentsDirectory();
-    final path = join(documentsDirectory.path, 'brief_ai.db');
+    final dbPath = join(documentsDirectory.path, 'brief_ai.db');
 
-    return await openDatabase(path, version: 1, onCreate: _createTables);
+    return await openDatabase(dbPath, version: 1, onCreate: _createTables);
   }
 
   Future<void> _createTables(Database db, int version) async {
@@ -86,6 +86,12 @@ class DatabaseHelper {
     final imagesDir = join(documentsDirectory.path, 'images');
     await Directory(imagesDir).create(recursive: true);
     return imagesDir;
+  }
+
+  /// Get the database file path
+  Future<String> getDatabasePath() async {
+    final documentsDirectory = await getApplicationDocumentsDirectory();
+    return join(documentsDirectory.path, 'brief_ai.db');
   }
 
   /// Save an image file and return the stored path

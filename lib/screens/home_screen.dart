@@ -4,7 +4,7 @@ import 'dart:ui';
 import 'package:brief_ai/localization/app_localizations.dart';
 import 'package:brief_ai/screens/tabs/documents_tab.dart';
 import 'package:brief_ai/screens/tabs/home_dashboard_tab.dart';
-import 'package:brief_ai/screens/tabs/profile_tab.dart'; // ← NEW
+import 'package:brief_ai/screens/tabs/profile_tab.dart';
 import 'package:brief_ai/screens/tabs/tasks_tab.dart';
 import 'package:brief_ai/theme/app_theme.dart';
 import 'package:brief_ai/widgets/primary_fab.dart';
@@ -22,6 +22,21 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
 
+  String _tabTitle(BuildContext context) {
+    switch (_selectedIndex) {
+      case 0:
+        return AppLocalizations.tr(context, 'home');
+      case 1:
+        return AppLocalizations.tr(context, 'documents');
+      case 2:
+        return AppLocalizations.tr(context, 'tasks');
+      case 3:
+        return AppLocalizations.tr(context, 'profile');
+      default:
+        return AppLocalizations.tr(context, 'home');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -38,7 +53,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                  colors: [primaryColor.withOpacity(0.1), Colors.transparent],
+                  colors: [Colors.transparent, Colors.transparent],
                 ),
               ),
               child: Padding(
@@ -71,63 +86,73 @@ class _HomeScreenState extends State<HomeScreen> {
                           ],
                         ),
                         const SizedBox(height: 6),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: primaryColor.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.lock_outline,
-                                size: 12,
-                                color: primaryColor,
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                AppLocalizations.tr(context, 'localOnly'),
-                                style: TextStyle(
-                                  color: primaryColor,
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
-                          ),
+                        Row(
+                          children: [
+                            // Container(
+                            //   padding: const EdgeInsets.symmetric(
+                            //     horizontal: 10,
+                            //     vertical: 4,
+                            //   ),
+                            //   decoration: BoxDecoration(
+                            //     color: primaryColor.withOpacity(0.1),
+                            //     borderRadius: BorderRadius.circular(20),
+                            //   ),
+                            //   child: Row(
+                            //     mainAxisSize: MainAxisSize.min,
+                            //     children: [
+                            //       Icon(
+                            //         Icons.lock_outline,
+                            //         size: 12,
+                            //         color: primaryColor,
+                            //       ),
+                            //       const SizedBox(width: 4),
+                            //       Text(
+                            //         AppLocalizations.tr(context, 'localOnly'),
+                            //         style: TextStyle(
+                            //           color: primaryColor,
+                            //           fontSize: 11,
+                            //           fontWeight: FontWeight.w500,
+                            //         ),
+                            //       ),
+                            //     ],
+                            //   ),
+                            // ),
+                            Container(
+                              margin: const EdgeInsets.only(right: 8, left: 4),
+                              height: 25,
+                              width: 3,
+                            ),
+                            Text(
+                              _tabTitle(context),
+                              style: Theme.of(context).textTheme.headlineMedium
+                                  ?.copyWith(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w500,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurface,
+                                    letterSpacing: -0.2,
+                                  ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
-                    Row(
-                      children: [
-                        _HeaderIconButton(
-                          icon: isDark ? Icons.light_mode : Icons.dark_mode,
-                          primaryColor: primaryColor,
-                          isDark: isDark,
-                          onPressed: widget.onToggleTheme,
-                        ),
-                        const SizedBox(width: 8),
-                        _HeaderIconButton(
-                          icon: Icons.notifications_outlined,
-                          primaryColor: primaryColor,
-                          isDark: isDark,
-                          onPressed: () =>
-                              Navigator.pushNamed(context, '/reminders'),
-                        ),
-                        const SizedBox(width: 8),
-                        _HeaderIconButton(
-                          icon: Icons.settings_outlined,
-                          primaryColor: primaryColor,
-                          isDark: isDark,
-                          onPressed: () =>
-                              Navigator.pushNamed(context, '/settings'),
-                        ),
-                      ],
-                    ),
+
+                    // // ── Tab title (replaces the three icon buttons) ──
+                    // Padding(
+                    //   padding: const EdgeInsets.only(top: 35.0),
+                    //   child: Text(
+                    //     _tabTitle(context),
+                    //     style: Theme.of(context).textTheme.headlineMedium
+                    //         ?.copyWith(
+                    //           fontSize: 20,
+                    //           fontWeight: FontWeight.w500,
+                    //           color: Theme.of(context).colorScheme.onSurface,
+                    //           letterSpacing: -0.2,
+                    //         ),
+                    //   ),
+                    // ),
                   ],
                 ),
               ),
@@ -144,8 +169,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   const DocumentsTab(),
                   const TasksTab(),
-
-                  // ── Profile tab ──────────────────────────────
                   ProfileTab(onToggleTheme: widget.onToggleTheme),
                 ],
               ),
