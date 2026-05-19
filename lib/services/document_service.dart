@@ -612,4 +612,19 @@ class DocumentService {
       rethrow;
     }
   }
+
+  Future<void> reopenDocument(int id) async {
+    try {
+      // Cancel all reminders for this document
+      await cancelReminders(id);
+
+      // Update document status to 'done'
+      await updateDocumentStatus(id, 'pending');
+
+      print('✅ Document marked as done with id: $id');
+    } catch (e) {
+      print('❌ Error marking document as done with id $id: $e');
+      rethrow;
+    }
+  }
 }

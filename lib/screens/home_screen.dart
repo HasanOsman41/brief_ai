@@ -47,7 +47,6 @@ class _HomeScreenState extends State<HomeScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // Header with privacy indicator
             Container(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
@@ -83,44 +82,56 @@ class _HomeScreenState extends State<HomeScreen> {
                                     fontWeight: FontWeight.bold,
                                   ),
                             ),
+                            const SizedBox(width: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: primaryColor.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.lock_outline,
+                                    size: 12,
+                                    color: primaryColor,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    AppLocalizations.tr(context, 'localOnly'),
+                                    style: TextStyle(
+                                      color: primaryColor,
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            IconButton(
+                              onPressed: () {
+                                Navigator.pushNamed(context, '/reminders');
+                              },
+                              icon: const Icon(
+                                Icons.alarm,
+                                size: 18,
+                                color: Colors.grey,
+                              ),
+                            ),
                           ],
                         ),
                         const SizedBox(height: 6),
                         Row(
                           children: [
-                            // Container(
-                            //   padding: const EdgeInsets.symmetric(
-                            //     horizontal: 10,
-                            //     vertical: 4,
-                            //   ),
-                            //   decoration: BoxDecoration(
-                            //     color: primaryColor.withOpacity(0.1),
-                            //     borderRadius: BorderRadius.circular(20),
-                            //   ),
-                            //   child: Row(
-                            //     mainAxisSize: MainAxisSize.min,
-                            //     children: [
-                            //       Icon(
-                            //         Icons.lock_outline,
-                            //         size: 12,
-                            //         color: primaryColor,
-                            //       ),
-                            //       const SizedBox(width: 4),
-                            //       Text(
-                            //         AppLocalizations.tr(context, 'localOnly'),
-                            //         style: TextStyle(
-                            //           color: primaryColor,
-                            //           fontSize: 11,
-                            //           fontWeight: FontWeight.w500,
-                            //         ),
-                            //       ),
-                            //     ],
-                            //   ),
-                            // ),
                             Container(
                               margin: const EdgeInsets.only(right: 8, left: 4),
                               height: 25,
                               width: 3,
+                              color: primaryColor,
                             ),
                             Text(
                               _tabTitle(context),

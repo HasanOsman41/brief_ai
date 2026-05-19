@@ -133,8 +133,15 @@ class _RemindersScreenState extends State<RemindersScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  reminder.title ??
-                                      AppLocalizations.tr(context, 'reminder'),
+                                  reminder.title != null
+                                      ? AppLocalizations.tr(
+                                          context,
+                                          reminder.title!,
+                                        )
+                                      : AppLocalizations.tr(
+                                          context,
+                                          'reminder',
+                                        ),
                                   style: TextStyle(
                                     color: isDark
                                         ? AppTheme.darkTextPrimary

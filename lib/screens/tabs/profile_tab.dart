@@ -1,6 +1,7 @@
 // lib/screens/tabs/profile_tab.dart
 import 'package:brief_ai/localization/app_localizations.dart';
 import 'package:brief_ai/services/backup_service.dart';
+import 'package:brief_ai/services/notification_service.dart';
 import 'package:brief_ai/theme/app_theme.dart';
 import 'package:brief_ai/widgets/glass_card.dart';
 import 'package:brief_ai/widgets/language_sheet.dart';
@@ -418,9 +419,10 @@ class _ProfileTabState extends State<ProfileTab> {
 
   Future<void> _loadSavedPreferences() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
+      // final prefs = await SharedPreferences.getInstance();
+      final enabled = await NotificationService().areNotificationsEnabled();
       setState(() {
-        _notificationsEnabled = prefs.getBool('notifications') ?? true;
+        _notificationsEnabled = enabled;
       });
     } catch (e) {
       print('Error loading preferences: $e');
@@ -528,9 +530,13 @@ class _ProfileTabState extends State<ProfileTab> {
                     : AppLocalizations.tr(context, 'disabled'),
                 value: _notificationsEnabled,
                 primaryColor: primary,
-                onChanged: (val) {
+                onChanged: (val) async {
                   setState(() => _notificationsEnabled = val);
-                  _savePreference('notifications', val);
+                  if (val) {
+                    await NotificationService().enableNotifications();
+                  } else {
+                    await NotificationService().disableNotifications();
+                  }
                 },
               ),
             ],

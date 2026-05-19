@@ -899,45 +899,89 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
 
   Widget _buildActionButtonsSection(BuildContext context, bool isDark) {
     final successColor = isDark ? AppTheme.darkSuccess : AppTheme.lightSuccess;
+    final warningColor = isDark ? AppTheme.darkWarning : AppTheme.lightWarning;
     final isDone = _document?.statusKey == 'done';
 
-    // Show completed label if document is done
     if (isDone) {
       return GlassCard(
-        child: Container(
-          height: 56,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.centerLeft,
-              end: Alignment.centerRight,
-              colors: [successColor, successColor.withOpacity(0.85)],
-            ),
-            borderRadius: BorderRadius.circular(14),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.check_circle,
-                color: Theme.of(context).colorScheme.onPrimary,
-                size: 24,
+        child: Column(
+          children: [
+            // Done indicator
+            Container(
+              height: 56,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                  colors: [successColor, successColor.withOpacity(0.85)],
+                ),
+                borderRadius: BorderRadius.circular(14),
               ),
-              const SizedBox(width: 12),
-              Text(
-                AppLocalizations.tr(context, 'done'),
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.onPrimary,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 16,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.check_circle,
+                    color: Theme.of(context).colorScheme.onPrimary,
+                    size: 24,
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
+                    AppLocalizations.tr(context, 'done'),
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.onPrimary,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 10),
+
+            // Reopen button
+            SizedBox(
+              height: 48,
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () => _showReopenDialog(context),
+                  borderRadius: BorderRadius.circular(14),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: warningColor.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(
+                        color: warningColor.withOpacity(0.4),
+                        width: 1,
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.refresh, color: warningColor, size: 20),
+                        const SizedBox(width: 8),
+                        Text(
+                          AppLocalizations.tr(context, 'reopenDocument'),
+                          style: TextStyle(
+                            color: warningColor,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       );
     }
 
-    // Show action button if not done
+    // Not done — existing mark as done button
     return GlassCard(
       child: SizedBox(
         height: 56,
@@ -1199,6 +1243,49 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
     } catch (e) {
       _showErrorSnackBar('Error editing image: $e');
     }
+  }
+
+  void _showReopenDialog(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    showDialog(
+      context: context,
+      builder: (context) => ConfirmDialog(
+        title: AppLocalizations.tr(context, 'reopenDocument'),
+        content: AppLocalizations.tr(context, 'reopenDocumentConfirm'),
+        confirmText: AppLocalizations.tr(context, 'reopen'),
+        onConfirm: () async {
+          Navigator.pop(context);
+
+          if (_document?.id != null) {
+            try {
+              await DocumentService().reopenDocument(_document!.id!);
+
+              if (!mounted) return;
+
+              setState(() {
+                _document = _document?.copyWith(statusKey: 'pending');
+              });
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    AppLocalizations.tr(context, 'documentReopened'),
+                  ),
+                  backgroundColor: isDark
+                      ? AppTheme.darkWarning
+                      : AppTheme.lightWarning,
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+            } catch (e) {
+              if (!mounted) return;
+              _showErrorSnackBar('Error reopening document: $e');
+            }
+          }
+        },
+      ),
+    );
   }
 
   Future<void> _shareCurrentImage() async {
