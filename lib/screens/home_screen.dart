@@ -1,4 +1,3 @@
-// lib/screens/home_screen.dart
 import 'dart:ui';
 
 import 'package:brief_ai/localization/app_localizations.dart';
@@ -149,27 +148,11 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ],
                     ),
-
-                    // // ── Tab title (replaces the three icon buttons) ──
-                    // Padding(
-                    //   padding: const EdgeInsets.only(top: 35.0),
-                    //   child: Text(
-                    //     _tabTitle(context),
-                    //     style: Theme.of(context).textTheme.headlineMedium
-                    //         ?.copyWith(
-                    //           fontSize: 20,
-                    //           fontWeight: FontWeight.w500,
-                    //           color: Theme.of(context).colorScheme.onSurface,
-                    //           letterSpacing: -0.2,
-                    //         ),
-                    //   ),
-                    // ),
                   ],
                 ),
               ),
             ),
 
-            // Tab content
             Expanded(
               child: IndexedStack(
                 index: _selectedIndex,
@@ -189,7 +172,9 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
 
       floatingActionButton: PrimaryFAB(
-        onPressed: () => Navigator.pushNamed(context, '/scan'),
+        onPressed: () async {
+          await Navigator.pushNamed(context, '/scan');
+        },
         icon: Icons.document_scanner,
         label: AppLocalizations.tr(context, 'scanButton'),
       ),
@@ -253,7 +238,6 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-// Small helper to avoid repeating the header button decoration
 class _HeaderIconButton extends StatelessWidget {
   final IconData icon;
   final Color primaryColor;

@@ -29,11 +29,17 @@ class OnboardingScreen extends StatelessWidget {
                         color: primaryColor.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(30),
                       ),
-                      child: Icon(
+                      child: Image.asset(
+                    'assets/icons/logo.png', 
+                    fit: BoxFit.contain,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Icon(
                         Icons.document_scanner,
-                        size: 50,
+                        size: 60,
                         color: primaryColor,
-                      ),
+                      );
+                    },
+                  ),
                     ),
                     const SizedBox(height: 24),
                     Text(
@@ -42,7 +48,7 @@ class OnboardingScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      AppLocalizations.tr(context, 'safeDocumentScanner'),
+                      AppLocalizations.tr(context, 'briefAIDescription'),
                       style: Theme.of(context).textTheme.bodyLarge,
                     ),
                   ],

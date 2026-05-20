@@ -52,7 +52,7 @@ class _SplashScreenState extends State<SplashScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Logo
+              // ✅ Logo Image (replaced Icon)
               Container(
                 width: 120,
                 height: 120,
@@ -60,10 +60,19 @@ class _SplashScreenState extends State<SplashScreen> {
                   color: primaryColor.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(30),
                 ),
-                child: Icon(
-                  Icons.document_scanner,
-                  size: 60,
-                  color: primaryColor,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(30),
+                  child: Image.asset(
+                    'assets/icons/logo.png', 
+                    fit: BoxFit.contain,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Icon(
+                        Icons.document_scanner,
+                        size: 60,
+                        color: primaryColor,
+                      );
+                    },
+                  ),
                 ),
               ),
               const SizedBox(height: 24),
@@ -80,7 +89,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
               // Tagline
               Text(
-                AppLocalizations.tr(context, 'safeLocalOffline'),
+                AppLocalizations.tr(context, 'briefAIDescription'),
                 style: Theme.of(context).textTheme.bodyLarge,
               ),
 

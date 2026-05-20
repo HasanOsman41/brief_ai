@@ -1,6 +1,7 @@
 // lib/screens/document_detail_screen.dart
 import 'dart:io';
 
+import 'package:brief_ai/cubit/document_cubit/document_cubit.dart';
 import 'package:brief_ai/data/brief_ai_categories.dart';
 import 'package:brief_ai/localization/app_localizations.dart';
 import 'package:brief_ai/models/document.dart';
@@ -12,6 +13,7 @@ import 'package:brief_ai/widgets/confirm_dialog.dart';
 import 'package:brief_ai/widgets/glass_card.dart';
 import 'package:brief_ai/widgets/what_you_should_card.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
@@ -1073,92 +1075,68 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
     );
   }
 
-  void _showMarkAsDoneDialog(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+void _showMarkAsDoneDialog(BuildContext context) {
+  final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    showDialog(
-      context: context,
-      builder: (context) => ConfirmDialog(
-        title: AppLocalizations.tr(context, 'markAsDone'),
-        content: AppLocalizations.tr(context, 'markAsDoneConfirm'),
-        confirmText: AppLocalizations.tr(context, 'markAsDone'),
-        onConfirm: () async {
-          Navigator.pop(context); // Close dialog
+  showDialog(
+    context: context,
+    builder: (context) => ConfirmDialog(
+      title: AppLocalizations.tr(context, 'markAsDone'),
+      content: AppLocalizations.tr(context, 'markAsDoneConfirm'),
+      confirmText: AppLocalizations.tr(context, 'markAsDone'),
+      onConfirm: () async {
+        Navigator.pop(context);
 
-          if (_document?.id != null) {
-            try {
-              await DocumentService().markDocumentAsDone(_document!.id!);
+        if (_document?.id != null) {
+          context.read<DocumentCubit>().markDocumentAsDone(_document!.id!);
 
-              if (!mounted) return;
+          if (!mounted) return;
 
-              // Update local state
-              setState(() {
-                _document = _document?.copyWith(statusKey: 'done');
-              });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(AppLocalizations.tr(context, 'documentMarkedAsDone')),
+              backgroundColor: isDark ? AppTheme.darkSuccess : AppTheme.lightSuccess,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
+      },
+    ),
+  );
+}
 
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    AppLocalizations.tr(context, 'documentMarkedAsDone'),
-                  ),
-                  backgroundColor: isDark
-                      ? AppTheme.darkSuccess
-                      : AppTheme.lightSuccess,
-                  behavior: SnackBarBehavior.floating,
-                ),
-              );
-            } catch (e) {
-              if (!mounted) return;
-              _showErrorSnackBar('Error marking document as done: $e');
-            }
-          }
-        },
-      ),
-    );
-  }
+void _showDeleteDialog(BuildContext context) {
+  final isDark = Theme.of(context).brightness == Brightness.dark;
 
-  void _showDeleteDialog(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+  showDialog(
+    context: context,
+    builder: (context) => ConfirmDialog(
+      title: AppLocalizations.tr(context, 'deleteDocument'),
+      content: AppLocalizations.tr(context, 'deleteDocumentConfirm'),
+      confirmText: AppLocalizations.tr(context, 'delete'),
+      isDestructive: true,
+      onConfirm: () async {
+        Navigator.pop(context);
 
-    showDialog(
-      context: context,
-      builder: (context) => ConfirmDialog(
-        title: AppLocalizations.tr(context, 'deleteDocument'),
-        content: AppLocalizations.tr(context, 'deleteDocumentConfirm'),
-        confirmText: AppLocalizations.tr(context, 'delete'),
-        isDestructive: true,
-        onConfirm: () async {
-          Navigator.pop(context); // Close dialog
+        if (_document?.id != null) {
+          context.read<DocumentCubit>().deleteDocument(_document!.id!);
 
-          if (_document?.id != null) {
-            try {
-              await DocumentService().deleteDocument(_document!.id!);
+          if (!mounted) return;
 
-              if (!mounted) return;
+          Navigator.pop(context);
 
-              Navigator.pop(context); // Return to previous screen
-
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    AppLocalizations.tr(context, 'documentDeleted'),
-                  ),
-                  backgroundColor: isDark
-                      ? AppTheme.darkSuccess
-                      : AppTheme.lightSuccess,
-                  behavior: SnackBarBehavior.floating,
-                ),
-              );
-            } catch (e) {
-              if (!mounted) return;
-              _showErrorSnackBar('Error deleting document: $e');
-            }
-          }
-        },
-      ),
-    );
-  }
-
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(AppLocalizations.tr(context, 'documentDeleted')),
+              backgroundColor: isDark ? AppTheme.darkSuccess : AppTheme.lightSuccess,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
+      },
+    ),
+  );
+}
   Future<void> _editCurrentImage() async {
     if (_document == null || _document!.images.isEmpty) return;
 
@@ -1245,49 +1223,35 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
     }
   }
 
-  void _showReopenDialog(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+void _showReopenDialog(BuildContext context) {
+  final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    showDialog(
-      context: context,
-      builder: (context) => ConfirmDialog(
-        title: AppLocalizations.tr(context, 'reopenDocument'),
-        content: AppLocalizations.tr(context, 'reopenDocumentConfirm'),
-        confirmText: AppLocalizations.tr(context, 'reopen'),
-        onConfirm: () async {
-          Navigator.pop(context);
+  showDialog(
+    context: context,
+    builder: (context) => ConfirmDialog(
+      title: AppLocalizations.tr(context, 'reopenDocument'),
+      content: AppLocalizations.tr(context, 'reopenDocumentConfirm'),
+      confirmText: AppLocalizations.tr(context, 'reopen'),
+      onConfirm: () async {
+        Navigator.pop(context);
 
-          if (_document?.id != null) {
-            try {
-              await DocumentService().reopenDocument(_document!.id!);
+        if (_document?.id != null) {
+          context.read<DocumentCubit>().reopenDocument(_document!.id!);
 
-              if (!mounted) return;
+          if (!mounted) return;
 
-              setState(() {
-                _document = _document?.copyWith(statusKey: 'pending');
-              });
-
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    AppLocalizations.tr(context, 'documentReopened'),
-                  ),
-                  backgroundColor: isDark
-                      ? AppTheme.darkWarning
-                      : AppTheme.lightWarning,
-                  behavior: SnackBarBehavior.floating,
-                ),
-              );
-            } catch (e) {
-              if (!mounted) return;
-              _showErrorSnackBar('Error reopening document: $e');
-            }
-          }
-        },
-      ),
-    );
-  }
-
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(AppLocalizations.tr(context, 'documentReopened')),
+              backgroundColor: isDark ? AppTheme.darkWarning : AppTheme.lightWarning,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
+      },
+    ),
+  );
+}
   Future<void> _shareCurrentImage() async {
     if (_document == null || _document!.images.isEmpty) return;
 

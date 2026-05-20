@@ -2,10 +2,10 @@
 import 'dart:io';
 import 'dart:math' show pi, sin, cos;
 
+import 'package:brief_ai/cubit/document_cubit/document_cubit.dart';
 import 'package:brief_ai/localization/app_localizations.dart';
 import 'package:brief_ai/models/document_result.dart';
 import 'package:brief_ai/services/analysis_service_factory.dart';
-import 'package:brief_ai/services/file_storage_service.dart';
 import 'package:brief_ai/services/pdf_service.dart';
 import 'package:brief_ai/theme/app_theme.dart';
 import 'package:brief_ai/widgets/common_button.dart';
@@ -18,6 +18,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_doc_scanner/flutter_doc_scanner.dart';
 import 'package:open_file/open_file.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// Orchestrates the full scan flow with professional UI/UX:
 ///   1. Launch native scanner → collect image paths
@@ -55,6 +56,7 @@ class _ScanScreenState extends State<ScanScreen>
   String _ocrText = '';
   DateTime? _deadline;
   Map<String, dynamic>? _data;
+  
   @override
   void initState() {
     super.initState();
@@ -715,7 +717,9 @@ class _ScanScreenState extends State<ScanScreen>
       imagePaths: List.unmodifiable(_pages),
       ocrText: _ocrText,
       documentId: _documentId,
-      onSave: (DateTime? d) => setState(() => _deadline = d),
+      onSave: (DateTime? d) {setState(() => _deadline = d); if (mounted) {
+          context.read<DocumentCubit>().refreshFromDatabase();
+        }},
     );
     _data = null; // Clear cached data after showing results
   }
