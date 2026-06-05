@@ -1006,12 +1006,28 @@ class _CategoryPickerSheetState extends State<_CategoryPickerSheet> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-              child: Text(
-                AppLocalizations.tr(context, 'changeCategory'),
-                style: Theme.of(
-                  context,
-                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+              padding: const EdgeInsetsDirectional.only(
+                start: 20,
+                end: 8,
+                top: 4,
+                bottom: 4,
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      AppLocalizations.tr(context, 'changeCategory'),
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w700,
+                          ),
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close_rounded, size: 22),
+                    tooltip: AppLocalizations.tr(context, 'cancel'),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ],
               ),
             ),
             // Search field
