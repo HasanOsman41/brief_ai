@@ -1,7 +1,10 @@
 // lib/screens/onboarding_screen.dart
+import 'package:brief_ai/cubit/auth_cubit/auth_cubit.dart';
 import 'package:brief_ai/localization/app_localizations.dart';
 import 'package:brief_ai/widgets/glass_card.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class OnboardingScreen extends StatelessWidget {
   const OnboardingScreen({Key? key}) : super(key: key);
@@ -91,8 +94,13 @@ class OnboardingScreen extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.pushReplacementNamed(context, '/home');
+                  onPressed: () async {
+                    final prefs = await SharedPreferences.getInstance();
+                    await prefs.setBool('onboarding_completed', true);
+                    if (!context.mounted) return;
+                    final state = context.read<AuthCubit>().state;
+                    final route = state is Authenticated ? '/home' : '/login';
+                    Navigator.pushReplacementNamed(context, route);
                   },
                   child: Text(AppLocalizations.tr(context, 'acceptPrivacy')),
                 ),

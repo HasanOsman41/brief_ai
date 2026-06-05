@@ -1,4 +1,5 @@
 // lib/screens/tabs/profile_tab.dart
+import 'package:brief_ai/cubit/auth_cubit/auth_cubit.dart';
 import 'package:brief_ai/localization/app_localizations.dart';
 import 'package:brief_ai/services/backup_service.dart';
 import 'package:brief_ai/services/notification_service.dart';
@@ -7,6 +8,7 @@ import 'package:brief_ai/widgets/glass_card.dart';
 import 'package:brief_ai/widgets/language_sheet.dart';
 import 'package:brief_ai/widgets/confirm_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'dart:io';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path_provider/path_provider.dart';
@@ -25,11 +27,6 @@ class ProfileTab extends StatefulWidget {
 class _ProfileTabState extends State<ProfileTab> {
   // ── Inline state ──────────────────────────────────────────
   bool _notificationsEnabled = true;
-
-  // TODO: replace with real auth / user state
-  bool _isLoggedIn = false;
-  final String _userName = 'Max Mustermann';
-  final String _userEmail = 'max@beispiel.de';
   final String _planKey = 'free'; // 'free' | 'pro' | 'team'
 
   // Backup helper instance
@@ -208,6 +205,26 @@ class _ProfileTabState extends State<ProfileTab> {
 
   void _showDeleteDialog() {
     _deleteAllData();
+  }
+
+  Future<void> _confirmLogout(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => ConfirmDialog(
+        title: AppLocalizations.tr(ctx, 'sign_out'),
+        content: AppLocalizations.tr(ctx, 'logout_confirm'),
+        confirmText: AppLocalizations.tr(ctx, 'sign_out'),
+        cancelText: AppLocalizations.tr(ctx, 'cancel'),
+        isDestructive: true,
+        onConfirm: () => Navigator.pop(ctx, true),
+        onCancel: () => Navigator.pop(ctx, false),
+      ),
+    );
+    if (confirmed != true) return;
+    if (!context.mounted) return;
+    await context.read<AuthCubit>().signOut();
+    if (!context.mounted) return;
+    Navigator.pushNamedAndRemoveUntil(context, '/login', (r) => false);
   }
 
   // ── Feedback / Report ──────────────────────────────────────
@@ -459,10 +476,17 @@ class _ProfileTabState extends State<ProfileTab> {
         GlassCard(
           child: Padding(
             padding: const EdgeInsets.all(16),
-            child: _isLoggedIn
-                ? _LoggedInAccount(
-                    userName: _userName,
-                    userEmail: _userEmail,
+            child: BlocBuilder<AuthCubit, AuthState>(
+              builder: (context, authState) {
+                if (authState is Authenticated) {
+                  final user = authState.user;
+                  final name = (user.displayName?.trim().isNotEmpty ?? false)
+                      ? user.displayName!.trim()
+                      : (user.email ?? '');
+                  final email = user.email ?? '';
+                  return _LoggedInAccount(
+                    userName: name,
+                    userEmail: email,
                     planLabel: _getPlanLabel(),
                     planColor: _getPlanColor(isDark),
                     primaryColor: primary,
@@ -473,20 +497,15 @@ class _ProfileTabState extends State<ProfileTab> {
                         ),
                       );
                     },
-                    onLogout: () {
-                      setState(() {
-                        _isLoggedIn = false;
-                      });
-                    },
-                  )
-                : _NotLoggedIn(
-                    primaryColor: primary,
-                    onLogin: () {
-                      setState(() {
-                        _isLoggedIn = true;
-                      });
-                    },
-                  ),
+                    onLogout: () => _confirmLogout(context),
+                  );
+                }
+                return _NotLoggedIn(
+                  primaryColor: primary,
+                  onLogin: () => Navigator.pushNamed(context, '/login'),
+                );
+              },
+            ),
           ),
         ),
 

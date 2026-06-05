@@ -450,8 +450,15 @@ class _DocumentInfoCardState extends State<_DocumentInfoCard> {
   @override
   void didUpdateWidget(_DocumentInfoCard oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.editableTitle != widget.editableTitle) {
-      _titleController.text = widget.editableTitle;
+    // Only sync external value back into the controller when it actually
+    // diverges from what the user has typed. Blindly assigning .text on every
+    // parent rebuild resets the caret to position 0 mid-edit.
+    if (widget.editableTitle != _titleController.text) {
+      final value = widget.editableTitle;
+      _titleController.value = TextEditingValue(
+        text: value,
+        selection: TextSelection.collapsed(offset: value.length),
+      );
     }
   }
 
@@ -486,54 +493,52 @@ class _DocumentInfoCardState extends State<_DocumentInfoCard> {
           score: widget.result.trustScore,
           categoryDetected: widget.categoryDetected,
         ),
-        if (widget.editableTitle.isNotEmpty || !widget.categoryDetected) ...[
-          const SizedBox(height: 12),
-          Text(
-            AppLocalizations.tr(context, 'title'),
-            style: TextStyle(
-              color: widget.isDark
-                  ? AppTheme.darkTextSecondary
-                  : AppTheme.lightTextSecondary,
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 0.8,
+        const SizedBox(height: 12),
+        Text(
+          AppLocalizations.tr(context, 'title'),
+          style: TextStyle(
+            color: widget.isDark
+                ? AppTheme.darkTextSecondary
+                : AppTheme.lightTextSecondary,
+            fontSize: 11,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 0.8,
+          ),
+        ),
+        const SizedBox(height: 6),
+        TextField(
+          controller: _titleController,
+          onChanged: widget.onTitleChanged,
+          autofocus: !widget.categoryDetected,
+          style: TextStyle(
+            color: widget.isDark
+                ? AppTheme.darkTextPrimary
+                : AppTheme.lightTextPrimary,
+            fontSize: 17,
+            fontWeight: FontWeight.bold,
+          ),
+          decoration: InputDecoration(
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(
+                color: widget.isDark
+                    ? AppTheme.darkBorder
+                    : AppTheme.lightBorder,
+              ),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(color: widget.primary, width: 2),
+            ),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 10,
             ),
           ),
-          const SizedBox(height: 6),
-          TextField(
-            controller: _titleController,
-            onChanged: widget.onTitleChanged,
-            autofocus: !widget.categoryDetected,
-            style: TextStyle(
-              color: widget.isDark
-                  ? AppTheme.darkTextPrimary
-                  : AppTheme.lightTextPrimary,
-              fontSize: 17,
-              fontWeight: FontWeight.bold,
-            ),
-            decoration: InputDecoration(
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(
-                  color: widget.isDark
-                      ? AppTheme.darkBorder
-                      : AppTheme.lightBorder,
-                ),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(color: widget.primary, width: 2),
-              ),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 10,
-              ),
-            ),
-          ),
-        ],
+        ),
         if (widget.categoryDetected) ...[
           const SizedBox(height: 16),
           Text(

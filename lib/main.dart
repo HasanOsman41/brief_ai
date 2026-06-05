@@ -1,4 +1,5 @@
 import 'package:brief_ai/data/local/database_helper.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:brief_ai/theme/app_theme.dart';
@@ -12,21 +13,22 @@ import 'package:brief_ai/screens/privacy_screen.dart';
 import 'package:brief_ai/screens/impressum_screen.dart';
 import 'package:brief_ai/screens/language_screen.dart';
 import 'package:brief_ai/screens/reminders_screen.dart';
+import 'package:brief_ai/screens/auth/login_screen.dart';
+import 'package:brief_ai/screens/auth/register_screen.dart';
 import 'package:brief_ai/localization/app_localizations.dart';
 import 'package:brief_ai/services/locale_service.dart';
 import 'package:brief_ai/services/notification_service.dart';
+import 'package:brief_ai/services/theme_service.dart';
 import 'package:brief_ai/cubit/document_cubit/document_cubit.dart';
+import 'package:brief_ai/cubit/auth_cubit/auth_cubit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   await NotificationService().initialize();
   await DatabaseHelper().database; // Ensure database is initialized
   runApp(const BriefAIApp());
-  // String ocr =
-  //     '''jobcenter a anlage ki anlage für ein kind unter 15 jahren in der bedarfsgemeinschaft füllen sle dleses formular bltte für jedes klnd, das zu lhrer bedarfsgemeinschaft gehört und das 15. lebensjahr noch nicht erreicht hat, einzein aus. für alle kinder wird jeweils eine elgene anlage kind benötigt''';
-  // int score = partialRatio('Anlage KI', ocr);
-  // print('OCR Score: $score');
 }
 
 class BriefAIApp extends StatefulWidget {
@@ -43,33 +45,45 @@ class BriefAIApp extends StatefulWidget {
 }
 
 class _BriefAIAppState extends State<BriefAIApp> {
-  ThemeMode _themeMode = ThemeMode.light;
+  ThemeMode _themeMode = ThemeMode.system;
   Locale? _locale;
   final LocaleService _localeService = LocaleService();
+  final ThemeService _themeService = ThemeService();
 
   @override
   void initState() {
     super.initState();
-    _loadSavedLocale();
+    _loadSavedPreferences();
   }
 
-  Future<void> _loadSavedLocale() async {
-    final savedLocale = await _localeService.getLocale();
+  Future<void> _loadSavedPreferences() async {
+    final results = await Future.wait([
+      _localeService.getLocale(),
+      _themeService.getThemeMode(),
+    ]);
+    if (!mounted) return;
     setState(() {
-      _locale = Locale(savedLocale);
+      _locale = Locale(results[0] as String);
+      _themeMode = results[1] as ThemeMode;
     });
   }
 
   void _toggleTheme() {
-    setState(() {
-      _themeMode = _themeMode == ThemeMode.light
-          ? ThemeMode.dark
-          : ThemeMode.light;
-    });
+    final Brightness current;
+    if (_themeMode == ThemeMode.system) {
+      current = WidgetsBinding.instance.platformDispatcher.platformBrightness;
+    } else {
+      current = _themeMode == ThemeMode.dark ? Brightness.dark : Brightness.light;
+    }
+    final newMode =
+        current == Brightness.dark ? ThemeMode.light : ThemeMode.dark;
+    setState(() => _themeMode = newMode);
+    _themeService.saveThemeMode(newMode);
   }
 
   void setLocale(Locale locale) async {
     await _localeService.saveLocale(locale.languageCode);
+    if (!mounted) return;
     setState(() {
       _locale = locale;
     });
@@ -77,8 +91,11 @@ class _BriefAIAppState extends State<BriefAIApp> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-       create: (context) => DocumentCubit()..loadDocuments(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => AuthCubit()),
+        BlocProvider(create: (_) => DocumentCubit()..loadDocuments()),
+      ],
       child: MaterialApp(
         title: 'BriefAI',
         debugShowCheckedModeBanner: false,
@@ -116,6 +133,8 @@ class _BriefAIAppState extends State<BriefAIApp> {
         routes: {
           '/splash': (context) => const SplashScreen(),
           '/onboarding': (context) => const OnboardingScreen(),
+          '/login': (context) => const LoginScreen(),
+          '/register': (context) => const RegisterScreen(),
           '/home': (context) => HomeScreen(onToggleTheme: _toggleTheme),
           '/scan': (context) => const ScanScreen(),
           '/document-detail': (context) => const DocumentDetailScreen(),
