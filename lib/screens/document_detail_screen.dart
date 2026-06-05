@@ -9,6 +9,7 @@ import 'package:brief_ai/services/document_service.dart';
 import 'package:brief_ai/services/ocr_service.dart';
 import 'package:brief_ai/services/pdf_service.dart';
 import 'package:brief_ai/theme/app_theme.dart';
+import 'package:brief_ai/utils/raw_content.dart';
 import 'package:brief_ai/widgets/confirm_dialog.dart';
 import 'package:brief_ai/widgets/glass_card.dart';
 import 'package:brief_ai/widgets/what_you_should_card.dart';
@@ -436,9 +437,15 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
                             _buildSummarySection(context, isDark),
                             const SizedBox(height: 20),
                             WhatYouShouldCard(
-                              nextStepTitleKeys: BriefAiCategories.getStepsById(
-                                _document!.subCategoryKey,
-                              ),
+                              nextStepTitleKeys:
+                                  RawContent.isRaw(_document!.summaryKey)
+                                  ? const []
+                                  : BriefAiCategories.getStepsById(
+                                      _document!.subCategoryKey,
+                                    ),
+                              customStepTexts: RawContent.tryDecode(
+                                _document!.summaryKey,
+                              )?.steps,
                               isDark: isDark,
                               primary: primaryColor,
                             ),
@@ -770,6 +777,17 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
   }
 
   Widget _buildSummarySection(BuildContext context, bool isDark) {
+    final raw = RawContent.tryDecode(_document!.summaryKey);
+    final String body;
+    if (raw != null) {
+      body = raw.summary.isNotEmpty
+          ? raw.summary
+          : AppLocalizations.tr(context, 'summary_unknown_document');
+    } else if (_document!.summaryKey.isNotEmpty) {
+      body = AppLocalizations.tr(context, _document!.summaryKey);
+    } else {
+      body = AppLocalizations.tr(context, 'summary_unknown_document');
+    }
     return GlassCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -783,9 +801,7 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
           ),
           const SizedBox(height: 12),
           Text(
-            _document!.summaryKey.isNotEmpty
-                ? AppLocalizations.tr(context, _document!.summaryKey)
-                : AppLocalizations.tr(context, 'summary_unknown_document'),
+            body,
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
               height: 1.6,
               fontSize: 15,

@@ -13,12 +13,17 @@ class WhatYouShouldCard extends StatefulWidget {
     required this.isDark,
     required this.primary,
     required this.nextStepTitleKeys,
+    this.customStepTexts,
     this.enablePulseAnimation = false,
   }) : super(key: key);
 
   final bool isDark;
   final Color primary;
   final List<String> nextStepTitleKeys;
+  /// When provided (non-null and non-empty), these strings are rendered
+  /// verbatim instead of looking up [nextStepTitleKeys] in localization.
+  /// Used for free-form steps entered by the user when the category is "Other".
+  final List<String>? customStepTexts;
   final bool enablePulseAnimation;
 
   @override
@@ -27,6 +32,14 @@ class WhatYouShouldCard extends StatefulWidget {
 
 class _WhatYouShouldCardState extends State<WhatYouShouldCard>
     with SingleTickerProviderStateMixin {
+  List<String> _resolveSteps(BuildContext context) {
+    final custom = widget.customStepTexts;
+    if (custom != null && custom.isNotEmpty) return custom;
+    return widget.nextStepTitleKeys
+        .map((k) => AppLocalizations.tr(context, k))
+        .toList(growable: false);
+  }
+
   AnimationController? _pulseController;
   Animation<double>? _scaleAnimation;
 
@@ -101,10 +114,9 @@ class _WhatYouShouldCardState extends State<WhatYouShouldCard>
                       ),
                 ),
                 const SizedBox(height: 6),
-                ...widget.nextStepTitleKeys.asMap().entries.map((entry) {
+                ..._resolveSteps(context).asMap().entries.map((entry) {
                   int index = entry.key;
-                  String key = entry.value;
-                  String text = AppLocalizations.tr(context, key);
+                  String text = entry.value;
 
                   return Text(
                     "${index + 1}. $text",

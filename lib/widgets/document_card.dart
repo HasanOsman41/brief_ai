@@ -73,6 +73,8 @@ class DocumentCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final primaryColor = Theme.of(context).colorScheme.primary;
+    final successColor = isDark ? AppTheme.darkSuccess : AppTheme.lightSuccess;
+    final isDone = status == 'done';
 
     final deadlineDate = deadline;
     final riskLevel = calcRiskLevel(deadlineDate);
@@ -85,31 +87,78 @@ class DocumentCard extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         child: Row(
           children: [
-            // Document preview thumbnail
-            Container(
+            // Document preview thumbnail (with completed badge overlay)
+            SizedBox(
               width: 60,
               height: 80,
-              decoration: BoxDecoration(
-                color: isDark ? AppTheme.darkCard : AppTheme.lightSurface,
-                borderRadius: BorderRadius.circular(12),
-                image: imagePath != null
-                    ? DecorationImage(
-                        image: FileImage(
-                          File(imagePath!),
-                        ), // Use imagePath directly
-                        fit: BoxFit.cover,
-                      )
-                    : null,
-              ),
-              child: imagePath == null
-                  ? Center(
-                      child: Icon(
-                        Icons.description_outlined,
-                        size: 30,
-                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Container(
+                    width: 60,
+                    height: 80,
+                    decoration: BoxDecoration(
+                      color: isDark ? AppTheme.darkCard : AppTheme.lightSurface,
+                      borderRadius: BorderRadius.circular(12),
+                      image: imagePath != null
+                          ? DecorationImage(
+                              image: FileImage(File(imagePath!)),
+                              fit: BoxFit.cover,
+                              colorFilter: isDone
+                                  ? ColorFilter.mode(
+                                      Colors.black.withOpacity(0.25),
+                                      BlendMode.darken,
+                                    )
+                                  : null,
+                            )
+                          : null,
+                    ),
+                    child: imagePath == null
+                        ? Center(
+                            child: Icon(
+                              Icons.description_outlined,
+                              size: 30,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurface
+                                  .withOpacity(0.6),
+                            ),
+                          )
+                        : null,
+                  ),
+                  if (isDone)
+                    Positioned(
+                      top: -6,
+                      right: -6,
+                      child: Container(
+                        width: 22,
+                        height: 22,
+                        decoration: BoxDecoration(
+                          color: successColor,
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: isDark
+                                ? AppTheme.darkCard
+                                : Colors.white,
+                            width: 2,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: successColor.withOpacity(0.45),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: const Icon(
+                          Icons.check_rounded,
+                          size: 12,
+                          color: Colors.white,
+                        ),
                       ),
-                    )
-                  : null,
+                    ),
+                ],
+              ),
             ),
             const SizedBox(width: 16),
 

@@ -5,8 +5,11 @@ import 'package:brief_ai/models/category_definition.dart';
 import 'package:brief_ai/models/document_result.dart';
 import 'package:brief_ai/services/document_service.dart';
 import 'package:brief_ai/theme/app_theme.dart';
+import 'package:brief_ai/utils/raw_content.dart';
 import 'package:brief_ai/widgets/what_you_should_card.dart';
 import 'package:flutter/material.dart';
+
+const String _kOtherCategoryId = 'other';
 
 /// Shows the AI analysis result as a draggable bottom sheet.
 /// Handles: category selection, deadline picker, reminder scheduling.
@@ -68,6 +71,14 @@ class _AnalysisBottomSheetState extends State<AnalysisBottomSheet> {
   late String _titleKey;
   late String _editableTitle;
 
+  // Free-form fields used when the user picks the "Other" category. When the
+  // category is anything else these values are ignored and the read-only
+  // translated summary / category step keys are shown instead.
+  String _editableSummary = '';
+  String _editableSteps = '';
+
+  bool get _isOtherCategory => _subCategoryKey == _kOtherCategoryId;
+
   bool _remindersEnabled = true;
   bool _remind3Days = true;
   bool _remind1Day = true;
@@ -100,6 +111,15 @@ class _AnalysisBottomSheetState extends State<AnalysisBottomSheet> {
     } else {
       _subCategoryKey = '';
       _mainCategoryKey = '';
+    }
+
+    // When re-opening a document whose summary was saved as free-form text,
+    // pre-fill the editable summary and step fields so the user can keep
+    // editing instead of starting over.
+    final raw = RawContent.tryDecode(widget.result.summaryKey);
+    if (raw != null) {
+      _editableSummary = raw.summary;
+      _editableSteps = raw.steps.join('\n');
     }
   }
 
@@ -150,6 +170,7 @@ class _AnalysisBottomSheetState extends State<AnalysisBottomSheet> {
                       selectedCategoryId: _subCategoryKey,
                       selectedCategoryKey: _mainCategoryKey,
                       categoryDetected: widget.result.category != null,
+                      isOtherCategory: _isOtherCategory,
                       onCategoryChanged: (subKey, mainKey) => setState(() {
                         _subCategoryKey = subKey;
                         _mainCategoryKey = mainKey;
@@ -157,6 +178,12 @@ class _AnalysisBottomSheetState extends State<AnalysisBottomSheet> {
                       editableTitle: _editableTitle,
                       onTitleChanged: (title) =>
                           setState(() => _editableTitle = title),
+                      editableSummary: _editableSummary,
+                      onSummaryChanged: (s) =>
+                          setState(() => _editableSummary = s),
+                      editableSteps: _editableSteps,
+                      onStepsChanged: (s) =>
+                          setState(() => _editableSteps = s),
                     ),
 
                     const SizedBox(height: 16),
@@ -229,6 +256,24 @@ class _AnalysisBottomSheetState extends State<AnalysisBottomSheet> {
           ? _subCategoryKey
           : (_editableTitle == translatedDefault ? _titleKey : _editableTitle);
 
+      // When the user picked "Other", encode their free-form summary + steps
+      // into the existing summaryKey column so we don't need a schema change.
+      // Otherwise pass the translation key from the analysis result.
+      final String summaryToStore;
+      if (_isOtherCategory) {
+        final steps = _editableSteps
+            .split('\n')
+            .map((s) => s.trim())
+            .where((s) => s.isNotEmpty)
+            .toList(growable: false);
+        summaryToStore = RawContent(
+          summary: _editableSummary.trim(),
+          steps: steps,
+        ).encode();
+      } else {
+        summaryToStore = widget.result.summaryKey;
+      }
+
       if (widget.documentId != null) {
         await DocumentService().updateDocumentWithImagesAndReminders(
           widget.documentId!,
@@ -237,7 +282,7 @@ class _AnalysisBottomSheetState extends State<AnalysisBottomSheet> {
           mainCategoryKey: _mainCategoryKey,
           deadline: _deadline,
           statusKey: 'pending',
-          summaryKey: widget.result.summaryKey,
+          summaryKey: summaryToStore,
           ocrText: widget.ocrText,
           imagePaths: widget.imagePaths,
           reminder3DaysTime: reminder3Days,
@@ -252,7 +297,7 @@ class _AnalysisBottomSheetState extends State<AnalysisBottomSheet> {
           mainCategoryKey: _mainCategoryKey,
           deadline: _deadline,
           statusKey: 'pending',
-          summaryKey: widget.result.summaryKey,
+          summaryKey: summaryToStore,
           ocrText: widget.ocrText,
           imagePaths: widget.imagePaths,
           reminder3DaysTime: reminder3Days,
@@ -418,9 +463,14 @@ class _DocumentInfoCard extends StatefulWidget {
     required this.selectedCategoryId,
     required this.selectedCategoryKey,
     required this.categoryDetected,
+    required this.isOtherCategory,
     required this.onCategoryChanged,
     required this.editableTitle,
     required this.onTitleChanged,
+    required this.editableSummary,
+    required this.onSummaryChanged,
+    required this.editableSteps,
+    required this.onStepsChanged,
   });
 
   final DocumentResult result;
@@ -429,10 +479,15 @@ class _DocumentInfoCard extends StatefulWidget {
   final String selectedCategoryId;
   final String selectedCategoryKey;
   final bool categoryDetected;
+  final bool isOtherCategory;
   final void Function(String subCategoryKey, String mainCategoryKey)
   onCategoryChanged;
   final String editableTitle;
   final ValueChanged<String> onTitleChanged;
+  final String editableSummary;
+  final ValueChanged<String> onSummaryChanged;
+  final String editableSteps;
+  final ValueChanged<String> onStepsChanged;
 
   @override
   State<_DocumentInfoCard> createState() => _DocumentInfoCardState();
@@ -440,11 +495,24 @@ class _DocumentInfoCard extends StatefulWidget {
 
 class _DocumentInfoCardState extends State<_DocumentInfoCard> {
   late TextEditingController _titleController;
+  late TextEditingController _summaryController;
+  late TextEditingController _stepsController;
 
   @override
   void initState() {
     super.initState();
     _titleController = TextEditingController(text: widget.editableTitle);
+    _summaryController = TextEditingController(text: widget.editableSummary);
+    _stepsController = TextEditingController(text: widget.editableSteps);
+  }
+
+  void _syncController(TextEditingController controller, String value) {
+    if (controller.text != value) {
+      controller.value = TextEditingValue(
+        text: value,
+        selection: TextSelection.collapsed(offset: value.length),
+      );
+    }
   }
 
   @override
@@ -453,19 +521,46 @@ class _DocumentInfoCardState extends State<_DocumentInfoCard> {
     // Only sync external value back into the controller when it actually
     // diverges from what the user has typed. Blindly assigning .text on every
     // parent rebuild resets the caret to position 0 mid-edit.
-    if (widget.editableTitle != _titleController.text) {
-      final value = widget.editableTitle;
-      _titleController.value = TextEditingValue(
-        text: value,
-        selection: TextSelection.collapsed(offset: value.length),
-      );
-    }
+    _syncController(_titleController, widget.editableTitle);
+    _syncController(_summaryController, widget.editableSummary);
+    _syncController(_stepsController, widget.editableSteps);
   }
 
   @override
   void dispose() {
     _titleController.dispose();
+    _summaryController.dispose();
+    _stepsController.dispose();
     super.dispose();
+  }
+
+  InputDecoration _otherFieldDecoration({String? hint}) {
+    return InputDecoration(
+      hintText: hint,
+      hintStyle: TextStyle(
+        color: (widget.isDark
+                ? AppTheme.darkTextSecondary
+                : AppTheme.lightTextSecondary)
+            .withOpacity(0.6),
+        fontSize: 13,
+      ),
+      isDense: false,
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: BorderSide(
+          color: widget.isDark ? AppTheme.darkBorder : AppTheme.lightBorder,
+        ),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: BorderSide(color: widget.primary, width: 2),
+      ),
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: 12,
+        vertical: 10,
+      ),
+    );
   }
 
   @override
@@ -539,18 +634,58 @@ class _DocumentInfoCardState extends State<_DocumentInfoCard> {
             ),
           ),
         ),
-        if (widget.categoryDetected) ...[
+        if (widget.isOtherCategory) ...[
           const SizedBox(height: 16),
-          Text(
-            AppLocalizations.tr(context, 'aiSummary'),
+          _FieldLabel(
+            label: AppLocalizations.tr(context, 'aiSummary'),
+            isDark: widget.isDark,
+          ),
+          const SizedBox(height: 6),
+          TextField(
+            controller: _summaryController,
+            onChanged: widget.onSummaryChanged,
+            maxLines: null,
+            minLines: 3,
+            keyboardType: TextInputType.multiline,
+            textInputAction: TextInputAction.newline,
             style: TextStyle(
               color: widget.isDark
-                  ? AppTheme.darkTextSecondary
-                  : AppTheme.lightTextSecondary,
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 0.8,
+                  ? AppTheme.darkTextPrimary
+                  : AppTheme.lightTextPrimary,
+              fontSize: 14,
+              height: 1.5,
             ),
+            decoration: _otherFieldDecoration(),
+          ),
+          const SizedBox(height: 16),
+          _FieldLabel(
+            label: AppLocalizations.tr(context, 'whatYouShould'),
+            isDark: widget.isDark,
+          ),
+          const SizedBox(height: 6),
+          TextField(
+            controller: _stepsController,
+            onChanged: widget.onStepsChanged,
+            maxLines: null,
+            minLines: 4,
+            keyboardType: TextInputType.multiline,
+            textInputAction: TextInputAction.newline,
+            style: TextStyle(
+              color: widget.isDark
+                  ? AppTheme.darkTextPrimary
+                  : AppTheme.lightTextPrimary,
+              fontSize: 14,
+              height: 1.5,
+            ),
+            decoration: _otherFieldDecoration(
+              hint: AppLocalizations.tr(context, 'stepsHint'),
+            ),
+          ),
+        ] else if (widget.categoryDetected) ...[
+          const SizedBox(height: 16),
+          _FieldLabel(
+            label: AppLocalizations.tr(context, 'aiSummary'),
+            isDark: widget.isDark,
           ),
           const SizedBox(height: 6),
           Container(
@@ -575,16 +710,9 @@ class _DocumentInfoCardState extends State<_DocumentInfoCard> {
             ),
           ),
           const SizedBox(height: 16),
-          Text(
-            AppLocalizations.tr(context, 'whatYouShould'),
-            style: TextStyle(
-              color: widget.isDark
-                  ? AppTheme.darkTextSecondary
-                  : AppTheme.lightTextSecondary,
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 0.8,
-            ),
+          _FieldLabel(
+            label: AppLocalizations.tr(context, 'whatYouShould'),
+            isDark: widget.isDark,
           ),
           const SizedBox(height: 6),
           WhatYouShouldCard(
@@ -599,6 +727,30 @@ class _DocumentInfoCardState extends State<_DocumentInfoCard> {
       ],
     ),
   );
+}
+
+// ── Small Helper ──────────────────────────────────────────────────────────────
+
+class _FieldLabel extends StatelessWidget {
+  const _FieldLabel({required this.label, required this.isDark});
+
+  final String label;
+  final bool isDark;
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      label,
+      style: TextStyle(
+        color: isDark
+            ? AppTheme.darkTextSecondary
+            : AppTheme.lightTextSecondary,
+        fontSize: 11,
+        fontWeight: FontWeight.w600,
+        letterSpacing: 0.8,
+      ),
+    );
+  }
 }
 
 // ── Category Selector ─────────────────────────────────────────────────────────

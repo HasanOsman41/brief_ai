@@ -17,21 +17,6 @@ class HomeDashboardTab extends StatefulWidget {
 }
 
 class _HomeDashboardTabState extends State<HomeDashboardTab> {
-  String _getStatusLabel(String statusKey) {
-    switch (statusKey) {
-      case 'pending':
-        return AppLocalizations.tr(context, 'pending');
-      case 'inProgress':
-        return AppLocalizations.tr(context, 'inProgress');
-      case 'done':
-        return AppLocalizations.tr(context, 'done');
-      case 'archived':
-        return AppLocalizations.tr(context, 'archived');
-      default:
-        return statusKey;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -181,7 +166,7 @@ class _HomeDashboardTabState extends State<HomeDashboardTab> {
                                 category: AppLocalizations.tr(context, doc.mainCategoryKey),
                                 date: doc.createdAt,
                                 deadline: doc.deadline,
-                                status: _getStatusLabel(doc.statusKey),
+                                status: doc.statusKey,
                                 hasDeadline: doc.hasDeadline,
                                 imagePath: doc.mainImagePath,
                                 onTap: () async {

@@ -792,116 +792,200 @@ class _LoggedInAccount extends StatelessWidget {
     required this.onLogout,
   });
 
+  bool _isDark(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.dark;
+
   @override
   Widget build(BuildContext context) {
+    final isDark = _isDark(context);
     final isFreePlan = planLabel == AppLocalizations.tr(context, 'planFree');
+    final danger = isDark ? AppTheme.darkDanger : AppTheme.lightDanger;
+    final border = isDark ? AppTheme.darkBorder : AppTheme.lightBorder;
 
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Row(
           children: [
-            Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                color: primaryColor.withOpacity(0.12),
-                shape: BoxShape.circle,
-              ),
-              child: Center(
-                child: Text(
-                  userName.isNotEmpty ? userName[0].toUpperCase() : '?',
-                  style: TextStyle(
-                    color: primaryColor,
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
+            // Gradient avatar with halo
+            SizedBox(
+              width: 64,
+              height: 64,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: RadialGradient(
+                        colors: [
+                          primaryColor.withOpacity(0.28),
+                          primaryColor.withOpacity(0),
+                        ],
+                      ),
+                    ),
                   ),
-                ),
+                  Container(
+                    width: 52,
+                    height: 52,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          primaryColor,
+                          primaryColor.withOpacity(0.72),
+                        ],
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: primaryColor.withOpacity(0.35),
+                          blurRadius: 14,
+                          offset: const Offset(0, 6),
+                        ),
+                      ],
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      userName.isNotEmpty ? userName[0].toUpperCase() : '?',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 22,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 14),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     userName,
+                    overflow: TextOverflow.ellipsis,
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
+                          fontWeight: FontWeight.w700,
+                          fontSize: 16,
+                          letterSpacing: -0.2,
+                        ),
                   ),
-                  const SizedBox(height: 2),
+                  const SizedBox(height: 3),
                   Text(
                     userEmail,
-                    style: Theme.of(
-                      context,
-                    ).textTheme.bodyMedium?.copyWith(fontSize: 12),
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontSize: 12.5,
+                          color: isDark
+                              ? AppTheme.darkTextSecondary
+                              : AppTheme.lightTextSecondary,
+                        ),
                   ),
                 ],
               ),
             ),
           ],
         ),
-        const SizedBox(height: 14),
-        const Divider(height: 1),
+        const SizedBox(height: 18),
+        Container(height: 1, color: border),
         const SizedBox(height: 14),
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
+            // Plan badge — gradient pill
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 6,
+              ),
               decoration: BoxDecoration(
-                color: planColor.withOpacity(0.12),
                 borderRadius: BorderRadius.circular(20),
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    planColor.withOpacity(isDark ? 0.30 : 0.18),
+                    planColor.withOpacity(isDark ? 0.18 : 0.10),
+                  ],
+                ),
+                border: Border.all(color: planColor.withOpacity(0.45)),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.auto_awesome, size: 14, color: planColor),
-                  const SizedBox(width: 5),
+                  Icon(Icons.workspace_premium_rounded,
+                      size: 15, color: planColor),
+                  const SizedBox(width: 6),
                   Text(
                     planLabel,
                     style: TextStyle(
                       color: planColor,
                       fontSize: 12,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.2,
                     ),
                   ),
                 ],
               ),
             ),
+            const Spacer(),
             if (isFreePlan)
-              GestureDetector(
+              InkWell(
                 onTap: onUpgrade,
-                child: Text(
-                  '${AppLocalizations.tr(context, 'upgrade')} →',
-                  style: TextStyle(
-                    color: primaryColor,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
+                borderRadius: BorderRadius.circular(8),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 4,
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        AppLocalizations.tr(context, 'upgrade'),
+                        style: TextStyle(
+                          color: primaryColor,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Icon(Icons.arrow_forward_rounded,
+                          size: 15, color: primaryColor),
+                    ],
                   ),
                 ),
               ),
           ],
         ),
-        const SizedBox(height: 8),
-        TextButton(
-          onPressed: onLogout,
-          child: Text(
-            AppLocalizations.tr(context, 'logout'),
-            style: TextStyle(
-              color:
-                  isDark(context) // ✅ Helper for theme-aware danger color
-                  ? AppTheme.darkDanger
-                  : AppTheme.lightDanger,
+        const SizedBox(height: 16),
+        SizedBox(
+          width: double.infinity,
+          height: 44,
+          child: OutlinedButton.icon(
+            onPressed: onLogout,
+            icon: Icon(Icons.logout_rounded, size: 18, color: danger),
+            label: Text(
+              AppLocalizations.tr(context, 'sign_out'),
+              style: TextStyle(
+                color: danger,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 0.2,
+              ),
+            ),
+            style: OutlinedButton.styleFrom(
+              side: BorderSide(color: danger.withOpacity(0.45)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              backgroundColor: danger.withOpacity(isDark ? 0.08 : 0.05),
             ),
           ),
         ),
       ],
     );
-  }
-
-  bool isDark(BuildContext context) {
-    return Theme.of(context).brightness == Brightness.dark;
   }
 }
 
@@ -913,36 +997,104 @@ class _NotLoggedIn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textSecondary = isDark
+        ? AppTheme.darkTextSecondary
+        : AppTheme.lightTextSecondary;
+
     return Column(
       children: [
-        Icon(Icons.person_outline, size: 48, color: primaryColor),
-        const SizedBox(height: 10),
+        // Hero icon with halo
+        SizedBox(
+          width: 84,
+          height: 84,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: RadialGradient(
+                    colors: [
+                      primaryColor.withOpacity(0.28),
+                      primaryColor.withOpacity(0),
+                    ],
+                  ),
+                ),
+              ),
+              Container(
+                width: 60,
+                height: 60,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(18),
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      primaryColor,
+                      primaryColor.withOpacity(0.72),
+                    ],
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: primaryColor.withOpacity(0.35),
+                      blurRadius: 18,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
+                ),
+                child: const Icon(
+                  Icons.person_rounded,
+                  size: 30,
+                  color: Colors.white,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
         Text(
           AppLocalizations.tr(context, 'notLoggedIn'),
-          style: Theme.of(
-            context,
-          ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
+          textAlign: TextAlign.center,
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w700,
+                fontSize: 16,
+                letterSpacing: -0.2,
+              ),
         ),
         const SizedBox(height: 4),
         Text(
           AppLocalizations.tr(context, 'loginDescription'),
           textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 12),
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                fontSize: 12.5,
+                color: textSecondary,
+                height: 1.4,
+              ),
         ),
-        const SizedBox(height: 14),
+        const SizedBox(height: 16),
         SizedBox(
           width: double.infinity,
+          height: 46,
           child: ElevatedButton.icon(
             onPressed: onLogin,
-            icon: const Icon(Icons.login, size: 18),
-            label: Text(AppLocalizations.tr(context, 'login')),
+            icon: const Icon(Icons.login_rounded, size: 18),
+            label: Text(
+              AppLocalizations.tr(context, 'sign_in'),
+              style: const TextStyle(
+                fontWeight: FontWeight.w700,
+                fontSize: 14,
+                letterSpacing: 0.2,
+              ),
+            ),
             style: ElevatedButton.styleFrom(
               backgroundColor: primaryColor,
               foregroundColor: Theme.of(context).colorScheme.onPrimary,
-              padding: const EdgeInsets.symmetric(vertical: 12),
+              padding: const EdgeInsets.symmetric(vertical: 10),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
+              elevation: 0,
             ),
           ),
         ),
