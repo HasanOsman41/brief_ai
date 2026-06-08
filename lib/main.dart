@@ -104,6 +104,7 @@ class _BriefAIAppState extends State<BriefAIApp> {
       ],
       child: MaterialApp(
         title: 'BriefAI',
+        navigatorKey: NotificationService.navigatorKey,
         debugShowCheckedModeBanner: false,
         themeMode: _themeMode,
         theme: AppTheme.lightTheme,

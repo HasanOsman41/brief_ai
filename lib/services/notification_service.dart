@@ -1,5 +1,6 @@
 // lib/services/notification_service.dart
 import 'package:brief_ai/data/local/database_helper.dart';
+import 'package:brief_ai/localization/l10n.dart';
 import 'package:brief_ai/services/permission_service.dart';
 import 'package:brief_ai/theme/app_theme.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -19,6 +20,18 @@ class NotificationService {
 
   static const _prefKey = 'notifications';
 
+  /// Notification payloads are `doc_<documentId>`.
+  static const _payloadPrefix = 'doc_';
+
+  /// Attached to the root [MaterialApp] so notification taps — which arrive
+  /// without a [BuildContext] — can still drive navigation.
+  static final GlobalKey<NavigatorState> navigatorKey =
+      GlobalKey<NavigatorState>();
+
+  /// Document id captured from the notification that cold-started the app.
+  /// Consumed once by the splash screen via [consumeLaunchDocumentId].
+  int? _launchDocumentId;
+
   // ── Init ───────────────────────────────────────────────────
 
   Future<void> initialize() async {
@@ -30,7 +43,22 @@ class NotificationService {
       iOS: iosInit,
     );
 
-    await _local.initialize(settings: initSettings);
+    await _local.initialize(
+      settings: initSettings,
+      onDidReceiveNotificationResponse: _onNotificationResponse,
+      onDidReceiveBackgroundNotificationResponse: notificationTapBackground,
+    );
+
+    // If the app was launched from a terminated state by tapping a
+    // notification, remember its target so the splash flow can open it after
+    // the normal startup routing finishes.
+    final launch = await _local.getNotificationAppLaunchDetails();
+    if ((launch?.didNotificationLaunchApp ?? false) &&
+        launch?.notificationResponse?.actionId != 'ok_action') {
+      _launchDocumentId =
+          _documentIdFromPayload(launch?.notificationResponse?.payload);
+    }
+
     tz.initializeTimeZones();
     try {
       final String timeZoneName = await FlutterTimezone.getLocalTimezone();
@@ -38,6 +66,36 @@ class NotificationService {
     } catch (_) {
       tz.setLocalLocation(tz.getLocation('Etc/UTC'));
     }
+  }
+
+  // ── Tap handling ──────────────────────────────────────────
+
+  /// Fired when a notification is tapped while the app is running or in the
+  /// background. The "OK" action only dismisses, so it never navigates.
+  void _onNotificationResponse(NotificationResponse response) {
+    if (response.actionId == 'ok_action') return;
+    final id = _documentIdFromPayload(response.payload);
+    if (id != null) _openDocument(id);
+  }
+
+  void _openDocument(int documentId) {
+    navigatorKey.currentState?.pushNamed(
+      '/document-detail',
+      arguments: {'documentId': documentId},
+    );
+  }
+
+  static int? _documentIdFromPayload(String? payload) {
+    if (payload == null || !payload.startsWith(_payloadPrefix)) return null;
+    return int.tryParse(payload.substring(_payloadPrefix.length));
+  }
+
+  /// Returns (and clears) the document id of the notification that cold-started
+  /// the app, or null if the app wasn't launched from a notification.
+  int? consumeLaunchDocumentId() {
+    final id = _launchDocumentId;
+    _launchDocumentId = null;
+    return id;
   }
 
   /// Requests notification permission via the central [PermissionService].
@@ -90,6 +148,7 @@ class NotificationService {
         columns: [
           'id',
           'title',
+          'deadline',
           'reminder3DaysTime',
           'reminder1DayTime',
           'reminder12HoursTime',
@@ -97,9 +156,18 @@ class NotificationService {
         ],
       );
 
+      final deadlineLabel = await L10n.tr('deadline');
+
       for (final row in rows) {
         final docId = row['id'] as int;
-        final title = row['title'] as String? ?? '';
+        // Titles are stored as localization keys; translate to the user's
+        // language (free-form titles pass through unchanged).
+        final title = await L10n.tr(row['title'] as String? ?? '');
+
+        final deadline = DateTime.tryParse(row['deadline'] as String? ?? '');
+        final body = deadline != null
+            ? '$deadlineLabel: ${deadline.day}.${deadline.month}.${deadline.year}'
+            : deadlineLabel;
 
         final reminders = <int, String?>{
           0: row['reminder3DaysTime'] as String?,
@@ -122,27 +190,14 @@ class NotificationService {
           await scheduleNotification(
             notifId,
             title,
-            _reminderBody(entry.key),
+            body,
             scheduledDate,
-            payload: docId.toString(),
+            payload: 'doc_$docId',
           );
         }
       }
     } catch (e) {
       debugPrint('rescheduleAllNotifications error: $e');
-    }
-  }
-
-  String _reminderBody(int slot) {
-    switch (slot) {
-      case 0:
-        return 'Reminder: 3 days left';
-      case 1:
-        return 'Reminder: 1 day left';
-      case 2:
-        return 'Reminder: 12 hours left';
-      default:
-        return 'Custom reminder';
     }
   }
 
@@ -239,3 +294,11 @@ class NotificationService {
     }
   }
 }
+
+/// Background isolate handler for notification taps that occur while the app is
+/// terminated. It runs without a UI/navigator, so it can't navigate; a body tap
+/// instead launches the app and is handled via `getNotificationAppLaunchDetails`
+/// in [NotificationService.initialize]. Required by the plugin to be a
+/// top-level, vm:entry-point function.
+@pragma('vm:entry-point')
+void notificationTapBackground(NotificationResponse response) {}

@@ -1,5 +1,6 @@
 // lib/services/document_service.dart
 import 'package:brief_ai/data/repositories/document_repository.dart';
+import 'package:brief_ai/localization/l10n.dart';
 import 'package:brief_ai/data/repositories/image_repository.dart';
 import 'package:brief_ai/models/document.dart';
 import 'package:brief_ai/models/document_image.dart';
@@ -413,10 +414,25 @@ class DocumentService {
     try {
       final notificationService = NotificationService();
 
+      // Make sure we actually hold the OS-level notification permission before
+      // scheduling. Without this, `zonedSchedule` succeeds and the alarm fires,
+      // but Android 13+ silently drops the notification because
+      // POST_NOTIFICATIONS was never granted. Idempotent: a no-op dialog-less
+      // call when already granted.
+      await notificationService.requestPermission();
+
+      // The title is stored as a localization key (e.g. a category labelKey),
+      // so translate it to the user's language before showing it. Free-form
+      // user titles aren't keys and pass through unchanged.
+      final translatedTitle = await L10n.tr(title);
+
       // Format title for notification (max 50 chars)
-      final notifyTitle = title.length > 50 ? title.substring(0, 50) : title;
+      final notifyTitle = translatedTitle.length > 50
+          ? translatedTitle.substring(0, 50)
+          : translatedTitle;
+      final deadlineLabel = await L10n.tr('deadline');
       final body =
-          'Deadline: ${deadline.day}.${deadline.month}.${deadline.year}';
+          '$deadlineLabel: ${deadline.day}.${deadline.month}.${deadline.year}';
 
       // Schedule reminders with predictable IDs
       if (reminder3DaysTime != null) {

@@ -1,6 +1,7 @@
 // lib/screens/splash_screen.dart
 import 'package:brief_ai/cubit/auth_cubit/auth_cubit.dart';
 import 'package:brief_ai/localization/app_localizations.dart';
+import 'package:brief_ai/services/notification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -46,10 +47,24 @@ class _SplashScreenState extends State<SplashScreen> {
     if (state is Authenticated) {
       _decided = true;
       Navigator.pushReplacementNamed(context, '/home');
+      _maybeOpenNotificationTarget();
     } else if (state is Unauthenticated || state is AuthError) {
       _decided = true;
       Navigator.pushReplacementNamed(context, '/login');
     }
+  }
+
+  /// When the app was cold-started by tapping a reminder, open that document
+  /// on top of the home screen once the home route is in place.
+  void _maybeOpenNotificationTarget() {
+    final id = NotificationService().consumeLaunchDocumentId();
+    if (id == null) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      NotificationService.navigatorKey.currentState?.pushNamed(
+        '/document-detail',
+        arguments: {'documentId': id},
+      );
+    });
   }
 
   @override
