@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 
 class BackupItemTile extends StatelessWidget {
   const BackupItemTile({
-    Key? key,
+    super.key,
     required this.name,
     required this.date,
     required this.size,
     required this.onRestorePressed,
-  }) : super(key: key);
+  });
 
   final String name;
   final String date;

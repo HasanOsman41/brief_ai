@@ -12,13 +12,13 @@ class GlassCard extends StatelessWidget {
   final bool hasBorder;
 
   const GlassCard({
-    Key? key,
+    super.key,
     required this.child,
     this.padding,
     this.borderRadius = 20,
     this.onTap,
     this.hasBorder = true,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

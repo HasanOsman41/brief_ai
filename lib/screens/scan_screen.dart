@@ -46,8 +46,8 @@ class _ScanScreenState extends State<ScanScreen>
   late Animation<Offset> _slideAnimation;
 
   // ── Processing ─────────────────────────────────────────────────────────────
-  bool _processing = false;
-  String _processingStep = '';
+  final bool _processing = false;
+  final String _processingStep = '';
   bool _generatingPdf = false;
   bool _showingMagicEffect = false;
 
@@ -187,7 +187,7 @@ class _ScanScreenState extends State<ScanScreen>
       barrierDismissible: false,
       barrierColor: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
       builder: (ctx) => Dialog(
-        backgroundColor: Theme.of(context).colorScheme.background,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         insetPadding: const EdgeInsets.symmetric(horizontal: 24),
         child: TweenAnimationBuilder<double>(
           tween: Tween(begin: 0.8, end: 1.0),
@@ -835,7 +835,7 @@ class _ScanScreenState extends State<ScanScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: SafeArea(
         child: Stack(
           children: [
@@ -983,7 +983,7 @@ class _ScanScreenState extends State<ScanScreen>
       child: Hero(
         tag: 'scan-image-${_pages[_currentIndex]}',
         child: Container(
-          color: Theme.of(context).colorScheme.background,
+          color: Theme.of(context).colorScheme.surface,
           child: Center(
             child: InteractiveViewer(
               minScale: 0.8,

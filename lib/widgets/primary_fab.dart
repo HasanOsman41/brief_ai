@@ -10,11 +10,11 @@ class PrimaryFAB extends StatefulWidget {
   final String? label;
 
   const PrimaryFAB({
-    Key? key,
+    super.key,
     required this.onPressed,
     required this.icon,
     this.label,
-  }) : super(key: key);
+  });
 
   @override
   State<PrimaryFAB> createState() => _PrimaryFABState();

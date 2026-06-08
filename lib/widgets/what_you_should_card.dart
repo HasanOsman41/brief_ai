@@ -9,13 +9,13 @@ import 'package:flutter/material.dart';
 /// to take a specific next step.
 class WhatYouShouldCard extends StatefulWidget {
   const WhatYouShouldCard({
-    Key? key,
+    super.key,
     required this.isDark,
     required this.primary,
     required this.nextStepTitleKeys,
     this.customStepTexts,
     this.enablePulseAnimation = false,
-  }) : super(key: key);
+  });
 
   final bool isDark;
   final Color primary;

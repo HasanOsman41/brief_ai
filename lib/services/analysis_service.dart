@@ -3,6 +3,7 @@
 /// Provides abstraction for document analysis supporting both offline and online modes.
 /// This interface allows switching between different analysis implementations based on
 /// availability and user preferences.
+library;
 
 import '../models/document_result.dart';
 

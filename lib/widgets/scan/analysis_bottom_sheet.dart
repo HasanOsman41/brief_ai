@@ -44,7 +44,7 @@ class AnalysisBottomSheet extends StatefulWidget {
   }) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       isScrollControlled: true,
       builder: (_) => AnalysisBottomSheet(
         result: result,
@@ -902,7 +902,7 @@ class _CategorySelector extends StatelessWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       builder: (_) => _CategoryPickerSheet(
         isDark: isDark,
         primary: primary,
@@ -1001,7 +1001,7 @@ class _CategoryPickerSheetState extends State<_CategoryPickerSheet> {
               decoration: BoxDecoration(
                 color: widget.isDark
                     ? Theme.of(context).colorScheme.onSurface.withOpacity(0.24)
-                    : Theme.of(context).colorScheme.onBackground.withOpacity(0.26),
+                    : Theme.of(context).colorScheme.onSurface.withOpacity(0.26),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -1086,7 +1086,7 @@ class _CategoryPickerSheetState extends State<_CategoryPickerSheet> {
                             size: 48,
                             color: widget.isDark
                                 ? Theme.of(context).colorScheme.onSurface.withOpacity(0.24)
-                                : Theme.of(context).colorScheme.onBackground.withOpacity(0.26),
+                                : Theme.of(context).colorScheme.onSurface.withOpacity(0.26),
                           ),
                           const SizedBox(height: 12),
                           Text(
@@ -1094,7 +1094,7 @@ class _CategoryPickerSheetState extends State<_CategoryPickerSheet> {
                             style: TextStyle(
                               color: widget.isDark
                                   ? Theme.of(context).colorScheme.onSurface.withOpacity(0.38)
-                                  : Theme.of(context).colorScheme.onBackground.withOpacity(0.38),
+                                  : Theme.of(context).colorScheme.onSurface.withOpacity(0.38),
                               fontSize: 14,
                             ),
                           ),
@@ -1128,7 +1128,7 @@ class _CategoryPickerSheetState extends State<_CategoryPickerSheet> {
                                 ? widget.primary
                                 : (widget.isDark
                                       ? Theme.of(context).colorScheme.onSurface.withOpacity(0.54)
-                                      : Theme.of(context).colorScheme.onBackground.withOpacity(0.45)),
+                                      : Theme.of(context).colorScheme.onSurface.withOpacity(0.45)),
                             size: 22,
                           ),
                           title: Text(
@@ -1147,7 +1147,7 @@ class _CategoryPickerSheetState extends State<_CategoryPickerSheet> {
                               fontSize: 11,
                               color: widget.isDark
                                   ? Theme.of(context).colorScheme.onSurface.withOpacity(0.38)
-                                  : Theme.of(context).colorScheme.onBackground.withOpacity(0.38),
+                                  : Theme.of(context).colorScheme.onSurface.withOpacity(0.38),
                             ),
                           ),
                           trailing: isCurrent
@@ -1289,7 +1289,7 @@ class _DeadlineReminderCard extends StatelessWidget {
             Switch(
               value: remindersEnabled,
               onChanged: onRemindersToggled,
-              activeColor: primary,
+              activeThumbColor: primary,
             ),
           ],
         ),
@@ -1386,10 +1386,9 @@ class _DatePickerChip extends StatelessWidget {
               onSurface: isDark
                   ? AppTheme.darkTextPrimary
                   : AppTheme.lightTextPrimary,
-            ),
-            dialogBackgroundColor: isDark
+            ), dialogTheme: DialogThemeData(backgroundColor: isDark
                 ? AppTheme.darkBackground
-                : AppTheme.lightBackground,
+                : AppTheme.lightBackground),
           ),
           child: child!,
         ),
@@ -1667,18 +1666,22 @@ class _TrustScoreSlider extends StatelessWidget {
   final bool categoryDetected;
 
   Color _getColor(BuildContext context) {
-    if (!categoryDetected)
+    if (!categoryDetected) {
       return isDark ? AppTheme.darkTextSecondary : AppTheme.lightTextSecondary;
-    if (score >= 70)
+    }
+    if (score >= 70) {
       return isDark ? AppTheme.darkSuccess : AppTheme.lightSuccess;
-    if (score >= 40)
+    }
+    if (score >= 40) {
       return isDark ? AppTheme.darkWarning : AppTheme.lightWarning;
+    }
     return isDark ? AppTheme.darkDanger : AppTheme.lightDanger;
   }
 
   String _label(BuildContext context) {
-    if (!categoryDetected)
+    if (!categoryDetected) {
       return AppLocalizations.tr(context, 'noCategoryDetected');
+    }
     if (score >= 70) return AppLocalizations.tr(context, 'high');
     if (score >= 40) return AppLocalizations.tr(context, 'medium');
     return AppLocalizations.tr(context, 'low');

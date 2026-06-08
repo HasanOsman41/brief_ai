@@ -18,7 +18,7 @@ class DocumentCard extends StatelessWidget {
   final VoidCallback onTap;
 
   const DocumentCard({
-    Key? key,
+    super.key,
     required this.title,
     required this.category,
     required this.date,
@@ -27,7 +27,7 @@ class DocumentCard extends StatelessWidget {
     this.imagePath,
     this.hasDeadline = false,
     required this.onTap,
-  }) : super(key: key);
+  });
 
   String _getDeadlineText(BuildContext context, DateTime? deadline) {
     if (deadline == null) return '';

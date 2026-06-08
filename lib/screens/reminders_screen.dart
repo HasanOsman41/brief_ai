@@ -7,7 +7,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:brief_ai/localization/app_localizations.dart';
 
 class RemindersScreen extends StatefulWidget {
-  const RemindersScreen({Key? key}) : super(key: key);
+  const RemindersScreen({super.key});
 
   @override
   State<RemindersScreen> createState() => _RemindersScreenState();

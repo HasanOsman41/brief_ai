@@ -55,7 +55,7 @@ class _CommonButtonState extends State<CommonButton>
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final primary = colorScheme.primary;
-    final surface = colorScheme.surface;
+    final secondary= Colors.black.withOpacity(0.6);
     final onPrimary = colorScheme.onPrimary;
     final onSurface = colorScheme.onSurface;
     final isEnabled = widget.onTap != null;
@@ -76,7 +76,7 @@ class _CommonButtonState extends State<CommonButton>
               : null,
           color: widget.isPrimary
               ? (isEnabled ? null : onPrimary.withOpacity(0.12))
-              : surface,
+              : secondary,
           borderRadius: BorderRadius.circular(14),
           boxShadow: widget.isPrimary && isEnabled
               ? [
@@ -96,7 +96,7 @@ class _CommonButtonState extends State<CommonButton>
               Icon(
                 widget.icon,
                 color: isEnabled
-                    ? (widget.isPrimary ? onPrimary : onSurface)
+                    ? (widget.isPrimary ? onPrimary : onPrimary)
                     : onSurface.withOpacity(0.38),
                 size: 20,
               ),
@@ -106,7 +106,7 @@ class _CommonButtonState extends State<CommonButton>
               widget.text,
               style: TextStyle(
                 color: isEnabled
-                    ? (widget.isPrimary ? onPrimary : onSurface)
+                    ? (widget.isPrimary ? onPrimary : onPrimary)
                     : onSurface.withOpacity(0.38),
                 fontSize: 14,
                 fontWeight: FontWeight.bold,

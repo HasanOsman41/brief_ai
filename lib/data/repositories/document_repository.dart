@@ -1,7 +1,6 @@
 // lib/data/repositories/document_repository.dart
 import 'package:brief_ai/data/local/database_helper.dart';
 import 'package:brief_ai/models/document.dart';
-import 'package:brief_ai/models/document_image.dart';
 
 class DocumentRepository {
   final DatabaseHelper _dbHelper = DatabaseHelper();

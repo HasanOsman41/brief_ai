@@ -6,7 +6,6 @@ import 'package:brief_ai/data/local/database_helper.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 class BackupService {
   final DatabaseHelper _dbHelper;
@@ -16,15 +15,14 @@ class BackupService {
 
   /// Let user pick a folder and create backup there
   /// Returns the path to the created backup file, or null if cancelled
+  ///
+  /// No runtime storage permission is required: `FilePicker.getDirectoryPath`
+  /// uses the Storage Access Framework on Android and the system Files picker
+  /// on iOS — both grant per-action access without a permission dialog.
   Future<String?> createBackup({
     String? backupFileName,
     Function(double)? onProgress, // Optional progress callback (0.0 to 1.0)
   }) async {
-    // Request storage permission on Android
-    if (!(await _requestStoragePermission())) {
-      return null;
-    }
-
     // Let user pick destination folder
     final selectedDir = await FilePicker.getDirectoryPath(
       dialogTitle: 'Select Backup Destination',
@@ -124,11 +122,9 @@ class BackupService {
 
   /// Let user pick a backup file and restore from it
   /// Returns true if restore was successful
+  ///
+  /// Same as [createBackup]: SAF / iOS Files picker — no runtime permission.
   Future<bool> restoreBackup({Function(double)? onProgress}) async {
-    if (!(await _requestStoragePermission())) {
-      return false;
-    }
-
     // Let user pick backup file
     final result = await FilePicker.pickFiles(
       type: FileType.custom,
@@ -324,39 +320,6 @@ class BackupService {
   }
   // ==================== Helper Methods ====================
 
-  Future<bool> _requestStoragePermission() async {
-    if (Platform.isAndroid) {
-      if (await _requestPermission(Permission.storage) &&
-          // access media location needed for android 10/Q
-          await _requestPermission(Permission.accessMediaLocation) &&
-          // manage external storage needed for android 11/R
-          await _requestPermission(Permission.manageExternalStorage)) {
-        return true;
-      } else {
-        return false;
-      }
-    }
-    if (Platform.isIOS) {
-      if (await _requestPermission(Permission.photos)) {
-        return true;
-      } else {
-        return false;
-      }
-    } else {
-      // not android or ios
-      return false;
-    }
-  }
-
-  Future<bool> _requestPermission(Permission permission) async {
-    final status = await permission.status;
-    if (!status.isGranted) {
-      final newStatus = await permission.request();
-      return newStatus.isGranted;
-    }
-    return true;
-  }
-
   Future<int> _countImagesInDirectory(String dirPath) async {
     if (!await Directory(dirPath).exists()) return 0;
     int count = 0;
@@ -432,7 +395,7 @@ class BackupService {
       if (file.isFile) {
         final data = file.content as List<int>;
         final filePath = path.join(extractTo, filename);
-        await File(filePath)
+        File(filePath)
           ..create(recursive: true)
           ..writeAsBytes(data);
       } else if (file.isDirectory) {

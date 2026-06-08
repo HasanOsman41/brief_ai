@@ -17,8 +17,7 @@ class ProfileTab extends StatefulWidget {
   final VoidCallback onToggleTheme;
   final Function(Locale)? onLocaleChange;
 
-  const ProfileTab({Key? key, required this.onToggleTheme, this.onLocaleChange})
-    : super(key: key);
+  const ProfileTab({super.key, required this.onToggleTheme, this.onLocaleChange});
 
   @override
   State<ProfileTab> createState() => _ProfileTabState();
@@ -1202,7 +1201,7 @@ class _ToggleRow extends StatelessWidget {
       trailing: Switch(
         value: value,
         onChanged: onChanged,
-        activeColor: primaryColor,
+        activeThumbColor: primaryColor,
       ),
     );
   }

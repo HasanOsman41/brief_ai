@@ -11,12 +11,12 @@ class FilterTabs extends StatelessWidget {
   final TabController? tabController;
 
   const FilterTabs({
-    Key? key,
+    super.key,
     required this.selectedValue,
     required this.onChanged,
     required this.type,
     this.tabController,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +52,7 @@ class FilterTabs extends StatelessWidget {
                 onTap: () => onChanged(category.key),
               ),
             );
-          }).toList(),
+          }),
         ],
       ),
     );
@@ -86,7 +86,7 @@ class FilterTabs extends StatelessWidget {
             : AppTheme.lightTextSecondary,
         labelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
         unselectedLabelStyle: const TextStyle(fontSize: 13),
-        dividerColor: Theme.of(context).colorScheme.background,
+        dividerColor: Theme.of(context).colorScheme.surface,
         indicatorSize: TabBarIndicatorSize.tab,
         tabs: [
           Tab(text: AppLocalizations.tr(context, 'important')),

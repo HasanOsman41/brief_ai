@@ -142,7 +142,7 @@ class _ActionBar extends StatelessWidget {
           BoxShadow(
             color: Theme.of(
               context,
-            ).colorScheme.onBackground.withOpacity(isDark ? 0.1 : 0.15),
+            ).colorScheme.onSurface.withOpacity(isDark ? 0.1 : 0.15),
             blurRadius: 20,
             offset: const Offset(0, 4),
           ),

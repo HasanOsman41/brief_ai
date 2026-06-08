@@ -10,6 +10,7 @@
 /// - Continuous learning from user feedback
 ///
 /// Note: Currently returns placeholder results. AI model integration pending.
+library;
 
 import '../../models/document_result.dart';
 import '../analysis_service.dart';

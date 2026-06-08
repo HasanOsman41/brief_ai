@@ -3,7 +3,6 @@ import 'dart:io';
 
 import 'package:brief_ai/data/local/database_helper.dart';
 import 'package:brief_ai/models/document_image.dart';
-import 'package:sqflite/sqflite.dart';
 
 class ImageRepository {
   final DatabaseHelper _dbHelper = DatabaseHelper();

@@ -49,7 +49,7 @@ class _Arrow extends StatelessWidget {
           icon,
           size: 40,
           color: Theme.of(context).colorScheme.onPrimary,
-          shadows: [Shadow(color: Theme.of(context).colorScheme.onBackground.withOpacity(0.38), blurRadius: 10)],
+          shadows: [Shadow(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.38), blurRadius: 10)],
         ),
       ),
     );

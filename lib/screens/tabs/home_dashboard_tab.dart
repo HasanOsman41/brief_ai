@@ -9,8 +9,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class HomeDashboardTab extends StatefulWidget {
   final Function(int) onTabChange;
 
-  const HomeDashboardTab({Key? key, required this.onTabChange})
-      : super(key: key);
+  const HomeDashboardTab({super.key, required this.onTabChange});
 
   @override
   State<HomeDashboardTab> createState() => _HomeDashboardTabState();

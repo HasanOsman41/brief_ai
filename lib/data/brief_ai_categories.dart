@@ -10,6 +10,7 @@
 ///    correct group. That's it – the analyzer picks it up automatically.
 ///
 /// Jobcenter section: jobcenter_modelle.docx (21 sub-categories)
+library;
 // ignore_for_file: prefer_single_quotes
 import '../models/category_definition.dart';
 import '../models/document_result.dart';

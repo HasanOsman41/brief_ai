@@ -11,7 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class DocumentsTab extends StatefulWidget {
-  const DocumentsTab({Key? key}) : super(key: key);
+  const DocumentsTab({super.key});
 
   @override
   State<DocumentsTab> createState() => _DocumentsTabState();
@@ -316,7 +316,7 @@ class _DocumentsTabState extends State<DocumentsTab> {
                           onTap: () => setState(() => _selectedCategory = category.key),
                         ),
                       );
-                    }).toList(),
+                    }),
                   ],
                 ),
               ),

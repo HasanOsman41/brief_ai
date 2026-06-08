@@ -9,12 +9,12 @@ class CategoryChip extends StatelessWidget {
   final IconData? icon;
 
   const CategoryChip({
-    Key? key,
+    super.key,
     required this.label,
     required this.isSelected,
     required this.onTap,
     this.icon,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +34,7 @@ class CategoryChip extends StatelessWidget {
                   : AppTheme.lightSurface,
           border: Border.all(
             color: isSelected
-                ? Theme.of(context).colorScheme.background
+                ? Theme.of(context).colorScheme.surface
                 : isDark
                     ? AppTheme.darkBorder
                     : AppTheme.lightBorder,

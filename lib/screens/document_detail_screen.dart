@@ -210,7 +210,7 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
                       decoration: BoxDecoration(
                         color: Theme.of(
                           context,
-                        ).colorScheme.onBackground.withOpacity(0.3),
+                        ).colorScheme.onSurface.withOpacity(0.3),
                         shape: BoxShape.circle,
                       ),
                       child: IconButton(
@@ -229,7 +229,7 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
                           decoration: BoxDecoration(
                             color: Theme.of(
                               context,
-                            ).colorScheme.onBackground.withOpacity(0.3),
+                            ).colorScheme.onSurface.withOpacity(0.3),
                             shape: BoxShape.circle,
                           ),
                           child: IconButton(
@@ -245,7 +245,7 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
                           decoration: BoxDecoration(
                             color: Theme.of(
                               context,
-                            ).colorScheme.onBackground.withOpacity(0.3),
+                            ).colorScheme.onSurface.withOpacity(0.3),
                             shape: BoxShape.circle,
                           ),
                           child: IconButton(
@@ -261,7 +261,7 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
                           decoration: BoxDecoration(
                             color: Theme.of(
                               context,
-                            ).colorScheme.onBackground.withOpacity(0.3),
+                            ).colorScheme.onSurface.withOpacity(0.3),
                             shape: BoxShape.circle,
                           ),
                           child: IconButton(
@@ -289,7 +289,7 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
                           decoration: BoxDecoration(
                             color: Theme.of(
                               context,
-                            ).colorScheme.onBackground.withOpacity(0.3),
+                            ).colorScheme.onSurface.withOpacity(0.3),
                             shape: BoxShape.circle,
                           ),
                           child: IconButton(
@@ -402,7 +402,7 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
                                     ).colorScheme.onPrimary.withOpacity(0.2)
                                   : Theme.of(
                                       context,
-                                    ).colorScheme.onBackground.withOpacity(0.2),
+                                    ).colorScheme.onSurface.withOpacity(0.2),
                               borderRadius: BorderRadius.circular(1),
                             ),
                           ),
@@ -418,10 +418,10 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
                             colors: [
-                              Theme.of(context).colorScheme.background,
-                              Theme.of(context).colorScheme.onBackground,
-                              Theme.of(context).colorScheme.onBackground,
-                              Theme.of(context).colorScheme.background,
+                              Theme.of(context).colorScheme.surface,
+                              Theme.of(context).colorScheme.onSurface,
+                              Theme.of(context).colorScheme.onSurface,
+                              Theme.of(context).colorScheme.surface,
                             ],
                             stops: const [0.0, 0.05, 0.95, 1.0],
                           ).createShader(bounds);
@@ -893,7 +893,7 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.onBackground.withOpacity(0.4),
+        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: successColor.withOpacity(0.6), width: 1.5),
       ),
@@ -1004,7 +1004,7 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
       child: SizedBox(
         height: 56,
         child: Material(
-          color: Theme.of(context).colorScheme.background,
+          color: Theme.of(context).colorScheme.surface,
           child: InkWell(
             onTap: () => _showMarkAsDoneDialog(context),
             borderRadius: BorderRadius.circular(14),
@@ -1056,7 +1056,7 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
   void _showShareOptions(BuildContext context) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       builder: (context) => GlassCard(
         child: Column(
           mainAxisSize: MainAxisSize.min,

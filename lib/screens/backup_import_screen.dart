@@ -7,7 +7,7 @@ import 'package:brief_ai/widgets/glass_card.dart';
 import 'package:flutter/material.dart';
 
 class BackupImportScreen extends StatelessWidget {
-  const BackupImportScreen({Key? key}) : super(key: key);
+  const BackupImportScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

@@ -1,4 +1,5 @@
 /// BriefAI – Category Definition Models
+library;
 
 import 'package:brief_ai/utils/risk_level.dart';
 

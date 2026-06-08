@@ -32,7 +32,7 @@ void main() async {
 }
 
 class BriefAIApp extends StatefulWidget {
-  const BriefAIApp({Key? key}) : super(key: key);
+  const BriefAIApp({super.key});
 
   @override
   State<BriefAIApp> createState() => _BriefAIAppState();

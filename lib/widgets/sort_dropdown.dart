@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 class SortDropdown extends StatelessWidget {
   final Function(String) onSortChanged;
 
-  const SortDropdown({Key? key, required this.onSortChanged}) : super(key: key);
+  const SortDropdown({super.key, required this.onSortChanged});
 
   @override
   Widget build(BuildContext context) {

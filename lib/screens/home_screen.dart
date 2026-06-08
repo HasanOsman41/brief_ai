@@ -12,7 +12,7 @@ import 'package:flutter/material.dart';
 class HomeScreen extends StatefulWidget {
   final VoidCallback onToggleTheme;
 
-  const HomeScreen({Key? key, required this.onToggleTheme}) : super(key: key);
+  const HomeScreen({super.key, required this.onToggleTheme});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();

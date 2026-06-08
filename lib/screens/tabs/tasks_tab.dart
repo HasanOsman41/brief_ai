@@ -10,7 +10,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 
 class TasksTab extends StatefulWidget {
-  const TasksTab({Key? key}) : super(key: key);
+  const TasksTab({super.key});
 
   @override
   State<TasksTab> createState() => _TasksTabState();

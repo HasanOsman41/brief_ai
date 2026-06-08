@@ -1,5 +1,6 @@
 // lib/services/notification_service.dart
 import 'package:brief_ai/data/local/database_helper.dart';
+import 'package:brief_ai/services/permission_service.dart';
 import 'package:brief_ai/theme/app_theme.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
@@ -7,7 +8,6 @@ import 'package:timezone/timezone.dart' as tz;
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 class NotificationService {
   NotificationService._internal();
@@ -40,44 +40,15 @@ class NotificationService {
     }
   }
 
+  /// Requests notification permission via the central [PermissionService].
+  ///
+  /// Also opportunistically requests `SCHEDULE_EXACT_ALARM` on Android 12+ so
+  /// reminders fire at the exact requested minute instead of drifting under
+  /// the OS's inexact-alarm batching.
   Future<bool> requestPermission() async {
-    // First try via flutter_local_notifications (shows the system dialog)
-    final android = _local
-        .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin
-        >();
-    if (android != null) {
-      if (await Permission.scheduleExactAlarm.isDenied) {
-        await Permission.scheduleExactAlarm.request();
-      }
-      if (await Permission.ignoreBatteryOptimizations.isDenied) {
-        await Permission.ignoreBatteryOptimizations.request();
-      }
-      bool? granted = await android.requestNotificationsPermission();
-      if (granted == true) return true;
-      // If denied, check if permanently denied and offer settings
-      final status = await Permission.notification.status;
-      if (status.isDenied || status.isPermanentlyDenied) {
-        granted = (await Permission.notification.request()).isGranted;
-        return granted;
-      }
-      return false;
-    }
-
-    final ios = _local
-        .resolvePlatformSpecificImplementation<
-          IOSFlutterLocalNotificationsPlugin
-        >();
-    if (ios != null) {
-      final granted = await ios.requestPermissions(
-        alert: true,
-        badge: true,
-        sound: true,
-      );
-      return granted ?? false;
-    }
-
-    return true;
+    await PermissionService.instance.requestExactAlarmIfNeeded();
+    final outcome = await PermissionService.instance.requestNotifications(_local);
+    return outcome == PermissionOutcome.granted;
   }
 
   // ── Enabled state ─────────────────────────────────────────

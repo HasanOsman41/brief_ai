@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 /// Use in place of repeating AlertDialog setups across the app.
 class ConfirmDialog extends StatelessWidget {
   const ConfirmDialog({
-    Key? key,
+    super.key,
     required this.title,
     required this.content,
     required this.confirmText,
@@ -16,7 +16,7 @@ class ConfirmDialog extends StatelessWidget {
     this.onCancel,
     this.confirmColor,
     this.isDestructive = false,
-  }) : super(key: key);
+  });
 
   final String title;
   final String content;

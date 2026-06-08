@@ -18,7 +18,7 @@ class PageCounter extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.onBackground.withOpacity(0.45),
+            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.45),
             borderRadius: BorderRadius.circular(20),
           ),
           child: Text(

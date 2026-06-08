@@ -100,7 +100,7 @@ class _GalleryTile extends StatelessWidget {
           duration: const Duration(milliseconds: 150),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: isSelected ? primary : Theme.of(context).colorScheme.background, width: 3),
+            border: Border.all(color: isSelected ? primary : Theme.of(context).colorScheme.surface, width: 3),
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(8),
@@ -112,7 +112,7 @@ class _GalleryTile extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.onBackground.withOpacity(0.54),
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.54),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(

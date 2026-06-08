@@ -10,6 +10,7 @@
 /// - German administrative document specialization
 /// - Confidence scoring and trust metrics
 /// - No external dependencies or API calls
+library;
 
 import 'package:brief_ai/models/category_definition.dart';
 import '../../models/document_result.dart';
@@ -603,8 +604,9 @@ class DocumentAnalyzer {
   static DateTime _parse(String dateStr) {
     if (dateStr.contains(RegExp(r'[a-zA-Z]'))) {
       final parts = dateStr.split(RegExp(r'\s+'));
-      if (parts.length != 3)
+      if (parts.length != 3) {
         throw FormatException('Invalid German date format');
+      }
       final day = int.parse(parts[0].replaceAll('.', ''));
       final monthStr = parts[1].toLowerCase();
       final year = int.parse(parts[2]);
@@ -985,13 +987,16 @@ class DocumentAnalyzer {
         : AnalysisConfidence.low;
 
     final confidenceReason = () {
-      if (bestHeaderCount >= 1 && bestDecisiveCount >= 1)
+      if (bestHeaderCount >= 1 && bestDecisiveCount >= 1) {
         return 'header≥1 + decisive≥1';
-      if (bestHeaderCount >= 1 && bestSupportingCount >= 2)
+      }
+      if (bestHeaderCount >= 1 && bestSupportingCount >= 2) {
         return 'header≥1 + supporting≥2';
+      }
       if (bestDecisiveCount >= 2) return 'decisive≥2';
-      if (bestDecisiveCount >= 1 && bestSupportingCount >= 2)
+      if (bestDecisiveCount >= 1 && bestSupportingCount >= 2) {
         return 'decisive≥1 + supporting≥2';
+      }
       if (bestHeaderCount >= 1) return 'header≥1 only';
       if (bestDecisiveCount >= 1) return 'decisive≥1 only';
       if (bestSupportingCount >= 3) return 'supporting≥3 only';

@@ -1,6 +1,7 @@
 /// BriefAI – Analysis Service Factory
 ///
 /// Factory for creating and managing analysis services.
+library;
 
 import 'analysis_service.dart';
 import 'analysis_service_impl/offline_analysis_service.dart';

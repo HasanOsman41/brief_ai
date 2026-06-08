@@ -34,10 +34,9 @@ class DeadlinePicker extends StatelessWidget {
                 onSurface: isDark
                     ? AppTheme.darkTextPrimary
                     : AppTheme.lightTextPrimary,
-              ),
-              dialogBackgroundColor: isDark
+              ), dialogTheme: DialogThemeData(backgroundColor: isDark
                   ? AppTheme.darkBackground
-                  : AppTheme.lightBackground,
+                  : AppTheme.lightBackground),
             ),
             child: child!,
           ),
