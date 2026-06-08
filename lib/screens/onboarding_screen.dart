@@ -1,7 +1,9 @@
 // lib/screens/onboarding_screen.dart
 import 'package:brief_ai/cubit/auth_cubit/auth_cubit.dart';
 import 'package:brief_ai/localization/app_localizations.dart';
+import 'package:brief_ai/main.dart';
 import 'package:brief_ai/widgets/glass_card.dart';
+import 'package:brief_ai/widgets/language_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -12,12 +14,15 @@ class OnboardingScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final primaryColor = Theme.of(context).colorScheme.primary;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
+        child: Stack(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
             children: [
               const Spacer(flex: 2),
 
@@ -119,6 +124,31 @@ class OnboardingScreen extends StatelessWidget {
               const Spacer(),
             ],
           ),
+        ),
+            Align(
+              alignment: AlignmentDirectional.topEnd,
+              child: Padding(
+                padding: const EdgeInsets.only(top: 8, right: 8),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: Icon(
+                        isDark ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
+                      ),
+                      color: primaryColor,
+                      onPressed: () => BriefAIApp.toggleTheme(context),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.language_outlined),
+                      color: primaryColor,
+                      onPressed: () => LanguageSheet.show(context),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

@@ -814,7 +814,7 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
   }
 
   Widget _buildRiskLevelSection(BuildContext context, bool isDark) {
-    final level = calcRiskLevel(_dueDate);
+    final (level, levelColor) = calcRiskLevel(_dueDate, isDark);
 
     return GlassCard(
       child: Padding(
@@ -828,12 +828,12 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
                   margin: const EdgeInsets.only(left: 8),
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: level.color(isDark).withOpacity(0.15),
+                    color: levelColor.withOpacity(0.15),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
                     Icons.speed_outlined,
-                    color: level.color(isDark),
+                    color: levelColor,
                     size: 22,
                   ),
                 ),
@@ -851,23 +851,23 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
               margin: const EdgeInsets.only(right: 8),
               padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 8),
               decoration: BoxDecoration(
-                color: level.color(isDark).withOpacity(0.15),
+                color: levelColor.withOpacity(0.15),
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
-                  color: level.color(isDark).withOpacity(0.3),
+                  color: levelColor.withOpacity(0.3),
                   width: 1,
                 ),
               ),
               child: Row(
                 children: [
-                  Icon(level.icon, color: level.color(isDark), size: 18),
+                  Icon(level.icon, color: levelColor, size: 18),
                   const SizedBox(width: 6),
                   Text(
                     level.translationKey.isNotEmpty
                         ? AppLocalizations.tr(context, level.translationKey)
                         : level.name.toUpperCase(),
                     style: TextStyle(
-                      color: level.color(isDark),
+                      color: levelColor,
                       fontWeight: FontWeight.w600,
                       fontSize: 13,
                     ),
@@ -1091,68 +1091,75 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
     );
   }
 
-void _showMarkAsDoneDialog(BuildContext context) {
-  final isDark = Theme.of(context).brightness == Brightness.dark;
+  void _showMarkAsDoneDialog(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
-  showDialog(
-    context: context,
-    builder: (context) => ConfirmDialog(
-      title: AppLocalizations.tr(context, 'markAsDone'),
-      content: AppLocalizations.tr(context, 'markAsDoneConfirm'),
-      confirmText: AppLocalizations.tr(context, 'markAsDone'),
-      onConfirm: () async {
-        Navigator.pop(context);
-
-        if (_document?.id != null) {
-          context.read<DocumentCubit>().markDocumentAsDone(_document!.id!);
-
-          if (!mounted) return;
-
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(AppLocalizations.tr(context, 'documentMarkedAsDone')),
-              backgroundColor: isDark ? AppTheme.darkSuccess : AppTheme.lightSuccess,
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
-        }
-      },
-    ),
-  );
-}
-
-void _showDeleteDialog(BuildContext context) {
-  final isDark = Theme.of(context).brightness == Brightness.dark;
-
-  showDialog(
-    context: context,
-    builder: (context) => ConfirmDialog(
-      title: AppLocalizations.tr(context, 'deleteDocument'),
-      content: AppLocalizations.tr(context, 'deleteDocumentConfirm'),
-      confirmText: AppLocalizations.tr(context, 'delete'),
-      isDestructive: true,
-      onConfirm: () async {
-        Navigator.pop(context);
-
-        if (_document?.id != null) {
-          context.read<DocumentCubit>().deleteDocument(_document!.id!);
-
-          if (!mounted) return;
-
+    showDialog(
+      context: context,
+      builder: (context) => ConfirmDialog(
+        title: AppLocalizations.tr(context, 'markAsDone'),
+        content: AppLocalizations.tr(context, 'markAsDoneConfirm'),
+        confirmText: AppLocalizations.tr(context, 'markAsDone'),
+        onConfirm: () async {
           Navigator.pop(context);
 
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(AppLocalizations.tr(context, 'documentDeleted')),
-              backgroundColor: isDark ? AppTheme.darkSuccess : AppTheme.lightSuccess,
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
-        }
-      },
-    ),
-  );
-}
+          if (_document?.id != null) {
+            context.read<DocumentCubit>().markDocumentAsDone(_document!.id!);
+
+            if (!mounted) return;
+
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  AppLocalizations.tr(context, 'documentMarkedAsDone'),
+                ),
+                backgroundColor: isDark
+                    ? AppTheme.darkSuccess
+                    : AppTheme.lightSuccess,
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+          }
+        },
+      ),
+    );
+  }
+
+  void _showDeleteDialog(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    showDialog(
+      context: context,
+      builder: (context) => ConfirmDialog(
+        title: AppLocalizations.tr(context, 'deleteDocument'),
+        content: AppLocalizations.tr(context, 'deleteDocumentConfirm'),
+        confirmText: AppLocalizations.tr(context, 'delete'),
+        isDestructive: true,
+        onConfirm: () async {
+          Navigator.pop(context);
+
+          if (_document?.id != null) {
+            context.read<DocumentCubit>().deleteDocument(_document!.id!);
+
+            if (!mounted) return;
+
+            Navigator.pop(context);
+
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(AppLocalizations.tr(context, 'documentDeleted')),
+                backgroundColor: isDark
+                    ? AppTheme.darkSuccess
+                    : AppTheme.lightSuccess,
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+          }
+        },
+      ),
+    );
+  }
+
   Future<void> _editCurrentImage() async {
     if (_document == null || _document!.images.isEmpty) return;
 
@@ -1177,6 +1184,10 @@ void _showDeleteDialog(BuildContext context) {
               paintEditor: PaintEditorConfigs(
                 enableZoom: true,
                 enableDoubleTapZoom: true,
+                style: PaintEditorStyle(
+                  initialStrokeWidth: 1.0,
+                  initialColor: Colors.black,
+                ),
               ),
 
               textEditor: TextEditorConfigs(
@@ -1239,35 +1250,38 @@ void _showDeleteDialog(BuildContext context) {
     }
   }
 
-void _showReopenDialog(BuildContext context) {
-  final isDark = Theme.of(context).brightness == Brightness.dark;
+  void _showReopenDialog(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
-  showDialog(
-    context: context,
-    builder: (context) => ConfirmDialog(
-      title: AppLocalizations.tr(context, 'reopenDocument'),
-      content: AppLocalizations.tr(context, 'reopenDocumentConfirm'),
-      confirmText: AppLocalizations.tr(context, 'reopen'),
-      onConfirm: () async {
-        Navigator.pop(context);
+    showDialog(
+      context: context,
+      builder: (context) => ConfirmDialog(
+        title: AppLocalizations.tr(context, 'reopenDocument'),
+        content: AppLocalizations.tr(context, 'reopenDocumentConfirm'),
+        confirmText: AppLocalizations.tr(context, 'reopen'),
+        onConfirm: () async {
+          Navigator.pop(context);
 
-        if (_document?.id != null) {
-          context.read<DocumentCubit>().reopenDocument(_document!.id!);
+          if (_document?.id != null) {
+            context.read<DocumentCubit>().reopenDocument(_document!.id!);
 
-          if (!mounted) return;
+            if (!mounted) return;
 
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(AppLocalizations.tr(context, 'documentReopened')),
-              backgroundColor: isDark ? AppTheme.darkWarning : AppTheme.lightWarning,
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
-        }
-      },
-    ),
-  );
-}
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(AppLocalizations.tr(context, 'documentReopened')),
+                backgroundColor: isDark
+                    ? AppTheme.darkWarning
+                    : AppTheme.lightWarning,
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+          }
+        },
+      ),
+    );
+  }
+
   Future<void> _shareCurrentImage() async {
     if (_document == null || _document!.images.isEmpty) return;
 

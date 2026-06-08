@@ -42,6 +42,12 @@ class BriefAIApp extends StatefulWidget {
         .findAncestorStateOfType<_BriefAIAppState>();
     state?.setLocale(newLocale);
   }
+
+  static void toggleTheme(BuildContext context) {
+    _BriefAIAppState? state = context
+        .findAncestorStateOfType<_BriefAIAppState>();
+    state?._toggleTheme();
+  }
 }
 
 class _BriefAIAppState extends State<BriefAIApp> {

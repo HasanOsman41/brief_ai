@@ -1,5 +1,6 @@
 import 'package:brief_ai/cubit/auth_cubit/auth_cubit.dart';
 import 'package:brief_ai/localization/app_localizations.dart';
+import 'package:brief_ai/main.dart';
 import 'package:brief_ai/theme/app_theme.dart';
 import 'package:brief_ai/widgets/auth/auth_backdrop.dart';
 import 'package:brief_ai/widgets/auth/auth_text_field.dart';
@@ -8,6 +9,7 @@ import 'package:brief_ai/widgets/auth/footer_prompt.dart';
 import 'package:brief_ai/widgets/auth/google_button.dart';
 import 'package:brief_ai/widgets/auth/or_divider.dart';
 import 'package:brief_ai/widgets/common_button.dart';
+import 'package:brief_ai/widgets/language_sheet.dart';
 import 'package:brief_ai/widgets/professional_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -209,6 +211,31 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                     );
                   },
+                ),
+              ),
+              SafeArea(
+                child: Align(
+                  alignment: AlignmentDirectional.topEnd,
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 8, right: 8),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: Icon(
+                            isDark ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
+                          ),
+                          color: primary,
+                          onPressed: () => BriefAIApp.toggleTheme(context),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.language_outlined),
+                          color: primary,
+                          onPressed: () => LanguageSheet.show(context),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
             ],

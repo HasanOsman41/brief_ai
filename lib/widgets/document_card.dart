@@ -77,7 +77,7 @@ class DocumentCard extends StatelessWidget {
     final isDone = status == 'done';
 
     final deadlineDate = deadline;
-    final riskLevel = calcRiskLevel(deadlineDate);
+    final (riskLevel, riskColor) = calcRiskLevel(deadlineDate, isDark);
     final shouldShowWarning = riskLevel == RiskLevel.wichtig;
     final deadlineText = _getDeadlineText(context, deadlineDate);
 
@@ -199,7 +199,7 @@ class DocumentCard extends StatelessWidget {
                             vertical: 2,
                           ),
                           decoration: BoxDecoration(
-                            color: riskLevel.color(isDark).withOpacity(0.2),
+                            color: riskColor.withOpacity(0.2),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Row(
@@ -208,13 +208,13 @@ class DocumentCard extends StatelessWidget {
                               Icon(
                                 riskLevel.icon,
                                 size: 10,
-                                color: riskLevel.color(isDark),
+                                color: riskColor,
                               ),
                               const SizedBox(width: 2),
                               Text(
                                 deadlineText,
                                 style: TextStyle(
-                                  color: riskLevel.color(isDark),
+                                  color: riskColor,
                                   fontSize: 10,
                                   fontWeight: FontWeight.w600,
                                 ),

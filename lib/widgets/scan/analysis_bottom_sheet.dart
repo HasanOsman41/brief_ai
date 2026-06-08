@@ -101,7 +101,7 @@ class _AnalysisBottomSheetState extends State<AnalysisBottomSheet> {
     // Resolve the detected sub-category from the result.
     // If category is null (undetected), leave keys empty — UI shows a banner.
     final detectedId = widget.result.category?.id;
-    if (detectedId != null) {
+    if (detectedId != null && widget.result.trustScore >= 50) {
       final matched = BriefAiCategories.all.firstWhere(
         (c) => c.id == detectedId,
         orElse: () => BriefAiCategories.all.first,
@@ -126,7 +126,7 @@ class _AnalysisBottomSheetState extends State<AnalysisBottomSheet> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (_editableTitle.isEmpty && widget.result.category != null) {
+    if (_editableTitle.isEmpty && _subCategoryKey.isNotEmpty) {
       final translated = AppLocalizations.tr(context, _titleKey);
       setState(() => _editableTitle = translated);
     }
@@ -169,12 +169,20 @@ class _AnalysisBottomSheetState extends State<AnalysisBottomSheet> {
                       primary: primary,
                       selectedCategoryId: _subCategoryKey,
                       selectedCategoryKey: _mainCategoryKey,
-                      categoryDetected: widget.result.category != null,
+                      categoryDetected: widget.result.category != null && widget.result.trustScore >= 50,
                       isOtherCategory: _isOtherCategory,
-                      onCategoryChanged: (subKey, mainKey) => setState(() {
-                        _subCategoryKey = subKey;
-                        _mainCategoryKey = mainKey;
-                      }),
+                      onCategoryChanged: (subKey, mainKey) {
+                        final cat = BriefAiCategories.all.firstWhere(
+                          (c) => c.id == subKey,
+                          orElse: () => BriefAiCategories.all.first,
+                        );
+                        setState(() {
+                          _subCategoryKey = subKey;
+                          _mainCategoryKey = mainKey;
+                          _titleKey = cat.labelKey;
+                          _editableTitle = AppLocalizations.tr(context, cat.labelKey);
+                        });
+                      },
                       editableTitle: _editableTitle,
                       onTitleChanged: (title) =>
                           setState(() => _editableTitle = title),
@@ -572,6 +580,15 @@ class _DocumentInfoCardState extends State<_DocumentInfoCard> {
         // Undetected category banner
         if (!widget.categoryDetected) _NoCategoryBanner(isDark: widget.isDark),
         if (!widget.categoryDetected) const SizedBox(height: 12),
+        // Trust note banner for medium confidence (50–70%)
+        if (widget.categoryDetected && widget.result.trustScore < 70) ...[
+          _TrustNoteBanner(
+            isDark: widget.isDark,
+            message: AppLocalizations.tr(context, 'lowTrustWarning'),
+            isError: false,
+          ),
+          const SizedBox(height: 12),
+        ],
         // Editable category selector
         _CategorySelector(
           isDark: widget.isDark,
@@ -681,7 +698,7 @@ class _DocumentInfoCardState extends State<_DocumentInfoCard> {
               hint: AppLocalizations.tr(context, 'stepsHint'),
             ),
           ),
-        ] else if (widget.categoryDetected) ...[
+        ] else if (widget.selectedCategoryId.isNotEmpty) ...[
           const SizedBox(height: 16),
           _FieldLabel(
             label: AppLocalizations.tr(context, 'aiSummary'),
@@ -1621,7 +1638,7 @@ class _NoCategoryBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final color = isDark ? AppTheme.darkWarning : AppTheme.lightWarning;
+    final color = isDark ? AppTheme.darkDanger : AppTheme.lightDanger;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
@@ -1636,6 +1653,55 @@ class _NoCategoryBanner extends StatelessWidget {
           Expanded(
             child: Text(
               AppLocalizations.tr(context, 'noCategoryDetectedHint'),
+              style: TextStyle(
+                color: color,
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                height: 1.4,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Trust Note Banner ─────────────────────────────────────────────────────────
+
+class _TrustNoteBanner extends StatelessWidget {
+  const _TrustNoteBanner({
+    required this.isDark,
+    required this.message,
+    required this.isError,
+  });
+
+  final bool isDark;
+  final String message;
+  final bool isError;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = isError
+        ? (isDark ? AppTheme.darkDanger : AppTheme.lightDanger)
+        : (isDark ? AppTheme.darkWarning : AppTheme.lightWarning);
+    final icon = isError ? Icons.search_off_rounded : Icons.warning_amber_rounded;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: color.withValues(alpha: 0.4)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: color, size: 18),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              message,
               style: TextStyle(
                 color: color,
                 fontSize: 12,

@@ -71,13 +71,13 @@ class _TasksTabState extends State<TasksTab> {
           final documents = state.documents;
 
           final wichtig = documents
-              .where((d) => calcRiskLevel(d.deadline) == RiskLevel.wichtig)
+              .where((d) => calcRiskLevel(d.deadline, isDark).$1 == RiskLevel.wichtig)
               .toList();
           final pruefen = documents
-              .where((d) => calcRiskLevel(d.deadline) == RiskLevel.pruefen)
+              .where((d) => calcRiskLevel(d.deadline, isDark).$1 == RiskLevel.pruefen)
               .toList();
           final offen = documents
-              .where((d) => calcRiskLevel(d.deadline) == RiskLevel.offen)
+              .where((d) => calcRiskLevel(d.deadline, isDark).$1 == RiskLevel.offen)
               .toList();
 
           List<Document> filtered;
@@ -198,7 +198,7 @@ class _TasksTabState extends State<TasksTab> {
                           itemCount: filtered.length,
                           itemBuilder: (context, index) {
                             final doc = filtered[index];
-                            final groupColor = calcRiskLevel(doc.deadline).color(isDark);
+                            final groupColor = calcRiskLevel(doc.deadline, isDark).$2;
                             return Padding(
                               padding: const EdgeInsets.only(bottom: 12),
                               child: Stack(

@@ -13,7 +13,6 @@ import 'package:brief_ai/widgets/confirm_dialog.dart';
 import 'package:brief_ai/widgets/scan/analysis_bottom_sheet.dart';
 import 'package:brief_ai/widgets/scan/scan_bottom_bar.dart';
 import 'package:brief_ai/widgets/scan/scan_gallery.dart';
-import 'package:brief_ai/widgets/scan/scan_top_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_doc_scanner/flutter_doc_scanner.dart';
 import 'package:open_file/open_file.dart';
@@ -56,7 +55,7 @@ class _ScanScreenState extends State<ScanScreen>
   String _ocrText = '';
   DateTime? _deadline;
   Map<String, dynamic>? _data;
-  
+
   @override
   void initState() {
     super.initState();
@@ -177,8 +176,11 @@ class _ScanScreenState extends State<ScanScreen>
 
   Future<void> _showCategoryDialog(Map<String, dynamic> data) async {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final category = data['category'] == null
-        ? AppLocalizations.tr(context, 'generalDocument')
+    final result = data['result'] as DocumentResult?;
+    final trustScore = result?.trustScore ?? 0;
+    final lowTrust = trustScore < 50;
+    final category = lowTrust || data['category'] == null
+        ? AppLocalizations.tr(context, 'noCategoryDetected')
         : AppLocalizations.tr(context, data['category']);
     final deadline = data['deadline'] as DateTime?;
 
@@ -228,199 +230,223 @@ class _ScanScreenState extends State<ScanScreen>
                 width: 1,
               ),
             ),
-            child: Padding(
-              padding: const EdgeInsets.all(32),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Animated icon
-                  Container(
-                    width: 80,
-                    height: 80,
-                    decoration: BoxDecoration(
-                      gradient: RadialGradient(
-                        colors: [
-                          (isDark
-                                  ? AppTheme.darkPrimary
-                                  : AppTheme.lightPrimary)
-                              .withOpacity(0.2),
-                          (isDark
-                                  ? AppTheme.darkPrimary
-                                  : AppTheme.lightPrimary)
-                              .withOpacity(0.05),
-                        ],
-                      ),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Center(
-                      child: TweenAnimationBuilder<double>(
-                        tween: Tween(begin: 0.5, end: 1.0),
-                        duration: const Duration(milliseconds: 500),
-                        curve: Curves.elasticOut,
-                        builder: (context, value, child) {
-                          return Transform.scale(
-                            scale: value,
-                            child: Container(
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                color: (isDark
-                                    ? AppTheme.darkPrimary
-                                    : AppTheme.lightPrimary),
-                                shape: BoxShape.circle,
-                                boxShadow: [
-                                  BoxShadow(
-                                    color:
-                                        (isDark
-                                                ? AppTheme.darkPrimary
-                                                : AppTheme.lightPrimary)
-                                            .withOpacity(0.3),
-                                    blurRadius: 15,
-                                    spreadRadius: 0,
-                                  ),
-                                ],
-                              ),
-                              child: Icon(
-                                Icons.description_rounded,
-                                color: Theme.of(context).colorScheme.onPrimary,
-                                size: 32,
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 24),
-
-                  // Title
-                  Text(
-                    AppLocalizations.tr(context, 'documentDetected'),
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: -0.5,
-                      color: isDark
-                          ? AppTheme.darkTextPrimary
-                          : AppTheme.lightTextPrimary,
-                    ),
-                  ),
-
-                  const SizedBox(height: 8),
-
-                  // Subtitle
-                  Text(
-                    AppLocalizations.tr(context, 'weFoundDocument'),
-                    style: TextStyle(
-                      fontSize: 15,
-                      color: isDark
-                          ? AppTheme.darkTextSecondary
-                          : AppTheme.lightTextSecondary,
-                    ),
-                  ),
-
-                  const SizedBox(height: 32),
-
-                  // Category card
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color:
-                          (isDark
-                                  ? AppTheme.darkPrimary
-                                  : AppTheme.lightPrimary)
-                              .withOpacity(0.08),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        color:
-                            (isDark
-                                    ? AppTheme.darkPrimary
-                                    : AppTheme.lightPrimary)
-                                .withOpacity(0.2),
-                        width: 1,
-                      ),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Category
-                        _buildInfoRow(
-                          icon: Icons.label_outline,
-                          label: AppLocalizations.tr(context, 'category'),
-                          value: category,
-                          isDark: isDark,
-                        ),
-
-                        const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 12),
-                          child: Divider(height: 1),
-                        ),
-
-                        // Deadline
-                        _buildInfoRow(
-                          icon: Icons.event_outlined,
-                          label: AppLocalizations.tr(context, 'deadline'),
-                          value: deadline == null
-                              ? AppLocalizations.tr(context, 'noDateDetected')
-                              : '${deadline.day}/${deadline.month}/${deadline.year}',
-                          isDark: isDark,
-                        ),
-
-                        const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 12),
-                          child: Divider(height: 1),
-                        ),
-
-                        // Risk Level
-                        _buildRiskRow(deadline: deadline, isDark: isDark),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 28),
-
-                  // Action buttons
-                  Column(
+            child: Stack(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(32),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      // AI Analyze Button
-                      SizedBox(
-                        width: double.infinity,
-                        child: CommonButton(
-                          text: AppLocalizations.tr(context, 'whatNext'),
-                          icon: Icons.bolt_rounded,
-                          isPrimary: true,
-                          withPulse: true,
-                          onTap: () {
-                            Navigator.pop(ctx);
-                            // Use default offline analysis for "What Next"
-                            AnalysisServiceFactory.instance.setMode(
-                              AnalysisMode.offline,
-                            );
-                            _analyze();
-                          },
+                      // Animated icon
+                      Container(
+                        width: 80,
+                        height: 80,
+                        decoration: BoxDecoration(
+                          gradient: RadialGradient(
+                            colors: [
+                              (isDark
+                                      ? AppTheme.darkPrimary
+                                      : AppTheme.lightPrimary)
+                                  .withOpacity(0.2),
+                              (isDark
+                                      ? AppTheme.darkPrimary
+                                      : AppTheme.lightPrimary)
+                                  .withOpacity(0.05),
+                            ],
+                          ),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Center(
+                          child: TweenAnimationBuilder<double>(
+                            tween: Tween(begin: 0.5, end: 1.0),
+                            duration: const Duration(milliseconds: 500),
+                            curve: Curves.elasticOut,
+                            builder: (context, value, child) {
+                              return Transform.scale(
+                                scale: value,
+                                child: Container(
+                                  padding: const EdgeInsets.all(16),
+                                  decoration: BoxDecoration(
+                                    color: (isDark
+                                        ? AppTheme.darkPrimary
+                                        : AppTheme.lightPrimary),
+                                    shape: BoxShape.circle,
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color:
+                                            (isDark
+                                                    ? AppTheme.darkPrimary
+                                                    : AppTheme.lightPrimary)
+                                                .withOpacity(0.3),
+                                        blurRadius: 15,
+                                        spreadRadius: 0,
+                                      ),
+                                    ],
+                                  ),
+                                  child: Icon(
+                                    Icons.description_rounded,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onPrimary,
+                                    size: 32,
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
                         ),
                       ),
 
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 24),
 
-                      // PDF Button
-                      SizedBox(
-                        width: double.infinity,
-                        child: CommonButton(
-                          text: AppLocalizations.tr(context, 'savePdf'),
-                          icon: Icons.picture_as_pdf_rounded,
-                          isPrimary: false,
-                          onTap: () {
-                            Navigator.pop(ctx);
-                            _handlePdfExport();
-                          },
+                      // Title
+                      Text(
+                        AppLocalizations.tr(context, lowTrust ? 'noDocumentDetectedTitle' : 'documentDetected'),
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: -0.5,
+                          color: isDark
+                              ? AppTheme.darkTextPrimary
+                              : AppTheme.lightTextPrimary,
                         ),
+                      ),
+
+                      const SizedBox(height: 8),
+
+                      // Subtitle
+                      Text(
+                        AppLocalizations.tr(context, lowTrust ? 'noDocumentDetected' : 'weFoundDocument'),
+                        style: TextStyle(
+                          fontSize: 15,
+                          color: isDark
+                              ? AppTheme.darkTextSecondary
+                              : AppTheme.lightTextSecondary,
+                        ),
+                      ),
+
+                      const SizedBox(height: 32),
+
+                      // Category card
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: (lowTrust
+                                  ? (isDark
+                                      ? AppTheme.darkDanger
+                                      : AppTheme.lightDanger)
+                                  : (isDark
+                                      ? AppTheme.darkPrimary
+                                      : AppTheme.lightPrimary))
+                              .withValues(alpha: 0.08),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: (lowTrust
+                                    ? (isDark
+                                        ? AppTheme.darkDanger
+                                        : AppTheme.lightDanger)
+                                    : (isDark
+                                        ? AppTheme.darkPrimary
+                                        : AppTheme.lightPrimary))
+                                .withValues(alpha: 0.2),
+                            width: 1,
+                          ),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Category
+                            _buildInfoRow(
+                              icon: Icons.label_outline,
+                              label: AppLocalizations.tr(context, 'category'),
+                              value: category,
+                              isDark: isDark,
+                            ),
+
+                            const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 12),
+                              child: Divider(height: 1),
+                            ),
+
+                            // Deadline
+                            _buildInfoRow(
+                              icon: Icons.event_outlined,
+                              label: AppLocalizations.tr(context, 'deadline'),
+                              value: deadline == null
+                                  ? AppLocalizations.tr(
+                                      context,
+                                      'noDateDetected',
+                                    )
+                                  : '${deadline.day}/${deadline.month}/${deadline.year}',
+                              isDark: isDark,
+                            ),
+
+                            const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 12),
+                              child: Divider(height: 1),
+                            ),
+
+                            // Risk Level
+                            _buildRiskRow(deadline: deadline, isDark: isDark),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 28),
+
+                      // Action buttons
+                      Column(
+                        children: [
+                          // AI Analyze Button
+                          SizedBox(
+                            width: double.infinity,
+                            child: CommonButton(
+                              text: AppLocalizations.tr(context, 'whatNext'),
+                              icon: Icons.bolt_rounded,
+                              isPrimary: true,
+                              withPulse: true,
+                              onTap: () {
+                                Navigator.pop(ctx);
+                                // Use default offline analysis for "What Next"
+                                AnalysisServiceFactory.instance.setMode(
+                                  AnalysisMode.offline,
+                                );
+                                _analyze();
+                              },
+                            ),
+                          ),
+
+                          const SizedBox(height: 12),
+
+                          // PDF Button
+                          SizedBox(
+                            width: double.infinity,
+                            child: CommonButton(
+                              text: AppLocalizations.tr(context, 'savePdf'),
+                              icon: Icons.picture_as_pdf_rounded,
+                              isPrimary: false,
+                              onTap: () {
+                                Navigator.pop(ctx);
+                                _handlePdfExport();
+                              },
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                ],
-              ),
+                ),
+                Positioned.directional(
+                  textDirection: Directionality.of(ctx),
+                  end: 4,
+                  top: 4,
+                  child: IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.pop(ctx),
+                  ),
+                ),
+              ],
             ),
           ),
         ),
@@ -717,9 +743,12 @@ class _ScanScreenState extends State<ScanScreen>
       imagePaths: List.unmodifiable(_pages),
       ocrText: _ocrText,
       documentId: _documentId,
-      onSave: (DateTime? d) {setState(() => _deadline = d); if (mounted) {
+      onSave: (DateTime? d) {
+        setState(() => _deadline = d);
+        if (mounted) {
           context.read<DocumentCubit>().refreshFromDatabase();
-        }},
+        }
+      },
     );
     _data = null; // Clear cached data after showing results
   }
@@ -948,11 +977,33 @@ class _ScanScreenState extends State<ScanScreen>
           ),
 
         // Top bar
-        ScanTopBar(
-          hasImages: hasPages,
-          onClose: () => Navigator.pop(context),
-          onDelete: _deleteCurrentPage,
-          onToggleGallery: () => setState(() => _showGallery = true),
+        Positioned.directional(
+          textDirection: Directionality.of(context),
+          top: 20,
+          end: 20,
+          child: Row(
+            children: [
+              GestureDetector(
+                onTap: () => Navigator.pop(context),
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color:
+                        (isDark ? AppTheme.darkSurface : AppTheme.lightSurface)
+                            .withValues(alpha: 0.85),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.close,
+                    color: isDark
+                        ? AppTheme.darkTextPrimary
+                        : AppTheme.lightTextPrimary,
+                    size: 22,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
 
         // Bottom bar
