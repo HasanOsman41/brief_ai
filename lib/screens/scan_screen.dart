@@ -10,8 +10,10 @@ import 'package:brief_ai/services/pdf_service.dart';
 import 'package:brief_ai/theme/app_theme.dart';
 import 'package:brief_ai/widgets/common_button.dart';
 import 'package:brief_ai/widgets/confirm_dialog.dart';
+import 'package:brief_ai/widgets/professional_snackbar.dart';
 import 'package:brief_ai/widgets/scan/analysis_bottom_sheet.dart';
 import 'package:brief_ai/widgets/scan/scan_bottom_bar.dart';
+import 'package:brief_ai/widgets/safe_file_image.dart';
 import 'package:brief_ai/widgets/scan/scan_gallery.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_doc_scanner/flutter_doc_scanner.dart';
@@ -831,6 +833,12 @@ class _ScanScreenState extends State<ScanScreen>
   // ── Snackbars ──────────────────────────────────────────────────────────────
 
   void _snackSuccess(String msg, {SnackBarAction? action}) {
+    // Snackbars carrying an action keep the raw SnackBar (the unified
+    // ProfessionalSnackbar does not support actions); plain successes use it.
+    if (action == null) {
+      ProfessionalSnackbar.success(context, msg);
+      return;
+    }
     final isDark = Theme.of(context).brightness == Brightness.dark;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -846,17 +854,7 @@ class _ScanScreenState extends State<ScanScreen>
   }
 
   void _snackError(String msg) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(msg),
-        backgroundColor: isDark ? AppTheme.darkDanger : AppTheme.lightDanger,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        margin: const EdgeInsets.all(16),
-        duration: const Duration(seconds: 4),
-      ),
-    );
+    ProfessionalSnackbar.error(context, msg);
   }
 
   // ── Build ──────────────────────────────────────────────────────────────────
@@ -1040,8 +1038,8 @@ class _ScanScreenState extends State<ScanScreen>
               minScale: 0.8,
               maxScale: 3.0,
               boundaryMargin: const EdgeInsets.all(20),
-              child: Image.file(
-                File(_pages[_currentIndex]),
+              child: SafeFileImage(
+                path: _pages[_currentIndex],
                 fit: BoxFit.contain,
               ),
             ),

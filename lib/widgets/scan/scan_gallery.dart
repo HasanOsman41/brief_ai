@@ -1,8 +1,7 @@
 // lib/widgets/scan/scan_gallery.dart
-import 'dart:io';
-
 import 'package:brief_ai/localization/app_localizations.dart';
 import 'package:brief_ai/theme/app_theme.dart';
+import 'package:brief_ai/widgets/safe_file_image.dart';
 import 'package:flutter/material.dart';
 
 /// Full-screen grid gallery of all scanned pages.
@@ -104,7 +103,7 @@ class _GalleryTile extends StatelessWidget {
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(8),
-            child: Image.file(File(path), fit: BoxFit.cover),
+            child: SafeFileImage(path: path, fit: BoxFit.cover),
           ),
         ),
         Positioned(

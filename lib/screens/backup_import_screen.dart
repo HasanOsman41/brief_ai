@@ -1,9 +1,9 @@
 // lib/screens/backup_import_screen.dart
 import 'package:brief_ai/localization/app_localizations.dart';
-import 'package:brief_ai/theme/app_theme.dart';
 import 'package:brief_ai/widgets/backup_item_tile.dart';
 import 'package:brief_ai/widgets/confirm_dialog.dart';
 import 'package:brief_ai/widgets/glass_card.dart';
+import 'package:brief_ai/widgets/professional_snackbar.dart';
 import 'package:flutter/material.dart';
 
 class BackupImportScreen extends StatelessWidget {
@@ -11,7 +11,6 @@ class BackupImportScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final primaryColor = Theme.of(context).colorScheme.primary;
 
     return Scaffold(
@@ -70,18 +69,9 @@ class BackupImportScreen extends StatelessWidget {
                         height: 40,
                         child: ElevatedButton(
                           onPressed: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  AppLocalizations.tr(
-                                    context,
-                                    'backupCreating',
-                                  ),
-                                ),
-                                backgroundColor: isDark
-                                    ? AppTheme.darkSuccess
-                                    : AppTheme.lightSuccess,
-                              ),
+                            ProfessionalSnackbar.success(
+                              context,
+                              AppLocalizations.tr(context, 'backupCreating'),
                             );
                           },
                           style: ElevatedButton.styleFrom(
@@ -244,8 +234,6 @@ class BackupImportScreen extends StatelessWidget {
   }
 
   void _showImportDialog(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     showDialog(
       context: context,
       builder: (context) => ConfirmDialog(
@@ -254,13 +242,9 @@ class BackupImportScreen extends StatelessWidget {
         confirmText: AppLocalizations.tr(context, 'import'),
         onConfirm: () {
           Navigator.pop(context);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(AppLocalizations.tr(context, 'backupImporting')),
-              backgroundColor: isDark
-                  ? AppTheme.darkSuccess
-                  : AppTheme.lightSuccess,
-            ),
+          ProfessionalSnackbar.success(
+            context,
+            AppLocalizations.tr(context, 'backupImporting'),
           );
         },
       ),
@@ -268,8 +252,6 @@ class BackupImportScreen extends StatelessWidget {
   }
 
   void _showRestoreConfirmDialog(BuildContext context, String backupName) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     showDialog(
       context: context,
       builder: (context) => ConfirmDialog(
@@ -279,13 +261,9 @@ class BackupImportScreen extends StatelessWidget {
         confirmText: AppLocalizations.tr(context, 'restore'),
         onConfirm: () {
           Navigator.pop(context);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(AppLocalizations.tr(context, 'backupRestoring')),
-              backgroundColor: isDark
-                  ? AppTheme.darkSuccess
-                  : AppTheme.lightSuccess,
-            ),
+          ProfessionalSnackbar.success(
+            context,
+            AppLocalizations.tr(context, 'backupRestoring'),
           );
         },
       ),

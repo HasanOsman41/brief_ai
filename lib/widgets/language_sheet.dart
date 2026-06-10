@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:brief_ai/localization/app_localizations.dart';
-import 'package:brief_ai/theme/app_theme.dart';
+import 'package:brief_ai/widgets/professional_snackbar.dart';
 import 'package:brief_ai/main.dart'; // For BriefAIApp.setLocale
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -46,22 +46,14 @@ class LanguageSheet {
 
       // Show confirmation using localized strings
       if (context.mounted) {
-        final isDark = Theme.of(context).brightness == Brightness.dark;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(AppLocalizations.tr(context, 'languageChanged')),
-            backgroundColor: isDark
-                ? AppTheme.darkSuccess
-                : AppTheme.lightSuccess,
-            duration: const Duration(seconds: 1),
-          ),
+        ProfessionalSnackbar.success(
+          context,
+          AppLocalizations.tr(context, 'languageChanged'),
         );
       }
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
-        );
+        ProfessionalSnackbar.error(context, 'Error: $e');
       }
     }
   }

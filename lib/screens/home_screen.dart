@@ -111,16 +111,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ],
                               ),
                             ),
-                            IconButton(
-                              onPressed: () {
-                                Navigator.pushNamed(context, '/reminders');
-                              },
-                              icon: const Icon(
-                                Icons.alarm,
-                                size: 18,
-                                color: Colors.grey,
-                              ),
-                            ),
                           ],
                         ),
                         const SizedBox(height: 6),
@@ -233,40 +223,6 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _HeaderIconButton extends StatelessWidget {
-  final IconData icon;
-  final Color primaryColor;
-  final bool isDark;
-  final VoidCallback onPressed;
-
-  const _HeaderIconButton({
-    required this.icon,
-    required this.primaryColor,
-    required this.isDark,
-    required this.onPressed,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: isDark
-            ? AppTheme.darkSurface.withOpacity(0.5)
-            : AppTheme.lightSurface.withOpacity(0.5),
-        borderRadius: BorderRadius.circular(30),
-        border: Border.all(
-          color: isDark ? AppTheme.darkBorder : AppTheme.lightBorder,
-          width: 0.5,
-        ),
-      ),
-      child: IconButton(
-        icon: Icon(icon, size: 22, color: primaryColor),
-        onPressed: onPressed,
       ),
     );
   }

@@ -1,5 +1,6 @@
 import 'package:brief_ai/localization/app_localizations.dart';
 import 'package:brief_ai/theme/app_theme.dart';
+import 'package:brief_ai/widgets/professional_snackbar.dart';
 import 'package:flutter/material.dart';
 
 class SortDropdown extends StatelessWidget {
@@ -24,12 +25,9 @@ class SortDropdown extends StatelessWidget {
       child: PopupMenuButton<String>(
         onSelected: (value) {
           onSortChanged(value);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Sorted by ${_getSortLabel(context, value)}'),
-              duration: const Duration(seconds: 1),
-              behavior: SnackBarBehavior.floating,
-            ),
+          ProfessionalSnackbar.info(
+            context,
+            'Sorted by ${_getSortLabel(context, value)}',
           );
         },
         offset: const Offset(0, 40),

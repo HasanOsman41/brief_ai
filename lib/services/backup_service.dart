@@ -13,32 +13,49 @@ class BackupService {
   BackupService({DatabaseHelper? dbHelper})
     : _dbHelper = dbHelper ?? DatabaseHelper();
 
-  /// Let user pick a folder and create backup there
-  /// Returns the path to the created backup file, or null if cancelled
+  /// Creates a backup archive and lets the user save it wherever they like.
+  /// Returns the path the file was saved to, or null if cancelled.
   ///
-  /// No runtime storage permission is required: `FilePicker.getDirectoryPath`
-  /// uses the Storage Access Framework on Android and the system Files picker
-  /// on iOS — both grant per-action access without a permission dialog.
+  /// On Android 10+ an app cannot write to an arbitrary public folder with
+  /// `dart:io` (that throws "Operation not permitted"), and picking a folder
+  /// path via `getDirectoryPath` does NOT grant write access to it. The only
+  /// permission-free way to write outside app storage is the Storage Access
+  /// Framework: we build the archive in app-private storage and then hand its
+  /// bytes to `FilePicker.saveFile`, which writes to the user-chosen location.
   Future<String?> createBackup({
     String? backupFileName,
     Function(double)? onProgress, // Optional progress callback (0.0 to 1.0)
   }) async {
-    // Let user pick destination folder
-    final selectedDir = await FilePicker.getDirectoryPath(
-      dialogTitle: 'Select Backup Destination',
-      lockParentWindow: true,
+    final fileName =
+        backupFileName ??
+        'brief_ai_backup_${DateTime.now().toIso8601String().replaceAll(RegExp(r'[^0-9]'), '')}.zip';
+
+    // 1. Build the archive in app-private storage (always writable).
+    final appDocsDir = await getApplicationDocumentsDirectory();
+    final stagingPath = await _createBackupToPath(
+      appDocsDir.path,
+      backupFileName: fileName,
+      onProgress: (p) => onProgress?.call(p * 0.9),
     );
 
-    if (selectedDir == null) {
-      // User cancelled
-      return null;
+    try {
+      // 2. Hand the bytes to the SAF save dialog; it writes the file to the
+      //    location the user picks and returns that path (null if cancelled).
+      final bytes = await File(stagingPath).readAsBytes();
+      final savedPath = await FilePicker.saveFile(
+        dialogTitle: 'Save Backup',
+        fileName: fileName,
+        type: FileType.custom,
+        allowedExtensions: ['zip'],
+        bytes: bytes,
+      );
+      onProgress?.call(1.0);
+      return savedPath;
+    } finally {
+      // Always remove the staging copy.
+      final staging = File(stagingPath);
+      if (await staging.exists()) await staging.delete();
     }
-
-    return await _createBackupToPath(
-      selectedDir,
-      backupFileName: backupFileName,
-      onProgress: onProgress,
-    );
   }
 
   Future<String> _createBackupToPath(

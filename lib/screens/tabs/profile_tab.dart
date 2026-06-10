@@ -7,11 +7,14 @@ import 'package:brief_ai/theme/app_theme.dart';
 import 'package:brief_ai/widgets/glass_card.dart';
 import 'package:brief_ai/widgets/language_sheet.dart';
 import 'package:brief_ai/widgets/confirm_dialog.dart';
+import 'package:brief_ai/widgets/professional_snackbar.dart';
+import 'package:brief_ai/widgets/app_loading.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'dart:io';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ProfileTab extends StatefulWidget {
   final VoidCallback onToggleTheme;
@@ -59,29 +62,14 @@ class _ProfileTabState extends State<ProfileTab> {
       }
 
       if (mounted) {
-        final isDark = Theme.of(context).brightness == Brightness.dark;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(AppLocalizations.tr(context, 'languageChanged')),
-            backgroundColor: isDark
-                ? AppTheme.darkSuccess
-                : AppTheme.lightSuccess,
-            duration: const Duration(seconds: 1),
-          ),
+        ProfessionalSnackbar.success(
+          context,
+          AppLocalizations.tr(context, 'languageChanged'),
         );
       }
     } catch (e) {
       if (mounted) {
-        final isDark = Theme.of(context).brightness == Brightness.dark;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error changing language: $e'),
-            backgroundColor:
-                isDark //
-                ? AppTheme.darkDanger
-                : AppTheme.lightDanger,
-          ),
-        );
+        ProfessionalSnackbar.error(context, 'Error changing language: $e');
       }
     }
   }
@@ -92,10 +80,9 @@ class _ProfileTabState extends State<ProfileTab> {
 
   // ── Export/Import/Delete using BackupHelper ─────────────────
   Future<void> _exportBackup() async {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => const Center(child: CircularProgressIndicator()),
+    AppLoadingDialog.show(
+      context,
+      message: AppLocalizations.tr(context, 'exportingData'),
     );
 
     final path = await _backupService.createBackup();
@@ -103,25 +90,18 @@ class _ProfileTabState extends State<ProfileTab> {
     if (mounted) {
       Navigator.pop(context);
       if (path != null) {
-        final isDark = Theme.of(context).brightness == Brightness.dark;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(AppLocalizations.tr(context, 'exportSuccess')),
-            backgroundColor: isDark
-                ? AppTheme.darkSuccess
-                : AppTheme.lightSuccess,
-            duration: const Duration(seconds: 2),
-          ),
+        ProfessionalSnackbar.success(
+          context,
+          AppLocalizations.tr(context, 'exportSuccess'),
         );
       }
     }
   }
 
   Future<void> _importBackup() async {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => const Center(child: CircularProgressIndicator()),
+    AppLoadingDialog.show(
+      context,
+      message: AppLocalizations.tr(context, 'importingData'),
     );
 
     final success = await _backupService.restoreBackup();
@@ -130,15 +110,9 @@ class _ProfileTabState extends State<ProfileTab> {
       Navigator.pop(context);
 
       if (success) {
-        final isDark = Theme.of(context).brightness == Brightness.dark;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(AppLocalizations.tr(context, 'importSuccess')),
-            backgroundColor: isDark
-                ? AppTheme.darkSuccess
-                : AppTheme.lightSuccess,
-            duration: const Duration(seconds: 2),
-          ),
+        ProfessionalSnackbar.success(
+          context,
+          AppLocalizations.tr(context, 'importSuccess'),
         );
 
         setState(() {});
@@ -163,10 +137,9 @@ class _ProfileTabState extends State<ProfileTab> {
     if (confirmed != true) return;
 
     // Show loading indicator
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => const Center(child: CircularProgressIndicator()),
+    AppLoadingDialog.show(
+      context,
+      message: AppLocalizations.tr(context, 'deletingData'),
     );
 
     final success = await _backupService.deleteAllData();
@@ -176,27 +149,16 @@ class _ProfileTabState extends State<ProfileTab> {
       Navigator.pop(context);
 
       if (success) {
-        final isDark = Theme.of(context).brightness == Brightness.dark;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(AppLocalizations.tr(context, 'dataDeleted')),
-            backgroundColor: isDark
-                ? AppTheme.darkSuccess
-                : AppTheme.lightSuccess,
-            duration: const Duration(seconds: 2),
-          ),
+        ProfessionalSnackbar.success(
+          context,
+          AppLocalizations.tr(context, 'dataDeleted'),
         );
 
         setState(() {});
       } else {
-        final isDark = Theme.of(context).brightness == Brightness.dark;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(AppLocalizations.tr(context, 'deleteFailed')),
-            backgroundColor: isDark
-                ? AppTheme.darkDanger
-                : AppTheme.lightDanger,
-          ),
+        ProfessionalSnackbar.error(
+          context,
+          AppLocalizations.tr(context, 'deleteFailed'),
         );
       }
     }
@@ -283,7 +245,7 @@ class _ProfileTabState extends State<ProfileTab> {
                 child: ElevatedButton(
                   onPressed: () {
                     Navigator.pop(ctx);
-                    _sendFeedback(controller.text);
+                    _sendFeedback(controller.text, title);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: primary,
@@ -303,40 +265,65 @@ class _ProfileTabState extends State<ProfileTab> {
     );
   }
 
-  void _sendFeedback(String message) async {
+  // Where feedback / problem reports are delivered.
+  static const String _feedbackEmail = 'hasanosman41303@gmail.com';
+
+  void _sendFeedback(String message, String subject) async {
     if (message.trim().isEmpty) return;
 
+    // Keep a best-effort local copy so nothing is lost if the mail app fails.
     try {
       final directory = await getApplicationDocumentsDirectory();
       final feedbackFile = File('${directory.path}/feedback_log.txt');
-      final feedbackEntry = '${DateTime.now().toIso8601String()}: $message\n';
+      final feedbackEntry =
+          '${DateTime.now().toIso8601String()} [$subject]: $message\n';
       await feedbackFile.writeAsString(feedbackEntry, mode: FileMode.append);
+    } catch (_) {
+      // Non-fatal: continue to the email step regardless.
+    }
+
+    final mailUri = Uri(
+      scheme: 'mailto',
+      path: _feedbackEmail,
+      query: _encodeMailQuery({
+        'subject': 'BriefAI – $subject',
+        'body': message,
+      }),
+    );
+
+    try {
+      final launched = await launchUrl(
+        mailUri,
+        mode: LaunchMode.externalApplication,
+      );
+      if (!launched) throw Exception('No email app available');
 
       if (mounted) {
-        final isDark = Theme.of(context).brightness == Brightness.dark;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(AppLocalizations.tr(context, 'feedbackSent')),
-            backgroundColor: isDark
-                ? AppTheme.darkSuccess
-                : AppTheme.lightSuccess,
-            duration: const Duration(seconds: 2),
-          ),
+        ProfessionalSnackbar.success(
+          context,
+          AppLocalizations.tr(context, 'feedbackSent'),
         );
       }
-    } catch (e) {
+    } catch (_) {
       if (mounted) {
-        final isDark = Theme.of(context).brightness == Brightness.dark;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error sending feedback: $e'),
-            backgroundColor: isDark
-                ? AppTheme.darkDanger
-                : AppTheme.lightDanger,
-          ),
+        ProfessionalSnackbar.error(
+          context,
+          AppLocalizations.tr(context, 'noEmailApp'),
         );
       }
     }
+  }
+
+  // mailto requires each parameter to be individually percent-encoded;
+  // Uri's default query encoding turns spaces into '+', which some mail
+  // clients render literally.
+  static String _encodeMailQuery(Map<String, String> params) {
+    return params.entries
+        .map(
+          (e) =>
+              '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}',
+        )
+        .join('&');
   }
 
   // ── Legal bottom sheets ───────────────────────────────────
@@ -471,6 +458,7 @@ class _ProfileTabState extends State<ProfileTab> {
         _SectionLabel(
           label: AppLocalizations.tr(context, 'account').toUpperCase(),
           color: textSecondary,
+          icon: Icons.person_outline,
         ),
         GlassCard(
           child: Padding(
@@ -490,13 +478,11 @@ class _ProfileTabState extends State<ProfileTab> {
                     planColor: _getPlanColor(isDark),
                     primaryColor: primary,
                     onUpgrade: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Upgrade feature coming soon!'),
-                        ),
+                      ProfessionalSnackbar.info(
+                        context,
+                        AppLocalizations.tr(context, 'upgradeComingSoon'),
                       );
                     },
-                    onLogout: () => _confirmLogout(context),
                   );
                 }
                 return _NotLoggedIn(
@@ -514,6 +500,7 @@ class _ProfileTabState extends State<ProfileTab> {
         _SectionLabel(
           label: AppLocalizations.tr(context, 'appearance').toUpperCase(),
           color: textSecondary,
+          icon: Icons.tune_rounded,
         ),
         GlassCard(
           child: Column(
@@ -527,7 +514,7 @@ class _ProfileTabState extends State<ProfileTab> {
                 onChanged: (_) => widget.onToggleTheme(),
               ),
 
-              const Divider(height: 1),
+              const _InsetDivider(),
 
               _NavRow(
                 icon: Icons.language_outlined,
@@ -538,7 +525,7 @@ class _ProfileTabState extends State<ProfileTab> {
                 onTap: _showLanguageSheet,
               ),
 
-              const Divider(height: 1),
+              const _InsetDivider(),
 
               _ToggleRow(
                 icon: Icons.notifications_outlined,
@@ -567,6 +554,7 @@ class _ProfileTabState extends State<ProfileTab> {
         _SectionLabel(
           label: AppLocalizations.tr(context, 'dataPrivacy').toUpperCase(),
           color: textSecondary,
+          icon: Icons.shield_outlined,
         ),
         GlassCard(
           child: Column(
@@ -578,7 +566,7 @@ class _ProfileTabState extends State<ProfileTab> {
                 textSecondary: textSecondary,
                 onTap: _exportBackup,
               ),
-              const Divider(height: 1),
+              const _InsetDivider(),
               _NavRow(
                 icon: Icons.restore_outlined,
                 label: AppLocalizations.tr(context, 'importBackup'),
@@ -586,7 +574,7 @@ class _ProfileTabState extends State<ProfileTab> {
                 textSecondary: textSecondary,
                 onTap: _importBackup,
               ),
-              const Divider(height: 1),
+              const _InsetDivider(),
               _NavRow(
                 icon: Icons.delete_outline,
                 label: AppLocalizations.tr(context, 'deleteAllData'),
@@ -606,6 +594,7 @@ class _ProfileTabState extends State<ProfileTab> {
         _SectionLabel(
           label: AppLocalizations.tr(context, 'legal').toUpperCase(),
           color: textSecondary,
+          icon: Icons.help_outline_rounded,
         ),
         GlassCard(
           child: Column(
@@ -620,7 +609,7 @@ class _ProfileTabState extends State<ProfileTab> {
                   hint: AppLocalizations.tr(context, 'feedbackHint'),
                 ),
               ),
-              const Divider(height: 1),
+              const _InsetDivider(),
               _NavRow(
                 icon: Icons.flag_outlined,
                 label: AppLocalizations.tr(context, 'reportProblem'),
@@ -631,7 +620,7 @@ class _ProfileTabState extends State<ProfileTab> {
                   hint: AppLocalizations.tr(context, 'problemHint'),
                 ),
               ),
-              const Divider(height: 1),
+              const _InsetDivider(),
               _NavRow(
                 icon: Icons.privacy_tip_outlined,
                 label: AppLocalizations.tr(context, 'privacyPolicy'),
@@ -642,7 +631,7 @@ class _ProfileTabState extends State<ProfileTab> {
                   bodyKey: 'privacyPolicyBody',
                 ),
               ),
-              const Divider(height: 1),
+              const _InsetDivider(),
               _NavRow(
                 icon: Icons.info_outline,
                 label: AppLocalizations.tr(context, 'impressum'),
@@ -653,7 +642,7 @@ class _ProfileTabState extends State<ProfileTab> {
                   bodyKey: 'impressumBody',
                 ),
               ),
-              const Divider(height: 1),
+              const _InsetDivider(),
               _NavRow(
                 icon: Icons.gavel_outlined,
                 label: AppLocalizations.tr(context, 'termsOfService'),
@@ -670,59 +659,95 @@ class _ProfileTabState extends State<ProfileTab> {
 
         const SizedBox(height: 24),
 
-        // ── App info ──────────────────────────────────────────
+        // ── Sign out — placed at the end of the page, like most apps ──
+        BlocBuilder<AuthCubit, AuthState>(
+          builder: (context, authState) {
+            if (authState is! Authenticated) return const SizedBox.shrink();
+            return SizedBox(
+              width: double.infinity,
+              height: 50,
+              child: OutlinedButton.icon(
+                onPressed: () => _confirmLogout(context),
+                icon: Icon(Icons.logout_rounded, size: 18, color: danger),
+                label: Text(
+                  AppLocalizations.tr(context, 'sign_out'),
+                  style: TextStyle(
+                    color: danger,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.2,
+                  ),
+                ),
+                style: OutlinedButton.styleFrom(
+                  side: BorderSide(color: danger.withOpacity(0.40)),
+                  backgroundColor: danger.withOpacity(isDark ? 0.08 : 0.05),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+
+        const SizedBox(height: 28),
+
+        // ── App footer ────────────────────────────────────────
         Center(
           child: Column(
             children: [
-              Text(
-                '${AppLocalizations.tr(context, 'appName')} v1.0.0',
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-              const SizedBox(height: 8),
+              // Logo mark
               Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
-                ),
+                width: 48,
+                height: 48,
                 decoration: BoxDecoration(
-                  color: primary.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(14),
+                  color: primary.withOpacity(0.10),
                 ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.lock_outline, size: 14, color: primary),
-                    const SizedBox(width: 4),
-                    Text(
-                      AppLocalizations.tr(context, 'localOnly'),
-                      style: TextStyle(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(14),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8),
+                    child: Image.asset(
+                      'assets/icons/logo.png',
+                      fit: BoxFit.contain,
+                      errorBuilder: (context, error, stackTrace) => Icon(
+                        Icons.document_scanner,
+                        size: 24,
                         color: primary,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
                       ),
                     ),
-                  ],
+                  ),
                 ),
               ),
-            ],
-          ),
-        ),
-
-        const SizedBox(height: 16),
-
-        // ── Disclaimer ────────────────────────────────────────
-        GlassCard(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Text(
-              AppLocalizations.tr(context, 'disclaimer'),
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontSize: 12,
-                fontStyle: FontStyle.italic,
-                height: 1.4,
+              const SizedBox(height: 10),
+              Text(
+                AppLocalizations.tr(context, 'appName'),
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: -0.2,
+                    ),
               ),
-              textAlign: TextAlign.center,
-            ),
+              const SizedBox(height: 2),
+              Text(
+                'v1.0.0',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: textSecondary,
+                      fontSize: 11,
+                    ),
+              ),
+            
+              const SizedBox(height: 16),
+              // Disclaimer — quiet supporting text rather than a heavy card
+              Text(
+                AppLocalizations.tr(context, 'disclaimer'),
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      fontSize: 11,
+                      height: 1.5,
+                      color: textSecondary,
+                    ),
+              ),
+            ],
           ),
         ),
       ],
@@ -752,22 +777,42 @@ class _LangOption {
 class _SectionLabel extends StatelessWidget {
   final String label;
   final Color color;
-  const _SectionLabel({required this.label, required this.color});
+  final IconData? icon;
+  const _SectionLabel({required this.label, required this.color, this.icon});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(left: 4, bottom: 8),
-      child: Text(
-        label,
-        style: Theme.of(context).textTheme.labelLarge?.copyWith(
-          color: color,
-          fontSize: 11,
-          letterSpacing: 0.8,
-        ),
+      padding: const EdgeInsets.only(left: 4, bottom: 10, top: 2),
+      child: Row(
+        children: [
+          if (icon != null) ...[
+            Icon(icon, size: 14, color: color),
+            const SizedBox(width: 7),
+          ],
+          Text(
+            label,
+            style: Theme.of(context).textTheme.labelLarge?.copyWith(
+              color: color,
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 1.0,
+            ),
+          ),
+        ],
       ),
     );
   }
+}
+
+/// Inset hairline that aligns with the row's text (past the leading icon),
+/// direction-aware so it flips correctly in RTL.
+class _InsetDivider extends StatelessWidget {
+  const _InsetDivider();
+
+  @override
+  Widget build(BuildContext context) =>
+      const Divider(height: 1, thickness: 1, indent: 64, endIndent: 16);
 }
 
 // ── Account states ────────────────────────────────────────────────────────────
@@ -779,7 +824,6 @@ class _LoggedInAccount extends StatelessWidget {
   final Color planColor;
   final Color primaryColor;
   final VoidCallback onUpgrade;
-  final VoidCallback onLogout;
 
   const _LoggedInAccount({
     required this.userName,
@@ -788,7 +832,6 @@ class _LoggedInAccount extends StatelessWidget {
     required this.planColor,
     required this.primaryColor,
     required this.onUpgrade,
-    required this.onLogout,
   });
 
   bool _isDark(BuildContext context) =>
@@ -798,8 +841,6 @@ class _LoggedInAccount extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = _isDark(context);
     final isFreePlan = planLabel == AppLocalizations.tr(context, 'planFree');
-    final danger = isDark ? AppTheme.darkDanger : AppTheme.lightDanger;
-    final border = isDark ? AppTheme.darkBorder : AppTheme.lightBorder;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -888,102 +929,185 @@ class _LoggedInAccount extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: 18),
-        Container(height: 1, color: border),
-        const SizedBox(height: 14),
-        Row(
-          children: [
-            // Plan badge — gradient pill
-            Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 6,
-              ),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    planColor.withOpacity(isDark ? 0.30 : 0.18),
-                    planColor.withOpacity(isDark ? 0.18 : 0.10),
-                  ],
-                ),
-                border: Border.all(color: planColor.withOpacity(0.45)),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.workspace_premium_rounded,
-                      size: 15, color: planColor),
-                  const SizedBox(width: 6),
-                  Text(
-                    planLabel,
-                    style: TextStyle(
-                      color: planColor,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 0.2,
-                    ),
-                  ),
-                ],
-              ),
+        const SizedBox(height: 16),
+
+        // Plan + call-to-action as ONE unit, so they read as a single
+        // statement ("you're on Free → upgrade") instead of three loose
+        // controls fighting for attention.
+        if (isFreePlan)
+          _UpgradeCard(
+            planLabel: planLabel,
+            primaryColor: primaryColor,
+            isDark: isDark,
+            onUpgrade: onUpgrade,
+          )
+        else
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(14),
+              color: planColor.withOpacity(isDark ? 0.14 : 0.08),
+              border: Border.all(color: planColor.withOpacity(0.35)),
             ),
-            const Spacer(),
-            if (isFreePlan)
-              InkWell(
-                onTap: onUpgrade,
-                borderRadius: BorderRadius.circular(8),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 6,
-                    vertical: 4,
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
+            child: Row(
+              children: [
+                Icon(Icons.workspace_premium_rounded,
+                    size: 20, color: planColor),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        AppLocalizations.tr(context, 'upgrade'),
+                        AppLocalizations.tr(context, 'currentPlan'),
                         style: TextStyle(
-                          color: primaryColor,
-                          fontSize: 13,
+                          fontSize: 11,
+                          color: isDark
+                              ? AppTheme.darkTextSecondary
+                              : AppTheme.lightTextSecondary,
+                        ),
+                      ),
+                      Text(
+                        planLabel,
+                        style: TextStyle(
+                          color: planColor,
+                          fontSize: 14,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
-                      const SizedBox(width: 4),
-                      Icon(Icons.arrow_forward_rounded,
-                          size: 15, color: primaryColor),
                     ],
                   ),
                 ),
-              ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        SizedBox(
-          width: double.infinity,
-          height: 44,
-          child: OutlinedButton.icon(
-            onPressed: onLogout,
-            icon: Icon(Icons.logout_rounded, size: 18, color: danger),
-            label: Text(
-              AppLocalizations.tr(context, 'sign_out'),
-              style: TextStyle(
-                color: danger,
-                fontWeight: FontWeight.w600,
-                letterSpacing: 0.2,
-              ),
-            ),
-            style: OutlinedButton.styleFrom(
-              side: BorderSide(color: danger.withOpacity(0.45)),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              backgroundColor: danger.withOpacity(isDark ? 0.08 : 0.05),
+                Icon(Icons.check_circle_rounded, size: 18, color: planColor),
+              ],
             ),
           ),
-        ),
       ],
+    );
+  }
+}
+
+/// Free-plan promo: plan name, value proposition, and upgrade CTA in one
+/// tappable card.
+class _UpgradeCard extends StatelessWidget {
+  final String planLabel;
+  final Color primaryColor;
+  final bool isDark;
+  final VoidCallback onUpgrade;
+
+  const _UpgradeCard({
+    required this.planLabel,
+    required this.primaryColor,
+    required this.isDark,
+    required this.onUpgrade,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onUpgrade,
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                primaryColor.withOpacity(isDark ? 0.22 : 0.14),
+                primaryColor.withOpacity(isDark ? 0.10 : 0.05),
+              ],
+            ),
+            border: Border.all(color: primaryColor.withOpacity(0.30)),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [primaryColor, primaryColor.withOpacity(0.72)],
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: primaryColor.withOpacity(0.35),
+                      blurRadius: 12,
+                      offset: const Offset(0, 5),
+                    ),
+                  ],
+                ),
+                child: const Icon(Icons.workspace_premium_rounded,
+                    size: 22, color: Colors.white),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      planLabel,
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 14.5,
+                          ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      AppLocalizations.tr(context, 'upgradeTagline'),
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            fontSize: 11.5,
+                            height: 1.25,
+                            color: isDark
+                                ? AppTheme.darkTextSecondary
+                                : AppTheme.lightTextSecondary,
+                          ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 10),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  color: primaryColor,
+                  boxShadow: [
+                    BoxShadow(
+                      color: primaryColor.withOpacity(0.30),
+                      blurRadius: 8,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      AppLocalizations.tr(context, 'upgrade'),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    const Icon(Icons.arrow_forward_rounded,
+                        size: 14, color: Colors.white),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

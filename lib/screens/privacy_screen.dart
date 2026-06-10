@@ -3,6 +3,7 @@ import 'package:brief_ai/localization/app_localizations.dart';
 import 'package:brief_ai/theme/app_theme.dart';
 import 'package:brief_ai/widgets/confirm_dialog.dart';
 import 'package:brief_ai/widgets/glass_card.dart';
+import 'package:brief_ai/widgets/professional_snackbar.dart';
 import 'package:flutter/material.dart';
 
 class PrivacyScreen extends StatelessWidget {
@@ -135,15 +136,9 @@ class PrivacyScreen extends StatelessWidget {
               Expanded(
                 child: ElevatedButton(
                   onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          AppLocalizations.tr(context, 'backupCreating'),
-                        ),
-                        backgroundColor: isDark
-                            ? AppTheme.darkSuccess
-                            : AppTheme.lightSuccess,
-                      ),
+                    ProfessionalSnackbar.success(
+                      context,
+                      AppLocalizations.tr(context, 'backupCreating'),
                     );
                   },
                   child: Text(AppLocalizations.tr(context, 'exportMyData')),
@@ -275,8 +270,6 @@ class PrivacyScreen extends StatelessWidget {
   }
 
   void _showDeleteDialog(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     showDialog(
       context: context,
       builder: (context) => ConfirmDialog(
@@ -286,13 +279,9 @@ class PrivacyScreen extends StatelessWidget {
         isDestructive: true,
         onConfirm: () {
           Navigator.pop(context);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(AppLocalizations.tr(context, 'dataDeleted')),
-              backgroundColor: isDark
-                  ? AppTheme.darkSuccess
-                  : AppTheme.lightSuccess,
-            ),
+          ProfessionalSnackbar.success(
+            context,
+            AppLocalizations.tr(context, 'dataDeleted'),
           );
         },
       ),

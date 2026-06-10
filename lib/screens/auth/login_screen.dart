@@ -8,6 +8,7 @@ import 'package:brief_ai/widgets/auth/brand_header.dart';
 import 'package:brief_ai/widgets/auth/footer_prompt.dart';
 import 'package:brief_ai/widgets/auth/google_button.dart';
 import 'package:brief_ai/widgets/auth/or_divider.dart';
+import 'package:brief_ai/widgets/app_loading.dart';
 import 'package:brief_ai/widgets/common_button.dart';
 import 'package:brief_ai/widgets/language_sheet.dart';
 import 'package:brief_ai/widgets/professional_snackbar.dart';
@@ -303,6 +304,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
               ),
+              if (loading)
+                AppLoadingOverlay(
+                  message: AppLocalizations.tr(context, 'signing_in'),
+                ),
             ],
           ),
         );

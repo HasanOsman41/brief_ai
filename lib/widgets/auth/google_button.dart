@@ -35,7 +35,11 @@ class GoogleButton extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
-            _GoogleLogo(size: 18),
+            Image.asset(
+              'assets/icons/google_logo.png',
+              width: 18,
+              height: 18,
+            ),
             const SizedBox(width: 10),
             Text(
               label,
@@ -47,42 +51,6 @@ class GoogleButton extends StatelessWidget {
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class _GoogleLogo extends StatelessWidget {
-  const _GoogleLogo({required this.size});
-  final double size;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: size,
-      height: size,
-      alignment: Alignment.center,
-      decoration: const BoxDecoration(
-        shape: BoxShape.circle,
-        gradient: LinearGradient(
-          colors: [
-            Color(0xFF4285F4),
-            Color(0xFF34A853),
-            Color(0xFFFBBC05),
-            Color(0xFFEA4335),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-      ),
-      child: Text(
-        'G',
-        style: TextStyle(
-          fontSize: size * 0.75,
-          fontWeight: FontWeight.w700,
-          color: Colors.white,
-          height: 1,
         ),
       ),
     );

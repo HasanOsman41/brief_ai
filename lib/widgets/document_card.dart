@@ -1,10 +1,9 @@
 // lib/widgets/document_card.dart
-import 'dart:io';
-
 import 'package:brief_ai/localization/app_localizations.dart';
 import 'package:brief_ai/theme/app_theme.dart';
 import 'package:brief_ai/utils/risk_level.dart';
 import 'package:brief_ai/widgets/glass_card.dart';
+import 'package:brief_ai/widgets/safe_file_image.dart';
 import 'package:flutter/material.dart';
 
 class DocumentCard extends StatelessWidget {
@@ -97,24 +96,33 @@ class DocumentCard extends StatelessWidget {
                   Container(
                     width: 60,
                     height: 80,
+                    clipBehavior: Clip.antiAlias,
                     decoration: BoxDecoration(
                       color: isDark ? AppTheme.darkCard : AppTheme.lightSurface,
                       borderRadius: BorderRadius.circular(12),
-                      image: imagePath != null
-                          ? DecorationImage(
-                              image: FileImage(File(imagePath!)),
-                              fit: BoxFit.cover,
-                              colorFilter: isDone
-                                  ? ColorFilter.mode(
-                                      Colors.black.withOpacity(0.25),
-                                      BlendMode.darken,
-                                    )
-                                  : null,
-                            )
-                          : null,
                     ),
-                    child: imagePath == null
-                        ? Center(
+                    child: imagePath != null
+                        ? SafeFileImage(
+                            path: imagePath,
+                            width: 60,
+                            height: 80,
+                            fit: BoxFit.cover,
+                            color: isDone
+                                ? Colors.black.withOpacity(0.25)
+                                : null,
+                            colorBlendMode: isDone ? BlendMode.darken : null,
+                            fallback: Center(
+                              child: Icon(
+                                Icons.description_outlined,
+                                size: 30,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSurface
+                                    .withOpacity(0.6),
+                              ),
+                            ),
+                          )
+                        : Center(
                             child: Icon(
                               Icons.description_outlined,
                               size: 30,
@@ -123,8 +131,7 @@ class DocumentCard extends StatelessWidget {
                                   .onSurface
                                   .withOpacity(0.6),
                             ),
-                          )
-                        : null,
+                          ),
                   ),
                   if (isDone)
                     Positioned(

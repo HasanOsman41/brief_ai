@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:brief_ai/cubit/document_cubit/document_cubit.dart';
 import 'package:brief_ai/data/brief_ai_categories.dart';
 import 'package:brief_ai/localization/app_localizations.dart';
+import 'package:brief_ai/widgets/app_loading.dart';
 import 'package:brief_ai/models/document.dart';
 import 'package:brief_ai/services/document_service.dart';
 import 'package:brief_ai/services/ocr_service.dart';
@@ -12,6 +13,7 @@ import 'package:brief_ai/theme/app_theme.dart';
 import 'package:brief_ai/utils/raw_content.dart';
 import 'package:brief_ai/widgets/confirm_dialog.dart';
 import 'package:brief_ai/widgets/glass_card.dart';
+import 'package:brief_ai/widgets/professional_snackbar.dart';
 import 'package:brief_ai/widgets/what_you_should_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -52,6 +54,15 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
 
   late PageController _pageController;
 
+  // Bottom sheet sizing detents (fractions of available height).
+  static const double _sheetMin = 0.12;
+  static const double _sheetInitial = 0.5;
+  static const double _sheetMax = 0.95;
+  static const List<double> _sheetSnapSizes = [_sheetInitial];
+
+  final DraggableScrollableController _sheetController =
+      DraggableScrollableController();
+
   @override
   void initState() {
     super.initState();
@@ -66,7 +77,21 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
   @override
   void dispose() {
     _pageController.dispose();
+    _sheetController.dispose();
     super.dispose();
+  }
+
+  /// Tap the handle to toggle between expanded and collapsed states.
+  void _toggleSheet() {
+    if (!_sheetController.isAttached) return;
+    final target = _sheetController.size >= _sheetMax - 0.02
+        ? _sheetMin
+        : _sheetMax;
+    _sheetController.animateTo(
+      target,
+      duration: const Duration(milliseconds: 180),
+      curve: Curves.easeOutCubic,
+    );
   }
 
   Future<void> _loadDocument() async {
@@ -127,15 +152,7 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
   }
 
   void _showErrorSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Theme.of(context).brightness == Brightness.dark
-            ? AppTheme.darkDanger
-            : AppTheme.lightDanger,
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
+    ProfessionalSnackbar.error(context, message);
   }
 
   String _formatDate(DateTime date) {
@@ -148,7 +165,7 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
     final primaryColor = Theme.of(context).colorScheme.primary;
 
     if (_isLoading) {
-      return _buildLoadingScreen(primaryColor);
+      return _buildLoadingScreen();
     }
 
     if (_document == null) {
@@ -189,6 +206,16 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
                     initialScale: PhotoViewComputedScale.contained,
                     heroAttributes: PhotoViewHeroAttributes(
                       tag: imagePaths[index],
+                    ),
+                    errorBuilder: (context, error, stackTrace) => Center(
+                      child: Icon(
+                        Icons.broken_image_outlined,
+                        size: 48,
+                        color: Theme.of(context)
+                            .colorScheme
+                            .onSurface
+                            .withOpacity(0.4),
+                      ),
                     ),
                   );
                 },
@@ -337,18 +364,21 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
 
           // Scrollable content card
           DraggableScrollableSheet(
-            initialChildSize: 0.3,
-            minChildSize: 0.1,
-            maxChildSize: 0.95,
+            controller: _sheetController,
+            initialChildSize: _sheetInitial,
+            minChildSize: _sheetMin,
+            maxChildSize: _sheetMax,
             snap: true,
-            snapAnimationDuration: Duration(milliseconds: 200),
-            // snapSizes: const [0.3, 0.7, 0.95],
+            snapSizes: _sheetSnapSizes,
+            snapAnimationDuration: const Duration(milliseconds: 150),
             builder: (context, scrollController) {
+              final sheetColor = isDark
+                  ? AppTheme.darkBackground
+                  : AppTheme.lightBackground;
               return Container(
+                clipBehavior: Clip.antiAlias,
                 decoration: BoxDecoration(
-                  color: isDark
-                      ? AppTheme.darkBackground
-                      : AppTheme.lightBackground,
+                  color: sheetColor,
                   borderRadius: const BorderRadius.vertical(
                     top: Radius.circular(32),
                   ),
@@ -371,94 +401,61 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
                     ),
                   ],
                 ),
-                child: Column(
-                  children: [
-                    // Enhanced handle bar with indicator
-                    Container(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      child: Column(
-                        children: [
-                          Container(
-                            width: 50,
-                            height: 5,
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [
-                                  primaryColor.withOpacity(0.6),
-                                  primaryColor.withOpacity(0.3),
-                                ],
-                              ),
-                              borderRadius: BorderRadius.circular(3),
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Container(
-                            width: 30,
-                            height: 2,
-                            decoration: BoxDecoration(
-                              color: isDark
-                                  ? Theme.of(
-                                      context,
-                                    ).colorScheme.onPrimary.withOpacity(0.2)
-                                  : Theme.of(
-                                      context,
-                                    ).colorScheme.onSurface.withOpacity(0.2),
-                              borderRadius: BorderRadius.circular(1),
-                            ),
-                          ),
-                        ],
+                // A single CustomScrollView so the handle is part of the
+                // scrollable: dragging anywhere — including the handle — is
+                // handed off to the sheet, and content scrolls only once the
+                // sheet is fully expanded.
+                child: CustomScrollView(
+                  controller: scrollController,
+                  physics: const ClampingScrollPhysics(),
+                  slivers: [
+                    SliverPersistentHeader(
+                      pinned: true,
+                      delegate: _SheetHandleDelegate(
+                        backgroundColor: sheetColor,
+                        primaryColor: primaryColor,
+                        secondaryColor: isDark
+                            ? Theme.of(context)
+                                  .colorScheme
+                                  .onPrimary
+                                  .withOpacity(0.2)
+                            : Theme.of(context)
+                                  .colorScheme
+                                  .onSurface
+                                  .withOpacity(0.2),
+                        onTap: _toggleSheet,
                       ),
                     ),
-
-                    // Enhanced content with fade effect
-                    Expanded(
-                      child: ShaderMask(
-                        shaderCallback: (Rect bounds) {
-                          return LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              Theme.of(context).colorScheme.surface,
-                              Theme.of(context).colorScheme.onSurface,
-                              Theme.of(context).colorScheme.onSurface,
-                              Theme.of(context).colorScheme.surface,
-                            ],
-                            stops: const [0.0, 0.05, 0.95, 1.0],
-                          ).createShader(bounds);
-                        },
-                        blendMode: BlendMode.dstIn,
-                        child: ListView(
-                          controller: scrollController,
-                          physics: const BouncingScrollPhysics(),
-                          padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
-                          children: [
-                            _buildInfoPanel(context, isDark, primaryColor),
-                            const SizedBox(height: 20),
-                            _buildSummarySection(context, isDark),
-                            const SizedBox(height: 20),
-                            WhatYouShouldCard(
-                              nextStepTitleKeys:
-                                  RawContent.isRaw(_document!.summaryKey)
-                                  ? const []
-                                  : BriefAiCategories.getStepsById(
-                                      _document!.subCategoryKey,
-                                    ),
-                              customStepTexts: RawContent.tryDecode(
-                                _document!.summaryKey,
-                              )?.steps,
-                              isDark: isDark,
-                              primary: primaryColor,
-                            ),
-                            const SizedBox(height: 20),
-                            if (_reminderEnabled)
-                              _buildReminderOptions(context, primaryColor),
-                            const SizedBox(height: 20),
-                            _buildRiskLevelSection(context, isDark),
-                            const SizedBox(height: 20),
-                            _buildActionButtonsSection(context, isDark),
-                            const SizedBox(height: 100),
-                          ],
-                        ),
+                    SliverPadding(
+                      padding: const EdgeInsets.fromLTRB(24, 4, 24, 24),
+                      sliver: SliverList(
+                        delegate: SliverChildListDelegate([
+                          _buildInfoPanel(context, isDark, primaryColor),
+                          const SizedBox(height: 20),
+                          _buildSummarySection(context, isDark),
+                          const SizedBox(height: 20),
+                          WhatYouShouldCard(
+                            nextStepTitleKeys:
+                                RawContent.isRaw(_document!.summaryKey)
+                                ? const []
+                                : BriefAiCategories.getStepsById(
+                                    _document!.subCategoryKey,
+                                  ),
+                            customStepTexts: RawContent.tryDecode(
+                              _document!.summaryKey,
+                            )?.steps,
+                            isDark: isDark,
+                            primary: primaryColor,
+                          ),
+                          const SizedBox(height: 20),
+                          if (_reminderEnabled)
+                            _buildReminderOptions(context, primaryColor),
+                          const SizedBox(height: 20),
+                          _buildRiskLevelSection(context, isDark),
+                          const SizedBox(height: 20),
+                          _buildActionButtonsSection(context, isDark),
+                          const SizedBox(height: 100),
+                        ]),
                       ),
                     ),
                   ],
@@ -471,19 +468,10 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
     );
   }
 
-  Widget _buildLoadingScreen(Color primaryColor) {
+  Widget _buildLoadingScreen() {
     return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation(primaryColor),
-            ),
-            const SizedBox(height: 16),
-            Text(AppLocalizations.tr(context, 'loadingDocument')),
-          ],
-        ),
+      body: AppLoading(
+        message: AppLocalizations.tr(context, 'loadingDocument'),
       ),
     );
   }
@@ -1092,8 +1080,6 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
   }
 
   void _showMarkAsDoneDialog(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     showDialog(
       context: context,
       builder: (context) => ConfirmDialog(
@@ -1108,16 +1094,9 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
 
             if (!mounted) return;
 
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  AppLocalizations.tr(context, 'documentMarkedAsDone'),
-                ),
-                backgroundColor: isDark
-                    ? AppTheme.darkSuccess
-                    : AppTheme.lightSuccess,
-                behavior: SnackBarBehavior.floating,
-              ),
+            ProfessionalSnackbar.success(
+              context,
+              AppLocalizations.tr(context, 'documentMarkedAsDone'),
             );
           }
         },
@@ -1126,8 +1105,6 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
   }
 
   void _showDeleteDialog(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     showDialog(
       context: context,
       builder: (context) => ConfirmDialog(
@@ -1145,14 +1122,9 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
 
             Navigator.pop(context);
 
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(AppLocalizations.tr(context, 'documentDeleted')),
-                backgroundColor: isDark
-                    ? AppTheme.darkSuccess
-                    : AppTheme.lightSuccess,
-                behavior: SnackBarBehavior.floating,
-              ),
+            ProfessionalSnackbar.success(
+              context,
+              AppLocalizations.tr(context, 'documentDeleted'),
             );
           }
         },
@@ -1241,9 +1213,7 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
           }
         }
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Image updated successfully')),
-        );
+        ProfessionalSnackbar.info(context, 'Image updated successfully');
       }
     } catch (e) {
       _showErrorSnackBar('Error editing image: $e');
@@ -1251,8 +1221,6 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
   }
 
   void _showReopenDialog(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     showDialog(
       context: context,
       builder: (context) => ConfirmDialog(
@@ -1267,14 +1235,9 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
 
             if (!mounted) return;
 
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(AppLocalizations.tr(context, 'documentReopened')),
-                backgroundColor: isDark
-                    ? AppTheme.darkWarning
-                    : AppTheme.lightWarning,
-                behavior: SnackBarBehavior.floating,
-              ),
+            ProfessionalSnackbar.warning(
+              context,
+              AppLocalizations.tr(context, 'documentReopened'),
             );
           }
         },
@@ -1313,10 +1276,9 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
     try {
       // Show loading indicator
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(AppLocalizations.tr(context, 'generatingPDF')),
-          ),
+        ProfessionalSnackbar.info(
+          context,
+          AppLocalizations.tr(context, 'generatingPDF'),
         );
       }
 
@@ -1348,10 +1310,9 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
     try {
       // Show loading indicator
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(AppLocalizations.tr(context, 'extractingText')),
-          ),
+        ProfessionalSnackbar.info(
+          context,
+          AppLocalizations.tr(context, 'extractingText'),
         );
       }
 
@@ -1376,5 +1337,82 @@ ${AppLocalizations.tr(context, 'sharedFrom')} BriefAI
         _showErrorSnackBar('Error sharing text: $e');
       }
     }
+  }
+}
+
+/// Pinned grab-handle for the draggable sheet. Living inside the
+/// [CustomScrollView] means drags on it are handed off to the
+/// [DraggableScrollableSheet], so the handle controls the sheet — and a tap
+/// toggles expand/collapse.
+class _SheetHandleDelegate extends SliverPersistentHeaderDelegate {
+  const _SheetHandleDelegate({
+    required this.backgroundColor,
+    required this.primaryColor,
+    required this.secondaryColor,
+    required this.onTap,
+  });
+
+  final Color backgroundColor;
+  final Color primaryColor;
+  final Color secondaryColor;
+  final VoidCallback onTap;
+
+  static const double _height = 40;
+
+  @override
+  double get minExtent => _height;
+
+  @override
+  double get maxExtent => _height;
+
+  @override
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        height: _height,
+        color: backgroundColor,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 50,
+              height: 5,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    primaryColor.withOpacity(0.6),
+                    primaryColor.withOpacity(0.3),
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(3),
+              ),
+            ),
+            const SizedBox(height: 7),
+            Container(
+              width: 30,
+              height: 2,
+              decoration: BoxDecoration(
+                color: secondaryColor,
+                borderRadius: BorderRadius.circular(1),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  bool shouldRebuild(_SheetHandleDelegate oldDelegate) {
+    return backgroundColor != oldDelegate.backgroundColor ||
+        primaryColor != oldDelegate.primaryColor ||
+        secondaryColor != oldDelegate.secondaryColor ||
+        onTap != oldDelegate.onTap;
   }
 }

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:brief_ai/localization/app_localizations.dart';
 import 'package:brief_ai/theme/app_theme.dart';
+import 'package:brief_ai/widgets/app_loading.dart';
 import 'package:brief_ai/widgets/glass_card.dart';
+import 'package:brief_ai/widgets/professional_snackbar.dart';
 import 'package:brief_ai/main.dart';
 
 class LanguageScreen extends StatefulWidget {
@@ -48,20 +50,13 @@ class _LanguageScreenState extends State<LanguageScreen> {
       BriefAIApp.setLocale(context, Locale(languageCode));
 
       // Show confirmation
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            languageCode == 'de'
-                ? 'Sprache geändert'
-                : languageCode == 'en'
-                ? 'Language changed'
-                : 'تم تغيير اللغة',
-          ),
-          backgroundColor: Theme.of(context).brightness == Brightness.dark
-              ? AppTheme.darkSuccess
-              : AppTheme.lightSuccess,
-          duration: const Duration(seconds: 1),
-        ),
+      ProfessionalSnackbar.success(
+        context,
+        languageCode == 'de'
+            ? 'Sprache geändert'
+            : languageCode == 'en'
+            ? 'Language changed'
+            : 'تم تغيير اللغة',
       );
 
       // Navigate back after language change
@@ -192,9 +187,7 @@ class _LanguageScreenState extends State<LanguageScreen> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      CircularProgressIndicator(
-                        valueColor: AlwaysStoppedAnimation<Color>(primaryColor),
-                      ),
+                      const AppProgressBar(),
                       const SizedBox(height: 16),
                       Text(
                         _selectedLanguage == 'de'

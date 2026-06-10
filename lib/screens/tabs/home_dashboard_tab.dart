@@ -2,6 +2,8 @@ import 'package:brief_ai/cubit/document_cubit/document_cubit.dart';
 import 'package:brief_ai/localization/app_localizations.dart';
 import 'package:brief_ai/theme/app_theme.dart';
 import 'package:brief_ai/widgets/document_card.dart';
+import 'package:brief_ai/widgets/professional_snackbar.dart';
+import 'package:brief_ai/widgets/app_loading.dart';
 import 'package:brief_ai/widgets/stat_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -24,22 +26,12 @@ class _HomeDashboardTabState extends State<HomeDashboardTab> {
     return BlocConsumer<DocumentCubit, DocumentState>(
       listener: (context, state) {
         if (state is DocumentError) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.message),
-              backgroundColor: isDark ? AppTheme.darkDanger : AppTheme.lightDanger,
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
+          ProfessionalSnackbar.error(context, state.message);
         }
       },
       builder: (context, state) {
         if (state is DocumentLoading) {
-          return Center(
-            child: CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation(primaryColor),
-            ),
-          );
+          return const AppLoading();
         }
 
         if (state is DocumentError) {

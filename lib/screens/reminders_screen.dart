@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:brief_ai/theme/app_theme.dart';
 import 'package:brief_ai/services/notification_service.dart';
 import 'package:brief_ai/widgets/confirm_dialog.dart';
+import 'package:brief_ai/widgets/app_loading.dart';
+import 'package:brief_ai/widgets/professional_snackbar.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 // Ensure this import matches your project structure
 import 'package:brief_ai/localization/app_localizations.dart';
@@ -33,13 +35,9 @@ class _RemindersScreenState extends State<RemindersScreen> {
     await _notificationService.cancel(id);
     _loadNotifications();
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(AppLocalizations.tr(context, 'reminderCancelled')),
-        backgroundColor: Theme.of(context).brightness == Brightness.dark
-            ? AppTheme.darkSuccess
-            : AppTheme.lightSuccess,
-      ),
+    ProfessionalSnackbar.success(
+      context,
+      AppLocalizations.tr(context, 'reminderCancelled'),
     );
   }
 
@@ -61,7 +59,7 @@ class _RemindersScreenState extends State<RemindersScreen> {
         future: _pendingNotifications,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return const AppLoading();
           }
 
           if (snapshot.hasError) {

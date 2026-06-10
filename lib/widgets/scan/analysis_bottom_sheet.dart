@@ -6,6 +6,7 @@ import 'package:brief_ai/models/document_result.dart';
 import 'package:brief_ai/services/document_service.dart';
 import 'package:brief_ai/theme/app_theme.dart';
 import 'package:brief_ai/utils/raw_content.dart';
+import 'package:brief_ai/widgets/professional_snackbar.dart';
 import 'package:brief_ai/widgets/what_you_should_card.dart';
 import 'package:flutter/material.dart';
 
@@ -324,6 +325,14 @@ class _AnalysisBottomSheetState extends State<AnalysisBottomSheet> {
   }
 
   void _snack(String msg, {required bool success, SnackBarAction? action}) {
+    if (action == null) {
+      if (success) {
+        ProfessionalSnackbar.success(context, msg);
+      } else {
+        ProfessionalSnackbar.error(context, msg);
+      }
+      return;
+    }
     final isDark = Theme.of(context).brightness == Brightness.dark;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -1552,15 +1561,9 @@ class _CustomDateTimePicker extends StatelessWidget {
         GestureDetector(
           onTap: () async {
             if (value == null) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    AppLocalizations.tr(context, 'pleasePickDateFirst'),
-                  ),
-                  backgroundColor: isDark
-                      ? AppTheme.darkWarning
-                      : AppTheme.lightWarning,
-                ),
+              ProfessionalSnackbar.warning(
+                context,
+                AppLocalizations.tr(context, 'pleasePickDateFirst'),
               );
               return;
             }
